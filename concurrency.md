@@ -83,7 +83,7 @@ TemplatedPromiseResult :: type {
     ThenCallbackPrototype final : ()()
 
     callable : ()()
-    then : ()(callback : ThenCallbackPrototype) 
+    then : ()() 
 }
 */
 
@@ -91,10 +91,10 @@ TemplatedPromiseResult :: type {
 // be captured where the function can be executed later
 later := myFunc(42)
 
-later.then({
+later.then = {
     // called after the `myFunc` is completed with the return result
     // (called from the thread that executed the function when complete)
-})
+}
 
 // create an empty function to be used as a type declaration
 EmptyFunctionType final : ()()
@@ -121,10 +121,8 @@ myFunc final : ()(value1 : Integer, value2 : String deep) promise = {
 
 /*
 TemplatedPromiseResult :: type {
-    ThenCallbackPrototype final : ()()
-
     callable : ()()
-    then : ()(callback : ThenCallbackPrototype) 
+    then : ()() 
 }
 */
 
@@ -137,12 +135,12 @@ someString := "apple"
 later1 := myFunc(42, someString)
 later2 := myFunc(55, someString)
 
-later1.then({
+later1.then = {
     // ...
-})
-later2.then({
+}
+later2.then = {
     // ...
-})
+}
 
 // create an empty function to be used as a type declaration
 EmptyFunctionType final : ()()
@@ -170,10 +168,8 @@ myFunc final : ()(value1 : Integer, value2 : String) deep promise = {
 
 /*
 TemplatedPromiseResult :: type {
-    ThenCallbackPrototype final : ()()
-
     callable : ()()
-    then : ()(callback : ThenCallbackPrototype) 
+    then : ()() 
 }
 */
 
@@ -186,12 +182,12 @@ someString := "apple"
 later1 := myFunc(42, someString)
 later2 := myFunc(55, someString)
 
-later1.then({
+later1.then = {
     // ...
-})
-later2.then({
+}
+later2.then = {
     // ...
-})
+}
 
 // create an empty function to be used as a type declaration
 EmptyFunctionType final : ()()
@@ -233,10 +229,8 @@ myFunc final : (result : String)(value1 : Integer) deep promise = {
 
 /*
 TemplatedPromiseResult :: type {
-    ThenCallbackPrototype final : ()(result : String)
-
     callable : ()()
-    then : ()(callback : ThenCallbackPrototype) 
+    then : ()(result : String) 
 }
 */
 
@@ -244,7 +238,7 @@ TemplatedPromiseResult :: type {
 // be captured where the function can be executed later
 later := myFunc(42)
 
-later.then({
+later.then = {
     // called after the `myFunc` is completed with the return result
     
     resultCallbackFunc final : ()(result : String) deep promise = {
@@ -254,9 +248,50 @@ later.then({
     // pass the callable function returned from the promise into a
     // function that will execute the result back onto the main thread
     executeCallableOnMainThread(resultCallbackFunc(result).callable)
-})
+}
 
 // `myFunc` will get executed when `callable()` is called from the other thread
 executeCallableOnAnotherThread(later.callable)
 ````
 
+### Using `await` to create coroutines
+
+````zax
+count : (result : Integer)() task = {
+    while (true) {
+        yield result
+        ++result
+    }
+}
+
+/*
+enum CoroutineStatus {
+    Running,
+    Suspended,
+    Completed
+}
+
+TemplatedTaskResult :: type {
+    // perform the next batch of work
+    callable : (status : CoroutineStatus)()
+
+    // result is yielded
+    then : ()(result : Integer)
+
+    // re-activate this suspended co-routine
+    activate : (status : CoroutineStatus)()
+}
+*/
+
+myTask := count()
+
+myTask.then = {
+    //...
+}
+
+myTask.activate = {
+    //...
+}
+
+myTask.callable()
+````

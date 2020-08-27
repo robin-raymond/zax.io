@@ -44,6 +44,7 @@ as
 aos
 alias
 atomic
+await
 break
 build
 case
@@ -89,11 +90,13 @@ scope
 set
 soa
 switch
+task
 type
 union
 weak
 while
 void
+yield
 ````
 
 
