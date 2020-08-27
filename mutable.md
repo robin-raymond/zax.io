@@ -1,7 +1,7 @@
 
 # [Zax Programming Language](index.md)
 
-## Mutable, Immutable and Constant
+## Mutability
 
 A `mutable` type is a type that can have its contents modified after the type has been instantiated. An `immutable` type is a type whose contents cannot be modified once the type is constructed. A `constant` type is a promise not to modify a `mutable` type enforced by the compiler. A `mutable` type can be passed into functions which accept the `mutable` type as `constant` and thus will not perform any modifications to the type despite the type fundamentally being `mutable`. Since `immutable` types cannot have their values changed once created, the `constant` keyword has no applicability to `immutable` types.
 

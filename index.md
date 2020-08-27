@@ -146,6 +146,10 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Namespacing and Importing Modules](namespacing.md)
 
+## [Mutability](mutable.md)
+
 ## [Meta-Functions](meta-functions.md)
+
+## [Concurrency](concurrency.md)
 
 ## [FAQ](faq.md)
