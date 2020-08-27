@@ -81,6 +81,7 @@ operator
 override
 own
 private
+promise
 range
 return
 requires
