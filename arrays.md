@@ -3,7 +3,7 @@
 
 ## Arrays
 
-Zax arrays are single dimensional. The arrays can be of a fixed size or they can be a dynamic size. All arrays have an implicit `length` variable to indicate their current size. Arrays are zero based and once allocated cannot be resized but their contents can be replaced.
+Zax arrays are single dimensional. The arrays can be of a fixed size or they can be a dynamic size. All arrays have an implicit `length` variable to indicate their current size which can also be obtained using the `countof` operator on the array. Arrays are zero based and once allocated cannot be resized but their contents can be replaced.
 
 ````zax
 randomNumber : (result : Integer)() = {
@@ -29,6 +29,7 @@ yetAnotherArray1 : Integer[10] = myArray
 yesAnotherArray2 : Integer[5000] = myArray
 ````
 
+
 ### Simple array initialization
 
 Arrays can be default initialized with a set of values.
@@ -37,11 +38,12 @@ Arrays can be default initialized with a set of values.
 myArray : Integer[5] = {1, 2, 3, 4, 5}
 ````
 
+
 ### Array initialization with constructors
 
 In the example below, a type that has two different constructors options (i.e. polymorphic), the array can be initialized using either constructor and the standard polymorphic algorithms will apply to choose which constructor was intended.
 
-````
+````zax
 MyType :: type {
     value1 : Integer
     value2 : String
@@ -110,6 +112,7 @@ myType2 : MyType[3] = {
 myType1 : MyType[3] = {1, 2, 3}
 ````
 
+
 ### Dynamic array allocation
 
 Arrays can be dynamically allocated and discarded as needed. Arrays cannot be resized but they can be replaced.
@@ -129,6 +132,7 @@ myArray =:
 anotherArray : Integer[size]
 ````
 
+
 ### Dynamic array copy
 
 ````zax
@@ -141,6 +145,7 @@ myArray : Integer[size] @
 // construct an array of a dynamic size and copy the contents of the array
 myArrayCopy : Integer[myArray.length] @ = myArray
 ````
+
 
 ### Array of types
 
@@ -155,6 +160,7 @@ MyType :: type {
 // create an array of `MyType` types
 myArray : MyType[1000]
 ````
+
 
 ### SoA vs AoS
 

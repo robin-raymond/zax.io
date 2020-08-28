@@ -5,6 +5,7 @@
 
 Scopes can be used to help flow control by breaking or continuing out of a nested inner code flow to an outer code flow.
 
+
 ### Unnamed scopes
 
 ````zax
@@ -33,6 +34,7 @@ func : ()() = {
     print(b)
 }
 ````
+
 
 ### Named scopes with break and continue
 
@@ -279,6 +281,7 @@ func : ()() = {
     }
 }
 ````
+
 
 ### Scope variable capture
 

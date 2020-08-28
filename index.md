@@ -80,7 +80,7 @@ Zax is a strongly typed compile time language with some key features:
     * Multi-shared module compilation control
     * Source preservation by asset/module management
     * Library / compiler separation
-    * Containment based upcast/`downcast` (without inheritance)
+    * Type composition with inner/outer casting (without inheritance)
     * Safe type conversion using `as`
     * Selective runtime type information
     * `defer` end of scope code execution
@@ -124,7 +124,7 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Scope](scope.md)
 
-## [Containment](containment.md)
+## [Composition](composition.md)
 
 ## [Pointer and References](pointers.md)
 

@@ -56,8 +56,8 @@ MyOtherType :: type {
         containedType.+++("my voice is my passport")
     }
 }
-
 ````
+
 
 ### Failing to construct a contained type
 
@@ -136,8 +136,8 @@ MyOtherType :: type {
         print("following the contained type", uuid)
     }
 }
-
 ````
+
 
 ### Ensuring contained type's values are only accessed after construction
 
@@ -193,7 +193,6 @@ MyOtherType :: type {
         print("following the contained type", uuid)
     }
 }
-
 ````
 
 
@@ -265,7 +264,6 @@ MyOtherType :: type {
     }
 
 }
-
 ````
 
 
@@ -315,7 +313,6 @@ MyOtherType :: type {
     }
 
 }
-
 ````
 
 
@@ -373,8 +370,8 @@ MyOtherType :: type {
         // `containedTypeA` will be allocated and constructed automatically
     }
 }
-
 ````
+
 
 ### Default constructors
 
@@ -396,9 +393,11 @@ myType2 : MyType = myType1
 myType3 : MyType = myType2 as deep
 ````
 
+
 #### Disabling of default constructors
 
 Constructors can be disabled by declaring a constructor as `final` that should not exist and assigning the pointer value to nothing. Any type attempting to access that version of the constructor will be disallowed at compile time since the compiler will recognize that the constructor cannot be called.
+
 
 ##### Disabling the default empty constructor
 

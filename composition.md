@@ -1,17 +1,19 @@
 
 # [Zax Programming Language](index.md)
 
-## Containment
+## Composition
 
 ### Overview
 
 The Zax programming language does not support inheritance, virtual functions, virtual base classes, abstract classes or other features typically spawned from the Object Orientated world. However, these kind of features are possible within the Zax language and they are done in a way that does not hide these features behind compiler magic, and in a way that can remain even more powerful than their object counterparts.
 
-### Containment and not inheritance
 
-Inheritance is a magic methodology that compilers use to create relationships between types. Inheritance is merely a fancy automatic relationship where one type contains another, except the inheritance structure is entirely managed by the compiler.
+### Composition and not inheritance
 
-#### Example difference between containment and inheritance
+In computer languages inheritance is a methodology that compilers use to create hierarchical object relationships between types. But typically inheritance is merely a fancy automatic composition abstraction layered over composition relations where the inheritance structure is entirely managed by the compiler.
+
+
+#### Example difference between composition and inheritance
 
 In C++, a base class would become part of the derived class, for example:
 
@@ -41,7 +43,7 @@ void function() {
 
 An instance of `B` is a `class` of both `A` and `B` and they are said to have an [is-a](https://en.wikipedia.org/wiki/Is-a#:~:text=In%20knowledge%20representation%2C%20object%2Doriented,is%20a%20superclass%20of%20A)) relationship. A instance of a `B` `class` has access to both an `int foo` as well as an `int bar`.
 
-In Zax, the same is possible through containment using containment (and the object equivalent would be called a [has-a](https://en.wikipedia.org/wiki/Has-a) relationship):
+In Zax, the same is possible through composition (and the object equivalent would be called a [has-a](https://en.wikipedia.org/wiki/Has-a) relationship):
 
 ````zax
 A :: type {
@@ -68,9 +70,10 @@ function : ()() = {
 
 In Zax, the type `B` contains the type `A`. They are not the same object like C++ as they are two different and unique types. In Zax, `B` contains a type `A` within itself.
 
+
 ### Merging B contains A into a single type
 
-The keyword `own` applied to a variable name (not to be confused with `own` pointers which are part of the type of a pointer) causes the contain variable's type's declarations to be part of the type of container that owns the variable. To a Object Oriented programmer, this might look like inheritance but the containment relationship remains intact.
+The keyword `own` applied to a variable name (not to be confused with `own` pointers which are part of the type of a pointer) causes the contain variable's type's declarations to be part of the type of container that owns the variable. To a Object Oriented programmer, this might look like inheritance but the composition relationship remains intact.
 
 ````zax
 A :: type {
@@ -98,6 +101,7 @@ function : ()() = {
     doSomething(value.a)
 }
 ````
+
 
 #### Multiple `own` variables
 
@@ -146,6 +150,7 @@ function : ()() = {
     value.description.animal = "monkey"
 }
 ````
+
 
 #### Ownership of basic types and other usages
 
@@ -216,9 +221,10 @@ function : ()() = {
 }
 ````
 
+
 ### Abstract Interfaces
 
-While the Zax language is data focused, abstract interface style patterns within a module may be necessary. Zax supports the interface concept through the same containment principle. Functions and variables can be overridden from `own` contained variables and functions have full access to the contents of the container type. The functions declared on the conceptual abstract type need not even be defined as functions can be defaulted to point to nothing.
+While the Zax language is data focused, abstract interface style patterns within a module may be necessary. Zax supports the interface concept through the same composition principle. Functions and variables can be overridden from `own` contained variables and functions have full access to the contents of the container type. The functions declared on the conceptual abstract type need not even be defined as functions can be defaulted to point to nothing.
 
 The `override` keyword declared on a variable that does not override another contained type's variable will force any container types to override the value and prevent the contained type from being instantiated outside of a container type.
 
@@ -300,13 +306,13 @@ void function() {
 ````
 
 
-### Upcasting and downcasting
+### Downcasting and upcasting (aka outer and inner casting)
 
-As the Zax language does not have inheritance, upcasting and downcasting has a modified meanings. Zax uses a containment model (more of a "has-a" relationship) rather than an "is-a" relationship like Object Oriented languages. Thus the meaning of upcasting and downcasting are not identical. In object languages, the meaning is to convert type type's view from a being one of the "is-a" relationships to another. In containment with Zax, the meaning is to access from the container to the contained or vice versa.
+As the Zax language does not have inheritance, upcasting and downcasting has a modified meanings. Zax uses a composition model (more of a "has-a" relationship) rather than an "is-a" relationship like Object Oriented languages. Thus the meaning of upcasting and downcasting are not identical. In object languages, the meaning is to convert type type's view from a being one of the "is-a" relationships to another. With Zax composition, the meaning is to access from the container to the contained or vice versa.
 
-#### Upcasting
+#### Upcasting (aka inner casting)
 
-In Object Oriented languages, upcasting would imply converting the object from a derived object to a base object. In languages that have multiple inheritance allowing the same base object to become derived more than once, upcasting can require disambiguating the cast from a derived object to which duplicated base object in the object hierarchy but the conversion is still considered a straight forward conversion process. In Zax's containment model, upcasting is performed by accessing one (or more) of types contained within a container type.
+In Object Oriented languages, upcasting would imply converting the object from a derived object to a base object. In languages that have multiple inheritance allowing the same base object to become derived more than once, upcasting can require disambiguating the cast from a derived object to which duplicated base object in the object hierarchy, but the conversion is still considered a straight forward conversion process. In Zax's composition model, upcasting is performed by accessing one (or more) of types contained within a container type.
 
 For example, in C++:
 
@@ -347,7 +353,7 @@ B :: type {
     bar : Integer
 }
 
-doSomething(a : A*) {
+doSomething : ()(a : A*) {
 }
 
 function : ()() = {
@@ -360,6 +366,7 @@ function : ()() = {
     doSomething(value.a)
 }
 ````
+
 
 #### Downcasting
 
@@ -449,9 +456,10 @@ void function() {
 }
 ````
 
+
 ##### Zax forced downcast
 
-In the Zax language forcefully converting from a contained type to the type's container requires combining the `cast` and the `as` operator into a single operator. Using this operator must be done with caution as the programmer is forcefully telling the compiler that the containment relationship is guaranteed. If the programmer was wrong then undefined behavior will result.
+In the Zax language forcefully converting from a contained type to the type's container requires sing the `composecast` operator. Using this operator must be done with caution as the programmer is forcefully telling the compiler that the composition relationship is guaranteed. If the programmer was wrong then undefined behavior will result.
 
 ````zax
 A :: type {
@@ -467,12 +475,13 @@ C :: type {
     weight : Double
 }
 
-doSomething(a : A*) {
-    // combining the `cast` and `as` operators is required to convert
-    // from a contained type to a container type -- be sure the `a` is
-    // an `a` type within the `B` type or this will be unsafe and will
+doSomething : ()(a : A*) {
+    // UNSAFE:
+    // using the `outercast` operators can be used to fast convert from a
+    // contained type to a container type -- be sure the `a` is an
+    // `a` type within the `B` type or this will be unsafe and will
     // result in undefined behavior
-    b := a cast as B*
+    b1 := a outercast B*
 
     // ERROR:
     // `a` cannot be converted to a `B*` since it's not a compatible type
@@ -491,7 +500,7 @@ doSomething(a : A*) {
     // `a`'s type `A` must be declared as `managed` and thus currently does not
     // include the runtime type information overhead on the type to know if
     // converting from an `A*` to a `B*` is possible
-    b4 := a downcast B*
+    b4 := a outerlink B*
 }
 
 function : ()() = {
@@ -505,9 +514,10 @@ function : ()() = {
 }
 ````
 
+
 ##### Zax runtime downcast
 
-In the Zax language, the keyword `managed` must be included on the type declaration where a type might be used as a source of conversion using the `downcast` keyword. The `downcast` keyword will use this overhead RTTI properties to perform a conversion if it is allowed. As runtime type information requires additional resource overhead for a given type, the `managed` keyword signals the type needs to include the overhead whenever the type is instantiated.
+In the Zax language, the keyword `managed` must be included on the type declaration where a type might be used as a source of conversion using the `safcompose` operator. The `downcast` keyword will use this overhead RTTI properties to perform a conversion if it is allowed. As runtime type information requires additional resource overhead for a given type, the `managed` keyword signals the type needs to include the overhead whenever the type is instantiated.
 
 ````zax
 A :: type managed {
@@ -524,14 +534,13 @@ C :: type {
     weight : Double
 }
 
-doSomething(a : A*) {
-    // if this particular `a` was not an `a` that came from within a contained
-    // `B` type, the downcast operation will result in a pointer to nothing
-    b := a downcast B*
-
-    if b {
-        // ...
-    }
+doSomething : ()(a : A*) {
+    // UNSAFE:
+    // using the `outercast` operators can be used to fast convert from a
+    // contained type to a container type -- be sure the `a` is an
+    // `a` type within the `B` type or this will be unsafe and will
+    // result in undefined behavior
+    b1 := a outercast B*
 
     // ERROR:
     // while `a` can be converted to a `B*` additional RTTI overhead is required
@@ -540,11 +549,22 @@ doSomething(a : A*) {
     // normally not present for simple pointer math offset conversions)
     b2 := a as B*
 
+    // UNDEFINED BEHAVIOR:
+    // `a` is forced to be a type of `B*` by changing the type from
+    // an `A*` type to a `B*` forcefully. Unless the memory of the contained
+    // type and container type happen to be in the same location this
+    // will cause undefined behavior (and should always be considered unsafe)
+    b3 := a cast B*
 
-    // combining the `cast` and `as` operators is still allowed if the
-    // container/contained relationship is guaranteed by the programmer
-    // to be known
-    b3 := a cast as B*
+    // SAFEST:
+    // probe `a` to see if it is indeed within a `B` type and if so then
+    // return a pointer to a B type
+    b4 := a outerlink B*
+
+    if b4 {
+        // ...
+    }
+
 }
 
 function : ()() = {

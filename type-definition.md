@@ -51,19 +51,21 @@ Error :: type {
 }
 ````
 
+
 ### Uninitialized values
 
-Types by default will automatically initialize to a known default value. However, for optimization (or other) reasons, types can be left uninitialized using a question followed by two underscores operator (`?__`). Whatever random bits happen to be in memory when the type is instantiated will become embedded into the type's values.
+Types by default will automatically initialize to a known default value. However, for optimization (or other) reasons, types can be left uninitialized using a triple question mark (`???`). Whatever random bits happen to be in memory when the type is instantiated will become embedded into the type's values.
 
 ````zax
 :: import Module.System.Types
 
 A :: type {
-    a : Integer = ?__   // reading uninitialized values is undefined behavior
-    b : Float = ?__
+    a : Integer = ???   // reading uninitialized values is undefined behavior
+    b : Float = ???
     c : Float = 2.0     // only the `c` value has a initialized value
 }
 ````
+
 
 ### Type instantiation
 
@@ -114,6 +116,7 @@ func : ()() = {
 }
 ````
 
+
 ### Local variable type declarations and definition
 
 Types can be declared globally, inside other types, inside functions and inside locally defined types within functions. The type system is flexible to allow types as needed where needed.
@@ -143,10 +146,11 @@ func : ()() = {
 }
 ````
 
+
 ### Union type definition
 
 Unions are data types where all of the types within share the same memory space. Typically unions are used for two main reasons:
-* only one of the types can exist at a time and using a union incurs less overhead than declaring multiple optional datatypes
+* only one of the types can exist at a time and using a union incurs less overhead than declaring multiple optional data types
 * the underlying data aligns to the same memory layout in such a way that the type of input value can be remapped to another type of output value and the data type still functions in properly definable behavior
 
 None fo the union variables can have default values and the programmer is to assume all of the memory backing the union contains garbage data until a particular variable becomes initialized. Setting a value in a union of one variable and reading the data back as a different variable can have undefined behaviors if the underlying types are not memory layout compatible. Unions do not account for little or bid endian memory differences, nor alignment concerns (except that a union will have an alignment of the common alignment factor of all contained data types).
@@ -199,6 +203,7 @@ myUnion.myFloat =:
 myUnion.b =:
 ````
 
+
 ### Function type definition
 
 Functions are a type just as any other type except they do not have a formal type declaration. Instead the type is always inlined in a lambda style definition as part of a declared function. Functions can be declared and defined at global space, inside other types, and inside other functions.
@@ -219,6 +224,7 @@ myFunc1 : ()()
 // a type of function without having actual code definition
 myFunc2 final : ()()
 ````
+
 
 #### Functions declaration and definition with arguments
 
@@ -241,6 +247,7 @@ if greaterThanThree(2)
 if greaterThanThree(10)
     print "Yes, we found a number bigger than three!"
 ````
+
 
 #### Function declaration and definition with capturing
 

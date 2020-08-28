@@ -115,6 +115,13 @@ func : ()() = {
 ````
 
 
+#### Transferring `own` pointers across threads
+
+If an `own` pointer will be transferred to a different thread, either a deep copy of the `own` pointer should be performed or a thread safe allocator should be used to allocate the pointer. By default, `own` pointers allocate using the standard thread-unaware allocators (i.e. thread unsafe). Allocation of an `own` pointer in one thread and then deallocation of the pointer on a different thread may cause undefined behaviors.
+
+While the standard allocators can be replaced with thread safe allocators, the optimized thread-unaware allocators would be replaced by less efficient thread aware counterparts universally (which is often unneeded).
+
+
 ### Allocating with custom allocators
 
 Allocating and deallocating is done by specifying the allocator to use after the `@` operator. The same allocator type instance is used for deallocation later when the allocated types are destroyed and deallocated.
@@ -158,6 +165,7 @@ func : (result : String)() = {
     // custom allocator is destructed
 }
 ````
+
 
 ### Allocating using `discard`
 
@@ -277,6 +285,7 @@ func : (result : String)() = {
 }
 ````
 
+
 #### Transferring ownership of an `collect` pointer
 
 Similar to a pointer marked as `own`, a pointer marked as `collect` can only only be owned by a single variable at a time. When an pointer marked as `collect` is transferred to another pointer marked as `collect` the ownership of the pointer is transferred. However, as the type's lifetime is tied to the allocator where the type was allocated thus the need to transfer ownership of `collect` pointers is only done for convenience of ensuring only one variable contains the pointer to a type and to allow common transfer behavior for `own`, `discard` and `collect` pointers.
@@ -353,6 +362,7 @@ func : (result : String)() = {
     return "I'll be back."
 }
 ````
+
 
 ### Context allocator
 

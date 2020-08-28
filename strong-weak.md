@@ -9,6 +9,7 @@ The `strong` pointers are a form of [smart pointer](https://en.wikipedia.org/wik
 
 Thread safety for the reference counting mechanism and `weak` pointer referencing is guaranteed. When a `strong` pointer is assigned to new variables across threads, the reference counting mechanism does not require thread barriers to ensure the count is kept accurate. Concurrency of the lifetime is kept accurate across threads. However, this does not imply accessing the contents of a `strong` pointer has any concurrency protection. If two threads modify the contents of type's instance pointed to by a `strong` pointer, the contents can have concurrency issues.
 
+
 ### `strong` versus `handle` pointers
 
 Pointers marked as `strong` operate in the same manner as [`handle` pointers](handle.md) with a few key differences. Whereas `strong` pointers have a `weak` counterpart, `handle` pointers do not have `weak` pointers counterparts. Pointers marked as `strong` have thread safety properties related to the lifetime of the instance whereas `handle` pointers do not.
@@ -541,6 +542,8 @@ func : (result : String)() = {
 
 Pointers marked as `own` can be transferred to pointers marked as `strong`. Once the transfer is completed, the original `own` pointer will point to nothing as the `strong` pointer will track the lifetime of the instance. Likewise, pointers marked as `strong` can be transferred to pointers marked as `own` on the condition that no other pointers marked as `strong` point to the same instance of a type otherwise a panic can ensue.
 
+Caution: when transferring an `own` pointer to a `strong` pointer, care must be taken to never send this pointer to another thread if the standard allocator was used; this is because the standard allocator is thread unaware (i.e. thread unsafe) and deallocation on a different thread may cause undefined behavior; use a thread safe allocator on any `own` pointers if these pointers may be sent to a different thread.
+
 ````zax
 MyType :: type {
     myValue1 : Integer
@@ -645,3 +648,78 @@ func : (result : String)() = {
 Pointers marked as `strong` cannot be directly transferred to a pointer marked as `handle`. The only method by which this transfer can happen is if the `strong` pointer is first transferred to an `own` pointer and then transferred to a `handle` pointer. The vice versa limitation is true. Pointers marked as `handle` cannot be directly transferred to a pointer marked as `strong`. The only method by which this transfer can happen is if the `handle` pointer is first transferred to an `own` pointer and then transferred to a `strong` pointer.
 
 Transferring to an `own` pointer have limitations. Only if the pointer marked as `strong` or `handle` is the exclusive reference to the instance of a type can the transfer to an `own` pointer occur.
+
+
+### Casting contained variables into `strong` pointers
+
+#### Converting from a container `strong` pointer to a contained `strong` pointer
+
+The `lifelink` operator can be used to cast a raw pointer to a variable which has the same lifetime as the original `strong` or `handle` pointer.
+
+A `strong` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained type is the same as the container type, only a `strong` pointer to the container type may exist (despite both types being considered as a single instance). The `lifelink` operator is especially useful to create a `strong` pointer of a contained type from the container's existing `strong` pointer.
+
+Example as follows:
+
+````zax
+MyType :: type {
+    value1 : Integer
+    value2 : String
+}
+
+myType : MyType* strong @
+
+// create a pointer to `value` and link the lifetime of `myType` to the pointer
+value : Integer* strong = myType.value1 lifelink myType
+
+// resting the `myType`'s `strong` pointer will not impact the real lifetime
+// of the instance connected to `myType` (as the `value` `strong` pointer will
+// keep it's container instance alive)
+myType =:
+
+// set the `MyType::value1` to `5` (which is still valid as the
+// lifetime of of the original `strong` pointer is kept alive)
+value. = 5
+````
+
+#### Converting from a container `strong` pointer to a contained `strong` pointer
+
+While any pointer to any type can link to a `strong` or `handle` pointer using the `lifecast` operator, a `lifelink` operator can link a pointer to a contained type back to the original `strong` or `handle` pointer safely by verifying the pointer refers to a memory addresses within the bounds of the allocated `strong` or `handle` pointer.
+
+An example of a runtime `lifelink` being applied onto a `strong` pointer:
+
+````zax
+A :: type managed {
+    foo : Integer
+}
+
+B :: type {
+    bar : Integer
+    a : A           // additional overhead is required on the A type
+                    // to allow the conversion to happen
+}
+
+C :: type {
+    weight : Double
+}
+
+doSomething : ()(a : A* strong) {
+    // probe `a` to see if it is indeed within a `B` type and if so then
+    // return a pointer to a B type
+    b := (a outerlink B*) lifelink a
+}
+
+function : ()() = {
+    value : B* strong @
+    value.a.foo = 1
+    value.bar = 2
+
+    // link a `strong` pointer to `a` from `value`
+    a : A* strong = value.a lifelink value
+
+    doSomething(a)
+}
+````
+
+#### `lifelink` versus `lifecast`
+
+The exclusive difference between these operators is safety. The `lifecast` operator will force a conversion of any raw pointer to link to `strong` or `handle` pointer even for unrelated pointers. The `lifelink` operator will validate the raw pointer being linked actually points inside the address boundaries of the `strong` or `handle` pointer.

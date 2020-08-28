@@ -79,7 +79,6 @@ weight : Float = 0.0
 // Where the type can be deduced, the type can be entirely eliminated from
 // the declaration entirely.
 weight := 0.0
-
 ````
 
 ### Why aren't code examples syntax highlighted?

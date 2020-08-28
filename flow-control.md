@@ -51,8 +51,6 @@ isNegative : (output: Boolean) (input : Integer) = {
 ````
 
 
-
-
 ### `if` / `else`
 
 ````zax
@@ -89,12 +87,12 @@ print("my disposition is ", whatsForLunch("apple"))
 print("my disposition is ", whatsForLunch("veal"))
 ````
 
+
 #### `if` statement and condition
 
 An `if` statement can contain a statement followed by a condition which must be separated by a `;`. If a value is declared, the declared value's scope only exists within the context of the `if` or `else` control flows.
 
 ````zax
-
 // a happy number is less than -5 and even, or less than -10, or divisible by 3
 isHappyNumber : (output : Boolean)(input : Integer) = {
 
@@ -106,7 +104,6 @@ isHappyNumber : (output : Boolean)(input : Integer) = {
 
 assert(!isNegative(5))
 assert(isNegative(-15))
-
 ````
 
 This form of if statement is useful for error condition handling without the need for exceptions:
@@ -130,8 +127,8 @@ loadStringFromUrl : (
     cacheDataForLater(result)
     return result,
 }
-
 ````
+
 
 ### `while`
 
@@ -150,6 +147,7 @@ countToOneHundred : ()(starting : Integer) {
     }
 }
 ````
+
 
 #### `while` statement and condition
 
@@ -219,6 +217,7 @@ countAndSkipOdds : (output : Integer)() = {
 ````
 
 This code will not compile:
+
 ````zax
 print : ()(...) = {
     //...
@@ -295,6 +294,7 @@ listFruitAlt2 : ()() = {
 }
 ````
 
+
 #### `foreach` statement and condition
 
 A `foreach` statement can contain a statement followed by a condition which must be separated by a `;`. If a value is declared, the declared value's scope only exists within the context of the `foreach` control flows.
@@ -343,6 +343,7 @@ myType.value = "Life"
 foreach value : in MyType
     print(value)            // will print `42` followed by "Life"
 ````
+
 
 #### Using `foreach` to iterate a range
 
@@ -420,6 +421,7 @@ func : ()(value : Integer) = {
 }
 ````
 
+
 #### Using `switch` to compare against runtime values
 
 The `switch` statement can be used to compare against other runtime values. The values cannot be computed inside the `case` statement but they can be used as a comparison.
@@ -467,6 +469,7 @@ func : ()(value : Integer) = {
     }
 }
 ````
+
 
 #### Using `switch` with complex types
 
@@ -516,6 +519,7 @@ func : ()(fruit : String) = {
     }
 }
 ````
+
 
 #### Using `switch` with alternative operators
 

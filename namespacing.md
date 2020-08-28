@@ -22,6 +22,7 @@ value : MyNamespace.ImportedType
 MyNamespace.doSomething()
 ````
 
+
 ### Importing symbols into the global namespace
 
 By not specifying an importation declaration name, all symbols are imported into the global namespace.
@@ -38,6 +39,7 @@ value : ImportedType
 // call a hypothetical function imported into the global namespace
 doSomething()
 ````
+
 
 #### Conflicting importations into a namespace
 
@@ -63,6 +65,7 @@ frog : Frog
 frog.display()
 ````
 
+
 ### Importing intrinsic types
 
 Prior to the compilation of the first line of code, a definition for all intrinsic types exists. However, an importation of these types must be done by importing their built-in module declaration placed into the automatic-declared `Module` namespace.
@@ -74,6 +77,7 @@ Because of the way modules self isolate from each other, one module importing `S
 ````zax
 :: import Module.System.Types
 ````
+
 
 ### Exporting types
 
@@ -101,6 +105,7 @@ FriendlyName export :: alias Cos1Tan2Arc4Sin
 // re-exported to any module importing this code.
 FileUtilities export :: import Module.Useful.FileUtilities
 ````
+
 
 #### Hiding exports
 
@@ -131,6 +136,7 @@ content.value4 = "Goodbye world!"   // value3 is accessible but
                                     // hidden when exported
 ````
 
+
 ### Defining a new `import` module
 
 A module is a collection of Zax source code that can be fetched and imported as an imported module of types. Once fetched, a module is cached locally where the cached files can be kept as known assets for an official build. Only if the module's definition changes is the cached module refreshed otherwise the cached version is used. For example, if a repository tag was changed the old cached repository would be flushed and replaced with a new cached repository. A commit update on a repository branch will not automatically refresh any cached contents but the `id` field on the module definition can be updated to force a refresh of a cached imported module. Alternatively, deleting the imported module from the cache will cause the cache to refresh the module.
@@ -156,6 +162,7 @@ FastFooMathModule :: type {
 
 FastFoo :: import FastFooMathModule
 ````
+
 
 ### Sharing an imported module across imported modules
 

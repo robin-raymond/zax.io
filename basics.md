@@ -39,8 +39,7 @@ if condition {
 
 ### Keywords
 
-````
-as
+````zax
 aos
 alias
 atomic
@@ -48,7 +47,6 @@ await
 break
 build
 case
-cast
 compiles
 continue
 collect
@@ -58,7 +56,6 @@ default
 defer
 discard
 do
-downcast
 else
 extension
 execute
@@ -146,9 +143,9 @@ constant_ : Type constant
 #### Overloadable
 ````zax
 +           // plus
-++          // unary increment
 -           // minus
---          // decrement
+++          // unary increment (pre or post)
+--          // decrement (pre and post)
 *           // multiple or unary pointer
 /           // divide
 %           // modulus divide
@@ -186,7 +183,11 @@ constant_ : Type constant
 as          // safe conversion to type
 [           // array declaration open or array access
 ]           // array declaration close or array access
+countof     // unary operator to returns the number elements in a type or
+            // the total reference count for a
+            // `strong`, `weak`, or `handle` pointer
 ````
+
 
 #### Non overloadable
 ````zax
@@ -197,7 +198,7 @@ as          // safe conversion to type
 $           // templated variable, type or argument
 @           // allocate and construct type
 _           // this pointer (value can be changed to compatible type)
-___         // context pointer (value can be changed)
+___         // serial context pointer (value can be changed)
 .           // type/namespace resolution or dereference access
 ...         // variadic values
 $...        // variadic type(s)
@@ -208,7 +209,7 @@ $...        // variadic type(s)
 ::.         // data type dereference
 ?           // optional type
 ??          // ternary operator
-?__         // uninitialized type
+???         // uninitialized type
 {           // scope or  begin
 }           // scope end
 [[          // code directive or attribute declaration open
@@ -220,11 +221,27 @@ $...        // variadic type(s)
             // single automatic defined type
 <-          // split type into multiple function arguments
 \           // statement continuation
-cast        // unsafe conversion from one type to another
-cast as     // convert from contained type to container type forcefully
-downcast    // probe and convert a contained type to an outer owner's type
+cast        // conversion from one type to another
+            // (unsafe forcefully)
+outercast   // convert from contained type pointer to container type pointer
+            // (unsafe forcefully)
+copycast    // treat the raw `void` pointer as pointing to an instance of the
+            // casted type and make a copy of the contents
+            // (unsafe forcefully)
+lifecast    // converts a raw pointer to share a lifetime an existing
+            // `strong` or `handle` pointer
+            // (unsafe forcefully)
+handlecast  // converts a raw pointer to an existing `handle` pointer
+            // (unsafe forcefully)
+outerlink   // convert from contained type pointer to container type pointer
+            // (safely probing the instance if the conversion can happen)
+lifelink    // links a raw pointer to an existing `strong` or `handle` pointer
+            // (safely probes if the pointer to type points to memory within
+            // the allocated `strong` or `handle` pointer)
 sizeof      // unary operator to return the size of a type
 alignof     // unary operator to return the alignment of a type
+offsetof    // compute the byte offset of a contained type
+            // within a container type
 ````
 
 
@@ -411,7 +428,7 @@ Integer $(BitCount = Cpu.Integer.optimal, UseSign = Sign.signed) :: type {
 }
 Float $(BitCount = Cpu.Integer.optimal) :: type { /*... */ }
 
-// strings have a build in .length property and are extended ascii by default
+// strings have a built-in `length` property and are extended ascii by default
 stringA : String = "hello"
 stringB := "type is implied"
 

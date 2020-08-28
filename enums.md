@@ -57,6 +57,7 @@ value3 := Fruit.apple       // value3 will be assigned to `4`
 value4 := Fruit.grapefruit  // value4 will be assigned to `4`
 ````
 
+
 ### Enum metadata
 
 Each enum have compile time available metadata to extract information about the enum to allow for easy associations such as to/from a `String`.
@@ -81,6 +82,7 @@ value : Fruit
 // name will use the meta-function to convert from an enum to a string
 name := convertToString(value)
 ````
+
 
 ### Enum underlying type
 

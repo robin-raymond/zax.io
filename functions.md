@@ -16,7 +16,7 @@ func()
 
 Simple functions have zero or one return results and zero or one arguments.
 
-`````zax
+````zax
 double : (output : Integer)(input : Integer) {
     return input * 2
 }
@@ -69,6 +69,7 @@ welcome : (
 accountId:, secretCode: = welcome("Pat", "Jones", "Would you like some water?")
 ````
 
+
 ### Error handling using the `except` keyword
 
 ````zax
@@ -102,6 +103,7 @@ renderAccount : (myError : Error)(username : String) {
 }
 ````
 
+
 ### Functions can capture values
 
 ````zax
@@ -131,6 +133,7 @@ func : ()() = [a, b] {
 // within the captured function.
 func()
 ````
+
 
 #### Function declaration and definition with capturing value reassignment
 
@@ -202,6 +205,7 @@ func()
 assert(a == 5 || a == 42)
 ````
 
+
 ### Functions can be reassigned to new code
 
 ````zax
@@ -228,6 +232,7 @@ func = {
 func(42)
 ````
 
+
 ### Functions marked as `final` cannot be reassigned
 
 ````zax
@@ -245,8 +250,8 @@ func = {
 }
 ````
 
-### Function pointers without ability to capture
 
+### Function pointers without ability to capture
 
 Functions will allocate space needed to capture values but function pointers do not have the space to capture any value contents. Function pointers are more space efficient when stored inside types with the tradeoff of being the inability to capture values.
 
@@ -352,6 +357,7 @@ func1 = {
 result3 := func1(42)
 ````
 
+
 ### Functions and the `discard` keyword
 
 #### Functions with `discard` marked return results
@@ -441,6 +447,7 @@ nextValue4 := readNextValueVersion2()
 nextValue5:, = readNextValueVersion2()
 ````
 
+
 #### Functions with `discard` marked input arguments
 
 ````zax
@@ -475,6 +482,7 @@ funcVersion3()  // ERROR
 funcVersion4()  // ERROR
 ````
 
+
 #### Functions with `discard` marked local variables
 
 Variables that are declared but never used must be marked as `discard` or the compiler will error. The compiler enforces that all declared named variables are used or marked with `discard`.
@@ -504,6 +512,7 @@ ignoredValue discard := func()
 
 // ... insert code that never uses ignoredValue ...
 ````
+
 
 ### Default arguments
 
@@ -559,6 +568,7 @@ func : ()(
 // the function's type specification
 func(,42,)
 ````
+
 
 #### Functions with defaulted argument values
 
@@ -639,6 +649,7 @@ myType.value3 = 1001
 bucket := myType.bucket()
 ````
 
+
 ### Functions marked as `final`
 
 If a function should never have its associated code changed, the function should be declared as `final`. Functions that are not marked `final` require additional storage capacity to accommodate a function pointer and may incur calling overhead to access the function via a function table instead of optimizing the call directly to code. Functions marked as `final` cannot have their code segment reassigned once declared.
@@ -670,6 +681,7 @@ myType.bucket = {
     // do something else
 }
 ````
+
 
 ### Functions marked as `constant` in function types
 

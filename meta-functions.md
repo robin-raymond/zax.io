@@ -27,6 +27,7 @@ result3 := add("hello ", "world")
 result4 := add(3, 4.5)
 ````
 
+
 ### Meta-functions with labelled meta-argument types
 
 As an alternative to a concrete type, or an omitted type, a variable representing the type can be used when a type is prefixed with a dollar sign `$` operator. This causes a type to be defined as if the type represented the type of the function arguments. If any types share a variable type they must be called with the same matching variable types.
@@ -65,6 +66,7 @@ result3 := addThenMultiply("hello ", "world")
 result4 := addThenMultiply(3, 4.5)
 ````
 
+
 ### Conditional meta-function selection
 
 #### Meta-function selection using the `compiles` clause
@@ -86,6 +88,7 @@ next final : (
 }
 ````
 
+
 #### Meta-function using the `requires` clause
 
 The `requires` clause can be used as a compile and runtime type mechanism to check if the function can be selected as a candidate given the input, or output arguments specified. If the the code in the `requires` block compiles and returns true then the meta-function can be selected as a legal candidate by the caller. This mode causes both compile time and compiler evaluation time code to be checked including the ability to check defined known values passed in a compile time.
@@ -105,6 +108,7 @@ next final : (
 } = {
 }
 ````
+
 
 ### Use of `final` with regards to meta-functions
 
@@ -159,6 +163,7 @@ result5 := add(1, 2)
 result6 := add("goodbye ", "Sally")
 ````
 
+
 #### Use of `final` with regards to meta-functions inside declared types
 
 The usage of `final` is recommended with meta-functions declarations to ensure that each variation of the function does not create a new instance of the variable containing the function. Without `final` every unique invocation of a function will cause another variable to be required to hold the unique instance of a functions definition. The `final` keyword causes the compiler to know each unique instance of a function without needing a variable at runtime to hold a pointer to the function.
@@ -210,12 +215,13 @@ myOtherType.add(value1)
 myOtherType.add(value2)
 myOtherType.add(value3)
 
-// the size of `MyType` will be larger than the size of `MyOtherType` as
+// the sizeof `MyType` will be larger than the sizeof `MyOtherType` as
 // `MyType` will contain three versions of `add` and `MyOtherType` contains
 // a definition that is known at compile type and thus does not require any
 // allocation space occupied inside `MyOtherType` for the three definitions
 assert(sizeof MyType > sizeof MyOtherType)
 ````
+
 
 ### Meta-typed functions with meta-arguments
 
@@ -240,6 +246,7 @@ result1 := add$(U8)(100, 50)
 // the destination value's type
 result2 : Short = add(100, 50)
 ````
+
 
 #### Reassigning meta-typed functions with meta-arguments to a new function
 
@@ -284,6 +291,7 @@ add = alternativeAdd
 // has replaced the `add$(U8)(: Integer, : Integer)` version
 result3 := add$(U8)(100, 50)
 ````
+
 
 #### Meta-functions with value meta-arguments
 

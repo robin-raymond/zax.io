@@ -219,10 +219,10 @@ func: ()() = {
 
 Pointers can be casted by way of three casting methods:
 * raw conversion of the pointer type using the `cast` operator
-* compatible [containment](containment.md) conversion of the pointer type using the `cast as` operator
-* runtime conversation of compatible [containment](containment.md) pointer types using the `downcast` operator
+* compatible [composition](composition.md) conversion of the pointer type using the `outercast` operator
+* runtime conversation of compatible [composition](composition.md) pointer types using the `outerlink` operator
 
-The `as` operator can only be used to convert the pointer to/from an intrinsic number type of equal or greater capacity than the pointer.
+The `as` operator can only be used to convert a pointer to/from an intrinsic number type of equal or greater capacity than the pointer.
 
 
 #### Pointer raw conversion
@@ -257,9 +257,10 @@ value : U32 = h'ABCDEF12'
 func(value)
 ````
 
+
 #### Function pointer casting
 
-Functions can be cast to a raw pointers using the `cast` operator and from a raw pointer using the `cast as` operator. The `cast as` operator is necessary to acknowledge the overhead involved with the copying of captured values.
+Functions can be cast to a raw pointers using the `cast` operator and from a raw pointer using the `copycast` operator. The `copycast` operator is necessary to create a copy of captured values.
 
 ````zax
 print : ()(...) = {
@@ -286,8 +287,8 @@ pointer1 = func1 cast void*
 pointer2 = func2 cast void*
 
 // cast back from a raw pointer using the type of the variables definition
-func3 = pointer1 cast as :simpleFunc
-func4 = pointer2 cast as :func2
+func3 = pointer1 copycast :simpleFunc
+func4 = pointer2 copycast :func2
 
 func3() // will execute the code defined in func1
 func4() // will execute the code defined in func2
@@ -296,7 +297,7 @@ func4() // will execute the code defined in func2
 
 ##### Function pointer casting with capture
 
-Functions can be cast to a raw pointers using the `cast` operator and from a raw pointer using the `cast as` operator. The `cast as` operator is necessary to acknowledge the overhead involved with the copying of captured values. When converting from a raw pointer, the function is casted and treated as the expected function type and the captured variables are copied as part of the operation. Using the `cast` operator or `as` operator is disallowed when converting from raw pointers to functions that can capture values.
+Functions can be cast to a raw pointers using the `cast` operator and from a raw pointer using the `copycast` operator. The `copycast` operator is necessary to acknowledge the overhead involved with the copying of captured values. When converting from a raw pointer, the function is casted and treated as the expected function type and the captured variables are copied as part of the operation. Using the `cast` operator or `as` operator is disallowed when converting from raw pointers to functions that can capture values.
 
 ````zax
 print : ()(...) = {
@@ -327,8 +328,8 @@ pointer1 = func1 cast void*
 pointer2 = func2 cast void*
 
 // cast back from a raw pointer using the type of the variables definition
-func3 = pointer1 cast as :simpleFunc
-func4 = pointer2 cast as :func2
+func3 = pointer1 copycast :simpleFunc
+func4 = pointer2 copycast :func2
 
 // reset the original `func1` and `func2`
 func1 =:
@@ -343,7 +344,7 @@ func4() // will execute the code defined in func2 and still displays
 
 ##### Function pointer casting without capture ability
 
-Pointers to functions without the ability to capture can be casted from a raw pointer using the `cast` operator and not the `cast as` operator since the functions have no ability to capture values and thus do not need the programmer to acknowledge any additional value copying overhead in the pointer conversion. Using the `cast as` operator is disallowed when converting from raw pointers to pointers to function types.
+Pointers to functions without the ability to capture can be casted from a raw pointer using the `cast` operator and not the `copycast` operator since the functions have no ability to capture values and thus do not need the programmer to acknowledge any additional value copying overhead in the pointer conversion. Using the `copycast` operator is disallowed when converting from raw pointers to pointers to function types.
 
 ````zax
 print : ()(...) = {

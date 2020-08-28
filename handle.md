@@ -520,8 +520,16 @@ func : (result : String)() = {
 }
 ````
 
+
 ### Transferring `handle` pointers to `strong` pointers
 
 Pointers marked as `handle` cannot be directly transferred to a pointer marked as `strong`. The only method by which this transfer can happen is if the `handle` pointer is first transferred to an `own` pointer and then transferred to a `strong` pointer. The vice versa limitation is true. Pointers marked as `strong` cannot be directly transferred to a pointer marked as `handle`. The only method by which this transfer can happen is if the `strong` pointer is first transferred to an `own` pointer and then transferred to a `handle` pointer.
 
 Transferring to an `own` pointer have limitations. Only if the pointer marked as `handle` or `strong` is the exclusive reference to the instance of a type can the transfer to an `own` pointer occur.
+
+
+#### Transferring `handle` pointers across threads
+
+If a `handle` pointer will be transferred to a different thread, either a deep copy of the `handle` pointer should be performed or a thread safe allocator should be used to allocate the pointer. By default, `handle` pointers allocate using the standard thread-unaware allocators (i.e. thread unsafe). Allocation of a `handle` pointer in one thread and then deallocation of the pointer on a different thread may cause undefined behaviors.
+
+While the standard allocators can be replaced with thread safe allocators, the optimized thread-unaware allocators would be replaced by less efficient thread aware counterparts universally (which is often unneeded).

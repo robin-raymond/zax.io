@@ -22,6 +22,7 @@ A few caveats must be considered:
 
 A programmer can use custom allocators to trade off speed, data locality and block memory disposal against the caveats as they wish.
 
+
 ### Custom allocator example
 
 ````zax
@@ -40,16 +41,9 @@ Allocator :: type {
         destructor : ()(type : void*)*  // function to call if the
                                         // allocator must call the destructor
                                         // upon deallocation
-
-        previousPointer : void* // previously allocate pointer if the
-                                // type is being reallocated (if applicable)
     }
 
     allocate : (pointer : void*)(properties : Allocation) = {
-        //...
-    }
-
-    reallocate : (pointer : void*)(properties : Allocation) = {
         //...
     }
 
@@ -105,6 +99,7 @@ func : ()() = {
 }
 ````
 
+
 ### Replacing the context allocator
 
 The context variable which is passed into all function with the reserve triple underscore named variable `___` holds a pointer to an instance of the allocator type. This context pointer can be changed to point to a custom allocator thus every allocation that is performed against the default allocator will obtain the allocator to use from the context `___` type and use those allocator functions to allocate or deallocate memory as needed.
@@ -157,6 +152,7 @@ func : ()() = {
     // destructed and deallocated
 }
 ````
+
 
 ### Manual allocation and deallocation
 
