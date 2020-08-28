@@ -184,11 +184,14 @@ assert : ()(okay : Boolean) = {
 a : Integer = 1
 b : Integer = 2
 
-func : ()() = [a:& = a, b:& = b] {
+// both `a` and `b` both capture a reference, `a` maintains the
+// `a` variable name whereas `b` is captured as a reference into a
+// new value `altB`
+func : ()() = [&a, altB : & = b] {
     // The value of a and b are captured by reference and will
     // always be display and reference the contents of the global scope
-    // `a` or `b`
-    print(a, b)
+    // `a` or `altB`
+    print(a, altB)
 
     // If the function changeValue() returns true then the captured
     // a will become 42 which is a reference of the global value.
