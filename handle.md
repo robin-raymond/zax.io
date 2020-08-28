@@ -420,7 +420,7 @@ func : (result : String)() = {
 
 ### Transferring `own` pointers to `handle` pointers
 
-Pointers marked as `own` can be transferred to pointers marked as `handle`. Once the transfer is completed, the original `own` pointer will point to nothing as the `handle` pointer will track the lifetime of the instance. Likewise, pointers marked as `handle` can be transferred to pointers marked as `own` on the condition that no other pointers marked as `handle` point to the same instance of a type otherwise a panic can ensue.
+Pointers marked as `own` can be transferred to pointers marked as `handle`. Once the transfer is completed, the original `own` pointer will point to nothing as the `handle` pointer will track the lifetime of the instance. Likewise, pointers marked as `handle` can be transferred to pointers marked as `own` on the condition that no other pointers marked as `handle` point to the same instance of a type otherwise  the resulting `handle` pointer will point to nothing.
 
 ````zax
 MyType :: type {
@@ -466,7 +466,7 @@ func : (result : String)() = {
 
         // transferring a `handle` pointer to an `own` pointer can be
         // done so long as no other `handle` pointers exist to the same
-        // instance (otherwise a panic would occur)
+        // instance (otherwise `value1` would point to nothing)
         value1 = value2
 
         // `value2`'s handle pointer was automatically reset when ownership
@@ -510,9 +510,9 @@ func : (result : String)() = {
         assert(value2 == value3)
 
 
-        // PANIC! `value1` cannot retake ownership from `value2` as another
+        // `value1` cannot retake ownership from `value2` as another
         // pointer to the same instance of `value2` exist thus `value1` cannot
-        // take exclusive ownership and a runtime panic will occur
+        // take exclusive ownership and `value1` will point to nothing
         value1 = value2
     }
 
@@ -533,3 +533,79 @@ Transferring to an `own` pointer have limitations. Only if the pointer marked as
 If a `handle` pointer will be transferred to a different thread, either a deep copy of the `handle` pointer should be performed or a thread safe allocator should be used to allocate the pointer. By default, `handle` pointers allocate using the standard thread-unaware allocators (i.e. thread unsafe). Allocation of a `handle` pointer in one thread and then deallocation of the pointer on a different thread may cause undefined behaviors.
 
 While the standard allocators can be replaced with thread safe allocators, the optimized thread-unaware allocators would be replaced by less efficient thread aware counterparts universally (which is often unneeded).
+
+
+### Casting contained variables into `handle` pointers
+
+#### Converting from a container `handle` pointer to a contained `handle` pointer
+
+The `lifelink` operators can be used to cast a raw pointer to a variable which has the same lifetime as an original `handle` or `strong` pointer to a `handle` or `strong` pointer respectively.
+
+A `handle` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained type is the same as the container type, only a `handle` pointer to the container type may exist (despite both types being considered as a single instance). The `lifelink` operator is especially useful to create a `handle` pointer of a contained type from a `handle` pointer to the container's type.
+
+Example as follows:
+
+````zax
+MyType :: type {
+    value1 : Integer
+    value2 : String
+}
+
+myType : MyType* handle @
+
+// create a pointer to `value` and link the lifetime of `myType` to the pointer
+value : Integer* handle = myType.value1 lifelink myType
+
+// resetting the `myType`'s `handle` pointer will not impact the real lifetime
+// of the instance connected to `myType` (as the `value` `handle` pointer will
+// keep it's container instance alive)
+myType =:
+
+// set the `MyType::value1` to `5` (which is still valid as the
+// lifetime of of the original `handle` pointer is kept alive)
+value. = 5
+````
+
+
+#### Converting from a container `handle` pointer to a contained `handle` pointer
+
+While any pointer to any type can be linked to a `handle` or `strong` pointer using the `lifecast` operator, a `lifelink` operator can link a pointer to a contained type back to the original `handle` or `strong` pointer safely by verifying the pointer refers to a memory addresses within the bounds of the allocated `handle` or `strong` pointer.
+
+An example of a runtime `lifelink` being applied onto a `handle` pointer:
+
+````zax
+A :: type managed {
+    foo : Integer
+}
+
+B :: type {
+    bar : Integer
+    a : A
+}
+
+C :: type {
+    weight : Double
+}
+
+doSomething : ()(a : A* handle) {
+    // probe `a` to see if it is indeed within a `B` type and if so then
+    // return a pointer to a B type and create a `handle` pointer from `a`
+    b := (a outerlink B*) lifelink a
+}
+
+function : ()() = {
+    value : B* handle @
+    value.a.foo = 1
+    value.bar = 2
+
+    // link a `handle` pointer to `a` from `value`
+    a : A* handle = value.a lifelink value
+
+    doSomething(a)
+}
+````
+
+
+#### `lifelink` versus `lifecast`
+
+The exclusive difference between these operators is safety. The `lifecast` operator will force a conversion of any raw pointer to link to `handle` or `strong` pointer even for unrelated pointers. The `lifelink` operator will validate the raw pointer actually points inside the address boundaries of the `handle` or `strong` pointer. If it does not then `lifelink` will return a pointer to nothing.

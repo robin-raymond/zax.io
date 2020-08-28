@@ -314,11 +314,14 @@ enum Coroutine.Status {
 TemplatedTaskResult :: type {
 
     producer : :: type {
-        // perform the next batch of work
+        // perform the next batch of coroutine work
         callable : (status : Coroutine.Status)()
 
-        // start the cancellation process
+        // request the start the cancellation process
         cancel : ()()
+
+        // request the suspended task be rescheduled again
+        resume : ()()
     }
 
     consumer : :: type {
@@ -326,11 +329,10 @@ TemplatedTaskResult :: type {
         then : ()(result : Integer)
 
         // returns true of the coroutine is completed its execution ()
-        isCompletedFunction private : (completed : Boolean)()
+        isCompleted mutator : (completed : Boolean)()
 
-        isCompleted : get = isCompletedFunction
-
-        // re-activate this suspended co-routine
+        // re-activate this suspended co-routine (after `then` was processed)
+        // but will not reactivate the coroutine is it was cancelled
         activate : ()()
 
         // indicate the coroutine will never activate the co-routine so the
@@ -358,7 +360,13 @@ scheduleProducer : ()(producer :) {
 myTask := countForever()
 
 myTask.consumer.then = {
+    // reactivate the task to perform the next count
+    defer myTask.consumer.activate()
     //...
+}
+
+myTask.producer.resume = [producer = myTask.producer] {
+    scheduleProducer(producer)
 }
 
 myTask.consumer.activate = [producer = myTask.producer] {
@@ -420,9 +428,52 @@ defer myTask.consumer.cancel()
 ````
 
 
+#### Using `suspend` and the captured `result()`
+
+
+````zax
+scheduleTaskProducer : ()(producer :) {
+    //...
+}
+
+EmptyFunctionPrototype final : ()()
+
+externalThreadThatWillResumeTask : ()(resume : EmptyFunctionPrototype) = {
+    //...
+    resume()
+    //...
+}
+
+func final : (result : Integer)() task = {
+
+    // the `resume` is a function that is auto captured for all task
+    // functions; when `resume()` is called the suspended task will
+    // automatically resume at the point of `suspend`
+    externalThreadThatWillResumeTask(resume)
+
+    // cause the task to `suspend` until `resume()` is called; if `resume()`
+    // is called prior to suspending the task will be rescheduled immediately
+    suspend
+
+    return result
+}
+
+
+myTask := func(42)
+
+myTask.consumer.then = {
+    //...
+}
+
+scheduleTaskProducer(myTask.producer)
+
+defer myTask.consumer.cancel()
+````
+
+
 #### `task` cancellation
 
-Whenever a function marked as `task` encounters an `await` statement or a `yield` statement, the function might cause a quick exit from the current function if the `task` is cancelled. This is done to ensure predictable `task` function exit points and to ensure `task` functions are not left in undetermined state. Function cleanup occurs as needed and the compiler can insert code to cause additional clean-up calls for any `task` scheduler as needed.
+Whenever a function marked as `task` encounters an `await`, `yield` or a `suspend` statement, the function might cause a quick exit from the current function if the `task` is cancelled. This is done to ensure predictable `task` function exit points and to ensure `task` functions are not left in undetermined state. Function cleanup occurs as needed and the compiler can insert code to cause additional clean-up calls for any `task` scheduler as needed. If `await`, `yield` or `suspend` is called after a task is cancelled during the automatic cleanup, those statements will become new instant exit points in whatever routines called them.
 
 Functions will not throw exceptions upon cancellation. Any construction/assignment of variables from an awaited function will not complete in the event of a cancellation (thus any constructed variables will also not be destructed in turn).
 
@@ -449,6 +500,9 @@ fetchRandomDataForever : (result : Integer)() task = {
 myTask := fetchRandomDataForever()
 
 myTask.consumer.then = {
+    // reactivate the task to perform the next fetch
+    defer myTask.consumer.activate()
+
     //...
 }
 

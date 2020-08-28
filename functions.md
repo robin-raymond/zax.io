@@ -650,6 +650,144 @@ bucket := myType.bucket()
 ````
 
 
+### `mutator` functions
+
+Function variables declared with `mutator` become [mutator methods](https://en.wikipedia.org/wiki/Mutator_method). Access the name of the function as a value will call a method which matches a function prototype of returning the type requested with no input arguments. Assigning a value to the function with a value will call a method which matches a function prototype of accepting the assigned type as an input argument and returning no results.
+
+Functions that return a value marked as `mutator` are especially useful when a data variable is calculated rather than being a natural data type. As `mutator` functions add overhead in each function call, care must be done to ensure `mutator` functions are not overly accessed in CPU cycle sensitive code. Likewise, a value change in a seemingly unrelated variable on a type might impact a `mutator` which might not be as obvious given a function is being called under the scenes.
+
+Function variables marked as `mutator` can be polymorphic. The compiler will attempt to match the input or output arguments by type to the best matching `mutator` function.
+
+The example below creates a `mutator` that returns a value:
+
+````zax
+// length is a calculated value type and not a true independent value
+length mutator : (output : Integer)() = {
+    //...
+    return output
+}
+
+// the `length` function is called which returns a value to a function
+roomSize := 5 + length
+
+// ERROR: `length` has no `mutator` that accepts an `Integer` value
+length = 10
+````
+
+The example below creates a `mutator` that returns a value and a `mutator` that accepts a value:
+
+````zax
+// length is a calculated value type and not a true independent value
+length mutator : (output : Integer)() = {
+    //...
+    return output
+}
+length mutator : ()(input : Integer) = {
+    //...
+}
+
+// the `length` function is called which returns an `Integer` value
+roomSize := 5 + length
+
+// the `length` function is called which accepts an `Integer` value
+length = 10
+````
+
+The example below creates two polymorphic `mutator` that both accept a value:
+
+````zax
+calculateHistoricalAge : (output : Integer)() = {
+    //...
+}
+
+person mutator : ()(input : Integer) = {
+    //...
+}
+person mutator : ()(input : String) = {
+    //...
+}
+
+// the `person` function is called that accepts an `Integer` value
+person = calculateHistoricalAge()
+
+// the `person` function is called that accepts a `String` value
+person = "Socrates Johnson"
+````
+
+
+#### Assign or replace a function `mutator` implementation
+
+If a `mutator` function (not marked as `final`) accepts a value is instead assigned a function pointer to a function that matches its own function prototype, the function will be replaced rather than attempting to match another `mutator` function. Priority of `mutator` functions are always given to matching function prototypes than attempting to find a `mutator` function which accepts a function pointer as its function's input or output argument.
+
+Likewise `mutator` functions (not marked as `final`) that return a value can instead be assigned a function pointer to a function that matches its own function prototype. This assignment will cause the definition of the `mutator` function to be replaced.
+
+The example below replaces a `mutator` function that accepts an input value:
+
+````zax
+length mutator : ()(input : Integer) = {
+    //... do something ...
+}
+
+// the seemingly complex declaration below does the following:
+// * declare an anonymous value
+// * associate the type of the anonymous value to a function prototype
+//   matching the original `length` `mutator`
+// * assign the function `length` to a new replacement function
+length = : ()(input : Integer) = {
+    //... do something else ...
+}
+
+// the second function definition is called and not the first definition
+length = 10
+````
+
+The example below replaces a `mutator` function that returns an output value:
+
+````zax
+length mutator : (output : Integer)() = {
+    //... do something ...
+    return output
+}
+
+// the seemingly complex declaration below does the following:
+// * declare an anonymous value
+// * associate the type of the anonymous value to a function prototype
+//   matching the original `length` `mutator`
+// * assign the function `length` to a new replacement function
+length = : (output : Integer)() = {
+    //... do something else ...
+    return output
+}
+
+// the second function definition is called and not the first definition
+value := length
+````
+
+
+### Declare and immediately call functions
+
+Anonymous functions can be called immediately upon construction by proceeding the closing curly brace (`}`) with an open bracket (`(`), arguments and a close bracket (`)`). Once the function's declaration completes the function is executed. Anonymous functions do not need to use the `final` keyword as the function is implicitly final since no value captures the function pointer.
+
+Each of the functions below is executed after declaration:
+
+````zax
+// declare a function that takes zero arguments and returns no results
+: ()() = {
+    //...
+}()
+
+// declare a function that takes one argument and returns no results
+: ()(input : Integer) = {
+    //...
+}(5)
+
+
+newValue := : (output : Integer)() = {
+    //...
+    return output
+}
+````
+
 ### Functions marked as `final`
 
 If a function should never have its associated code changed, the function should be declared as `final`. Functions that are not marked `final` require additional storage capacity to accommodate a function pointer and may incur calling overhead to access the function via a function table instead of optimizing the call directly to code. Functions marked as `final` cannot have their code segment reassigned once declared.

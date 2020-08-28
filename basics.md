@@ -63,7 +63,6 @@ except
 export
 for
 foreach
-get
 handle
 hidden
 if
@@ -74,6 +73,7 @@ import
 keyword
 managed
 mutable
+mutator
 once
 operator
 override
@@ -84,8 +84,8 @@ range
 return
 requires
 scope
-set
 soa
+suspend
 switch
 task
 type
@@ -428,7 +428,7 @@ Integer $(BitCount = Cpu.Integer.optimal, UseSign = Sign.signed) :: type {
 }
 Float $(BitCount = Cpu.Integer.optimal) :: type { /*... */ }
 
-// strings have a built-in `length` property and are extended ascii by default
+// strings have a built-in `length` `mutator` and are extended ascii by default
 stringA : String = "hello"
 stringB := "type is implied"
 

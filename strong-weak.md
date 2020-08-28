@@ -540,7 +540,7 @@ func : (result : String)() = {
 
 ### Transferring `own` pointers to `strong` pointers
 
-Pointers marked as `own` can be transferred to pointers marked as `strong`. Once the transfer is completed, the original `own` pointer will point to nothing as the `strong` pointer will track the lifetime of the instance. Likewise, pointers marked as `strong` can be transferred to pointers marked as `own` on the condition that no other pointers marked as `strong` point to the same instance of a type otherwise a panic can ensue.
+Pointers marked as `own` can be transferred to pointers marked as `strong`. Once the transfer is completed, the original `own` pointer will point to nothing as the `strong` pointer will track the lifetime of the instance. Likewise, pointers marked as `strong` can be transferred to pointers marked as `own` on the condition that no other pointers marked as `strong` point to the same instance of a type otherwise the resulting `strong` pointer will point to nothing.
 
 Caution: when transferring an `own` pointer to a `strong` pointer, care must be taken to never send this pointer to another thread if the standard allocator was used; this is because the standard allocator is thread unaware (i.e. thread unsafe) and deallocation on a different thread may cause undefined behavior; use a thread safe allocator on any `own` pointers if these pointers may be sent to a different thread.
 
@@ -588,7 +588,7 @@ func : (result : String)() = {
 
         // transferring a `strong` pointer to an `own` pointer can be
         // done so long as no other `strong` pointers exist to the same
-        // instance (otherwise a panic would occur)
+        // instance (otherwise `value1` pointer to nothing)
         value1 = value2
 
         // `value2`'s strong pointer was automatically reset when ownership
@@ -632,9 +632,9 @@ func : (result : String)() = {
         assert(value2 == value3)
 
 
-        // PANIC! `value1` cannot retake ownership from `value2` as another
+        // `value1` cannot retake ownership from `value2` as another
         // pointer to the same instance of `value2` exist thus `value1` cannot
-        // take exclusive ownership and a runtime panic will occur
+        // take exclusive ownership and `value1` will point to nothing
         value1 = value2
     }
 
@@ -654,9 +654,9 @@ Transferring to an `own` pointer have limitations. Only if the pointer marked as
 
 #### Converting from a container `strong` pointer to a contained `strong` pointer
 
-The `lifelink` operator can be used to cast a raw pointer to a variable which has the same lifetime as the original `strong` or `handle` pointer.
+The `lifelink` operators can be used to cast a raw pointer to a variable which has the same lifetime as an original `strong` or `handle` pointer to a `strong` or `handle` pointer respectively.
 
-A `strong` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained type is the same as the container type, only a `strong` pointer to the container type may exist (despite both types being considered as a single instance). The `lifelink` operator is especially useful to create a `strong` pointer of a contained type from the container's existing `strong` pointer.
+A `strong` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained type is the same as the container type, only a `strong` pointer to the container type may exist (despite both types being considered as a single instance). The `lifelink` operator is especially useful to create a `strong` pointer of a contained type from a `strong` pointer to the container's type.
 
 Example as follows:
 
@@ -671,7 +671,7 @@ myType : MyType* strong @
 // create a pointer to `value` and link the lifetime of `myType` to the pointer
 value : Integer* strong = myType.value1 lifelink myType
 
-// resting the `myType`'s `strong` pointer will not impact the real lifetime
+// resetting the `myType`'s `strong` pointer will not impact the real lifetime
 // of the instance connected to `myType` (as the `value` `strong` pointer will
 // keep it's container instance alive)
 myType =:
@@ -681,9 +681,10 @@ myType =:
 value. = 5
 ````
 
+
 #### Converting from a container `strong` pointer to a contained `strong` pointer
 
-While any pointer to any type can link to a `strong` or `handle` pointer using the `lifecast` operator, a `lifelink` operator can link a pointer to a contained type back to the original `strong` or `handle` pointer safely by verifying the pointer refers to a memory addresses within the bounds of the allocated `strong` or `handle` pointer.
+While any pointer to any type can be linked to a `strong` or `handle` pointer using the `lifecast` operator, a `lifelink` operator can link a pointer to a contained type back to the original `strong` or `handle` pointer safely by verifying the pointer refers to a memory addresses within the bounds of the allocated `strong` or `handle` pointer.
 
 An example of a runtime `lifelink` being applied onto a `strong` pointer:
 
@@ -694,8 +695,7 @@ A :: type managed {
 
 B :: type {
     bar : Integer
-    a : A           // additional overhead is required on the A type
-                    // to allow the conversion to happen
+    a : A
 }
 
 C :: type {
@@ -704,7 +704,7 @@ C :: type {
 
 doSomething : ()(a : A* strong) {
     // probe `a` to see if it is indeed within a `B` type and if so then
-    // return a pointer to a B type
+    // return a pointer to a B type and create a `strong` pointer from `a`
     b := (a outerlink B*) lifelink a
 }
 
@@ -720,6 +720,7 @@ function : ()() = {
 }
 ````
 
+
 #### `lifelink` versus `lifecast`
 
-The exclusive difference between these operators is safety. The `lifecast` operator will force a conversion of any raw pointer to link to `strong` or `handle` pointer even for unrelated pointers. The `lifelink` operator will validate the raw pointer being linked actually points inside the address boundaries of the `strong` or `handle` pointer.
+The exclusive difference between these operators is safety. The `lifecast` operator will force a conversion of any raw pointer to link to `strong` or `handle` pointer even for unrelated pointers. The `lifelink` operator will validate the raw pointer actually points inside the address boundaries of the `strong` or `handle` pointer. If it does not then `lifelink` will return a pointer to nothing.

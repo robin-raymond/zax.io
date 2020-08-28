@@ -396,7 +396,7 @@ myType3 : MyType = myType2 as deep
 
 #### Disabling of default constructors
 
-Constructors can be disabled by declaring a constructor as `final` that should not exist and assigning the pointer value to nothing. Any type attempting to access that version of the constructor will be disallowed at compile time since the compiler will recognize that the constructor cannot be called.
+Constructors can be disabled by declaring a constructor as `final` and should not exist by assigning the pointer value to nothing. Any type attempting to access that version of the constructor will be disallowed at compile time since the compiler will recognize that the constructor cannot be called.
 
 
 ##### Disabling the default empty constructor
@@ -483,7 +483,7 @@ myType3 : MyType = myType1 as deep
 
 ##### Enabling only alternative `deep` and `last` copy constructors
 
-A default copy constructor can be disabled but the default alternative `last` and `deep` constructors can be automatically created by applying the `default` keyword as exampled in the following:
+A default copy constructor can be disabled which would normally disable the `last` and `deep` constructors too. However, the default `last` and `deep` constructors can be automatically re-enabled by applying the `default` keyword as exampled in the following:
 
 ````zax
 MyType :: type {

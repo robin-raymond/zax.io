@@ -3,7 +3,7 @@
 
 ## Arrays
 
-Zax arrays are single dimensional. The arrays can be of a fixed size or they can be a dynamic size. All arrays have an implicit `length` variable to indicate their current size which can also be obtained using the `countof` operator on the array. Arrays are zero based and once allocated cannot be resized but their contents can be replaced.
+Zax arrays are single dimensional. Arrays can be of a fixed size or they can be a dynamic size. All arrays have an implicit `length` variable to indicate their current size. Arrays are zero based. Once arrays are allocated they cannot be resized but their contents can be replaced.
 
 ````zax
 randomNumber : (result : Integer)() = {
@@ -218,7 +218,7 @@ myArray5 : MyType[] = myArray3
 
 ### Splicing arrays
 
-Arrays include a implicit `constant` and `final` function named `splice` that extracts a subset of elements out of the array and return a newly created mutable array. If splice is passed values that exceed the ranges, a reduced size or even completely empty element array is returned. The `length` property should be checked by the developer if they wish to ensure the values in their range will be satisfied by the splice function. Splicing is supported on both `soa` and `aos` arrays.
+Arrays include a implicit `constant` and `final` function named `splice` that extracts a subset of elements out of the array and return a newly created mutable array. If splice is passed values that exceed the ranges, a reduced size or even completely empty element array is returned. The `length` `mutator` should be checked by the developer if they wish to ensure the values in their range will be satisfied by the splice function. Splicing is supported on both `soa` and `aos` arrays.
 
 ````zax
 myArray : Integer[1000]
