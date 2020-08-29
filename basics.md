@@ -244,10 +244,7 @@ sizeof          // unary operator to return the size of a type
 alignof         // unary operator to return the alignment of a type
 offsetof        // compute the byte offset of a contained type
                 // within a container composition type
-overheadof      // return the number of bytes overhead for a given variable or
-                // type for compiler implemented type features tied to each
-                // instance of the variable of a particular type
-controlsizeof   // return the number of bytes overhead is needed for the size of
+overheadof      // return the number of bytes overhead is needed for the size of
                 // a control block for a type
 ````
 
