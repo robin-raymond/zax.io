@@ -313,7 +313,7 @@ func : ()() = {
 
 A `scope` is not a function, but it can be treated as a lightweight function that can both accept inputs and return outputs. Return results can be declared and captured and inputs can be captured by value (or by reference).
 
-The example below demonstrates a scope being treated as a function that accepts `myValue1` as input passed by value and `output` is treated as a return result by being declared outside `the` scope and captured by reference.
+The example below demonstrates a scope being treated as a function that accepts `myValue1` as input passed by value and `output` is treated as a return result by being declared outside the `scope` and captured by reference.
 
 ````zax
 func : ()() = {

@@ -111,6 +111,7 @@ Common aliases are placed in `Module.System.Keywords`:
 
 // some example keywords that are aliased in the keywords module
 const export :: alias keyword constant
+property export :: alias keyword mutator
 ````
 
 
@@ -383,7 +384,10 @@ dword : DWord           // alias of double the byte capacity of the Word type
                         // (undefined if greater than 128 bits)
 qword : QWord           // alias of double the byte capacity of the DWord type
                         // (undefined if greater than 128 bits)
+
 uuid : UUID             // alias of U128
+
+rune : Rune             // alias of U32
 
 // aliased fixed size sizing types
 uptr : UPointer         // unsigned integer large enough to hold the
@@ -493,67 +497,3 @@ continueExisting := w'encoding inside single quotes is continued ' \
                     h'16F' w'" needed the "w" declared once again'
 ````
 
-
-### Intrinsic system literal conversion
-
-Zax does not perform type conversion, promotion or demotion of intrinsic compatible types. Casting operators `as` or `cast` must be used to convert from one intrinsic type to another type.
-
-The `as` operator and the `cast` operator work in similar manners. Both convert an intrinsic value from one type to another. With intrinsic types, the `as` operator should cause a panic situation if the data would overflow if converted from a source type to a destination type. Whereas with intrinsic types, the `cast` operator will not panic ever when converting from one type to another but can cause either loss of information in an overflow, or data corruption / undefined behavior in another extreme. The `as` attempts to do a compatible conversion whereas a `cast` will treat the types as compatible even when they are not compatible.
-
-````zax
-i8 := -127 as I8                    // `as` can convert the value into an
-                                    // I8 type without overflow
-u8 := 255 as U8                     // `as` can convert the value into a
-                                    // U8 type without overflow
-
-u8Error := 256 as U8                // `as` will cause compile time
-                                    // error as value is overflow
-u8CastError := 256 cast U8          // `cast` will succeed despite the overflow
-                                    // and the overflow is truncated
-
-value : Integer = 256
-u8Panic := value as U8              // `as` will cause runtime panic as
-                                    // value is overflow
-u8CastIgnorePanic := value cast U8  // `cast` will ignore overflow and the
-                                    // overflow value is truncated
-
-// Converting from a `WString`to a `String` is not always safe
-// (but this case is safe)
-string := w'hello' as String
-
-// An unsafe conversion will cause a compilation error
-stringError := w'this embedded literal "' h'16f' \
-               w'" is not convertible' as WString
-
-// converting from a `String` to a `WString` is always safe
-string := 'always safe no matter what value'
-wString := string as WString
-
-// Converting from a `Utf8String` to a `WString` can cause runtime
-// panic errors if the value contains an illegal sequence
-utf8String := utf8'© Snowman Industries (☃)'
-
-// This can overflow and cause panic if the utf8 contains
-// illegal sequences (but won't in this case)
-wString := utf8String as WString
-
-// Any overflows will be ignored and will not cause panic for an
-// illegal sequences
-wString := utf8String cast WString
-
-
-wideString := w'Runtime value with a non-ascii value "' h'16f' w'" is not ' \
-              'legal to express in an ascii string.'
-
-// This will cause a runtime panic since it cannot be converted
-// (because the `as` keyword assumes all conversion is entirely legal)
-stringIsRuntimePanic := wideString as String
-
-// The overflow will be ignored during the conversion and the
-// overflow value is truncated
-StringOverflowIsIgnored := wideString cast String
-
-// The wide string is convertible safely into a utf8 string as an no overflow
-// is possible
-stringIsRuntimeSafe := wideString as Utf8String
-````

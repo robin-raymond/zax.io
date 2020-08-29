@@ -142,6 +142,8 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Arrays](arrays.md)
 
+## [Casting](casting.md)
+
 ## [Context Type](context.md)
 
 ## [Namespacing and Importing Modules](namespacing.md)
