@@ -68,9 +68,219 @@ stringIsRuntimeSafe := wideString as Utf8String
 ````
 
 
+### Pointer casting using `cast`
+
+Any type can be converted from one pointer type to another pointer type using the `cast` operator. The compiler will not perform any type checking on the types to check if they are compatible. If a pointer is cast to an incompatible type and accessed then the undefined behaviors can result.
+
+A `void*` can be used to hold a generic pointer to anything.
+
+
+### Casting a by-value type into a pointer
+
+When a value is cast as a pointer, the address of the pointer is taken. However, in many cases manual casing to a pointer type is unnecessary. In Zax, a value type will automatically convert to a pointer `type` implicitly for the same `type` without any conversion being required. For greater explicitness, the `as` operator can convert from a value to a pointer to the same type safely without introducing undefined behaviors.
+
+The `cast` operator will forcefully convert any value type into a pointer of any other type. This type of conversion is not recommended as it can lead to undefined behaviors.
+
+Examples of pointer casting:
+
+````zax
+MyType :: type {
+    value1 : Integer
+    value2 : String
+}
+
+AnotherType :: type {
+    value1 : Float
+    value2 : WString
+}
+
+func : ()(input : MyType*) = {
+    //...
+}
+
+myType : MyType
+anotherType : AnotherType
+
+myTypePointer1 := myType as MyType*     // allowed
+myTypePointer2 := myType as *           // allowed - type is deduced
+myTypePointer2 : MyType* = myType       // allowed - implicit casting
+
+func(myType)                            // allowed - implicit casting
+
+
+// ERROR: cannot convert from myType to AnotherType* as the types do not match
+myOtherTypePointer := myType as AnotherType*
+
+// UNDEFINED BEHAVIOR: casting a pointer to one type into a pointer of another
+// can lead to undefined behaviors if the pointers are accessed
+myOtherTypePointer := myType cast AnotherType*
+
+// ERROR: cannot convert from `AnotherType` to `MyType*`
+func(anotherType)
+
+// ERROR: cannot convert from `AnotherType*` to `MyType*`
+func(anotherType cast AnotherType*)
+
+// UNDEFINED BEHAVIOR: casting a pointer to one type into a pointer of another
+// can lead to undefined behaviors if the pointers are accessed
+func(anotherType cast MyType*)
+````
+
+
+
+### Casting a pointer to a by-value type
+
+A pointer cannot be converted back to a by-reference type (or to a by-value type). The compiler does not allow this kind of casting to occur because the pointer may point to nothing. The pointer should be checked to verify that the pointer is pointing to a valid type's instance or a panic may occur at runtime. The `as` operator can be used as one method to convert the pointer or a pointer can be converted to a reference to a type by using the dot (`.`) operator.
+
+The `cast` operator will forcefully convert any pointer type into a value reference of any other type but this is not recommended as it can lead to undefined behaviors.
+
+Examples of pointer casting:
+
+````zax
+MyType :: type {
+    value1 : Integer
+    value2 : String
+}
+
+AnotherType :: type {
+    value1 : Float
+    value2 : WString
+}
+
+funcByValue : ()(input : MyType) = {
+    //...
+}
+
+funcByRef : ()(input : MyType&) = {
+    //...
+}
+
+myType : MyType
+anotherType : AnotherType
+
+myTypePointer := myType as MyType*      // allowed
+
+myTypeRef1 := myType as MyType&         // allowed - implicit casting 
+myTypeRef2 := myType as &               // allowed - deduced reference type
+myTypeRef3 : MyType& = myType           // allowed - implicit casting 
+myTypeRef4 : & = myType                 // allowed - implicit casting with
+                                        // deduced reference type
+funcByValue(myType)                     // allowed - copy
+funcByRef(myType)                       // allowed
+
+
+myTypeRef5 := myTypePointer as MyType&  // allowed - implicit casting 
+myTypeRef6 := myTypePointer as &        // allowed - deduced reference type
+
+funcByValue(myTypePointer as MyType&)   // allowed - copy
+funcByRef(myTypePointer as MyType&)     // allowed - implicit casting
+
+
+// ERROR: cannot implicitly convert from a pointer type to a reference type
+myTypeRef7 : MyType& = myTypePointer 
+myTypeRef8 : & = myTypePointer
+funcByValue(myTypePointer)
+funcByRef(myTypePointer)
+
+
+myTypeRefA := myTypePointer. as MyType& // allowed - already a reference
+myTypeRefB := myTypePointer. as &       // allowed - already a reference
+
+funcByValue(myTypePointer. as MyType&)  // allowed - copy
+funcByRef(myTypePointer. as &)          // allowed - already a reference
+
+
+myTypeRefC : MyType& = myTypePointer.   // allowed - already a reference
+myTypeRefD : & = myTypePointer.         // allowed - already a reference
+myTypeRefE := myTypePointer.            // allowed - copy with
+                                        // deduced type
+
+funcByValue(myTypePointer.)             // allowed - copy
+funcByRef(myTypePointer.)               // allowed - already a reference
+
+
+myTypeCopy1 := myType as MyType         // allowed - copy 
+myTypeCopy2 : MyType = myType           // allowed - copy 
+myTypeCopy3 := myType                   // allowed - copy with
+                                        // deduced reference type 
+
+funcByValue(myType as MyType)           // allowed - copy of a copy
+funcByRef(myType as MyType)             // allowed - copy
+
+funcByValue(myType)                     // allowed - copy
+funcByRef(myType)                       // allowed
+
+
+myTypeCopy4 := myTypePointer as MyType  // allowed - implicit copy casting 
+
+// ERROR: cannot implicitly convert from a pointer type to a value copy
+myTypeCopy4 : MyType = myTypePointer
+
+
+funcByValue(myTypePointer as MyType)    // allowed - copy of a copy
+funcByRef(myTypePointer as MyType)      // allowed - copy
+
+// ERROR: cannot implicitly convert from a pointer type to a value copy
+funcByValue(myTypePointer)
+// ERROR: cannot implicitly convert from a pointer type to a reference
+funcByRef(myTypePointer)
+
+
+myTypeCopy5 := myTypePointer. as MyType // allowed - copy 
+myTypeCopy6 : MyType = myTypePointer.   // allowed - copy 
+
+
+funcByValue(myTypePointer. as MyType)   // allowed - copy of a copy
+funcByRef(myTypePointer. as MyType)     // allowed - copy
+
+funcByValue(myTypePointer.)             // allowed - copy
+funcByRef(myTypePointer.)               // allowed
+
+
+
+myTypePointerToNothing : MyType*                    // points to nothing
+
+myTypePanic1 := myTypePointerToNothing as MyType&   // PANIC AT RUNTIME
+myTypePanic2 := myTypePointerToNothing as &         // PANIC AT RUNTIME
+myTypePanic3 := myTypePointerToNothing as MyType    // PANIC AT RUNTIME
+
+funcByValue(myTypePointerToNothing as MyType&)      // PANIC AT RUNTIME
+funcByRef(myTypePointerToNothing as MyType&)        // PANIC AT RUNTIME
+
+funcByValue(myTypePointerToNothing as &)            // PANIC AT RUNTIME
+funcByRef(myTypePointerToNothing as &)              // PANIC AT RUNTIME
+
+funcByValue(myTypePointerToNothing as MyType)       // PANIC AT RUNTIME
+funcByRef(myTypePointerToNothing as MyType)         // PANIC AT RUNTIME
+
+myTypePanic4 := myTypePointerToNothing. as MyType&  // PANIC AT RUNTIME
+myTypePanic5 := myTypePointerToNothing. as &        // PANIC AT RUNTIME
+myTypePanic6 := myTypePointerToNothing. as MyType   // PANIC AT RUNTIME
+
+
+// ERROR: cannot implicitly convert from a pointer type to a reference type
+myTypePanicA : MyType& = myTypePointerToNothing
+myTypePanicB : & = myTypePointerToNothing
+myTypePanicC : MyType = myTypePointerToNothing
+
+
+// ERROR: cannot implicitly convert from a pointer type to a reference type
+funcByValue(myTypePointerToNothing)
+funcByRef(myTypePointerToNothing)
+
+
+myTypePanicD : MyType& = myTypePointerToNothing.    // PANIC AT RUNTIME
+myTypePanicE : & = myTypePointerToNothing.          // PANIC AT RUNTIME
+myTypePanicF : MyType = myTypePointerToNothing.     // PANIC AT RUNTIME
+
+funcByValue(myTypePointerToNothing.)                // PANIC AT RUNTIME
+funcByRef(myTypePointerToNothing.)                  // PANIC AT RUNTIME
+````
+
+
 ### `type` casting using `as`
 
-A `type` deemed compatible with another `type` be converted from one `type` to another `type` using the `as` operator. Compatibility is determined by ensuring the destination type contains all of the same types in the same order occupying the same space in memory. The variable names for the `type` need not be the same but the types must all be compatible. Likewise important qualifiers must not be lost. A type declared as `final` or `once
+A `type` deemed compatible with another `type` be converted from one `type` to another `type` using the `as` operator. Compatibility is determined by ensuring the destination type contains all of the same types in the same order occupying the same space in memory. The variable names for the `type` need not be the same but the types must all be compatible. Likewise important qualifiers must not be lost. A type declared as `final` or `once`.
 
 Other considerations:
 * types declared as `once` are ignored
