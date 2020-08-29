@@ -613,7 +613,7 @@ The exclusive difference between these operators is safety. The `lifecast` opera
 
 ### `handle` overhead and control blocks
 
-A `handle` pointer only contain a pointer to an instance of a type. When a type is allocated for storage in a `handle` pointer, a control block is reserved as part of the allocation of the type. The control block's memory location is determined by using pointer math on the pointed to instance since the control block typically precedes the type's memory.
+A `handle` pointer contains a pointer to an instance of a type and a pointer to the control block. When a type is allocated for storage in a `handle` pointer, a control block is typically reserved as part of the allocation of the type.
 
 An example `handle` pointer content and control block:
 
@@ -623,13 +623,15 @@ HandlePointerControlBlock {
     strongCount : Integer atomic
     reserved1 : Byte[sizeof Integer atomic]
     allocator : Allocator*
-    allocatorPointer : void*
     destructor : ()()*
+    deallocateType : void*
+    deallocateControl : void*
     reservedStorage : Byte[ /* alignment size needed + storage space for type */ ]
 }
 
 HandlePointerContents$(Type) :: type {
     instance : $Type *
+    control : void*
 }
 */
 ````

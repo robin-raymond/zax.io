@@ -728,7 +728,9 @@ The exclusive difference between these operators is safety. The `lifecast` opera
 
 ### `strong` and `weak` overhead and control blocks
 
-A `strong` and `weak` pointers only contain a pointer to an instance of a type. When a type is allocated for storage in a `strong` pointer, a control block is reserved as part of the allocation of the type. The control block's memory location is determined by using pointer math on the pointed to instance since the control block typically precedes the type's memory.
+A `strong` and `weak` pointers contain a pointer to an instance of a type and a pointer to the control block. When a type is allocated for storage in a `strong` pointer, a control block is typically reserved as part of the allocation of the type.
+
+Since `weak` pointers also need control blocks, `weak` pointers can keep the memory for a control block alive and possibly the `type` too if the control block and `type` are allocated within the same memory space. To clean up allocated memory, reset any `weak` pointers to point to nothing after all `strong` pointers are gone.
 
 An example `strong` / `weak` pointer content and control block:
 
@@ -737,14 +739,16 @@ An example `strong` / `weak` pointer content and control block:
 StrongPointerControlBlock {
     strongCount : Integer atomic
     weakCount : Integer atomic
-    allocator : Allocator*
-    allocatorPointer : void*
     destructor : ()()*
+    deallocateType : void*
+    deallocateControl : void*
+    control : void*
     reservedStorage : Byte[ /* alignment size needed + storage space for type */ ]
 }
 
 StrongPointerContents$(Type) :: type {
     instance : $Type *
+    control : void*
 }
 */
 ````

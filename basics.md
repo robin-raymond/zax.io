@@ -114,6 +114,7 @@ Common aliases are placed in `Module.System.Keywords`:
 const export :: alias keyword constant
 property export :: alias keyword mutator
 static export :: alias once
+downcast export :: alias outercast
 ````
 
 

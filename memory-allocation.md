@@ -404,7 +404,7 @@ func : (result : String)() = {
 
 ### `own` overhead and control blocks
 
-An `own` pointer only contain a pointer to an instance of a type. When a type is allocated for storage in a `own` pointer, a control block is reserved as part of the allocation of the type. The control block's memory location is determined by using pointer math on the pointed to instance since the control block typically precedes the type's memory.
+An `own` pointer contains a pointer to an instance of a type and a pointer to the control block. When a type is allocated for storage in a `own` pointer, a control block is typically reserved as part of the allocation of the type.
 
 A small implementation detail, a `strong`, `weak`, `handle` and `own` control blocks will likely all be contained within a union of all their control blocks (with some reserved space to align values) thus ensuring that each control block can be quick casted into another control block with minimal overhead and without needing reallocation of the control blocks during the conversion process.
 
@@ -415,13 +415,15 @@ An example `own` pointer content and control block:
 OwnPointerControlBlock {
     reserved1 : Byte[sizeof(Integer atomic) * 2]
     allocator : Allocator*
-    allocatedPointer : void*
     destructor : ()()*
+    deallocateType : void*
+    deallocateControl : void*
     reservedStorage : Byte[ /* alignment size needed + storage space for type */ ]
 }
 
 OwnPointerContents$(Type) :: type {
     instance : $Type *
+    control : void*
 }
 */
 ````
