@@ -320,3 +320,35 @@ whatIsTheMeaningOfLife final export : (result : Integer)() = {
     return 42
 }
 ````
+
+
+### Variable and namespace resolution and name shadowing
+
+When a name or dotted name is encountered, the name is resolved by componentizing the name first where the components are read left to right. The name is checked against the most local names in scope first and if the name is not found then the outer scope is checked. If the name is found then the next name component is checked (if any are present) to see if matching sub-components of the found item exist. If all the component names match then the name is resolved. If the component names are not found then the outer scopes continue to be checked until a full match can be found. If no match can be made then an error is reported by the compiler.
+
+Since the same name can exist in an inner scope as an outer scope, an outer name might end up becoming shadowed and hidden from view. By intentional design, the language can only check from inner to outer scope so once a match is found any hidden names will not be accessible from that scope. No language operator can be used to start the search from the global scope. The `alias` keyword can be used to give a new name to a shadowed name so the item can be located by its `alias` name.
+
+````zax
+
+MyType :: type {
+    value1 : Integer
+    value2 : String
+}
+
+NonShadowedName :: alias MyType
+
+func : ()() = {
+    MyType :: type {
+        name : String
+        value : Integer
+    }
+
+    // the local `MyType` definition will be used and the global `MyType`
+    // definition will be shadowed inside this function and invisible
+    valueA : MyType
+
+    // the global `MyType` definition will be used as the alias name
+    // is visible (i.e. not shadowed)
+    valueB : NonShadowedName
+}
+````
