@@ -534,6 +534,7 @@ animal3 : Animal = {.animal = "bird", .canFly = true, .legs = 2}
 animal4 : Animal = {.animal = "worm", .slimy = true}
 ````
 
+
 ### `once`
 
 The `once` keyword ensures that only a single instance of a type can ever be constructed for a declared variable. Similar to global variables, the entire program will only ever construct and destruct `once` variables a single time within an application runtime.

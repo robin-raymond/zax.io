@@ -919,6 +919,143 @@ myType.value3 = 1001
 myType.save()
 ````
 
+
+### Split and combine argument operators
+
+### Splitting type into a function call
+
+The argument split (`<-`) operator with named declarations `{}` can be used to fill arguments passed into a function with a newly declared anonymous type. Each argument is matched with an input argument. All arguments those arguments are considered satisfied by the split (`<-`) operator as if those arguments were not present in the argument list and the rules standard rules remain for any arguments unspecified.
+
+
+````zax
+print : ()(...) = {
+    //...
+}
+
+func : ()(
+    age : Integer,
+    name : String,
+    weight : Float,
+    defaultSmiley : Rune
+) = {
+    //...
+}
+
+func(42, <- {.name = "Boothby", .age = 61, .weight = 120}, r'😀')
+````
+
+
+### Splitting type into a function call
+
+The split operator (`<-') can take a type and create an argument list for a function to satisfy the functions argument list. For any matchings type names to the argument names (not already fulfilled arguments) will be automatically filled as arguments to the function. Any additional type values unmatched will be ignored. Any unfulfilled arguments will need to be filled as per standard argument passing rules.
+
+````zax
+print : ()(...) = {
+    //...
+}
+
+func : ()(
+    age : Integer,
+    name : String,
+    weight : Float,
+    defaultSmiley : Rune
+) = {
+    //...
+}
+
+MyType :: type {
+    name : String
+    famousQuote : String
+    age : Integer
+    weight : Float
+}
+
+myType : MyType
+
+func(42, <- myType, r'😀')
+
+// print the first result
+print(value)
+
+print(myType.name)
+print(myType.famousQuote)
+print(myType.age)
+print(myType.weight)
+````
+
+
+#### Combining argument results into an anonymous type
+
+The argument combine operator (`->`) can be used to define and declare a new anonymous type whose values contain the results of the remaining arguments returned from a function.
+
+````zax
+print : ()(...) = {
+    //...
+}
+
+func : (
+    output1 : Integer,
+    output2 : String,
+    output3 : Float,
+    output5 : Rune
+)() = {
+    //...
+    return output1, output2
+}
+
+// creates a new anonymous type and fill the results with the remaining
+// arguments in the function return
+value1 :, remaining : -> = func()
+
+// print the first result
+print(value)
+
+// print the other resulting values
+print(remaining.output2)
+print(remaining.output3)
+print(remaining.output4)
+````
+
+
+#### Combining argument results into an existing type
+
+The argument combine operator (`->`) can be used to assign values returned from function directly into an existing type. For the names of return arguments unfulfilled in existing return results, the return argument names are matched to the names in the type declared and any matching names are treated as if they were removed from the return result list as they are fulfilled. Any non matching names can be declared as additional arguments need to be captured as per standard argument returning rules. If none of the names match when using the combine operator (`->`), an attempt is made to apply an automatic `as` operator from the remaining returned types (as if they were a combined type) up to the final value present in the destination type. If the types are deemed compatible (as per `as` casting rules) those arguments are considered fulfilled and treated as if they were removed from the returned argument list. If neither method results in any matches then the compiler will issue an error. Any unmatched values present in the result results will need to be fulfilled as per standard argument returning rules.
+
+````zax
+print : ()(...) = {
+    //...
+}
+
+func : (
+    age : Integer,
+    name : String,
+    weight : Float,
+    defaultSmiley : Rune
+)() = {
+    //...
+}
+
+MyType :: type {
+    name : String
+    famousQuote : String
+    age : Integer
+    weight : Float
+}
+
+// uses existing `MyType` type and fills the results with the arguments
+// as returned from the function
+value1 :, myType : MyType ->, defaultSmiley: = func()
+
+// print the first result
+print(value)
+
+print(myType.name)
+print(myType.famousQuote)
+print(myType.age)
+print(myType.weight)
+````
+
+
 ### Inline function compiler directives
 
 The `inline` compiler directive ``[[inline]]`` can be used to signal to the compiler when to inline a `final` function directly into code or when to call the function as an explicit function call. By default the compiler will decide if inlining a function is desirable.

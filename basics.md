@@ -456,6 +456,7 @@ Literals can be extended across multiple lines and can toggle between using the 
 :: import Module.System.Literals
 
 char := c'\n'                   // becomes a new line character
+wideChar := r`😀`               // declare a rune character / wide character
 charBackslash := c'\\'          // becomes a backslash
 charDoubleQuote := c'"'         // becomes a double quote
 charSingleQuote := c"'"         // becomes a single quote
