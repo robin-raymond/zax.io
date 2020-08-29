@@ -113,6 +113,7 @@ Common aliases are placed in `Module.System.Keywords`:
 // some example keywords that are aliased in the keywords module
 const export :: alias keyword constant
 property export :: alias keyword mutator
+static export :: alias once
 ````
 
 
@@ -144,102 +145,109 @@ constant_ : Type constant
 
 #### Overloadable
 ````zax
-+           // plus
--           // minus
-++          // unary increment (pre or post)
---          // decrement (pre and post)
-*           // multiple or unary pointer
-/           // divide
-%           // modulus divide
-=           // assign
-^           // binary xor
-&           // binary and
-|           // binary or
-<<          // binary left shift
->>          // binary right shift
-<<<         // binary left rotate
->>>         // binary right rotate
-~           // one's compliment
-!           // unary logical not
-&&          // logical and
-||          // logical or
-^^          // logical exclusive or
-+=          // add and assign
--=          // subtract and assign
-*=          // multiply and assign
-/=          // divide and assign
-%=          // modulus divide and assign
-==          // is equal
-!=          // is not equal
-<           // is less than
->           // is greater than
-<=          // is less than
->=          // is greater than
-^=          // binary xor and assign
-|=          // binary or and assign
-<<=         // binary left shift and assign
->>=         // binary right shift and assign
-<<<=        // binary left rotate and assign
->>>=        // binary right rotate and assign
-.           // dereference access
-'           // literal start or end
-as          // safe conversion to type
-()          // function argument or function invocation start
-[]          // array declaration open or array access
-countof     // unary operator to returns the number elements in a type or
-            // the total reference count for a
-            // `strong`, `weak`, or `handle` pointer
++               // plus
+-               // minus
+++              // unary increment (pre or post)
+--              // decrement (pre and post)
+*               // multiple or unary pointer
+/               // divide
+%               // modulus divide
+=               // assign
+^               // binary xor
+&               // binary and
+|               // binary or
+<<              // binary left shift
+>>              // binary right shift
+<<<             // binary left rotate
+>>>             // binary right rotate
+~               // one's compliment
+!               // unary logical not
+&&              // logical and
+||              // logical or
+^^              // logical exclusive or
++=              // add and assign
+-=              // subtract and assign
+*=              // multiply and assign
+/=              // divide and assign
+%=              // modulus divide and assign
+==              // is equal
+!=              // is not equal
+<               // is less than
+>               // is greater than
+<=              // is less than
+>=              // is greater than
+^=              // binary xor and assign
+|=              // binary or and assign
+<<=             // binary left shift and assign
+>>=             // binary right shift and assign
+<<<=            // binary left rotate and assign
+>>>=            // binary right rotate and assign
+.               // dereference access
+'               // literal start or end
+as              // safe conversion to type
+()              // function argument or function invocation start
+[]              // array declaration open or array access
+countof         // unary operator to returns the number elements in a type or
+                // the total reference count for a
+                // `strong`, `weak`, or `handle` pointer
 ````
 
 
 #### Non overloadable
 ````zax
-*           // pointer type declaration or unary pointer dereference
-&           // reference type declaration or unary reference
-+++         // unary constructor
----         // unary destructor
-$           // templated variable, type or argument
-@           // allocate and construct type
-_           // this pointer (value can be changed to compatible type)
-___         // serial context pointer (value can be changed)
-.           // type/namespace resolution
-...         // variadic values
-$...        // variadic type(s)
-,           // argument
-;           // statement separator
-:           // variable type declaration
-::          // data type or meta data declaration
-::.         // data type dereference
-?           // optional type
-??          // ternary operator
-???         // uninitialized type
-{           // scope or  begin
-}           // scope end
-[[]]        // compiler directive or attribute declaration open
-"           // string start or end
-->          // combine remaining function result arguments into a
-            // single automatic defined type
-<-          // split type into multiple function arguments
-\           // statement continuation
-cast        // conversion from one type to another
-            // (unsafe forcefully)
-outercast   // convert from contained type pointer to container type pointer
-            // (unsafe forcefully)
-copycast    // treat the raw `void` pointer as pointing to an instance of the
-            // casted type and make a copy of the contents
-            // (unsafe forcefully)
-lifecast    // converts a raw pointer to share a lifetime an existing
-            // `strong` or `handle` pointer
-            // (unsafe forcefully)
-outerlink   // convert from contained type pointer to container type pointer
-            // (safely probing the instance if the conversion can happen)
-lifelink    // links a raw pointer to an existing `strong` or `handle` pointer
-            // (safely probes if the pointer to type points to memory within
-            // the allocated `strong` or `handle` pointer)
-sizeof      // unary operator to return the size of a type
-alignof     // unary operator to return the alignment of a type
-offsetof    // compute the byte offset of a contained type
-            // within a container composition type
+*               // pointer type declaration or unary pointer dereference
+&               // reference type declaration or unary reference
++++             // unary constructor
+---             // unary destructor
+$               // templated variable, type or argument
+@               // allocate and construct type
+_               // this pointer (value can be changed to compatible type)
+___             // serial context pointer (value can be changed)
+.               // type/namespace resolution
+...             // variadic values
+$...            // variadic type(s)
+,               // argument
+;               // statement separator
+:               // variable type declaration
+::              // data type or meta data declaration
+::.             // data type dereference
+?               // optional type
+??              // ternary operator
+???             // uninitialized type
+{               // scope or  begin
+}               // scope end
+[[]]            // compiler directive or attribute declaration open
+"               // string start or end
+->              // combine remaining function result arguments into a
+                // single automatic defined type
+<-              // split type into multiple function arguments
+\               // statement continuation
+cast            // conversion from one type to another
+                // (unsafe forcefully)
+outercast       // convert from contained type pointer to container type pointer
+                // (unsafe forcefully)
+copycast        // treat the raw `void` pointer as pointing to an instance of
+                // he casted type and make a copy of the contents
+                // (unsafe forcefully)
+lifecast        // converts a raw pointer to share a lifetime an existing
+                // `strong` or `handle` pointer
+                // (unsafe forcefully)
+outerlink       // convert from contained type pointer to container type pointer
+                // (safely probing the instance if the conversion can happen)
+lifelink        // links a raw pointer to an existing `strong` or `handle`
+                // pointer (safely probes if the pointer to type points to
+                // memory within the allocated `strong` or `handle` pointer)
+overhead        // obtain a pointer to the overhead information for an
+                // `own`, `handle`, `strong`, or `weak` pointer or optional type
+sizeof          // unary operator to return the size of a type
+alignof         // unary operator to return the alignment of a type
+offsetof        // compute the byte offset of a contained type
+                // within a container composition type
+overheadof      // return the number of bytes overhead for a given variable or
+                // type for compiler implemented type features tied to each
+                // instance of the variable of a particular type
+controlsizeof   // return the number of bytes overhead is needed for the size of
+                // a control block for a type
 ````
 
 
@@ -492,4 +500,3 @@ continueExisting := w'encoding inside single quotes is continued ' \
                     'declaring again when changed, e.g. "' \
                     h'16F' w'" needed the "w" declared once again'
 ````
-

@@ -609,3 +609,27 @@ function : ()() = {
 #### `lifelink` versus `lifecast`
 
 The exclusive difference between these operators is safety. The `lifecast` operator will force a conversion of any raw pointer to link to `handle` or `strong` pointer even for unrelated pointers. The `lifelink` operator will validate the raw pointer actually points inside the address boundaries of the `handle` or `strong` pointer. If it does not then `lifelink` will return a pointer to nothing.
+
+
+### `handle` overhead and control blocks
+
+A `handle` pointer only contain a pointer to an instance of a type. When a type is allocated for storage in a `handle` pointer, a control block is reserved as part of the allocation of the type. The control block's memory location is determined by using pointer math on the pointed to instance since the control block typically precedes the type's memory.
+
+An example `handle` pointer content and control block:
+
+````zax
+/*
+HandlePointerControlBlock {
+    strongCount : Integer atomic
+    reserved1 : Byte[sizeof Integer atomic]
+    allocator : Allocator*
+    allocatorPointer : void*
+    destructor : ()()*
+    reservedStorage : Byte[ /* alignment size needed + storage space for type */ ]
+}
+
+HandlePointerContents$(Type) :: type {
+    instance : $Type *
+}
+*/
+````

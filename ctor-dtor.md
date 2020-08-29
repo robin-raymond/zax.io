@@ -533,3 +533,53 @@ animal2 : Animal = {.animal = "spider", .legs = 8}
 animal3 : Animal = {.animal = "bird", .canFly = true, .legs = 2}
 animal4 : Animal = {.animal = "worm", .slimy = true}
 ````
+
+### `once`
+
+The `once` keyword ensures that only a single instance of a type can ever be constructed for a declared variable. Similar to global variables, the entire program will only ever construct and destruct `once` variables a single time within an application runtime.
+
+The `once` keyword for constructable types incurs some additional overhead not present for global variables. First, any allocated memory will use the context's thread aware allocators. The compiler ensures that the constructor of the variable can only be constructed with a single global instance atomically regardless of which thread might access the variable. A `once` variable will not become constructed until the variable value is accessed and the variable will destruct in reverse order to construction (intermixed with any globals constructed or destructed at runtime).
+
+
+### Global construction order
+
+The order of globals construction is based on declaration order, except where dependency detection requires a type be declared prior to another type. The compiler will error upon global vales attempting to assign values in a circular manner.
+
+The order of destruction is reverse order to construction intermixed with any `once` variables that become constructed or destructed along the way. Global variables are only constructed one time and destructed one time, although, they can be assigned new values.
+
+By their nature, globals are not thread safe. Care must be taken to ensure any global variables accessed do not cause thread collisions. Globals will use the thread aware allocators for default allocated global variables. The programmer should swap out thread aware allocators for thread local allocators in their main entry point to ensure the fastest allocator is being utilized.
+
+````zax
+MyType :: type {
+    name own : String
+}
+
+mySingleton : (result : MyType&)() = {
+    singleton once : MyType = "Alice"
+    return singleton
+}
+
+valueA : MyType = "Bob"
+
+singleton := mySingleton()
+
+valueB : MyType = value3
+
+valueC : MyType = "Debbie"
+````
+
+The order of construction will be:
+````txt
+valueA
+singleton
+valueC
+valueB
+````
+
+The oder of of destruction will be:
+````txt
+valueB
+valueC
+singleton
+valueA
+````
