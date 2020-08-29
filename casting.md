@@ -298,13 +298,26 @@ A `type` deemed compatible with another `type` be converted from one `type` to a
 
 Other considerations:
 * types declared as `once` are ignored
-* functions declared as `final` do not need to match (as long as they do not capture data)
-* values declared which are `constant` or `final` are ignored (as long as an instance of a type is not required inside the type's storage space)
+* functions declared as `final` do not need to match in declaration with an exception about captured data
+    * captured data types must be identical and in the same type order (otherwise capture value copy cannot work)
+* pointers and references must be of equivalent types
+* reference can become pointers of the same `type` but pointers cannot become references (due to the assumption that pointers might point to nothing whereas references always point to a valid instance)
+* values declared which are `constant` or `final` are ignored where no storage inside the `type` is required
 * the source `type` can have more contained values than the `destination` type and still match
-* casting `as` a value type will treat the source `type` as a type of `destination` and will use the copy constructor of the destination type to fulfill `cast` request
+* type [slicing](https://en.wikipedia.org/wiki/Object_slicing) can occur if a by-value copy casting is done (which may be desirable in some circumstances to extract the data out of a container safely)
+* casting `as` a by-value type will treat the source `type` as a `type` of `destination` and will use the copy constructor of the destination type to fulfill `cast` request
+* casting `as` a by-value `type` will not be allowed if the destination `type` has disabled copy construction
 * a variable's `private` keyword is ignored and a `private` value can be accessed as non-`private` values in the destination (if the destination does not declare the new variable for the `type` as `private`)
-* a `type` marked as `constant` must remain `constant` in the destination, including the converting type itself (i.e. `constant` qualification cannot be lost during the conversion)
-* the memory layout of a type up to the final type of the destination must be identical (including alignment)
+    * `private` is used to hide variables from view and should never be used as a method to keep data secret
+* `constant` qualification cannot be lost during the conversion
+    * in by-reference / by-pointer conversions any contained values must remain `constant` in the destination if the source had the `type` as `constant`
+    * in by-reference / by-pointer conversions the `type` must remain constant if the source was constant
+    * by-value conversions are not required to maintain `constant` qualification for contained types if the `type`'s values are copied and the contained types are not references or pointers
+* using `as` to convert from `mutable` and `immutable` is legal if the underlying types are deemed compatible
+* by-reference / by-pointer converting from an `immutable` to `mutable` is not allowed (even if the types are compatible)
+* by-value converting from an `immutable` to `mutable` is allowed (if the types are compatible)
+* the memory layout and alignment of a `type` up to the final type of the destination must be identical
+* narrowing or broadening of intrinsic types during a conversion is not allowed on contained types as the conversion would not be legal since the types do not share a common memory layout
 
 ````zax
 MyType :: type {
