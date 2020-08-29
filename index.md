@@ -138,6 +138,8 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Functions](functions.md)
 
+## [Optional Types](optional.md)
+
 ## [Constructors and Destructors](ctor-dtor.md)
 
 ## [Arrays](arrays.md)
