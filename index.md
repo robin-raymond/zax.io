@@ -154,6 +154,8 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Meta-Functions](meta-functions.md)
 
+## [Partial Types](partial.md)
+
 ## [Concurrency](concurrency.md)
 
 ## [Compiler Warnings and Errors](warnings-errors.md)
