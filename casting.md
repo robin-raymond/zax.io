@@ -128,9 +128,11 @@ func(anotherType cast MyType*)
 
 
 
-### Casting a pointer to a by-value type
+### Casting a pointer to a by-reference or by-value type
 
-A pointer cannot be converted back to a by-reference type (or to a by-value type). The compiler does not allow this kind of casting to occur because the pointer may point to nothing. The pointer should be checked to verify that the pointer is pointing to a valid type's instance or a panic may occur at runtime. The `as` operator can be used as one method to convert the pointer or a pointer can be converted to a reference to a type by using the dot (`.`) operator.
+A pointer cannot be implicitly converted back to a by-reference type (or to a by-value type). The compiler does not allow this kind of casting to occur because the pointer may point to nothing and the programmer should check (or decide they don't need to check). If the pointer is not checked to verify that the pointer is pointing to a valid type's instance a panic may occur at runtime if the pointer is not valid.
+
+The `as` operator can be used as one method to convert the pointer to a by-value or by-reference type, or alternatively the dot (`.`) operator can convert a pointer to a by-reference type.
 
 The `cast` operator will forcefully convert any pointer type into a value reference of any other type but this is not recommended as it can lead to undefined behaviors.
 
@@ -182,6 +184,12 @@ myTypeRef8 : & = myTypePointer
 funcByValue(myTypePointer)
 funcByRef(myTypePointer)
 
+
+if myTypePointer {
+    // safe because the pointer was checked if it points to something
+    // valid and this code executes and the conversion is performed
+    checkedType := myTypePointerToNothing as MyType&
+}
 
 myTypeRefA := myTypePointer. as MyType& // allowed - already a reference
 myTypeRefB := myTypePointer. as &       // allowed - already a reference
@@ -239,6 +247,12 @@ funcByRef(myTypePointer.)               // allowed
 
 
 myTypePointerToNothing : MyType*                    // points to nothing
+
+if myTypePointerToNothing {
+    // safe because the pointer was checked if it points to something
+    // valid (this code will not execute)
+    checkedType := myTypePointerToNothing as MyType&
+}
 
 myTypePanic1 := myTypePointerToNothing as MyType&   // PANIC AT RUNTIME
 myTypePanic2 := myTypePointerToNothing as &         // PANIC AT RUNTIME
