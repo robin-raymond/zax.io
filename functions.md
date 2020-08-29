@@ -918,3 +918,29 @@ myType.value3 = 1001
 
 myType.save()
 ````
+
+### Inline function compiler directives
+
+The `inline` compiler directive ``[[inline]]`` can be used to signal to the compiler when to inline a `final` function directly into code or when to call the function as an explicit function call. By default the compiler will decide if inlining a function is desirable.
+
+````zax
+// prefer the function to inline
+func1 final [[inline]] : ()() = {
+    //...
+}
+
+// let the compiler decide if inlining is preferred or not
+func2 final [[inline=maybe]] : ()() = {
+    //...
+}
+
+// only allow the function to be created inline
+func2 final [[inline=always]] : ()() = {
+    //...
+}
+
+// never allow the function to be inlined
+func3 final [[inline=never]] : ()() = {
+    //...
+}
+````

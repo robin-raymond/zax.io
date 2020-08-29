@@ -215,8 +215,7 @@ $...        // variadic type(s)
 ???         // uninitialized type
 {           // scope or  begin
 }           // scope end
-[[          // code directive or attribute declaration open
-]]          // code directive or attribute declaration close
+[[]]        // compiler directive or attribute declaration open
 "           // string start or end
 ->          // combine remaining function result arguments into a
             // single automatic defined type
