@@ -180,10 +180,11 @@ constant_ : Type constant
 >>=         // binary right shift and assign
 <<<=        // binary left rotate and assign
 >>>=        // binary right rotate and assign
+.           // dereference access
 '           // literal start or end
 as          // safe conversion to type
-[           // array declaration open or array access
-]           // array declaration close or array access
+()          // function argument or function invocation start
+[]          // array declaration open or array access
 countof     // unary operator to returns the number elements in a type or
             // the total reference count for a
             // `strong`, `weak`, or `handle` pointer
@@ -200,7 +201,7 @@ $           // templated variable, type or argument
 @           // allocate and construct type
 _           // this pointer (value can be changed to compatible type)
 ___         // serial context pointer (value can be changed)
-.           // type/namespace resolution or dereference access
+.           // type/namespace resolution
 ...         // variadic values
 $...        // variadic type(s)
 ,           // argument
@@ -215,8 +216,6 @@ $...        // variadic type(s)
 }           // scope end
 [[          // code directive or attribute declaration open
 ]]          // code directive or attribute declaration close
-(           // function argument or function invocation start
-)           // function argument or function invocation start
 "           // string start or end
 ->          // combine remaining function result arguments into a
             // single automatic defined type
@@ -232,8 +231,6 @@ copycast    // treat the raw `void` pointer as pointing to an instance of the
 lifecast    // converts a raw pointer to share a lifetime an existing
             // `strong` or `handle` pointer
             // (unsafe forcefully)
-handlecast  // converts a raw pointer to an existing `handle` pointer
-            // (unsafe forcefully)
 outerlink   // convert from contained type pointer to container type pointer
             // (safely probing the instance if the conversion can happen)
 lifelink    // links a raw pointer to an existing `strong` or `handle` pointer
@@ -242,7 +239,7 @@ lifelink    // links a raw pointer to an existing `strong` or `handle` pointer
 sizeof      // unary operator to return the size of a type
 alignof     // unary operator to return the alignment of a type
 offsetof    // compute the byte offset of a contained type
-            // within a container type
+            // within a container composition type
 ````
 
 
@@ -387,7 +384,7 @@ qword : QWord           // alias of double the byte capacity of the DWord type
 
 uuid : UUID             // alias of U128
 
-rune : Rune             // alias of U32
+rune : Rune             // alias of UWChar
 
 // aliased fixed size sizing types
 uptr : UPointer         // unsigned integer large enough to hold the
@@ -452,16 +449,15 @@ Literals can be extended across multiple lines and can toggle between using the 
 // import the module system literals into the global namespace
 :: import Module.System.Literals
 
-// binary numbers
 char := c'\n'                   // becomes a new line character
 charBackslash := c'\\'          // becomes a backslash
 charDoubleQuote := c'"'         // becomes a double quote
 charSingleQuote := c"'"         // becomes a single quote
 charNulValue := c'\0'           // becomes a NUL character
 binary := b'1011101'            // becomes a base-2 number
-hexadecimal := h'ABC123'        // becomes a base-16 number
-duodecimal := d'1234567890AB'   // becomes a base-12 number
 octal := o'12345670'            // becomes a base-8 numbers
+duodecimal := d'1234567890AB'   // becomes a base-12 number
+hexadecimal := h'ABC123'        // becomes a base-16 number
 
 asciiString := ascii'some ascii string'
 

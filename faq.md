@@ -99,3 +99,13 @@ This site is currently hosted with GitHub which does not appear to support synta
 ### If this language is data orientated, why does the language support some Object Oriented features like constructors/destructors?
 
 Data Oriented design puts the focus around the data whereas Object Orientated attempts to hide the data inside encapsulated objects that have actors and actions that apply to the object. While data design is promoted strongly in video game design, the principles are sound for generalized programming too. Concepts like constructors and destructors or functions on types can be used in a Data Oriented mode or an Object Orientated model. The difference is the language is not attempting to provide object abstraction models and instead put the focus entirely on the data and its organization. Other concepts typically associated with Object Orientated design are not unique to that design principle. For example, polymorphism can equally apply to a procedural language as it does an Object Orientated language despite its strong association with the latter.
+
+
+### Isn't Zax just syntax sugar?
+
+That could be said for every language. Isn't C just syntax sugar for assembly? Isn't C++ syntax sugar for C (plus a few features)? Zax attempts to marry some of the best concepts from multiple languages. Zax is not aiming to be the most powerful language but it does aim to be a pleasing language to work within.
+
+
+### Shouldn't concurrency features just be a library?
+
+While it's possible to program all of the concurrency features within in a library, without language support, some of the concurrency features would be extremely ugly to develop or would require complex code introspection. For example, the compiler rewrites task functions into suspend/resume blocks of code. Other features (such a `strong` pointers or `deep` copy) are doable but they can make code ugly with complex templates and operator overriding instead of simple type qualifiers.
