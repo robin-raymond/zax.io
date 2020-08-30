@@ -3,7 +3,7 @@
 
 ## Partial Types
 
-The language has [`partial`](https://en.wikipedia.org/wiki/Class_(computer_programming)#Partial) support for types. However, partial types are heavily restricted and caution must be used in creating `parial` types as they can inject variables, types, and functions inside existing declared types.
+The language has [`partial`](https://en.wikipedia.org/wiki/Class_(computer_programming)#Partial) support for types. However, partial types are heavily restricted and caution must be used in creating `partial` types as they can inject variables, types, and functions inside existing declared types.
 
 The primary motivation for `partial` is to support:
 * extending the builtin context `___` to include additional properties

@@ -172,3 +172,5 @@ The following are registered warnings, default states, and their meaning:
     * a asset file was requested to be copied but it cannot be located
 * `shadow-found` (always)
     * a declaration was made which hides another declaration from being accessible
+* `uninitialized-data` (always)
+    * an attempt was made to access known uninitialized data
