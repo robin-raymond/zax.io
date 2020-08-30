@@ -47,7 +47,9 @@ Types marked as `immutable` are an excellent example where this kind of optimiza
 
 Rather than performing a copy whenever the immutable type is passed to functions, a simple `handle` pointer to the real data might be utilized. A `handle` pointer keeps a simple reference count to a type and disposes of the data when the final instance of a type is disposed and thus is perfectly suitable for `immutable` data sharing. While a `strong` pointer could be used instead of a `handle` type, a `strong` pointer incurs additional concurrency overhead every time a reference count is incremented or decremented since the reference count for `strong` pointers must be thread safe. This overhead can cause a CPU to operate less efficiently as it can disrupt things like CPU branch predictability and CPU caches.
 
-An alternative qualifier of `deep` can be applied to a type to ensure a full copy of the type is performed prior to transferred the type's instance to a new thread. The `deep` qualifier can be used to ensure a completely independent copy of a type is made so a copy of an immutable type is made whenever the type is passed to a different thread.
+A qualifier of `deep` can be applied to a type to ensure a full copy of the type is performed prior to transferred the type's instance to a new thread. The `deep` qualifier can be used to ensure a completely independent copy of a type is made so a copy of an immutable type is made whenever the type is passed to a different thread.
+
+A qualifier of `deep` can be applied to the function definition where all input and output arguments automatically have `deep` applied to each argument type where appropriate.
 
 While seemingly a [`last` pointers/references](pointers.md#using-the-last-type-qualifier-to-optimize-content-transfer) method can seemingly be used to transfer out the contents of the data to a new type's instance prior to transfer to a new thread but the `last` does not guarantee any shared state is indeed the final copy. This mechanism can only work if the passed in type is truly the last instance of a type before it's disposal.
 
@@ -72,6 +74,11 @@ MyType :: type {
         // this version of the constructor will be called when a `deep`
         // copy of the contents must be performed
         animal = rhs.animal
+    }
+
+    merge : (result : MyType&)(rhs : MyType constant &) deep = {
+        // ...
+        return _.
     }
 }
 
@@ -98,6 +105,12 @@ myTypeFromLast := getAsTemporary(myType)
 // copy constructor will be removed and `myTypeFromDeep` will truly contain
 // an independent copy of the type's instance
 myTypeFromDeep := myType as deep
+
+anotherType : MyType
+
+// the compiler will treat all input/output arguments as being defined as
+// `deep` types
+anotherType.merge(myType)
 ````
 
 

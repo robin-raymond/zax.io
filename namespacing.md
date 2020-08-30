@@ -151,12 +151,17 @@ FastFooMathModule :: type {
 
     // a hash validation of the content can be performed (but is optional)
     hashAlgorithm final : constant = "SHA512"
-    hash once final : constant = "f3b85c040bae9b5ce8b914eb8e33ce529f94992b6f9c" \
-                                "7dda01f02b45a3bf64394036d9fda526fdc40c63246a" \
-                                "326b42deb3de36554d6a21c933e960a430543685"
+    hash once final : constant = "f3b85c040bae9b5ce8b914eb8e33ce529f94992b6f" \
+                                 "9c7dda01f02b45a3bf64394036d9fda526fdc40c63" \
+                                 "246a326b42deb3de36554d6a21c933e960a430543685"
+
+    // the API contract version desired from imported module
+    // (see deprecation compiler directive)
+    version once final : constant = "1.3"
 
     id once final : constant = "update-myIdentifier-to-refresh-cache"
 
+    // the requested storage location name for the imported module
     stableCacheId once final : constant = "FastFooMathModule.Unique"
 }
 

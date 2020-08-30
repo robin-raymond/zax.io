@@ -158,8 +158,8 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Concurrency](concurrency.md)
 
-## [Compiler Warnings and Errors](warnings-errors.md)
+## [Compiler Directives](compiler-directives.md)
 
-## [Other Compiler Directives](other-compiler.md)
+## [Compiler Warnings and Errors](warnings-errors.md)
 
 ## [FAQ](faq.md)
