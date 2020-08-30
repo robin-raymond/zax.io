@@ -160,4 +160,6 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Compiler Warnings and Errors](warnings-errors.md)
 
+## [Other Compiler Directives](other-compiler.md)
+
 ## [FAQ](faq.md)
