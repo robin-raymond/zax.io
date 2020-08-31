@@ -347,6 +347,8 @@ foreach value : in MyType
 
 #### Using `foreach` to iterate a range
 
+By adding the range keyword, the foreach will use range iteration to iterate through the entries.
+
 ````zax
 print final : ()(...) = {
     //...

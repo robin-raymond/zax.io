@@ -25,8 +25,8 @@ The following are registered errors, and their meaning:
     * an error directive was encountered where a specific registered error name was not provided
 * `missing-argument`
     * an input or output argument was either not provided or not capture
-* `literal-contains-illegal-sequence`
-    * a literal was found to contain an illegal character sequence
+* `literal-contains-invalid-sequence`
+    * a literal was found to contain an invalid character sequence
 * `incompatible-directive`
     * a directive was used in an incompatible way
 * `deprecate-directive`
@@ -51,6 +51,36 @@ The following are registered errors, and their meaning:
     * a token was encountered which was not expected
 * `as-conversion-not-compatible`
     * a request to convert one type to another using the `as` where no compatible conversion was found
+* `soa-aos-incompatible`
+    * cannot convert from an `aos` to an `soa` or from an `soa` to an `aos`
+* `intrinsic-type-cast-overflow` (always)
+    * an intrinsic type may overflow during the `cast` operator to a type with lower bit sizing
+* `constant-overflow`
+    * a constant value overflows the underlying type
+* `needs-dereferencing`
+    * an attempt was made to automatically convert from a pointer to a reference without using the dereference operator (`.`)
+* `incompatible-types`
+    * an attempt was made to use a type where another incompatible type was expected
+* `no-viable-outer-type-cast`
+    * an attempt was made to cast from an inner contained type to an outer type which does not contain the inner type
+* `function-not-found`
+    * an attempt was made to call to a function that was not found
+* `type-not-found`
+    * an attempt was made to use a type that was not found
+* `function-candidate-not-found`
+    * an attempt was made to call a function where none of the function candidates available are a viable choice
+* `enum-to-underlying-needs-as-operator`
+    * an attempt was made to directly convert an enum to its underlying type without first casing to the underlying type
+* `enum-to-incompatible-type`
+    * an attempt was made to convert an enum to a type that is not its underlying type
+* `for-loop-missing-statements`
+    * the `for` loop requires 3 statements and a scope
+* `range-iterator-not-found`
+    * the `foreach` iteration over a `range` not provided a range iterator
+* `named-scope-not-found`
+    * cannot fine the name referenced in a `break` or `continue` statement
+* `named-scope-inaccessible`
+    * a `break` or `continue` statement was request to an inaccessible scope
 
 
 ### Forcing the compiler to issue a warning
@@ -174,3 +204,5 @@ The following are registered warnings, default states, and their meaning:
     * a declaration was made which hides another declaration from being accessible
 * `uninitialized-data` (always)
     * an attempt was made to access known uninitialized data
+* `lifetime-linkage-to-unrelated-pointer` (always)
+    * an attempt was made to link a pointer of an unrelated type to a `strong` or `handle` pointer
