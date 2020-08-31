@@ -188,7 +188,7 @@ MyShinyNewType :: type {
     //...
 }
 
-lValidType :: type {
+ValidType :: type {
 
     // all of the functions and variables below are now obsoleted and
     // cannot be used beyond version 1.1
