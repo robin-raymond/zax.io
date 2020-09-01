@@ -57,7 +57,6 @@ await
 break
 build
 case
-compiles
 continue
 collect
 constant
@@ -68,7 +67,6 @@ discard
 do
 else
 extension
-execute
 except
 export
 false
@@ -284,9 +282,12 @@ offsetof        // offset of operator
 ````
 align           // align contained types to a zero modulus address boundary
 asset           // copy asset to built bundle
+compiles        // if a code block that follows compiles a `true` is replaced
+                // otherwise a false is replaced
 deprecate       // declare API sections as being deprecated
 discard         // suppress warning on unused variable or non captured results
 error           // cause an error in compilation
+execute         // evaluates code blocks at compile time
 file            // indicates the source for a generated file
 inline          // tells compiler to inline vs call functions
 likely          // indicates which code paths are more likely (for optimization)

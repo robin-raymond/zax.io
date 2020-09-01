@@ -69,22 +69,43 @@ result4 := addThenMultiply(3, 4.5)
 
 ### Conditional meta-function selection
 
-#### Meta-function selection using the `compiles` clause
+#### Meta-function selection using the `compiles` directive
 
-The `compiles` clause can be used as a compile type mechanism to check if the function can be selected as a candidate given the input, or output arguments specified. If the the code in the `compiles` block fails to compile then the meta-function cannot be selected as a legal candidate by the caller. The compiled code is never executed and any values, types or variables declared in the block are discarded and ignored outside of the `compiles` block.
+For meta-functions, the `[[compiles]]` directive can be used as a compile type mechanism to check if the function can be selected as a candidate given the input, or output arguments specified. If the the code in the `[[compiles]]` block fails to compile then the meta-function cannot be selected as a legal candidate by the caller. The compiled code is never executed and any values, types or variables declared in the block are discarded and ignored outside of the `[[compiles]]` block.
 
 ````zax
 next final : (
     result :
 )(
-    value1 :
+    value1 :,
     value2 :
-) compiles {
+) [[compiles]] {
     if !(value1 is Integer) && \
        !(value1 is Float) {
-        break error      // code cannot compile as no scope named `error` exists
+        [[error]]
     }
 } = {
+}
+````
+
+
+#### Meta-function selection using the `requires` directive
+
+For meta-functions, the `[[requires]]` directive can be used as a compile type mechanism to check if the function can be selected as a candidate given the input, or output arguments specified. If the the code in the `[[requires]]` block fails to compile or returns false then the meta-function cannot be selected as a legal candidate by the caller. The executed code must evaluate to a `true` or `false` statement.
+
+As a side note, replacing the `[[requires]]` and the code block that follows with the literal `true` or `false` will have the same effect if `requires` has returned `true` or `false`. All functions accept the optional `true` or `false` declarative to indicate if they can be selected as a candidate or not. Placing a hard coded `false` on a function will ensure the function can never be used as a candidate. By default all functions are `true` indicating the functions are selectable as a candidate. However, meta-functions are one of the most useful case scenario for this boolean function candidate selection condition. Other use cases can include intentionally disabling functions based on compile time decisions.
+
+````zax
+isSelectable final : (result : Boolean)(...) = {
+    //...
+}
+
+next final : (
+    result :
+)(
+    value1 :,
+    value2 :
+) [[requires]] { return isSelectable(value1, value2) } = {
 }
 ````
 

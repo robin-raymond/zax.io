@@ -103,7 +103,18 @@ Data Oriented design puts the focus around the data whereas Object Orientated at
 
 ### Isn't Zax just syntax sugar?
 
-That could be said for every language. Isn't C just syntax sugar for assembly? Isn't C++ syntax sugar for C (plus a few features)? Zax attempts to marry some of the best concepts from multiple languages. Zax is not aiming to be the most powerful language but it does aim to be a pleasing language to work within.
+That could be said for every language. Isn't C just syntax sugar for assembly? Isn't C++ syntax sugar for C (plus a few features)? Zax attempts to marry some of the best concepts from multiple languages. Zax is not aiming to be the most powerful language but it does aim to be a pleasing language to work within for a compile time language.
+
+
+### Are virtual functions supported?
+
+No. However, types can contain pointers to functions. Function pointers can be replaced with new code easily. Functions can be overridden in containment. Functions can be replaced at runtime. Values can even be captured during function replacement.
+
+With existing languages, typically virtual-tables are generated as a pointer to a lookup-table containing an array of pointers to functions. This lookup process is expensive during runtime for repeated calling. The pseudo logic to execute a virtual table function is `((*(type.virtualTablePtr))[n])->function()`. This methodology involves a lot of indirection at the savings of being able to combine the lookup table for all instances of the same class/struct into the same table.
+
+In Zax, the pseudo logic for calling replaceable function is `(type.func)->function()` for functions that can be overridden. The trade off is that more memory is used per instance of a type for each overridden function at the benefit of less calling overhead and less indirection and greater override flexibility. Pus, an entire meta-type system exists allowing strongly typed functions without the need of function overrides.
+
+Virtual function have even more unseen overhead than the additional CPU lookup instructions. Lookups can be made even more expensive by virtue of data non-locality and CPU cache misses. By accessing a pointer to a table somewhere else in memory a CPU cache miss can happen which would be less likely if the pointer was directly inside the structure.
 
 
 ### Shouldn't concurrency features just be a library?

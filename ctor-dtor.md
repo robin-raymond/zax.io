@@ -12,6 +12,116 @@ The triple plus `+++` and triple minus `---` represent reserved function names o
 Constructs and destructors never have return values when called. Zax does not support exceptions, thus the language cannot throw any exceptions either and errors cannot be returned during the construction or destruction process. Constructors and destructors cannot be deferred asynchronously to another thread as they must execute and complete from the thread they are called.
 
 ````zax
+generateRandomUuid : (Uuid uuid)() = {
+    //...
+}
+
+follow : ()(...) = {
+    //...
+}
+
+unfollow : ()(...) = {
+    //...
+}
+
+// this type has no constructor as ever value is implicitly initialized
+MyType :: type {
+    value1 : Integer = 5
+    value2 : String = "Whoa"
+    value3 : Uuid = generateRandomUuid()
+}
+
+MyOtherType :: type {
+    value1 : Integer = 5
+    value2 : String = "Whoa"
+    id : Uuid = generateRandomUuid()
+
+    // a constructor and destructor are declared to initialize values further
+    +++ final : ()() = {
+        follow(id)
+    }
+    --- final : ()() = {
+        unfollow(id)
+    }
+}
+
+OneLastType :: type {
+    value : Integer
+    id : Uuid
+
+    +++ final : ()(id : Uuid) = {
+        _.id = id
+        follow(id)
+    }
+    --- final : ()() = {
+        unfollow(id)
+    }
+}
+
+// default initialized
+myType1 : MyType
+
+// empty constructor called with default initialization
+myType2 : MyOtherType
+
+// single argument constructor called
+myType3 : OneLastType = generateRandomUuid()
+
+// ERROR: `MyOtherType` does not have a constructor value
+myType4 : MyType = generateRandomUuid()
+````
+
+
+#### Constructors with multiple argument
+
+Constructors can accept multiple arguments. The arguments operator like any other function except the `{}` operators are used to indicate the initialize of a type that requires multiple arguments during construction.
+
+````zax
+generateRandomUuid : (Uuid uuid)() = {
+    //...
+}
+
+follow : (success : Boolean)(...) = {
+    //...
+}
+
+unfollow : ()(...) = {
+    //...
+}
+
+MyType :: type {
+    value : Integer
+    id : Uuid
+    following : Boolean
+
+    +++ final : ()(id : Uuid, retries : Integer) = {
+        _.id = id
+        do {
+            if follow(id)
+                break
+        while (retries > 1)
+    }
+
+    --- final : ()() = {
+        if following
+            unfollow(id)
+    }
+}
+
+myType1 : MyType = { generateRandomUuid(), 5 }
+
+// ERROR: the {} are required to enclose th multiple values
+myType2 : MyType = generateRandomUuid(), 5
+````
+
+
+### Constructor containment chaining
+
+Constructors and destructors will automatically construct contained types as part of the initialization and construction process. If a constructor is not called explicitly by the contained constructor then the contained constructor will be called implicitly prior to the construction of the container type.
+
+Destructors are called implicitly for contained types unless the container calls the destructor explicitly.
+
+````zax
 print : ()(...) = {
     //....
 }
@@ -52,7 +162,7 @@ MyOtherType :: type {
     +++ final : ()() = {
         // the compiler will register the constructor of the `containedType`
         // has been called manually thus the default constructor will not be
-        // called
+        // called automatically
         containedType.+++("my voice is my passport")
     }
 }
@@ -61,7 +171,7 @@ MyOtherType :: type {
 
 ### Failing to construct a contained type
 
-The compiler
+The compiler will not generate automatic calls to contained constructors if the container's constructor code contains explicit calls to the contained type's constructor. The programmer is responsible for ensuring all code paths call the container's constructor. If some code paths lead to scenarios where a default constructor may not be called then undefined behaviors might happen if the contained type is accessed or during the type's automatic destruction. The compiler bases the decision to include automatic contained value construction entirely based on the container explicitly calling the contained type's constructor or not.
 
 ````zax
 print : ()(...) = {
@@ -160,6 +270,10 @@ unfollow : ()(...) = {
     //...
 }
 
+followInfo final : (result : String)(uuid : Uuid) = {
+    //...
+}
+
 MyType :: type {
 
     uuid := generateRandomUuid()
@@ -184,13 +298,13 @@ MyOtherType :: type {
         // UNDEFINED BEHAVIOR:
         // accessing values on a contained type that has not been
         // constructed yet results in undefined behavior
-        print("following the contained type", uuid)
+        print("following the contained type", followInfo(uuid))
 
         containedType.+++("my voice is my passport")
 
         // safe to access the value `uuid` within the `containedType` as
         // the contained type has been constructed
-        print("following the contained type", uuid)
+        print("following the contained type", followInfo(uuid))
     }
 }
 ````
@@ -198,7 +312,7 @@ MyOtherType :: type {
 
 ### Tricking the compiler to acknowledge a constructor was called
 
-The compiler will scan the constructor for manual calls to contained type's constructors. For ever constructor the compiler sees, the automatic code to construct the contained type is bypassed. This can be used to force the compiler to acknowledge externally performed construction/destruction here the compiler would not be able to recognize the external construction/destruction otherwise.
+The compiler will scan the constructor for manual calls to contained type's constructors. For ever constructor the compiler sees, the automatic code to construct the contained type is bypassed. This can be used to force the compiler to acknowledge externally performed construction/destruction where the compiler would not be able to recognize the external construction/destruction otherwise.
 
 ````zax
 print : ()(...) = {
@@ -259,10 +373,9 @@ MyOtherType :: type {
         // force the compiler to see the type as already having been
         // manually constructed (even though the never clause will never
         // actually execute the constructor manually here)
-        if never()
+        if never() [[never]]
             containedType.+++()
     }
-
 }
 ````
 

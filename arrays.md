@@ -3,7 +3,7 @@
 
 ## Arrays
 
-Zax arrays are single dimensional. Arrays can be of a fixed size or they can be a dynamic size. All arrays have an implicit `length` variable to indicate their current size. Arrays are zero based. Once arrays are allocated they cannot be resized but their contents can be replaced.
+Zax arrays are multi dimensional. Arrays can be of a fixed size or they can be a dynamic size. All array dimensions have an implicit `length` mutator to indicate their current size. Arrays are zero based. Once arrays are allocated they cannot be resized but their contents can be replaced.
 
 ````zax
 randomNumber : (result : Integer)() = {
@@ -34,8 +34,17 @@ yesAnotherArray2 : Integer[5000] = myArray
 
 Arrays can be default initialized with a set of values.
 
+
+Single dimensional arrays:
+
 ````zax
 myArray : Integer[5] = {1, 2, 3, 4, 5}
+````
+
+Multi dimensional arrays:
+
+````zax
+myArray : Integer[5][2] = {{1,-1}, {2,-2}, {3, -3}, {4, -4}, {5, -5}}
 ````
 
 
@@ -117,6 +126,9 @@ myType1 : MyType[3] = {1, 2, 3}
 
 Arrays can be dynamically allocated and discarded as needed. Arrays cannot be resized but they can be replaced.
 
+
+Single dimensional:
+
 ````zax
 // declare the size of an array
 size := 55
@@ -132,6 +144,24 @@ myArray =:
 anotherArray : Integer[size]
 ````
 
+Multi-dimensional:
+
+````zax
+// declare the size of an array
+sizeInner := 55
+sizeOuter := 2
+
+// allocate the array of the size dynamically
+myArray : Integer[sizeOuter][sizeInner] @
+
+// reset the array to its default state (empty)
+myArray =:
+
+// ERROR:
+// dynamically sized arrays require dynamic allocation
+anotherArray : Integer[sizeOuter][sizeInner]
+````
+
 
 ### Dynamic array copy
 
@@ -144,6 +174,9 @@ myArray : Integer[size] @
 
 // construct an array of a dynamic size and copy the contents of the array
 myArrayCopy : Integer[myArray.length] @ = myArray
+
+// shorten to the following (the type is implied and allocated)
+myOtherArrayCopy : @ = myArray
 ````
 
 
@@ -209,10 +242,10 @@ func(myArray[11])
 
 // This will succeed as the source type and the destination type are
 // both declared as `soa`
-myArray4 : MyType[] soa = myArray3
+myArray4 : MyType[] soa @ = myArray3
 
 // ERROR: Cannot copy from an AoS type into an SoA type (or vice versa)
-myArray5 : MyType[] = myArray3
+myArray5 : MyType[] @ = myArray3
 ````
 
 
@@ -231,4 +264,30 @@ value2 := myArray.splice(5,)
 
 // splice from the `myArray[5]` element and extract 50 elements
 value3 := myArray.splice(5, 50)
+````
+
+
+### Arrays and data overhead
+
+Arrays not only contain contents, they contain sizing and other attributes. The sizing of each dimension is kept as part of the array data separate from the data matrix. This allows the physical memory layout to be placed in memory as a continuous block of types for all array dimensions. Parallel algorithms can adapted to use the data as SIMD or MIMD input. Another advantage to this layout is the ability to use `soa` or `aos` with relatively the same memory layout being used (aside from potential alignment concerns).
+
+A raw control block for the array can be obtained with the `overhead` operator.
+
+
+### Pointer or references to arrays
+
+A pointer or reference can be taken of an array similar to a pointer to any other type.
+
+````zax
+func1 final : ()(arrayPointer : Integer[][]*) = {
+    arrayPointer.[2][1] = -10
+}
+func2 final : ()(arrayRef : Integer[][]&) = {
+    arrayPointer[3][0] *= -5
+}
+
+myArray : Integer[5][2] = {{1,-1}, {2,-2}, {3, -3}, {4, -4}, {5, -5}}
+
+func1(myArray)
+func2(myArray)
 ````

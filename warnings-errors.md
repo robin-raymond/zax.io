@@ -91,6 +91,12 @@ The following are registered errors, and their meaning:
     * a conditional statement (i.e. `if`, `while`, `do`/`while`, `for`) expected a `Boolean` type or an `as` convertible type to `Boolean`
 * `missing-end-of-comments`
     * a multiline comment was started but the matching end of comments token is missing
+* `compiles-directive-error`
+    * the compiles directive failed to compile code and thus forced an error
+* `requires-directive-error`
+    * the requires directive failed to compile or the evaluated code returned false
+* `value-not-captured`
+    * an attempt was made to access a variable outside of a function or `scope` capture barrier
 
 
 ### Forcing the compiler to issue a warning
@@ -240,16 +246,22 @@ The following are registered warnings, default states, and their meaning:
 * `divide-by-zero` (error)
     * a numerical type was divided by 0
 * `always-true` (always)
-    * a condition always appears to be true
+    * a condition always appears to be true (without using the `[[always]]` directive)
 * `always-false` (always)
-    * a condition always appears to be false
+    * a condition always appears to be false (without using the `[[never]]` directive))
 * `float-equal` (always)
     * a floating point was used in an `==` comparison
 * `sizeof-zero` (always)
     * a sizeof operator was used on a type whose size is always zero
-* `cpu-alignment-not-supported`
-    * a type is using an alignment for a type which the CPU knowing cannot support
-* `upgrade-directive`
+* `cpu-alignment-not-supported` (always)
+    * a type is using an alignment for a type which the CPU knowing cannot support or access
+* `upgrade-directive` (always)
     * usage of an obsolete directive was found and should be upgraded to its replacement (or removed)
-* `statement-separator-operator-redundant`
+* `statement-separator-operator-redundant` (always)
     * a statement separator operator (`;`) was found but is not required in this context
+* `export-disabled-from-export-never` (always)
+    * an export keyword was encountered on a type that cannot be exported due to the `[[export=never]]` directive
+* `redundant-access-via-self` (always)
+    * an attempt to access a value via the self variable (`_`) was made in a non ambiguous situation
+* `redundant-access-via-own` (always)
+    * an attempt to access a value via an `own` declared contained variable name where the variable name is not ambiguous
