@@ -1,7 +1,7 @@
 
 # [Zax Programming Language](index.md)
 
-## Other Compiler Directives
+## Compiler Directives
 
 ### Official and extended directives
 
