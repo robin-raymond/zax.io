@@ -619,19 +619,22 @@ An example `handle` pointer content and control block:
 
 ````zax
 /*
-HandlePointerControlBlock {
-    strongCount : Integer atomic
-    reserved1 : Byte[sizeof Integer atomic]
+HandlePointerControlBlock$(Type) {
+    strongCount : Integer
+    [[reserve=(sizeof Integer atomic) - sizeof Integer]]
+    [[reserve=sizeof Integer atomic]]
     allocator : Allocator*
     destructor : ()()*
     deallocateType : void*
     deallocateControl : void*
-    reservedStorage : Byte[ /* alignment size needed + storage space for type */ ]
+    type : :: union {
+        type : $Type
+    }
 }
 
 HandlePointerContents$(Type) :: type {
     instance : $Type *
-    control : void*
+    control : HandlePointerControlBlock$($Type)*
 }
 */
 ````

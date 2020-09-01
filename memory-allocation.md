@@ -412,18 +412,21 @@ An example `own` pointer content and control block:
 
 ````zax
 /*
-OwnPointerControlBlock {
-    reserved1 : Byte[sizeof(Integer atomic) * 2]
+OwnPointerControlBlock$(Type) {
+    [[reserve=sizeof Integer atomic]]
+    [[reserve=sizeof Integer atomic]]
     allocator : Allocator*
     destructor : ()()*
     deallocateType : void*
     deallocateControl : void*
-    reservedStorage : Byte[ /* alignment size needed + storage space for type */ ]
+    type : :: union {
+        type : $Type
+    }
 }
 
 OwnPointerContents$(Type) :: type {
-    instance : $Type *
-    control : void*
+    instance : $Type*
+    control : OwnPointerControlBlock$($Type)*
 }
 */
 ````

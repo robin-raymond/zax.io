@@ -736,19 +736,20 @@ An example `strong` / `weak` pointer content and control block:
 
 ````zax
 /*
-StrongPointerControlBlock {
+StrongPointerControlBlock$(Type) {
     strongCount : Integer atomic
     weakCount : Integer atomic
     destructor : ()()*
     deallocateType : void*
     deallocateControl : void*
-    control : void*
-    reservedStorage : Byte[ /* alignment size needed + storage space for type */ ]
+    type : :: union {
+        type : $Type
+    }
 }
 
-StrongPointerContents$(Type) :: type {
+StrongPointerContent$(Type) :: type {
     instance : $Type *
-    control : void*
+    control : StrongPointerControlBlock$($Type) *
 }
 */
 ````
