@@ -102,7 +102,9 @@ func : ()() = {
 
 ### Replacing the context allocator
 
-The context variable which is passed into all function with the reserve triple underscore named variable `___` holds a pointer to an instance of the allocator type. This context pointer can be changed to point to a custom allocator thus every allocation that is performed against the default allocator will obtain the allocator to use from the context `___` type and use those allocator functions to allocate or deallocate memory as needed.
+The context variable which is passed into all function with the reserve triple underscore named variable `___` holds a pointer to an instance of the allocator type. The standard allocator (`___.allocator`), sequential allocator (`___.sequential.allocator`), and parallel allocator (`___.parallel.allocator`) can all be replaced with new allocators. The standard allocator (`___.allocator`) usually is set to the sequential allocator (`___.sequential.allocator`). However, when the parallel allocator operator (`@@`) is used, the standard allocator is replaced with the parallel allocator temporarily.
+
+This context pointer can be changed to point to a custom allocator thus every allocation that is performed against the default allocators will obtain the allocator to use from the context `___` type and use those allocator functions to allocate or deallocate memory as needed.
 
 ````zax
 :: import Module.System.Allocators
@@ -136,17 +138,25 @@ doSomething : ()(myType : MyType*) = {
 func : ()() = {
     allocator : MyAllocator         // create an instance of the custom allocator
 
-    oldAllocator := ___.allocator   // remember the pointer to the old allocator
-    ___.allocator = allocator       // change the context's allocator
+    // remember the pointers to the old allocator
+    oldAllocator := ___.allocator
+    oldSequentialAllocator := ___.sequential.allocator
 
-    myType : MyType @               // allocate using the custom allocator
+    // change the context's allocators
+    ___.allocator = allocator       
+    ___.sequential.allocator = allocator
+
+    myType : MyType @               // allocate using a custom allocator by
+                                    // using the standard allocator operator `@`
                                     // (without the custom allocator needing
                                     // to be specified since it is obtained from
                                     // the context `___` automatically)
 
     doSomething(myType)
 
-    ___.allocator = oldAllocator    // reset back the previous context allocator
+    // reset back the previous context allocators
+    ___.allocator = oldAllocator
+    ___.sequential.allocator = oldSequentialAllocator
 
     // `myType` will fall out of scope and be automatically
     // destructed and deallocated

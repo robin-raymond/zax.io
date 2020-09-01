@@ -81,6 +81,16 @@ The following are registered errors, and their meaning:
     * cannot fine the name referenced in a `break` or `continue` statement
 * `named-scope-inaccessible`
     * a `break` or `continue` statement was request to an inaccessible scope
+* `line-directive-without-file`
+    * when parsing generated files, a line directive was used without first declaring a file directive
+* `bad-alignment`
+    * the alignment is not supported
+* `duplicate-case`
+    * a `switch` has duplicate `case` values
+* `condition-expects-boolean`
+    * a conditional statement (i.e. `if`, `while`, `do`/`while`, `for`) expected a `Boolean` type or an `as` convertible type to `Boolean`
+* `missing-end-of-comments`
+    * a multiline comment was started but the matching end of comments token is missing
 
 
 ### Forcing the compiler to issue a warning
@@ -98,6 +108,7 @@ if sizeof Integer > 4 {
 
 //...
 ````
+
 
 ### `warning` directive
 
@@ -190,6 +201,8 @@ The following are registered warnings, default states, and their meaning:
     * a switch should not be used to compile a `Boolean` condition
 * `shift-count-overflow` (always)
     * a shift operation cause equal or more bits to shift than the type allows
+* `shift-negative` (always)
+    * a shift operator was given a negative value
 * `dangling-reference-or-pointer` (always)
     * code has been found to cause a reference or pointer to a known destructed value
 * `deprecate-directive` (always)
@@ -200,9 +213,43 @@ The following are registered warnings, default states, and their meaning:
     * a source file was requested to be parsed but it cannot be located
 * `asset-not-found` (always)
     * a asset file was requested to be copied but it cannot be located
-* `shadow-found` (always)
+* `shadow` (always)
     * a declaration was made which hides another declaration from being accessible
 * `uninitialized-data` (always)
-    * an attempt was made to access known uninitialized data
+    * an attempt was made to access data believed to be uninitialized
 * `lifetime-linkage-to-unrelated-pointer` (always)
     * an attempt was made to link a pointer of an unrelated type to a `strong` or `handle` pointer
+* `naming-convention` (always)
+    * a declaration was found to not follow standard naming conventions for the language
+* `result-not-captured` (error)
+    * every return result needs to be captured (unless marked with `[[discard]]`)
+* `variable-declared-but-not-used` (error)
+    * every declared variable must be used (unless marked with `[[discard]]`)
+* `duplicate-specifier` (always)
+    * a duplicate qualifier was specified, e.g. `constant`, `immutable`, `mutable`, `deep`, etc.
+* `specifier-ignored` (always)
+    * a qualifier was specified which is ignored in the context
+* `task-not-deep` (always)
+    * task has by-value arguments that should have the `deep` qualifier for parallel processing
+* `unknown-directive` (error)
+    * an directive not prefixed with `x-` was encountered which was not understood
+* `unknown-direction-argument` (error)
+    * an directive argument not prefixed with `x-` was encountered which was not understood
+* `forever` (always)
+    * code was detected that appears to run forever
+* `divide-by-zero` (error)
+    * a numerical type was divided by 0
+* `always-true` (always)
+    * a condition always appears to be true
+* `always-false` (always)
+    * a condition always appears to be false
+* `float-equal` (always)
+    * a floating point was used in an `==` comparison
+* `sizeof-zero` (always)
+    * a sizeof operator was used on a type whose size is always zero
+* `cpu-alignment-not-supported`
+    * a type is using an alignment for a type which the CPU knowing cannot support
+* `upgrade-directive`
+    * usage of an obsolete directive was found and should be upgraded to its replacement (or removed)
+* `statement-separator-operator-redundant`
+    * a statement separator operator (`;`) was found but is not required in this context

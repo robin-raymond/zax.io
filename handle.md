@@ -17,7 +17,7 @@ Due to the overhead because of thread safety guarantees for `strong` pointers, h
 
 ### Allocation of `handle` pointers
 
-Pointers marked as `handle` are allocated in similar manners to other pointers, such as `own`, `discard`, `strong`, and `collect` pointers. The difference is that `handle` pointers can be co-owned by more than one variable. When the last variable holding the `handle` pointer is discarded (or reset to empty) the allocated type is destructed and deallocated.
+Pointers marked as `handle` are allocated in similar manners to other pointers, such as `own`, `discard`, `strong`, `discard`, and `collect` pointers. The difference is that `handle` pointers can be co-owned by more than one variable. When the last variable holding the `handle` pointer is discarded (or reset to empty) the allocated type is destructed and deallocated.
 
 ````zax
 MyType :: type {

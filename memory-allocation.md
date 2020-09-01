@@ -387,7 +387,7 @@ func : (result : String)() = {
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator (which is verbosely expressed but is
-        <!-- // functionally equivalent to `value1`'s allocation) -->
+        // functionally equivalent to `value1`'s allocation)
         value1 : MyType* own @ ___.allocator
 
         doSomething(value1)

@@ -542,7 +542,7 @@ func : (result : String)() = {
 
 Pointers marked as `own` can be transferred to pointers marked as `strong`. Once the transfer is completed, the original `own` pointer will point to nothing as the `strong` pointer will track the lifetime of the instance. Likewise, pointers marked as `strong` can be transferred to pointers marked as `own` on the condition that no other pointers marked as `strong` point to the same instance of a type otherwise the resulting `strong` pointer will point to nothing.
 
-Caution: when transferring an `own` pointer to a `strong` pointer, care must be taken to never send this pointer to another thread if the standard allocator was used; this is because the standard allocator is thread unaware (i.e. thread unsafe) and deallocation on a different thread may cause undefined behavior; use a thread safe allocator on any `own` pointers if these pointers may be sent to a different thread.
+Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers marked as `own` are allocated using the standard allocator which is typically set to the sequential allocator by default. If an `own` pointer gets transferred later into a `strong` pointer, the standard allocator should be replaced with the parallel allocator.
 
 ````zax
 MyType :: type {

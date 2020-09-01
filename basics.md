@@ -35,6 +35,15 @@ value := 2 + func() \    // continuation of statement to multiple lines
 if condition {
 } else {
 }
+
+// Additional nested multiline comments
+/**
+  Nested multi
+/**
+  multi line comments
+**/
+  comments
+**/
 ````
 
 
@@ -62,6 +71,7 @@ extension
 execute
 except
 export
+false
 for
 foreach
 handle
@@ -89,6 +99,7 @@ soa
 suspend
 switch
 task
+true
 type
 union
 weak
@@ -146,106 +157,148 @@ constant_ : Type constant
 
 #### Overloadable
 ````zax
-+               // plus
--               // minus
-++              // unary increment (pre or post)
---              // decrement (pre and post)
-*               // multiple or unary pointer
-/               // divide
-%               // modulus divide
-=               // assign
-^               // binary xor
-&               // binary and
-|               // binary or
-<<              // binary left shift
->>              // binary right shift
-<<<             // binary left rotate
->>>             // binary right rotate
-~               // one's compliment
-!               // unary logical not
-&&              // logical and
-||              // logical or
-^^              // logical exclusive or
-+=              // add and assign
--=              // subtract and assign
-*=              // multiply and assign
-/=              // divide and assign
-%=              // modulus divide and assign
-==              // is equal
-!=              // is not equal
-<               // is less than
->               // is greater than
-<=              // is less than
->=              // is greater than
-^=              // binary xor and assign
-|=              // binary or and assign
-<<=             // binary left shift and assign
->>=             // binary right shift and assign
-<<<=            // binary left rotate and assign
->>>=            // binary right rotate and assign
-.               // dereference access
-'               // literal start or end
-as              // safe conversion to type
-()              // function argument or function invocation start
-[]              // array declaration open or array access
-countof         // unary operator to returns the number elements in a type or
++               // plus operator
+-               // minus operator
+++              // (pre or post) unary increment operator
+--              // (pre and post) unary decrement operator
+*               // multiply operator
+/               // divide operator
+%               // modulus divide operator
+=               // assign operator
+^               // binary xor operator
+&               // binary and operator
+|               // binary or operator
+<<              // binary left shift operator
+>>              // binary right shift operator
+<<<             // binary left rotate operator
+>>>             // binary right rotate operator
+~               // pre-unary one's compliment operator
+!               // pre-unary logical not operator
+&&              // logical and operator
+||              // logical or operator
+^^              // logical exclusive or operator
++=              // add and assign operator
+-=              // subtract and assign operator
+*=              // multiply and assign operator
+/=              // divide and assign operator
+%=              // modulus divide and assign operator
+==              // is equal operator
+!=              // is not equal operator
+<               // is less than operator
+>               // is greater than operator
+<=              // is less than operator
+>=              // is greater than operator
+^=              // binary xor and assign operator
+|=              // binary or and assign operator
+<<=             // binary left shift and assign operator
+>>=             // binary right shift and assign operator
+<<<=            // binary left rotate and assign operator
+>>>=            // binary right rotate and assign operator
+.               // post-unary dereference operator
+'               // literal start or end operator
+as              // safe type conversion operator
+()              // function argument declaration operator or
+                // function invocation operator
+[]              // array declaration operator or
+                // array access operator
+countof         // pre-unary count operator
+                // returns the number elements in a type or
                 // the total reference count for a
                 // `strong`, `weak`, or `handle` pointer
+overhead        // pre-unary overhead operator
+                // obtains a pointer to the overhead information for
+                // an `own`, `handle`, `strong`, or `weak` pointer or
+                // optional type
+overheadof      // pre-unary overhead sizing operator
+                // return the number of bytes overhead is needed for this type
+                // i.e. typically the size of a control block
 ````
 
 
 #### Non overloadable
 ````zax
-*               // pointer type declaration or unary pointer dereference
-&               // reference type declaration or unary reference
+*               // post-unary pointer type declaration
+&               // post-unary reference type declaration or
+                // pre-unary capture by reference operator
 +++             // unary constructor
 ---             // unary destructor
-$               // templated variable, type or argument
-@               // allocate and construct type
-_               // this pointer (value can be changed to compatible type)
-___             // serial context pointer (value can be changed)
-.               // type/namespace resolution
-...             // variadic values
-$...            // variadic type(s)
-,               // argument
-;               // statement separator
-:               // variable type declaration
-::              // data type or meta data declaration
-::.             // data type dereference
-?               // optional type
+$               // templated argument declaration operator
+@               // post-unary standard allocator operator
+                // allocate using the standard allocator and construct type
+@@              // post-unary parallel allocator operator
+                // allocate using the parallel allocator and construct type
+@!              // post-unary sequential allocator operator
+                // allocate using the sequential allocator and construct type
+_               // reference to self operator
+                // a type's pointer to itself within type functions
+___             // context operator
+                // a pointer to the context operator
+.               // name resolution operator
+...             // variadic values operator
+$...            // variadic types operator
+,               // argument operator
+;               // statement separator operator
+:               // variable type declaration operator
+::              // data type or meta data declaration operator
+::.             // data type dereference operator
+?               // post-unary optional type operator
 ??              // ternary operator
-???             // uninitialized type
-{               // scope or  begin
-}               // scope end
-[[]]            // compiler directive or attribute declaration
-"               // string start or end
-->              // combine remaining function result arguments into a
+???             // uninitialized type operator
+{               // scope begin operator
+}               // scope end operator
+[[]]            // compiler directive operator or attribute declaration operator
+"               // literal start or end operator
+->              // post-unary argument combine operator
+                // combine remaining function result arguments into a
                 // single automatic defined type
-<-              // split type into multiple function arguments
-\               // statement continuation
-cast            // conversion from one type to another
-                // (unsafe forcefully)
-outercast       // convert from contained type pointer to container type pointer
-                // (unsafe forcefully)
-copycast        // treat the raw `void` pointer as pointing to an instance of
-                // he casted type and make a copy of the contents
-                // (unsafe forcefully)
-lifecast        // converts a raw pointer to share a lifetime an existing
+<-              // pre-unary argument split operator
+                // split type into multiple function arguments
+\               // statement continuation operator
+cast            // pre-unary unsafe type conversion operator
+outercast       // unsafe outer type cast operator
+                // convert from contained type pointer to container type pointer
+copycast        // pre-unary unsafe void copy cast
+                // treat the raw `void` pointer as pointing to an instance of
+                // the casted type and make a copy of the contents
+lifecast        // unsafe shared lifetime cast operator
+                // converts a raw pointer to share a lifetime an existing
                 // `strong` or `handle` pointer
-                // (unsafe forcefully)
-outerlink       // convert from contained type pointer to container type pointer
-                // (safely probing the instance if the conversion can happen)
-lifelink        // links a raw pointer to an existing `strong` or `handle`
-                // pointer (safely probes if the pointer to type points to
+outerlink       // outer type cast operator
+                // convert from contained type pointer to container type pointer
+                // (safely via a managed type's RTTI)
+lifelink        // shared lifetime cast operator
+                // links a raw pointer to an existing `strong` or `handle`
+                // pointer (safely checks if the pointer to a type points to
                 // memory within the allocated `strong` or `handle` pointer)
-overhead        // obtain a pointer to the overhead information for an
-                // `own`, `handle`, `strong`, or `weak` pointer or optional type
-sizeof          // unary operator to return the size of a type
-alignof         // unary operator to return the alignment of a type
-offsetof        // compute the byte offset of a contained type
-                // within a container composition type
-overheadof      // return the number of bytes overhead is needed for the size of
-                // a control block for a type
+sizeof          // pre-unary size of operator
+                // returns the size of a type
+alignof         // pre-unary align of operator
+                // return the alignment of a type
+offsetof        // offset of operator
+                // compute the byte offset of a contained variable from a
+                // container type or container variable
+````
+
+### Compiler directives
+
+````
+align           // align contained types to a zero modulus address boundary
+asset           // copy asset to built bundle
+deprecate       // declare API sections as being deprecated
+discard         // suppress warning on unused variable or non captured results
+error           // cause an error in compilation
+file            // indicates the source for a generated file
+inline          // tells compiler to inline vs call functions
+likely          // indicates which code paths are more likely (for optimization)
+line            // indicates the source line for a generated file
+panic           // control panic behavior in code generation
+reserve         // reserve non-accessible unused space in a type
+void            // declared contained value occupies space without allocating
+                // space within the type
+return          // controls code generation for the return statement
+source          // loads a related source file
+unlikely        // indicates which code paths are less likely (for optimization)
+warning         // display a warning or control compiler warning behaviors
 ````
 
 

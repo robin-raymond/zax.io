@@ -49,7 +49,7 @@ Rather than performing a copy whenever the immutable type is passed to functions
 
 A qualifier of `deep` can be applied to a type to ensure a full copy of the type is performed prior to transferred the type's instance to a new thread. The `deep` qualifier can be used to ensure a completely independent copy of a type is made so a copy of an immutable type is made whenever the type is passed to a different thread.
 
-A qualifier of `deep` can be applied to the function definition where all input and output arguments automatically have `deep` applied to each argument type where appropriate.
+A qualifier of `deep` can be applied to the function definition where all input and output arguments automatically have `deep` applied to each argument type where appropriate. Where `deep` is applied to a function, another advantage is any captured values also have the `deep` attribute applied, i.e. any copies performed on captured values will cause a `deep` copy to be performed. If a non-final function is marked `deep` then any replacement assignment of the function must also be marked as `deep`.
 
 While seemingly a [`last` pointers/references](pointers.md#using-the-last-type-qualifier-to-optimize-content-transfer) method can seemingly be used to transfer out the contents of the data to a new type's instance prior to transfer to a new thread but the `last` does not guarantee any shared state is indeed the final copy. This mechanism can only work if the passed in type is truly the last instance of a type before it's disposal.
 
@@ -556,9 +556,43 @@ myTask2 := func2(value)
 
 ### Allocators and threading
 
-When normal allocation is performed on the context, the allocator will use the standard allocator (i.e. `___.allocator`) which are thread unaware (i.e. thread unsafe). Whenever a `strong` pointer type is allocator or a `deep` copy is performed, the standard allocator in the context is replaced by the parallel allocator temporarily (i.e. assigned to `___.parallel.allocator`) automatically. This is done to ensure that any allocated data is entirely allocated in a thread safe manner (and deallocated later in a thread safe manner). Once the allocation is complete, the original standard allocator is restored allowing any future constructor and allocation of other types to use the faster thread unaware allocator.
+When normal allocation is performed on the context using the standard allocator operator (`@`), the allocator will use the standard allocator (`___.allocator`) which is usually set to the sequential allocator (`___.sequential.allocator`). The sequential allocator is typically faster than the parallel allocator (`___.parallel.allocator`) as the sequential allocator only needs to allocate memory using thread unaware allocation algorithms.
 
-Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers marked as `own` are not allocated using the parallel allocator by default. If an `own` pointer gets transferred later into a `strong` pointer, the standard allocator should be replaced with a thread safe allocator.
+A double at symbol, known as the parallel allocator operator (`@@`), is a compiler shortcut to request allocation using parallel/thread safe allocators for the types and its contained types. When the parallel allocator operator is encountered the standard allocator is replaced by the parallel allocator temporarily automatically. An at symbol with a bang, known as the sequential allocator operator (`@!`), forces the sequential allocator to be used for the type and its contained types by replacing the standard allocator (`___.allocator`) temporarily automatically.
+
+Whenever a `strong` pointer type is allocator or a `deep` copy is performed, the standard allocator (`___.allocator`) in the context is replaced by the parallel allocator temporarily (i.e. assigned to `___.parallel.allocator`) automatically. This is done to ensure that any allocated data is entirely allocated in a thread safe manner (and deallocated later in a thread safe manner). Once the allocation is complete, the original standard allocator is restored allowing any future constructor and allocations of other types to use the potentially faster sequential (`___.sequential.allocator`) allocator if that was previously in use.
+
+Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers marked as `own` are allocated using the standard allocator which is typically set to the sequential allocator by default. If an `own` pointer gets transferred later into a `strong` pointer, the standard allocator should be replaced with the parallel allocator.
+
+
+````zax
+SimpleType :: type {
+    value : Integer
+}
+
+MyType :: type {
+    value1 : Integer
+    value2 : String
+    value3 : SimpleType* @      // might be allocated using the parallel or
+                                // sequential allocator depending how
+                                // the container type allocated the type
+}
+
+DoubleType :: type {
+    myType1 : MyType* own @     // even though standard allocator was
+                                // specified, parallel allocation will happen
+                                // in this example (as the container was
+                                // allocated using the parallel allocator)
+    myType2 : MyType* own @     // same as above
+
+    myType3 : MyType* own @!    // override any request to use the parallel
+                                // allocator and allocate using the sequential
+                                // allocator
+}
+
+
+doubleType : DoubleType* own @@ // allocate using the parallel allocator
+````
 
 
 ### Context and threading

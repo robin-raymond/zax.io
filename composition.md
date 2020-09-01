@@ -188,6 +188,49 @@ function : ()() = {
 ````
 
 
+#### Ownership inside a function
+
+The `own` keyword can be used inside a function to cause all contained variables inside a type to be visible to the function without the need to access via the container variable. If any `own` type contained variables share the same name as local variables, the local variables will be visible directly at the scope and the `own` type contained variables will only be accessible via the container's variable.
+
+````zax
+MyType :: type {
+    value1 : Integer
+    value2 : String
+    value3 : Integer
+    value4 : Integer
+}
+
+func : ()() = {
+    myType own : MyType
+    value3 : String = "Marge"
+    value4 : Integer = 5
+
+    value1 = 2              // contained variable is assigned the value
+    value2 = "hello"        // contained variable is assigned the value
+    value3 = "Simpson"      // local variable is assigned the value
+    value4 = 4              // local variable is assigned the value
+
+    if myType.value1 == 2
+        print("this will display")
+
+    if myType.value2 == "hello"
+        print("this will display")
+
+    if value3 == "Simpson"
+        print("this will display")
+
+    if myType.value3 == 0
+        print("this will display")
+
+    if value4 == 4
+        print("this will display")
+
+    if myType.value4 == 0
+        print("this will display")
+}
+````
+
+
 ### Overriding the defaults of `own` variables
 
 Contained types can have their defaults changed as part of the variable ownership. The `override` keyword can change the default value of an `own` type.

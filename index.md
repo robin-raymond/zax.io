@@ -64,7 +64,7 @@ Zax is a strongly typed compile time language with some key features:
     * Locally defined types
 * High level features
     * Sized arrays, including strings
-    * `own`, `strong`, `weak`, `handle` and `collect` memory
+    * `own`, `strong`, `weak`, `handle`, `discard`, and `collect` memory
     * Default type initialization
     * Optional functional arguments
     * Multiple functional argument returns

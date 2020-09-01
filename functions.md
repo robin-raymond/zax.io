@@ -34,8 +34,8 @@ Functions can have multiple return results and multiple arguments. The return re
 ````zax
 // declare a function with no return results and no arguments.
 weigh : (
-    grams discard : Float,
-    ounces discard : Float
+    grams [[discard]] : Float,
+    ounces [[discard]] : Float
 )(
     object : String
 ) = {
@@ -358,162 +358,6 @@ func1 = {
 
 // will call `sound` with `42`
 result3 := func1(42)
-````
-
-
-### Functions and the `discard` keyword
-
-#### Functions with `discard` marked return results
-
-Return result arguments on functions marked as `discard` may be ignored by the caller and will not require the compiler to enforce capturing of the function call.
-
-````zax
-pushToQueue : (
-    newQueueSize : Integer
-)(
-    value : Integer
-) {
-    // insert code that pushes to the queue and returns the new queue size
-}
-
-// ERROR: The newQueueSize was not captured by the caller and thus will cause
-// a compiler error
-pushToQueue(42)
-
-// ERROR: Even though the result is acknowledged as existing, the caller must
-// capture the result into a variable since the result cannot be discarded
-:= pushToQueue(42)
-
-// This is allowed as the value is captured (even if the value is never used)
-ignoredResult := pushToQueue(42)
-
-
-pushToQueueVersion2 : (
-    newQueueSize discard : Integer
-)(
-    value : Integer
-) {
-    return pushToQueue(value)
-}
-
-// This is allowed as the value is marked as `discard` and thus does not
-// require the result is captured
-pushToQueueVersion2(42 * 2)
-
-// An alternative version which is also allowed where the result type is
-// declared with an empty name but not captured into a variable
-:= pushToQueueVersion2(42 * 2)
-````
-
-Functions with multiple arguments can mark each argument with `discard` to ensure which arguments must be captured by default and which arguments can be discarded and ignored.
-
-````zax
-queuedValue : (value : Integer)() = {
-    //...
-}
-
-queueSize : (size : Integer)() = {
-    //...
-}
-
-readNextValue : (
-    nextValue : Integer,
-    remaining : Integer
-)() = {
-    return queuedValue(), queueSize()
-}
-
-// Allowed sa both results are captured
-nextValue:, remaining: = readNextValue()
-
-// ERROR: The function returns two values with no results being marked
-// as `discard`  thus both result must be captured
-nextValue2 := readNextValue()
-
-// ERROR: Even though an acknowledgement is made of the second argument, the
-// argument is still not captured and thus will cause a compiler error
-nextValue3:, = 
-
-readNextValueVersion2 : (
-    nextValue : Integer,
-    remaining discard : Integer
-)() = {
-    return queuedValue(), queueSize()
-}
-
-// Allowed to discard the second return result argument as the value
-// is marked as `discard`
-nextValue4 := readNextValueVersion2()
-
-// An alternative allowed version where the second argument is acknowledged
-// as existing but is not captured
-nextValue5:, = readNextValueVersion2()
-````
-
-
-#### Functions with `discard` marked input arguments
-
-````zax
-func : ()(input : Integer) = {
-    // ERROR: The variable named `input` is declared but never used
-}
-
-funcVersion2 : ()(input discard : Integer) = {
-    // This is allowed since the input variable is discarded intentionally
-}
-
-funcVersion3 : ()(discard : Integer) = {
-    // This is allowed as the argument is knowingly not important to capture
-    // and may be discarded
-}
-
-funcVersion4 : ()(: Integer) = {
-    // This is allowed as the argument is knowingly declared with an unnamed
-    // variable and thus may be discarded
-}
-
-func(42)
-funcVersion2(42)
-funcVersion3(42)
-funcVersion4(42)
-
-// ERROR: An input argument was declared but not acknowledged and thus the
-// compiler will issue an error. The `discard` has no impact on the caller
-// of the function.
-funcVersion2()  // ERROR
-funcVersion3()  // ERROR
-funcVersion4()  // ERROR
-````
-
-
-#### Functions with `discard` marked local variables
-
-Variables that are declared but never used must be marked as `discard` or the compiler will error. The compiler enforces that all declared named variables are used or marked with `discard`.
-
-````zax
-func : (result : Integer)() = {
-    return 42
-}
-
-print : ()(...) = {
-    //...
-}
-
-// Allowed since the result is captured and used elsewhere
-value := func()
-print(value)
-
-// ERROR: If this variable was captured as a result but never used again
-// then the compiler will issue an compiler error as all results must have
-// defined usage elsewhere.
-valueNeverUsed := func()
-
-// Allowed since the result is captured as per requirement of the
-// called function and marked as `discard` to indicate that the value is
-// knowingly being tossed out
-ignoredValue discard := func()
-
-// ... insert code that never uses ignoredValue ...
 ````
 
 
@@ -1053,31 +897,4 @@ print(myType.name)
 print(myType.famousQuote)
 print(myType.age)
 print(myType.weight)
-````
-
-
-### Inline function compiler directives
-
-The `inline` compiler directive ``[[inline]]`` can be used to signal to the compiler when to inline a `final` function directly into code or when to call the function as an explicit function call. By default the compiler will decide if inlining a function is desirable.
-
-````zax
-// prefer the function to inline
-func1 final [[inline]] : ()() = {
-    //...
-}
-
-// let the compiler decide if inlining is preferred or not
-func2 final [[inline=maybe]] : ()() = {
-    //...
-}
-
-// only allow the function to be created inline
-func2 final [[inline=always]] : ()() = {
-    //...
-}
-
-// never allow the function to be inlined
-func3 final [[inline=never]] : ()() = {
-    //...
-}
 ````
