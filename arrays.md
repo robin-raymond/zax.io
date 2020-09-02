@@ -292,7 +292,13 @@ func2 final : ()(arrayRef : Integer[][]&) = {
     arrayPointer[3][0] *= -5
 }
 
-myArray : Integer[5][2] = {{1,-1}, {2,-2}, {3, -3}, {4, -4}, {5, -5}}
+myArray : Integer[5][2] = {
+    { 1, -1 },
+    { 2, -2 },
+    { 3, -3 },
+    { 4, -4 },
+    { 5, -5}
+}
 
 func1(myArray)
 func2(myArray)
