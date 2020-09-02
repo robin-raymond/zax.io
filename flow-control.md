@@ -616,7 +616,7 @@ func : ()(value : Integer) = {
 ````
 
 
-### polymorphic function preconditions using `if`
+### Value polymorphism using `if`
 
 The `if` statement can also be used in a function declaration to indicate that the function supports value polymorphism. The choice of which function to call is based on the pre-condition checks for the `if` statement. The compiler will decide the order of testing and care must be taken to not have overlapping pre-conditions. The `[[likely]]` and `[[unlikely]]` can be used to hint to the compiler which execution path is more likely to be followed.
 
@@ -659,4 +659,32 @@ factorial final : (r : Integer)(n : Integer) = {
 }
 
 assert(120 == factorial(5))
+````
+
+
+#### Value polymorphism using `if` on nothing instances
+
+A [nothing instance](nothing.md) can filter between normal function calls and functions that are called via the nothing instance. By checking if the self pointer  (`_`) is valid inside the `if` condition of the value polymorphic function, the code can decide to execute the nothing function or the normal function.
+
+````zax
+MyType :: type {
+    +++ final : ()(:Unknown) = {
+        // instance to a nothing type
+    }
+
+    doSomething final : ()( : Integer) if [[unlikely]] { return !_ } = {
+        // do nothing -- inside nothing instance of MyType
+    }
+    doSomething final : ()(value : Integer) = {
+        // ...
+        // do something -- normal instance of MyType
+        // ...
+    }
+}
+
+myType1 : MyType*       // points to nothing
+MyType2 : MyType* @     // points to an allocated instance
+
+myType1.doSomething()   // does nothing
+myType2.doSomething()   // does something
 ````
