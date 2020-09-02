@@ -614,3 +614,31 @@ func : ()(value : Integer) = {
     }
 }
 ````
+
+
+### polymorphic function preconditions using `if`
+
+The `if` statement can also be used in a function declaration to indicate that the function supports value polymorphism. The choice of which function to call is based on the pre-condition checks for the `if` statement. The compiler will decide the order of testing and care must be taken to not have overlapping pre-conditions. The `[[likely]]` and `[[unlikely]]` can be used to hint to the compiler which execution path is more likely to be followed.
+
+If some value polymorphic functions are declared using the `if` then a single polymorphic version function using the same types can be declared as a catch-all if none of the other conditions succeed (the logical equivalent of a `switch` `default` statement). If no function was found a panic may be issued.
+
+Only functions marked as `final` support value polymorphism. The reason is the conditional check cannot be replaced and any assignment of a changeable function pointer would be ambiguous to which value polymorphic version would be replaced.
+
+````zax
+randomButMostlyPositive : (value : Integer)() = {
+    //... return a positive or negative integer
+}
+
+func final : ()(value : Integer) if [[likely]] { return value > 0 } = {
+    //...
+}
+
+func final : ()(value : Integer) = {
+    //...
+}
+
+while true {
+    // each time the function is called a different function may be invoked
+    func(randomButMostlyPositive())
+}
+````

@@ -38,16 +38,16 @@ Allocator :: type {
         byteAlignment : TypeSize    // what is the requested alignment for the
                                     // allocation
 
-        destructor : ()(type : void*)*  // function to call if the
-                                        // allocator must call the destructor
-                                        // upon deallocation
+        destructor : ()(type : Unknown*)*   // function to call if the
+                                            // allocator must call the 
+                                            // destructor upon deallocation
     }
 
-    allocate : (pointer : void*)(properties : Allocation) = {
+    allocate : (pointer : Unknown*)(properties : Allocation) = {
         //...
     }
 
-    deallocate : ()(pointer : void*) = {
+    deallocate : ()(pointer : Unknown*) = {
         //...
     }
 }
@@ -70,7 +70,7 @@ MyAllocator :: type {
     // disambiguate polymorphic functions.
     allocate override := {
         // access variable named `properties` to determine what allocation
-        // operations to perform and return a `void*` to the allocated memory
+        // operations to perform and return a `Unknown*` to the allocated memory
     }
 
     deallocate override := {
@@ -174,11 +174,11 @@ MyType :: type {
     myValue2 : String
 }
 
-allocate : (pointer : void*)(bytes : TypeSize, alignment : TypeSize) = {
+allocate : (pointer : Unknown*)(bytes : TypeSize, alignment : TypeSize) = {
     //...
 }
 
-deallocate : ()(pointer : void*) = {
+deallocate : ()(pointer : Unknown*) = {
     //...
 }
 

@@ -278,13 +278,13 @@ func2 : simpleFunc = {
         print(value, "> 3")
 }
 
-// declare a raw void pointer
-pointer1 : void*
-pointer2 : void*
+// declare a raw Unknown pointer
+pointer1 : Unknown*
+pointer2 : Unknown*
 
 // cast the func1
-pointer1 = func1 cast void*
-pointer2 = func2 cast void*
+pointer1 = func1 cast Unknown*
+pointer2 = func2 cast Unknown*
 
 // cast back from a raw pointer using the type of the variables definition
 func3 = pointer1 copycast :simpleFunc
@@ -319,13 +319,13 @@ func2 : simpleFunc = [message] {
         print(message, value, "> 3")
 }
 
-// declare a raw void pointer
-pointer1 : void*
-pointer2 : void*
+// declare a raw Unknown pointer
+pointer1 : Unknown*
+pointer2 : Unknown*
 
 // cast the func1
-pointer1 = func1 cast void*
-pointer2 = func2 cast void*
+pointer1 = func1 cast Unknown*
+pointer2 = func2 cast Unknown*
 
 // cast back from a raw pointer using the type of the variables definition
 func3 = pointer1 copycast :simpleFunc
@@ -365,13 +365,13 @@ func2 : simpleFunc = {
         print(value, "> 3")
 }
 
-// declare a raw void pointer
-pointer1 : void*
-pointer2 : void*
+// declare a raw Unknown pointer
+pointer1 : Unknown*
+pointer2 : Unknown*
 
 // cast the func1
-pointer1 = func1 cast void*
-pointer2 = func2 cast void*
+pointer1 = func1 cast Unknown*
+pointer2 = func2 cast Unknown*
 
 // cast back from a raw pointer using the type of the variables definition
 func3 = pointer1 cast :simpleFunc

@@ -417,8 +417,8 @@ OwnPointerControlBlock$(Type) {
     [[reserve=sizeof Integer atomic]]
     allocator : Allocator*
     destructor : ()()*
-    deallocateType : void*
-    deallocateControl : void*
+    deallocateType : Unknown*
+    deallocateControl : Unknown*
     type : :: union {
         type : $Type
     }

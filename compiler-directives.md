@@ -176,6 +176,8 @@ The following are registered panic scenarios, default states, and their meaning:
     * a `switch` statement encounter a value which can never happen (because of the `[[never]]` directive or the `[[always]]` directive
 * `impossible-if-value` (always)
     * an `if` statement encounter a value which can never happen (because of the `[[never]]` directive or the `[[always]]` directive
+* `value-polymorphic-function-not-found`
+    * a function supporting value polymorphism was called but none of the pre-condition checks succeeded
 
 
 ### The `deprecate` directive
@@ -433,6 +435,25 @@ valueNeverUsed := func()
 ignoredValue [[discard]] := func()
 
 // ... insert code that never uses ignoredValue ...
+````
+
+
+#### `discard` on previously declared variables
+
+The discard can be applied to values after declaration which will force the compiler to treat the type as unimportant and not complain if the type was not referenced.
+
+````zax
+func : ()(input : Integer) = {
+    //...
+}
+
+//...
+
+// replace func with a new implementation that ignores the input variable
+func = {
+    [[discard]] input
+    //...
+}
 ````
 
 

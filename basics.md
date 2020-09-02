@@ -122,8 +122,8 @@ Common aliases are placed in `Module.System.Keywords`:
 // some example keywords that are aliased in the keywords module
 const export :: alias keyword constant
 property export :: alias keyword mutator
-static export :: alias once
-downcast export :: alias outercast
+static export :: alias keyword once
+downcast export :: alias keyword outercast
 ````
 
 
@@ -255,8 +255,8 @@ $...            // variadic types operator
 cast            // pre-unary unsafe type conversion operator
 outercast       // unsafe outer type cast operator
                 // convert from contained type pointer to container type pointer
-copycast        // pre-unary unsafe void copy cast
-                // treat the raw `void` pointer as pointing to an instance of
+copycast        // pre-unary unsafe `Unknown` copy cast
+                // treat the raw `Unknown` pointer as pointing to an instance of
                 // the casted type and make a copy of the contents
 lifecast        // unsafe shared lifetime cast operator
                 // converts a raw pointer to share a lifetime an existing
@@ -370,7 +370,8 @@ MyType :: type {
 // import the module system types into the global namespace
 :: import Module.System.Types
 
-void : Void         // An empty type
+unknown : Unknown   // used as a generic pointer type to an unknown type
+void_ : Void        // an alias of the Unknown type
 boolean : Boolean   // A value representing true of false
 
 // aliased or templated signed integers to the appropriate fixed size equivalent

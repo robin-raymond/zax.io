@@ -740,8 +740,8 @@ StrongPointerControlBlock$(Type) {
     strongCount : Integer atomic
     weakCount : Integer atomic
     destructor : ()()*
-    deallocateType : void*
-    deallocateControl : void*
+    deallocateType : Unknown*
+    deallocateControl : Unknown*
     type : :: union {
         type : $Type
     }

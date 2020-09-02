@@ -88,6 +88,8 @@ Zax is a strongly typed compile time language with some key features:
     * Type and variable `alias`
     * Type extension
     * Anonymous types
+    * `nothing` types instances
+    * value polymorphism for functions
 * Asynchronous programming
     * `atomic` variables and atomic operations
     * Asynchronous function calling
@@ -141,6 +143,8 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 ## [Optional Types](optional.md)
 
 ## [Constructors and Destructors](ctor-dtor.md)
+
+## [Nothing Type Instances](nothing.md)
 
 ## [Arrays](arrays.md)
 

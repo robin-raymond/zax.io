@@ -72,7 +72,7 @@ stringIsRuntimeSafe := wideString as Utf8String
 
 Any type can be converted from one pointer type to another pointer type using the `cast` operator. The compiler will not perform any type checking on the types to check if they are compatible. If a pointer is cast to an incompatible type and accessed then the undefined behaviors can result.
 
-A `void*` can be used to hold a generic pointer to anything.
+A `Unknown*` can be used to hold a generic pointer to anything.
 
 
 ### Casting a by-value type into a pointer

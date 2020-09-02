@@ -163,7 +163,7 @@ MyType :: type {
     realNumber : Float
 }
 
-fetchPointer : (pointer : void*)() = {
+fetchPointer : (pointer : Unknown*)() = {
     //...
 }
 
