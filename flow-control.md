@@ -651,7 +651,7 @@ assert final : ()() = {
 }
 
 factorial final : (r : Integer)(n : Integer) if { return n > 1} = {
-    return n * fact(n - 1)
+    return n * factorial(n - 1)
 }
 
 factorial final : (r : Integer)(n : Integer) = {
