@@ -76,7 +76,7 @@ The following are registered errors, and their meaning:
 * `for-loop-missing-statements`
     * the `for` loop requires 3 statements and a scope
 * `range-iterator-not-found`
-    * the `foreach` iteration over a `range` not provided a range iterator
+    * the `each` iteration `from` a range did not provided a range iterator
 * `named-scope-not-found`
     * cannot fine the name referenced in a `break` or `continue` statement
 * `named-scope-inaccessible`
@@ -88,7 +88,7 @@ The following are registered errors, and their meaning:
 * `duplicate-case`
     * a `switch` has duplicate `case` values
 * `condition-expects-boolean`
-    * a conditional statement (i.e. `if`, `while`, `do`/`while`, `for`) expected a `Boolean` type or an `as` convertible type to `Boolean`
+    * a conditional statement (i.e. `if`, `while`, `do` / `while`) expected a `Boolean` type or an `as` convertible type to `Boolean`
 * `missing-end-of-comments`
     * a multiline comment was started but the matching end of comments token is missing
 * `compiles-directive-error`
@@ -265,3 +265,5 @@ The following are registered warnings, default states, and their meaning:
     * an attempt to access a value via the self variable (`_`) was made in a non ambiguous situation
 * `redundant-access-via-own` (always)
     * an attempt to access a value via an `own` declared contained variable name where the variable name is not ambiguous
+* `bad-style` (always)
+    * the style of the code is found to be undesirable and language or compiler changes in the future may be breaking

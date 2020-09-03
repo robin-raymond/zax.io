@@ -86,3 +86,30 @@ myType.doSomething()
 myType.doSomethingElse()
 myType.print("hello")
 ````
+
+
+### Setting values in nothing types
+
+Nothing types are real instance of a type. Thus is a type has values that get set the underlying type's nothing object will retain the value. Thus values in nothing objects should not be set, or if they are set then the data contained must be treated as garbage. The nothing types should be treated as immutable especially for concurrency reasons. If the type is not concurrency safe and modifying the contents causes an issue, undefined behaviors can happen. Accessing final functions (or overridden immutable functions) is the safer use case for types that support having a nothing instance.
+
+Nothing instances are not meant to be global singletons (although technically they are global singletons). The usage of nothing pointers as singletons that perform functional work is discouraged (but not enforced).
+
+````zax
+MyType :: type {
+    value1 : Integer
+    value2 : String deep
+
+    +++ : ()(:Unknown) = {
+    }
+}
+
+// default pointer will point to the nothing instance
+myType : MyType*
+
+// nothing prevents the nothing instant values from being set
+myType.value1 = 5
+
+// the following statement will be true
+if myType.value1 == 5
+    myType.value2 = "yes, this will become set into value2"
+````

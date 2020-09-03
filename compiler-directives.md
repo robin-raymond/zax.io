@@ -529,7 +529,8 @@ if [[requires]] { return ++value > 2 } {
 
 metaFunction : ()(input :) [[requires]] {
     if (sizeof :input) < (sizeof Integer)
-        return false; return true
+        return false
+    return true
 } = {
     //...
 }
@@ -708,8 +709,8 @@ doSomethingElse final : ()() = {
 }
 
 func : ()() = {
-    condition final : (result : Boolean)() = { return true; }
-    failure final : (result : Boolean)() = { return false; }
+    condition final : (result : Boolean)() = { return true }
+    failure final : (result : Boolean)() = { return false }
 
     // placing the `likely` directive prior to the execution block after the
     // `if` treats the `true` condition as `likely`
@@ -782,8 +783,8 @@ doSomethingElse final : ()() = {
 }
 
 func : ()() = {
-    condition final : (result : Boolean)() = { return true; }
-    failure final : (result : Boolean)() = { return false; }
+    condition final : (result : Boolean)() = { return true }
+    failure final : (result : Boolean)() = { return false }
 
     // placing the `always` directive prior to the execution block after the
     // `if` treats the `true` condition as if the result would `always` be true
@@ -885,6 +886,27 @@ trace final [[inline=always]] : ()() = {
 }
 
 trace()
+````
+
+### `lock-free` directive
+
+The `once` keyword will automatically generate thread safe barriers around an instance's construction to ensure that no type instance of the same type will ever be constructed. However, this is additional overhead that might not always be necessary. The `[[lock-free]]` directive disables the creation of this protective code around the instance creation and assumes that the construction of the type will happen entirely single threaded without any possibility of two threads competing for object creation.
+
+````zax
+
+MyType :: type {
+    value1 : String
+    value2 : String 
+}
+
+giveMeMyType : (myType : MyType&)() = {
+    // no thread locking mechanism will surround this code
+    singleton once [[lock-free]] : MyType
+    return singleton
+}
+
+// force initialization globally on startup (which must be single threaded)
+initializeMyType private := giveMeMyType()
 ````
 
 

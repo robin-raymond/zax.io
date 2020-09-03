@@ -330,7 +330,7 @@ fillArray final : $(
     value : $Type
 ) = {
     myArray : $ResultType[$Length]
-    foreach elem : in myArray {
+    for elem: in myArray {
         elem = value as $ResultType
     }
     return myArray

@@ -51,11 +51,12 @@ Zax is a strongly typed compile time language with some key features:
     * Structure of arrays or array of structure support
 * Type and Flow control features
     * Familiar flow controls
-        * `if`/`else`
+        * `if`, `else`
         * `switch`, `case`, `default`
         * `while`
-        * `do`/`while`
-        * `for`, `foreach`
+        * `do`, `while`
+        * `each`, `in`
+        * `for`, `in`
     * `scope` control and logic grouping with `break` and `continue`
     * Arrays
     * Strongly sized integers, floating points, enums, boolean, strings

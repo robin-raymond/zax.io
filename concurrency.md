@@ -358,7 +358,7 @@ TemplatedTaskResult :: type {
 scheduleProducer : ()(producer :) {
     
     invokeCallable final : ()(producer :) = {
-        switch status := producer.callable(); status {
+        switch status := producer.callable() ;; status {
             case Coroutine.Suspend:       break
             case Coroutine.Reschedule:    scheduleProducer(producer)
             case Coroutine.Compete:       break

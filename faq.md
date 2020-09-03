@@ -117,6 +117,13 @@ In Zax, the pseudo logic for calling replaceable function is `(type.func)->funct
 Virtual function have even more unseen overhead than the additional CPU lookup instructions. Lookups can be made even more expensive by virtue of data non-locality and CPU cache misses. By accessing a pointer to a table somewhere else in memory a CPU cache miss can happen which would be less likely if the pointer was directly inside the structure.
 
 
+### Why is there no `null` or `nil` keyword?
+
+The concept of a `null` or `nil` pointer is unsupported. Pointers can be checked if they are valid using the `if` statement. A pointer's default state is to point to nothing. Pointers can be reset to point to nothing. But one key difference exists: Pointers to nothing are not necessarily pointers to the zeroth byte in memory. Pointers to nothing can be defaulted to point to real type instances that is designed to have noop behaviors when invoked. This can help prevent constant checking for nulls where on types where being valid or not has no code impact.
+
+In other words, the language does not have a single magic `null` value indicating if a pointer is valid or not. A pointer to nothing is not valid in the same ways as a pointer to `null` is not valid but the value for a pointer to nothing is not fixed universal value.
+
+
 ### Shouldn't concurrency features just be a library?
 
 While it's possible to program all of the concurrency features within in a library, without language support, some of the concurrency features would be extremely ugly to develop or would require complex code introspection. For example, the compiler rewrites task functions into suspend/resume blocks of code. Other features (such a `strong` pointers or `deep` copy) are doable but they can make code ugly with complex templates and operator overriding instead of simple type qualifiers.

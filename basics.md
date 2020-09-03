@@ -65,13 +65,14 @@ default
 defer
 discard
 do
+each
 else
 extension
 except
 export
 false
 for
-foreach
+forever
 handle
 hidden
 if
@@ -89,7 +90,6 @@ override
 own
 private
 promise
-range
 return
 requires
 scope
@@ -102,6 +102,7 @@ type
 union
 weak
 while
+using
 void
 yield
 ````
@@ -154,7 +155,7 @@ constant_ : Type constant
 ### Operators
 
 #### Overloadable
-````zax
+````
 +               // plus operator
 -               // minus operator
 ++              // (pre or post) unary increment operator
@@ -210,11 +211,12 @@ overhead        // pre-unary overhead operator
 overheadof      // pre-unary overhead sizing operator
                 // return the number of bytes overhead is needed for this type
                 // i.e. typically the size of a control block
+allocatorof     // returns the allocator used for an allocated instance
 ````
 
 
 #### Non overloadable
-````zax
+````
 *               // post-unary pointer type declaration
 &               // post-unary reference type declaration or
                 // pre-unary capture by reference operator
@@ -236,6 +238,7 @@ ___             // context operator
 $...            // variadic types operator
 ,               // argument operator
 ;               // statement separator operator
+;;              // sub-statement separator operator
 :               // variable type declaration operator
 ::              // data type or meta data declaration operator
 ::.             // data type dereference operator
@@ -277,29 +280,41 @@ offsetof        // offset of operator
                 // container type or container variable
 ````
 
+
 ### Compiler directives
 
 ````
-align           // align contained types to a zero modulus address boundary
-asset           // copy asset to built bundle
-compiles        // if a code block that follows compiles a `true` is replaced
-                // otherwise a false is replaced
-deprecate       // declare API sections as being deprecated
-discard         // suppress warning on unused variable or non captured results
-error           // cause an error in compilation
-execute         // evaluates code blocks at compile time
-file            // indicates the source for a generated file
-inline          // tells compiler to inline vs call functions
-likely          // indicates which code paths are more likely (for optimization)
-line            // indicates the source line for a generated file
-panic           // control panic behavior in code generation
-reserve         // reserve non-accessible unused space in a type
-void            // declared contained value occupies space without allocating
-                // space within the type
-return          // controls code generation for the return statement
-source          // loads a related source file
-unlikely        // indicates which code paths are less likely (for optimization)
-warning         // display a warning or control compiler warning behaviors
+align               // align contained types to a zero modulus address boundary
+asset               // copy asset to built bundle
+compiler            // compiler name as a string literal 
+compiles            // if a code block that follows compiles a `true` is
+                    // replaced otherwise a false is replaced
+date                // date of compile as a string literal
+deprecate           // declare API sections as being deprecated
+discard             // suppress warning on unused variable or
+                    // non captured results
+error               // cause an error in compilation
+execute             // evaluates code blocks at compile time
+file                // indicates the source for a generated file
+function            // current function as a string literal
+inline              // tells compiler to inline vs call functions
+likely              // indicates which code paths are more likely
+                    // (for optimization)
+line                // indicates the source line for a generated file
+lock-free           // disable lock generation around `once` values
+panic               // control panic behavior in code generation
+reserve             // reserve non-accessible unused space in a type
+void                // declared contained value occupies
+                    // a location within a type
+                    // without allocating space for the contained value
+return              // controls code generation for the return statement
+source              // loads a related source file
+time                // time of compile as a string literal
+unlikely            // indicates which code paths are less likely
+                    // (for optimization)
+version-compiler    // compiler version as a string literal
+version-import      // module import version as a string literal 
+warning             // display a warning or control compiler warning behaviors
 ````
 
 
@@ -371,7 +386,7 @@ MyType :: type {
 :: import Module.System.Types
 
 unknown : Unknown   // used as a generic pointer type to an unknown type
-void_ : Void        // an alias of the Unknown type
+void : Void         // an alias of the Unknown type
 boolean : Boolean   // A value representing true of false
 
 // aliased or templated signed integers to the appropriate fixed size equivalent

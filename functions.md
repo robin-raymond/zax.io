@@ -104,6 +104,26 @@ renderAccount : (myError : Error)(username : String) {
 ````
 
 
+### Function polymorphism
+
+The language support polymorphism based on strong type matching. Two (or more) functions can share the same name and the compiler will select the function with the best match of the arguments. Types, references, pointers, mutability, `constant` types, return types, and other factors are considered during the function selection process. The full discussion for what is considered a best match is beyond the scope of this section. 
+
+[Value polymorphism](flow-control.md) is also supported which is discussed in the [flow control](flow-control.md) section.
+
+````zax
+func : ()(value : String) = {
+    //...
+}
+
+func : ()(value : Integer) = {
+    //...
+}
+
+func("hello")   // the String version of function will be called
+func(42)        // the Integer version of function will be called
+````
+
+
 ### Functions can capture values
 
 ````zax

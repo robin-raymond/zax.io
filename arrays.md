@@ -13,7 +13,7 @@ randomNumber : (result : Integer)() = {
 // all types are automatically initialized to the default Integer value of 0
 myArray : Integer[1000]
 
-foreach arrayValue : in myArray {
+each arrayValue : from myArray {
     arrayValue =  randomNumber()
 }
 

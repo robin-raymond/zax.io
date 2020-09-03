@@ -654,6 +654,20 @@ The `once` keyword ensures that only a single instance of a type can ever be con
 
 The `once` keyword for constructable types incurs some additional overhead not present for global variables. First, any allocated memory will use the context's thread aware allocators. The compiler ensures that the constructor of the variable can only be constructed with a single global instance atomically regardless of which thread might access the variable. A `once` variable will not become constructed until the variable value is accessed and the variable will destruct in reverse order to construction (intermixed with any globals constructed or destructed at runtime).
 
+````zax
+print final : ()(...) = {
+    //...
+}
+
+uniqueId final : (result : Integer)() = {
+    value once : Integer atomic
+    return value++
+}
+
+// each call to uniqueId will be given a completely unique number regardless of any thread it's called from
+print(uniqueId())
+````
+
 
 ### Global construction order
 

@@ -109,7 +109,11 @@ FileUtilities export :: import Module.Useful.FileUtilities
 
 #### Hiding exports
 
-Even though a type might be exported, some contained types or variables should be kept hidden from the importer of the model. The language includes the `hidden` and `private` keywords that can help keep types and variables out of view. Take note that these keywords are not named `secret` or `protect` or anything related as they are meant only to keep namespaces from becoming polluted with types and variables that are meant for internal house keeping. Nothing in the language protects a pointer to the type being taken and the raw memory contents of a type being read byte by byte. No cryptographic promises are implied by usage of the `hidden` or `private` keywords.
+Even though a type might be exported, some contained types or variables should be kept `hidden` from the importer of the model. The language includes the `hidden` and `private` keywords that can help keep types and variables out of view.
+
+Global variables marked as `hidden` are visible to all related (but not imported or exported) source files. Global variables marked as `private` are only visible within the current source file.
+
+Take note that these keywords are not named `secret` or `protected` or anything related as they are meant only to keep namespaces from becoming polluted with types and variables that are meant for internal house keeping. Nothing in the language protects a pointer to the type being taken and the raw memory contents of a type being read byte by byte. No cryptographic promises are implied by usage of the `hidden` or `private` keywords.
 
 ````zax
 :: import Module.System.Types

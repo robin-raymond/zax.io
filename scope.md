@@ -173,7 +173,7 @@ func : ()() = {
         scope check_forecast {
 
             if rainIsForecastToday() {
-                print("Here comes the rain again.");
+                print("Here comes the rain again.")
                 break my_outer_scope
             }
 
@@ -186,7 +186,7 @@ func : ()() = {
 
 ### Anonymous scopes with `break` and `continue`
 
-Anonymous scopes that are not defined with a scope name are considered insignificant and will not influence a `break` or `continue` in the code. When a `break` or `continue` is encounter which does not name a scope, the nearest outer `scope`, `while`, `for`, `foreach`, `do`/`while` are used as the code flow points.
+Anonymous scopes that are not defined with a scope name are considered insignificant and will not influence a `break` or `continue` in the code. When a `break` or `continue` is encounter which does not name a scope, the nearest outer `scope`, `while`, `for`, `forever`, `each`, `do` / `while` are used as the code flow points. The `if` and `using` statements are not affected by `break` or `continue`.
 
 ````zax
 sunny : (result : Boolean)() = {
