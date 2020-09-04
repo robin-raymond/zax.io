@@ -92,6 +92,10 @@ myType.print("hello")
 
 Nothing types are real instance of a type. Thus is a type has values that get set the underlying type's nothing object will retain the value. Thus values in nothing objects should not be set, or if they are set then the data contained must be treated as garbage. The nothing types should be treated as immutable especially for concurrency reasons. If the type is not concurrency safe and modifying the contents causes an issue, undefined behaviors can happen. Accessing final functions (or overridden immutable functions) is the safer use case for types that support having a nothing instance.
 
+When values are accessed within a type and the pointer is to nothing, the `pointer-to-nothing-accessed` may be issued (i.e. if not disabled). For type declared with a nothing constructor, a panic will not be issued when calling nothing functions. This is because function can self protect themselves from access (by validating the `_` is not pointing to nothing) whereas values cannot.
+
+If the nothing constructor is not declared on a type, accessing the type's functions may issue the `pointer-to-nothing-accessed` (i.e. if not disabled).
+
 Nothing instances are not meant to be global singletons (although technically they are global singletons). The usage of nothing pointers as singletons that perform functional work is discouraged (but not enforced).
 
 ````zax
@@ -106,7 +110,8 @@ MyType :: type {
 // default pointer will point to the nothing instance
 myType : MyType*
 
-// nothing prevents the nothing instant values from being set
+// nothing prevents the nothing instant values from being set (except a panic
+// of `pointer-to-nothing-accessed` may be issued as the pointer is null)
 myType.value1 = 5
 
 // the following statement will be true

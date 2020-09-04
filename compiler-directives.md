@@ -173,9 +173,11 @@ The following are registered panic scenarios, default states, and their meaning:
 * `not-all-pointers-deallocated-during-allocator-cleanup`
     * memory cleanup is being performed but not all the allocated memory from the allocator was deallocated
 * `impossible-switch-value` (always)
-    * a `switch` statement encounter a value which can never happen (because of the `[[never]]` directive or the `[[always]]` directive
+    * a `switch` statement encounter a value which can never happen (because of the `[[never]]` directive or the `[[always]]` directive)
 * `impossible-if-value` (always)
-    * an `if` statement encounter a value which can never happen (because of the `[[never]]` directive or the `[[always]]` directive
+    * an `if` statement encounter a value which can never happen (because of the `[[never]]` directive or the `[[always]]` directive)
+* `impossible-code-flow` (always)
+    * a code path was followed what was marked as impossible (because of the `[[never]]` directive or the `[[always]]` directive)
 * `value-polymorphic-function-not-found`
     * a function supporting value polymorphism was called but none of the pre-condition checks succeeded
 
@@ -292,7 +294,7 @@ pushToQueue : (
     newQueueSize : Integer
 )(
     value : Integer
-) {
+) = {
     // insert code that pushes to the queue and returns the new queue size
 }
 
@@ -312,7 +314,7 @@ pushToQueueVersion2 : (
     newQueueSize [[discard]] : Integer
 )(
     value : Integer
-) {
+) = {
     return pushToQueue(value)
 }
 
@@ -837,6 +839,40 @@ func : ()(value : Integer) = {
 ````
 
 
+#### The `never` directive in code flow
+
+The `[[never]]` directive can be used to mark code flows which are impossible to reach. This will allow the compiler to not generate output for code paths that cannot happen. A panic `impossible-code-flow` may be issues if the code flow was followed even though it's not possible to reach (if not explicitly disabled).
+
+Example of an impossible code path:
+
+````zax
+print final : ()() = {
+    //...
+}
+
+random final : (result : Integer)() = {
+    //...
+}
+
+forever {
+    value := random()
+
+    if value >= 0 {
+        print("outcome is likely")
+        continue
+    }
+
+    if value < 0 {
+        print("outlook not so good")
+        continue
+    }
+
+    // cannot reach here; an integer must be either be >= 0 or < 0
+    [[never]]
+}
+````
+
+
 ### The `return` directive
 
 The `return` directive `[[return=<option>]]` indicates to the compiler how the compiler should code generation regarding the `return` statement.
@@ -888,6 +924,7 @@ trace final [[inline=always]] : ()() = {
 trace()
 ````
 
+
 ### `lock-free` directive
 
 The `once` keyword will automatically generate thread safe barriers around an instance's construction to ensure that no type instance of the same type will ever be constructed. However, this is additional overhead that might not always be necessary. The `[[lock-free]]` directive disables the creation of this protective code around the instance creation and assumes that the construction of the type will happen entirely single threaded without any possibility of two threads competing for object creation.
@@ -907,6 +944,34 @@ giveMeMyType : (myType : MyType&)() = {
 
 // force initialization globally on startup (which must be single threaded)
 initializeMyType private := giveMeMyType()
+````
+
+
+### `sequential` directive
+
+When a `promise` or `task` is declared and a by-value type is passed to a function not qualified as `deep`, the compiler will expect that type passed to be declared as `deep` or the compiler will assume an error was made by the programmer. The compiler will assume the function to be thread-unsafe and thus a `task-not-deep` or `promise-not-deep` will be issued. This is done to ensure that types potentially crossing a thread boundary are automatically deep copied in an effort to prevent concurrency issues.
+
+If the `promise` or `task` will never be used from a different thread context then the `[[sequential]]` directive can be used to acknowledge the `promise` or `task` as being exclusively sequentially accessed and thus a `deep` operation will not need to be applied. Further, any type declared as `deep` which normally would cause a `deep` copy to occur would not longer perform `deep` copies of the type for that `promise` or `task` call. Individual arguments for promises or tasks declared as `deep` will still perform `deep` copies.
+
+
+````zax
+MyType :: type {
+    value1 : Integer* @
+}
+
+func : ()(myType : MyType) promise [[sequential]] = {
+    //...
+}
+
+myType : MyType
+
+// OKAY: the warning `promise-not-deep` will not be issued
+later := func(myType)
+
+// ...
+
+// must be called from the same thread or undefined behaviors may result
+later.callable()
 ````
 
 

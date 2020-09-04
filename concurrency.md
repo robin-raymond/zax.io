@@ -12,7 +12,7 @@ The `atomic` keyword can also be applied to intrinsic types, like `Integer`, whe
 ````zax
 puid : Integer atomic
 
-func : ()() {
+func : ()() = {
     // no matter how many times the function is called, the `uniqueValue` will
     // always contain a unique value because the `puid` Integer is operated upon
     // atomically
@@ -111,6 +111,38 @@ anotherType : MyType
 // the compiler will treat all input/output arguments as being defined as
 // `deep` types
 anotherType.merge(myType)
+````
+
+
+### Adding a deep qualifier on a type
+
+````zax
+MyType :: type deep {
+    value1 : Integer* @
+    value2 : String
+}
+
+// even though the `promise` isn't declared as `deep` the type is declared as
+// `deep` this the type will automatically be treated as a deep type during
+// calls to `promise` or `task` functions
+myFunc final : ()(myType : MyType) promise = {
+    //...
+}
+
+
+myType : MyType
+
+// a deep copy is performed at this moment on the type
+later := myFunc(myType)
+
+later.then = {
+    //...
+}
+
+// ...
+
+// ... to be potentially run on a different thread...
+later.callable()
 ````
 
 
@@ -355,7 +387,7 @@ TemplatedTaskResult :: type {
 }
 */
 
-scheduleProducer : ()(producer :) {
+scheduleProducer : ()(producer :) = {
     
     invokeCallable final : ()(producer :) = {
         switch status := producer.callable() ;; status {
@@ -405,7 +437,7 @@ defer myTask.consumer.cancel()
 A `task` function can call other `task` functions easily by using the `await` keyword to obtain a single result from a called `task` method. This creates a method by which one `task` can begin executing another `task` where all the tasks will be scheduled collectively. At any time the entire chain of tasks can be cancelled where the compiler will schedule cleanup of the tasks.
 
 ````zax
-scheduleTaskProducer : ()(producer :) {
+scheduleTaskProducer : ()(producer :) = {
     //...
 }
 
@@ -445,7 +477,7 @@ defer myTask.consumer.cancel()
 
 
 ````zax
-scheduleTaskProducer : ()(producer :) {
+scheduleTaskProducer : ()(producer :) = {
     //...
 }
 

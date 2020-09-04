@@ -236,7 +236,9 @@ The following are registered warnings, default states, and their meaning:
 * `specifier-ignored` (always)
     * a qualifier was specified which is ignored in the context
 * `task-not-deep` (always)
-    * task has by-value arguments that should have the `deep` qualifier for parallel processing
+    * `task` has by-value arguments that should have the `deep` qualifier for parallel processing
+* `promise-not-deep` (always)
+    * `promise` has by-value arguments that should have the `deep` qualifier for parallel processing
 * `unknown-directive` (error)
     * an directive not prefixed with `x-` was encountered which was not understood
 * `unknown-direction-argument` (error)

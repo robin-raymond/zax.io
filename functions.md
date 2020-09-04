@@ -17,7 +17,7 @@ func()
 Simple functions have zero or one return results and zero or one arguments.
 
 ````zax
-double : (output : Integer)(input : Integer) {
+double : (output : Integer)(input : Integer) = {
     return input * 2
 }
 
@@ -78,14 +78,14 @@ login : (
     error : Error
 )(
     username : String
-) {
+) = {
     if banned(username)
         return , : Error = "You've been banned from our service."
 
     return "October 7, 2020",
 }
 
-renderAccount : (myError : Error)(username : String) {
+renderAccount : (myError : Error)(username : String) = {
 
     // The `except` keyword will capture a return result and if the return
     // result evaluates to true the result will automatically be returned
@@ -236,7 +236,7 @@ print : ()(...) = {
     //...
 }
 
-save : ()(...) {
+save : ()(...) = {
 }
 
 func : ()(myValue : Integer) = {
@@ -341,11 +341,11 @@ print : ()(...) = {
     // ....
 }
 
-save : (result : Boolean)(...) {
+save : (result : Boolean)(...) = {
     // ...
 }
 
-sound : ()(...) {
+sound : ()(...) = {
     // ...
 }
 

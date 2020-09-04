@@ -396,7 +396,7 @@ B :: type {
     bar : Integer
 }
 
-doSomething : ()(a : A*) {
+doSomething : ()(a : A*) = {
 }
 
 function : ()() = {
@@ -518,7 +518,7 @@ C :: type {
     weight : Double
 }
 
-doSomething : ()(a : A*) {
+doSomething : ()(a : A*) = {
     // UNSAFE:
     // using the `outercast` operators can be used to fast convert from a
     // contained type to a container type -- be sure the `a` is an
@@ -577,7 +577,7 @@ C :: type {
     weight : Double
 }
 
-doSomething : ()(a : A*) {
+doSomething : ()(a : A*) = {
     // UNSAFE:
     // using the `outercast` operators can be used to fast convert from a
     // contained type to a container type -- be sure the `a` is an

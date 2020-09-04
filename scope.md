@@ -86,15 +86,15 @@ funcParse : ()() = {
 // Scopes can be used to create flow logic as needed.
 
 ````zax
-isHappyNumber : (result : Boolean)(value : Integer) {
+isHappyNumber : (result : Boolean)(value : Integer) = {
     //... insert code that returns true or false...
 }
 
-isSadNumber : (result : Boolean)(value : Integer) {
+isSadNumber : (result : Boolean)(value : Integer) = {
     //... insert code that returns true or false...
 }
 
-isOrdinaryNumber : (result : Boolean)(value : Integer) {
+isOrdinaryNumber : (result : Boolean)(value : Integer) = {
     //... insert code that returns true or false...
 }
 

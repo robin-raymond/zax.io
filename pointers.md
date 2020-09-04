@@ -421,7 +421,7 @@ func : (result : MyType)() = {
     return result
 }
 
-augmentFunc : (result : MyType)(input : MyType& constant) {
+augmentFunc : (result : MyType)(input : MyType& constant) = {
     result.value = input.value
     result.name = "Big " + input.name
 
@@ -434,7 +434,7 @@ augmentFunc : (result : MyType)(input : MyType& constant) {
     return result
 }
 
-augmentFunc : (result : MyType)(input : MyType& last) {
+augmentFunc : (result : MyType)(input : MyType& last) = {
     result.value = input.value
     result.name = "Happy " + input.name
 

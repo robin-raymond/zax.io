@@ -93,7 +93,7 @@ print final : ()(...) = {
     // ...
 }
 
-whatsForLunch : (mood : String)(food : String) {
+whatsForLunch : (mood : String)(food : String) = {
 
     weight : Float
 
@@ -175,7 +175,7 @@ print : ()(...) = {
     // ...
 }
 
-countToOneHundred : ()(starting : Integer) {
+countToOneHundred : ()(starting : Integer) = {
     // repeat until starting reaches 100
     while starting <= 100 {
         print(starting)
@@ -199,7 +199,7 @@ print : ()(...) = {
     // ...
 }
 
-countToCosmicNumber : ()(starting : Integer) {
+countToCosmicNumber : ()(starting : Integer) = {
     while endingNumber := fetchNumberFromCosmos() ;; starting <= endingNumber {
         print(starting)
         ++starting
@@ -482,7 +482,7 @@ print final : ()(...) = {
     //...
 }
 
-getReversedView(result :)(values : Integer[3]&) {
+getReversedView(result :)(values : Integer[3]&) = {
     // ... logic is covered in ranges ...    
 }
 
@@ -507,7 +507,7 @@ print final : ()(...) = {
     //...
 }
 
-getReversedView(result :)(values : Integer[3]&) {
+getReversedView(result :)(values : Integer[3]&) = {
     // ... logic is covered in ranges ...    
 }
 
@@ -815,7 +815,7 @@ print : ()(...) = {
     // ...
 }
 
-countToOneHundred : ()(starting : Integer) {
+countToOneHundred : ()(starting : Integer) = {
     // repeat until starting reaches 100
     while starting <= 100 {
         print(starting)
@@ -839,7 +839,7 @@ print : ()(...) = {
     // ...
 }
 
-countToCosmicNumber : ()(starting : Integer) {
+countToCosmicNumber : ()(starting : Integer) = {
     forever endingNumber := fetchNumberFromCosmos() {
         print(starting)
         if (starting > endingNumber)

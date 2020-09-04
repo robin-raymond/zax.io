@@ -587,7 +587,7 @@ C :: type {
     weight : Double
 }
 
-doSomething : ()(a : A* handle) {
+doSomething : ()(a : A* handle) = {
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type and create a `handle` pointer from `a`
     b := (a outerlink B*) lifelink a
@@ -619,7 +619,7 @@ An example `handle` pointer content and control block:
 
 ````zax
 /*
-HandlePointerControlBlock$(Type) {
+HandlePointerControlBlock$(Type) :: type {
     strongCount : Integer
     [[reserve=(sizeof Integer atomic) - sizeof Integer]]
     [[reserve=sizeof Integer atomic]]

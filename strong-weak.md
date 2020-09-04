@@ -702,7 +702,7 @@ C :: type {
     weight : Double
 }
 
-doSomething : ()(a : A* strong) {
+doSomething : ()(a : A* strong) = {
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type and create a `strong` pointer from `a`
     b := (a outerlink B*) lifelink a
@@ -736,7 +736,7 @@ An example `strong` / `weak` pointer content and control block:
 
 ````zax
 /*
-StrongPointerControlBlock$(Type) {
+StrongPointerControlBlock$(Type) :: type {
     strongCount : Integer atomic
     weakCount : Integer atomic
     destructor : ()()*
