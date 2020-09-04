@@ -94,8 +94,8 @@ AnotherType :: type {
     value2 : WString
 }
 
-func : ()(input : MyType*) = {
-    //...
+func final : ()(input : MyType*) = {
+    // ...
 }
 
 myType : MyType
@@ -149,12 +149,12 @@ AnotherType :: type {
     value2 : WString
 }
 
-funcByValue : ()(input : MyType) = {
-    //...
+funcByValue final : ()(input : MyType) = {
+    // ...
 }
 
-funcByRef : ()(input : MyType&) = {
-    //...
+funcByRef final : ()(input : MyType&) = {
+    // ...
 }
 
 myType : MyType

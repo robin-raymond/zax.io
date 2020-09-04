@@ -29,7 +29,7 @@ public:
 };
 
 void doSomething(A *a) {
-    //...
+    // ...
 }
 
 void function() {
@@ -55,11 +55,11 @@ B :: type {
     bar : Integer
 }
 
-doSomething : ()(a : A) = {
-    //...
+doSomething final : ()(a : A) = {
+    // ...
 }
 
-function : ()() = {
+function final : ()() = {
     value : B
     value.a.foo = 1
     value.bar = 2
@@ -85,11 +85,11 @@ B :: type {
     bar : Integer
 }
 
-doSomething : ()(a : A) = {
-    //...
+doSomething final : ()(a : A) = {
+    // ...
 }
 
-function : ()() = {
+function final : ()() = {
     value : B
     value.foo = 1
     value.bar = 2
@@ -125,10 +125,10 @@ B :: type {
 }
 
 doSomething : ()(a : A) = {
-    //...
+    // ...
 }
 
-function : ()() = {
+function final : ()() = {
     value : B
     value.foo = 1
     value.bar = 2
@@ -164,10 +164,10 @@ MyType :: type {
 }
 
 fetchPointer : (pointer : Unknown*)() = {
-    //...
+    // ...
 }
 
-function : ()() = {
+function final : ()() = {
     value : MyType
 
     // as each of these are assignment operations using strict types, none
@@ -200,7 +200,7 @@ MyType :: type {
     value4 : Integer
 }
 
-func : ()() = {
+func final : ()() = {
     myType own : MyType
     value3 : String = "Marge"
     value4 : Integer = 5
@@ -236,6 +236,10 @@ func : ()() = {
 Contained types can have their defaults changed as part of the variable ownership. The `override` keyword can change the default value of an `own` type.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
 A :: type {
     foo : Integer
     animal : String = "bear"
@@ -248,11 +252,7 @@ B :: type {
     animal override := "mouse"
 }
 
-print : ()(...) = {
-    //...
-}
-
-function : ()() = {
+function final : ()() = {
     value : B
     value.foo = 1
     value.bar = 2
@@ -285,13 +285,13 @@ MyType :: type = {
     myInterface own : MyInterface
 
     start override := {
-        //...
+        // ...
     }
     stop override := {
-        //...
+        // ...
     }
     ping override := {
-        //... (variable `timeout` is accessible) ...        
+        // ... (variable `timeout` is accessible) ...        
     }
 
     myValue override := 5.0     // not forced to override but is
@@ -336,7 +336,7 @@ void doSomething(A a) {
     // For simple types, this may not be a concern but for complex types that
     // require A/B relationships in data the result can be undefined behavior.
 
-    //...
+    // ...
 }
 
 void function() {
@@ -371,7 +371,7 @@ public:
 };
 
 void doSomething(A *a) {
-    //...
+    // ...
 }
 
 void function() {
@@ -399,7 +399,7 @@ B :: type {
 doSomething : ()(a : A*) = {
 }
 
-function : ()() = {
+function final : ()() = {
     value : B
     value.a.foo = 1
     value.bar = 2
@@ -438,7 +438,7 @@ public:
 };
 
 void doSomething(A *a) {
-    //...
+    // ...
 
     // covert from A to B and assume that A "is-a" B and not a C
     B* b = static_cast<B*>(a);
@@ -479,13 +479,13 @@ public:
 };
 
 void doSomething(A *a) {
-    //...
+    // ...
 
     // dynamic_cast will return a nullptr if the conversion cannot occur
     B* b = dynamic_cast<B*>(a);
 
     if (b) {
-        //...
+        // ...
     }
 }
 
@@ -502,7 +502,7 @@ void function() {
 
 ##### Zax forced downcast
 
-In the Zax language forcefully converting from a contained type to the type's container requires sing the `composecast` operator. Using this operator must be done with caution as the programmer is forcefully telling the compiler that the composition relationship is guaranteed. If the programmer was wrong then undefined behavior will result.
+In the Zax language forcefully converting from a contained type to the type's container requires sing the `outercast` operator. Using this operator must be done with caution as the programmer is forcefully telling the compiler that the composition relationship is guaranteed. If the programmer was wrong then undefined behavior will result.
 
 ````zax
 A :: type {
@@ -546,7 +546,7 @@ doSomething : ()(a : A*) = {
     b4 := a outerlink B*
 }
 
-function : ()() = {
+function final : ()() = {
     value : B
     value.a.foo = 1
     value.bar = 2
@@ -577,7 +577,7 @@ C :: type {
     weight : Double
 }
 
-doSomething : ()(a : A*) = {
+doSomething final : ()(a : A*) = {
     // UNSAFE:
     // using the `outercast` operators can be used to fast convert from a
     // contained type to a container type -- be sure the `a` is an
@@ -610,7 +610,7 @@ doSomething : ()(a : A*) = {
 
 }
 
-function : ()() = {
+function final : ()() = {
     value : B
     value.a.foo = 1
     value.bar = 2

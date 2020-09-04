@@ -20,27 +20,27 @@ Due to the overhead because of thread safety guarantees for `strong` pointers, h
 Pointers marked as `handle` are allocated in similar manners to other pointers, such as `own`, `discard`, `strong`, `discard`, and `collect` pointers. The difference is that `handle` pointers can be co-owned by more than one variable. When the last variable holding the `handle` pointer is discarded (or reset to empty) the allocated type is destructed and deallocated.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -74,27 +74,27 @@ func : (result : String)() = {
 Pointers marked as `handle` can only point to a single instance of a type. If the pointer is reset to point to a new instance of a type then the original ownership claim is released and if the value was the last owner of the type's instance then the type is discarded and the memory is deallocated.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -138,27 +138,27 @@ func : (result : String)() = {
 The lifetime of `handle` pointers is entirely dependent on all `handle` pointers pointing to the same instance of a type being discarded (or reset to point to empty). Only when the final `handle` pointer is discarded/reset will be pointed instance of a type be released.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (
+func final : (
     // `stayingAlive` is a `handle` pointer defaulted to point to nothing
     stayingAlive : MyType* handle
 )() = {
@@ -214,7 +214,7 @@ func : (
     return
 }
 
-func2 : ()() = {
+func2 final : ()() = {
     // the `handle` pointer returned by `func` is now being kept alive by
     // `liveAndLetDie`
     liveAndLetDie := func()
@@ -237,8 +237,12 @@ Care must be used when dealing with `handle` pointer lifetimes to ensure a circu
 The example below creates a circular `handle` pointer chain:
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
 }
 
 MyType :: type {
@@ -257,18 +261,14 @@ MyType :: type {
     }
 }
 
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -334,8 +334,12 @@ func : (result : String)() = {
 The example below creates a circular `handle` pointer chain and manually fixes the issue:
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
 }
 
 MyType :: type {
@@ -354,18 +358,14 @@ MyType :: type {
     }
 }
 
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -423,27 +423,27 @@ func : (result : String)() = {
 Pointers marked as `own` can be transferred to pointers marked as `handle`. Once the transfer is completed, the original `own` pointer will point to nothing as the `handle` pointer will track the lifetime of the instance. Likewise, pointers marked as `handle` can be transferred to pointers marked as `own` on the condition that no other pointers marked as `handle` point to the same instance of a type otherwise  the resulting `handle` pointer will point to nothing.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -587,13 +587,13 @@ C :: type {
     weight : Double
 }
 
-doSomething : ()(a : A* handle) = {
+doSomething final : ()(a : A* handle) = {
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type and create a `handle` pointer from `a`
     b := (a outerlink B*) lifelink a
 }
 
-function : ()() = {
+function final : ()() = {
     value : B* handle @
     value.a.foo = 1
     value.bar = 2

@@ -147,26 +147,26 @@ A module is a collection of Zax source code that can be fetched and imported as 
 
 ````zax
 FastFooMathModule :: type {
-    type once final : constant = "git"
-    repository once final : constant = "https://github.com/immmutable/repo",
+    type final := "git"
+    repository final := "https://github.com/immmutable/repo"
     
-    // tag once final : constant = "Version1.2"      // not using a tag
-    branch once final : constant = "development"
+    // tag final := "Version1.2"      // not using a tag
+    branch final := "development"
 
     // a hash validation of the content can be performed (but is optional)
-    hashAlgorithm final : constant = "SHA512"
-    hash once final : constant = "f3b85c040bae9b5ce8b914eb8e33ce529f94992b6f" \
-                                 "9c7dda01f02b45a3bf64394036d9fda526fdc40c63" \
-                                 "246a326b42deb3de36554d6a21c933e960a430543685"
+    hashAlgorithm final := "SHA512"
+    hash final := "f3b85c040bae9b5ce8b914eb8e33ce529f94992b6f" \
+                  "9c7dda01f02b45a3bf64394036d9fda526fdc40c63" \
+                  "246a326b42deb3de36554d6a21c933e960a430543685"
 
     // the API contract version desired from imported module
     // (see deprecation compiler directive)
-    version once final : constant = "1.3"
+    version final := "1.3"
 
-    id once final : constant = "update-myIdentifier-to-refresh-cache"
+    id final := "update-myIdentifier-to-refresh-cache"
 
     // the requested storage location name for the imported module
-    stableCacheId once final : constant = "FastFooMathModule.Unique"
+    stableCacheId final := "FastFooMathModule.Unique"
 }
 
 FastFoo :: import FastFooMathModule
@@ -199,14 +199,14 @@ if !compiles { testFastFooMathModule : Module.FastFooMathModule } {
     // never defined so define the module now
 
     FastFooMathModule :: type {
-        type once final : constant = "git"
-        repository once final : constant = "https://github.com/immmutable/repo",
+        type final := "git"
+        repository final := "https://github.com/immmutable/repo",
         
-        branch once final : constant = "master"
+        branch final := "master"
 
-        id once final : constant = "update-myIdentifier-to-refresh-cache"
+        id final := "update-myIdentifier-to-refresh-cache"
 
-        stableCacheId once final : constant = "FastFooMathModule.Unique"
+        stableCacheId final := "FastFooMathModule.Unique"
     }
 } else {
 
@@ -219,22 +219,26 @@ if !compiles { testFastFooMathModule : Module.FastFooMathModule } {
 // Another test to ensure `Module.ThirdPartyModule` isn't already defined
 if !compiles { testThirdPartyModule : Module.ThirdPartyModule } {
     ThirdPartyModule :: type {
-        type once final : constant = "git"
-        repository once final : constant = "https://github.com/immmutable/repo2",
+        type final := "git"
+        repository final := "https://github.com/immmutable/repo2",
 
-        tag once final : constant = "Version1.2"
+        tag final := "Version1.2"
 
-        id once final : constant = "update-myIdentifier-to-refresh-cache"
+        id final := "update-myIdentifier-to-refresh-cache"
 
-        stableCacheId once final : constant = "ThirdPartyModule.Unique"
+        stableCacheId final := "ThirdPartyModule.Unique"
     }
 } else {
     ThirdPartyModule :: alias Module.ThirdPartyModule
 }
 
+assert final : ()(value : Boolean) = {
+    // ....
+}
+
 FastFoo :: import FastFooMathModule
 
-ThirdParty :: import Module.ThirdPartyModule = {
+ThirdParty :: import Module.ThirdPartyModule {
 
     // as `ThirdPartyModule` imports the `FastFooMathModule`, export our
     // definition of this imported module to the imported `ThirdPartyModule`
@@ -246,11 +250,7 @@ ThirdParty :: import Module.ThirdPartyModule = {
     }
 }
 
-assert : ()(value : Boolean) = {
-    //....
-}
-
-importantNumber : (result : Integer)() = {
+importantNumber final : (result : Integer)() = {
     // as both modules use the same `FastFooMathModule` under the covers,
     // requesting the same value that originates from `FastFoo` directly or
     // via an indirect route of `ThirdParty` must return the same result
@@ -275,14 +275,14 @@ if !compiles { testFastFooMathModule : Module.FastFooMathModule } {
     // In this example, this definition will not be used
 
     FastFooMathModule :: type {
-        type once final : constant = "git"
-        repository once final : constant = "https://github.com/immmutable/repo",
+        type final := "git"
+        repository final := "https://github.com/immmutable/repo",
         
-        tag once final : constant = "official-2.3"
+        tag final := "official-2.3"
 
-        id once final : constant = "some-other-identifier"
+        id final := "some-other-identifier"
 
-        stableCacheId once final : constant = "FastFooMathModule.AnotherUnique"
+        stableCacheId final := "FastFooMathModule.AnotherUnique"
     }
 } else {
     // In this example, the importer's definition will be used
@@ -304,11 +304,11 @@ if !compiles { testOptions : Module.Options } {
 }
 
 
-FastFoo :: import FastFooMathModule
-
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
+
+FastFoo :: import FastFooMathModule
 
 lifesMeaning export final : (result : Integer)() = {
     // a compile time test to see if compiling in debug mode
@@ -338,7 +338,6 @@ When a name or dotted name is encountered, the name is resolved by componentizin
 Since the same name can exist in an inner scope as an outer scope, an outer name might end up becoming shadowed and hidden from view. By intentional design, the language can only check from inner to outer scope so once a match is found any hidden names will not be accessible from that scope. No language operator can be used to start the search from the global scope. The `alias` keyword can be used to give a new name to a shadowed name so the item can be located by its `alias` name.
 
 ````zax
-
 MyType :: type {
     value1 : Integer
     value2 : String
@@ -346,7 +345,7 @@ MyType :: type {
 
 NonShadowedName :: alias MyType
 
-func : ()() = {
+func final : ()() = {
     MyType :: type {
         name : String
         value : Integer

@@ -14,7 +14,7 @@ A :: type A {
     myInteger : Integer
 }
 
-func : ()() = {
+func final : ()() = {
     // `value` is a type of `A`
     value : A
     value.myInteger = 42
@@ -60,13 +60,13 @@ A :: type A {
 
 // as `a` is passed by reference, a copy of `a` is not created as `a`
 // references (i.e. points to) the original `A` type passed in
-funcUsingAReference : ()(a : A&) = {
+funcUsingAReference final : ()(a : A&) = {
     // no need to check if `a` points to nothing, it always has to point
     // to a valid value of type `A` by convention
     a.myInteger *= 2
 }
 
-funcUsingAPointer : ()(a : A*) = {
+funcUsingAPointer final : ()(a : A*) = {
     // functions that take an `a` pointer may be sent a pointer to nothing
     // and depending on the assumptions of the function a pointer check
     // of nothing might be desired/required
@@ -78,7 +78,7 @@ funcUsingAPointer : ()(a : A*) = {
     a.myInteger *= 2
 }
 
-func : ()() = {
+func final : ()() = {
     // `value` is a type of `A`
     value : A
     value.myInteger = 42
@@ -111,13 +111,13 @@ Pointers and references do not have to point to custom declared types. They can 
 // as `myInteger` is passed by reference, a copy of `myInteger` is not created
 // as `myInteger` references (i.e. points to) the original `Integer` type
 // passed in
-funcUsingReference : ()(myInteger : Integer&) = {
+funcUsingReference final : ()(myInteger : Integer&) = {
     // no need to check if `myInteger` points to nothing, it always has to point
     // to a valid value of type `Integer` by convention
     myInteger *= 2
 }
 
-funcUsingPointer : ()(myInteger : Integer*) = {
+funcUsingPointer final : ()(myInteger : Integer*) = {
     // functions that take a `myInteger` pointer may be sent a
     // pointer to nothing and depending on the assumptions of the function
     // a pointer check of nothing might be desired/required
@@ -130,7 +130,7 @@ funcUsingPointer : ()(myInteger : Integer*) = {
     myInteger. *= 2
 }
 
-func : ()() = {
+func final : ()() = {
     // `value` is a type of `A`
     value : Integer
 
@@ -187,7 +187,7 @@ C :: type {
     value2 := 0
 }
 
-func: ()() = {
+func final : ()() = {
     c : C                       // initialize a type of `C`
                                 // into a variable named `c`
 
@@ -230,8 +230,8 @@ The `as` operator can only be used to convert a pointer to/from an intrinsic num
 Pointers can use the `cast` operator to treat a pointer of one type as a pointer of a different type. The language will perform no validation that the pointers are indeed compatible and will allow any conversion from one pointer type to another type to occur. Programmers are expected to understand if the pointer types are indeed compatible and they must take responsibility of the risk of creating undefined behavior. Pointers of any type can be converted to any other type using the `cast` operator regardless of how ridiculous and unsafe this cast operation might be.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
 func : ()(pointer : U32*) = {
@@ -263,17 +263,17 @@ func(value)
 Functions can be cast to a raw pointers using the `cast` operator and from a raw pointer using the `copycast` operator. The `copycast` operator is necessary to create a copy of captured values.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
 simpleFunc final : ()(value : Integer)
 
-func1 : simpleFunc = {
+func1 final : simpleFunc = {
     print(value)
 }
 
-func2 : simpleFunc = {
+func2 final : simpleFunc = {
     if value > 3
         print(value, "> 3")
 }
@@ -300,8 +300,8 @@ func4() // will execute the code defined in func2
 Functions can be cast to a raw pointers using the `cast` operator and from a raw pointer using the `copycast` operator. The `copycast` operator is necessary to acknowledge the overhead involved with the copying of captured values. When converting from a raw pointer, the function is casted and treated as the expected function type and the captured variables are copied as part of the operation. Using the `cast` operator or `as` operator is disallowed when converting from raw pointers to functions that can capture values.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
 simpleFunc final : ()(value : Integer)
@@ -347,20 +347,20 @@ func4() // will execute the code defined in func2 and still displays
 Pointers to functions without the ability to capture can be casted from a raw pointer using the `cast` operator and not the `copycast` operator since the functions have no ability to capture values and thus do not need the programmer to acknowledge any additional value copying overhead in the pointer conversion. Using the `copycast` operator is disallowed when converting from raw pointers to pointers to function types.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
 // the function is defined as pointer to a function and cannot capture values
 simpleFunc final : ()(value : Integer)*
 
 // not legal to capture any values
-func1 : simpleFunc = {
+func1 final : simpleFunc = {
     print(value)
 }
 
 // not legal to capture any values
-func2 : simpleFunc = {
+func2 final : simpleFunc = {
     if value > 3
         print(value, "> 3")
 }
@@ -400,8 +400,8 @@ Types passed by value do not require the `last` qualifier as value passed types 
 Temporary variables passed by value to a function can be converted automatically or manually into a `last` pointer or `reference`.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
 MyType :: type {
@@ -415,13 +415,13 @@ MyType :: type {
     subvalue : SubType* own
 }
 
-func : (result : MyType)() = {
+func final : (result : MyType)() = {
     result.value2 = "my string"
 
     return result
 }
 
-augmentFunc : (result : MyType)(input : MyType& constant) = {
+augmentFunc final : (result : MyType)(input : MyType& constant) = {
     result.value = input.value
     result.name = "Big " + input.name
 
@@ -434,7 +434,7 @@ augmentFunc : (result : MyType)(input : MyType& constant) = {
     return result
 }
 
-augmentFunc : (result : MyType)(input : MyType& last) = {
+augmentFunc final : (result : MyType)(input : MyType& last) = {
     result.value = input.value
     result.name = "Happy " + input.name
 
@@ -454,8 +454,8 @@ myTemporary1.subvalue.animal = "Frog"
 
 print("Hello there!")
 
-// indicate `myTemporary1` is no longer needed and will be disposed so
-// the contents of this variable can be lifted/consumed
+// explicitly indicate `myTemporary1` is no longer needed and will be disposed
+// so the contents of this variable can be lifted/consumed
 myTemporary2 := augmentFunc(myTemporary1 as last)
 
 print(myTemporary2.name) // prints "Happy Fred"

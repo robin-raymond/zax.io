@@ -64,7 +64,6 @@ deep
 default
 defer
 discard
-do
 each
 else
 extension
@@ -81,6 +80,7 @@ is
 immutable
 import
 keyword
+lazy
 managed
 mutable
 mutator
@@ -90,6 +90,7 @@ override
 own
 private
 promise
+redo
 return
 requires
 scope
@@ -102,6 +103,7 @@ type
 union
 weak
 while
+until
 using
 void
 yield
@@ -111,6 +113,8 @@ yield
 #### Keyword aliasing
 
 Zax supports keyword aliasing using the declaration `alias keyword`. The verbose nature of the default keywords are made to ensure the language is natural rather than using shortened keywords that are inconsistently applied to the language. However, the keywords can be aliased to friendly names to type. The same reserved status applies to any aliased keywords within the context of where the original keyword would be allowed. An alias does not remove the original keyword from being available.
+
+Aliased keywords must be declared prior to usage. Attempting to use an aliased keywords prior to declaration will cause the compiler to treat the symbolic name as a normal symbolic declaration instead of its replacement alias.
 
 A word of caution: the temptation can be to use very short abbreviated words to save on typing but reading a language should be natural, not lead to too many variable name conflicts, and be consistent and non-confusing. For projects shared publicly, this can even be a greater source of confusion if different projects use different keywords and may be difficult for newcomers to learn new keyword standards. Besides, modern editors typically have common word completion.
 
@@ -128,18 +132,39 @@ downcast export :: alias keyword outercast
 ````
 
 
-#### Operator aliasing
+#### Operator and expression aliasing
 
-Zax allows operators to become aliased into keywords using the declaration `alias operator keyword`. This allows natural language keywords to be applied to operators should a natural language alternative to the operator be desirable. Whenever the aliased keyword is seen, the operator is automatically substituted.
+Zax allows operators and expressions to become aliased into keywords using the declaration `alias operator keyword`. This allows natural language keywords to be applied to operators should a natural language alternative to the operator be desirable. Whenever the aliased keyword is seen, the operator is automatically substituted.
+
+Aliased operators and expressions must be declared prior to usage. Attempting to use an aliased operator prior to declaration will cause the compiler to treat the operator as a symbolic name instead of its replacement alias.
 
 A small caveat: comments are not operators and cannot be aliased. The compiler treats comments as a first pass filtering of text meant for humans and they are not treated as part of the language (even where a compiler might capture the comments for documentation purposes).
 
 ````zax
 add :: alias operator keyword +
 not :: alias operator keyword !
+ellipses :: alias operator keyword ...
+this :: alias operator keyword _
 
 value := 1 add 1
 isTrue := not (value != 2)
+
+// "ellipses" becomes `...`
+print : ()(ellipses) = {
+    // ...
+}
+
+MyType :: type {
+    value : Integer
+
+    func final : ()(value : Integer) = {
+        // `this` is not a keyword, it's an alias of `_`
+        this.value = value
+
+        // functionally equivalent to the above statement
+        _.value  value
+    }
+}
 ````
 
 
@@ -195,6 +220,7 @@ constant_ : Type constant
 >>>=            // binary right rotate and assign operator
 .               // post-unary dereference operator
 '               // literal start or end operator
+"               // literal start or end operator
 as              // safe type conversion operator
 ()              // function argument declaration operator or
                 // function invocation operator
@@ -220,22 +246,13 @@ allocatorof     // returns the allocator used for an allocated instance
 *               // post-unary pointer type declaration
 &               // post-unary reference type declaration or
                 // pre-unary capture by reference operator
-+++             // unary constructor
----             // unary destructor
-$               // templated argument declaration operator
 @               // post-unary standard allocator operator
                 // allocate using the standard allocator and construct type
 @@              // post-unary parallel allocator operator
                 // allocate using the parallel allocator and construct type
 @!              // post-unary sequential allocator operator
                 // allocate using the sequential allocator and construct type
-_               // reference to self operator
-                // a type's pointer to itself within type functions
-___             // context operator
-                // a pointer to the context operator
 .               // name resolution operator
-...             // variadic values operator
-$...            // variadic types operator
 ,               // argument operator
 ;               // statement separator operator
 ;;              // sub-statement separator operator
@@ -245,10 +262,6 @@ $...            // variadic types operator
 ?               // post-unary optional type operator
 ??              // ternary operator
 ???             // uninitialized type operator
-{               // scope begin operator
-}               // scope end operator
-[[]]            // compiler directive operator or attribute declaration operator
-"               // literal start or end operator
 ->              // post-unary argument combine operator
                 // combine remaining function result arguments into a
                 // single automatic defined type
@@ -278,6 +291,21 @@ alignof         // pre-unary align of operator
 offsetof        // offset of operator
                 // compute the byte offset of a contained variable from a
                 // container type or container variable
+````
+
+Other expressions:
+````
+$               // templated argument declaration
+...             // variadic values
+$...            // variadic types
+{               // scope begin
+}               // scope end
+[[]]            // compiler directive or attribute declaration
+_               // reference to self
+                // a type's pointer to itself within type functions
+___             // context; a pointer to the context
++++             // unary constructor
+---             // unary destructor
 ````
 
 
@@ -501,7 +529,7 @@ f128 : F128
 // advanced note: Integer/Float types are actually a templated type which
 // contains a bit size and/or a sign, e.g.
 Integer $(BitCount = Cpu.Integer.optimal, UseSign = Sign.signed) :: type {
-    //...
+    // ...
 }
 Float $(BitCount = Cpu.Integer.optimal) :: type { /*... */ }
 

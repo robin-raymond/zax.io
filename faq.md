@@ -103,7 +103,7 @@ Data Oriented design puts the focus around the data whereas Object Orientated at
 
 ### Isn't Zax just syntax sugar?
 
-That could be said for every language. Isn't C just syntax sugar for assembly? Isn't C++ syntax sugar for C (plus a few features)? Zax attempts to marry some of the best concepts from multiple languages. Zax is not aiming to be the most powerful language but it does aim to be a pleasing language to work within for a compile time language.
+That could be said for every language. Isn't C just syntax sugar for assembly? Isn't C++ syntax sugar for C (plus plus a few features)? Zax attempts to marry some of the best concepts from multiple languages. Zax is not aiming to be the most powerful language but it does aim to be a pleasing language to work within for a compile time language.
 
 
 ### Are virtual functions supported?

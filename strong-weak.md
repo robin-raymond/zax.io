@@ -22,27 +22,27 @@ Due to the overhead because of thread safety guarantees for `strong` pointers, h
 Pointers marked as `strong` are allocated in similar manners to other pointers, such as `own`, `discard`, `handle`, and `collect` pointers. The difference is that `strong` pointers can be co-owned by more than one variable. When the last variable holding the `strong` pointer is discarded (or reset to empty) the allocated type is destructed and deallocated.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -76,27 +76,27 @@ func : (result : String)() = {
 Pointers marked as `strong` can only point to a single instance of a type. If the pointer is reset to point to a new instance of a type then the original ownership claim is released and if the value was the last owner of the type's instance then the type is discarded and the memory is deallocated.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -140,27 +140,27 @@ func : (result : String)() = {
 The lifetime of `strong` pointers is entirely dependent on all `strong` pointers pointing to the same instance of a type being discarded (or reset to point to empty). Only when the final `strong` pointer is discarded/reset will be pointed instance of a type be released.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (
+func final : (
     // `stayingAlive` is a `strong` pointer defaulted to point to nothing
     stayingAlive : MyType* strong
 )() = {
@@ -216,7 +216,7 @@ func : (
     return
 }
 
-func2 : ()() = {
+func2 final : ()() = {
     // the `strong` pointer returned by `func` is now being kept alive by
     // `liveAndLetDie`
     liveAndLetDie := func()
@@ -239,8 +239,12 @@ Care must be used when dealing with `strong` pointer lifetimes to ensure a circu
 The example below creates a circular `strong` pointer chain:
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
 }
 
 MyType :: type {
@@ -259,18 +263,14 @@ MyType :: type {
     }
 }
 
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -336,8 +336,12 @@ func : (result : String)() = {
 The example below creates a circular `strong` pointer chain and manually fixes the issue:
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
 }
 
 MyType :: type {
@@ -356,18 +360,14 @@ MyType :: type {
     }
 }
 
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -425,8 +425,12 @@ func : (result : String)() = {
 Pointers marked as `weak` will only contain a valid pointer to a type's instance so long as the original allocated type is not destructed/deallocated. In other words, `weak` points will not extend the lifetime of a `strong` pointer beyond the last `strong` pointer keeping a type's instance alive.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
 }
 
 MyType :: type {
@@ -446,18 +450,14 @@ MyType :: type {
     }
 }
 
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -545,27 +545,27 @@ Pointers marked as `own` can be transferred to pointers marked as `strong`. Once
 Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers marked as `own` are allocated using the standard allocator which is typically set to the sequential allocator by default. If an `own` pointer gets transferred later into a `strong` pointer, the standard allocator should be replaced with the parallel allocator.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(check : Boolean) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-assert : ()(check : Boolean) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -702,13 +702,13 @@ C :: type {
     weight : Double
 }
 
-doSomething : ()(a : A* strong) = {
+doSomething final : ()(a : A* strong) = {
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type and create a `strong` pointer from `a`
     b := (a outerlink B*) lifelink a
 }
 
-function : ()() = {
+function final : ()() = {
     value : B* strong @
     value.a.foo = 1
     value.bar = 2

@@ -69,12 +69,12 @@ The following are registered errors, and their meaning:
     * an attempt was made to use a type that was not found
 * `function-candidate-not-found`
     * an attempt was made to call a function where none of the function candidates available are a viable choice
+* `function-candidate-ambiguous`
+    * an attempt was made to call a function where two (or more) matches are equally selectable even with all qualifiers considered
 * `enum-to-underlying-needs-as-operator`
     * an attempt was made to directly convert an enum to its underlying type without first casing to the underlying type
 * `enum-to-incompatible-type`
     * an attempt was made to convert an enum to a type that is not its underlying type
-* `for-loop-missing-statements`
-    * the `for` loop requires 3 statements and a scope
 * `range-iterator-not-found`
     * the `each` iteration `from` a range did not provided a range iterator
 * `named-scope-not-found`
@@ -88,7 +88,7 @@ The following are registered errors, and their meaning:
 * `duplicate-case`
     * a `switch` has duplicate `case` values
 * `condition-expects-boolean`
-    * a conditional statement (i.e. `if`, `while`, `do` / `while`) expected a `Boolean` type or an `as` convertible type to `Boolean`
+    * a conditional statement (i.e. `if`, `while`, `redo` `while`) expected a `Boolean` type or an `as` convertible type to `Boolean`
 * `missing-end-of-comments`
     * a multiline comment was started but the matching end of comments token is missing
 * `compiles-directive-error`
@@ -108,11 +108,11 @@ if sizeof Integer > 4 {
     [[warning="this poorly written code hasn't been testing on Integers larger than 4 bytes"]]
 }
 
-//...
+// ...
 
 [[warning="random warning for no good reason", x-blue-moon]]
 
-//...
+// ...
 ````
 
 
@@ -136,7 +136,7 @@ The options for warnings are:
 
 ````zax
 randomValue final : (output : S32)() = {
-    //...
+    // ...
     return output
 }
 
@@ -151,21 +151,21 @@ castedValue2 := value cast U32
 
 [[warning=always, intrinsic-type-cast-overflow]]
 
-//...
+// ...
 
 [[warning=never, intrinsic-type-cast-overflow]]
 
-//...
+// ...
 
 [[warning=default, intrinsic-type-cast-overflow]]
 
-//...
+// ...
 
 [[warning=error]]                                   // all warnings are errors
 [[warning=warning, intrinsic-type-cast-overflow]]    // this specific warning is
                                                     // just a warning
 
-//...
+// ...
 
 [[warning=never, x-strange-experimental-alignment-warning]]
 ````
@@ -182,7 +182,7 @@ Upon importing a module, all warnings are pushed and all warnings are popped at 
 
 [[warning=never, intrinsic-type-cast-overflow]]
 
-//... code with the warning disabled
+// ... code with the warning disabled
 
 [[warning=pop]]
 ````
@@ -202,7 +202,7 @@ The following are registered warnings, default states, and their meaning:
 * `switch-enum-default` (always)
     * the `switch` statement lacks a `default` statement to an `enum` known to be casted from an underlying type or used with bitwise operators and thus may contain values outside of known defined named enumerations
 * `condition-not-boolean` (always)
-    * the condition passed into an `if`, `while`, `do`/`while` or other conditional statements do not resolve to a `Boolean` type
+    * the condition passed into an `if`, `while`, `redo` `while` or other conditional statements do not resolve to a `Boolean` type
 * `switch-boolean` (always)
     * a switch should not be used to compile a `Boolean` condition
 * `shift-count-overflow` (always)

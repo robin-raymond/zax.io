@@ -10,11 +10,11 @@ A system type is automatically constructed and passed between functions. The Zax
 Care must be taken when new threads are created to ensure that a new context object is created for any new thread and thread safety concerns are factored into whatever variables are placed inside the context type. One strategy, for example, is to ensure that each thread receives it's own allocator which uses a local memory pool that is unaware of thread safety concerns backed by a larger pool of memory which can expand the local thread pool's memory as needed. This allows threads to allocate memory using thread specific memory regions much more efficiently than their thread safe counterparts.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
-printIfPointerIsValid : ()(pointer : *) = {
+printIfPointerIsValid final : ()(pointer : *) = {
     if pointer
         print("true")
     else
@@ -26,8 +26,8 @@ MyType :: type {
     myValue2 : String
 }
 
-func : ()() = {
-    testFunc : ()() = {
+func final : ()() = {
+    testFunc final : ()() = {
         printIfPointerIsValid(___)          // will print "true"
 
         a : MyType @                        // allocate `a` using the context's

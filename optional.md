@@ -95,7 +95,7 @@ An `if` statement can be used to check if an optional type contains data in the 
 
 ````zax
 print final : ()(...) = {
-    //...
+    // ...
 }
 
 MyType :: type {
@@ -138,7 +138,7 @@ MyType :: type {
 }
 
 func final : ()(input : MyType) = {
-    //...
+    // ...
 }
 
 // the `valueOptional` is declared as optional and
@@ -184,7 +184,7 @@ valueOptional : MyType?
 // the optional `valueOptional` now contains valid data
 valueOptional = value
 
-//...
+// ...
 
 // the previous data within `valueOptional` is automatically destructed;
 // `value` is copy constructed again into `valueOptional` reserved space;
@@ -211,7 +211,7 @@ valueOptional : MyType?
 // the optional `valueOptional` now contains valid data
 valueOptional = value
 
-//...
+// ...
 
 // the previous data within `valueOptional` is automatically destructed;
 // the optional `valueOptional` constructs the underlying type with the 
@@ -239,7 +239,7 @@ valueOptional : MyType?
 // the optional `valueOptional` now contains valid data
 valueOptional = value
 
-//...
+// ...
 
 // the previous data within `valueOptional` is automatically destructed;
 // `value` is copy constructed again into `valueOptional` reserved space;
@@ -257,26 +257,26 @@ valueOptional. = value
 
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
 MyType :: type {
     value1 : Integer
     value2 : String
 }
 
-print final : ()(...) = {
-    //...
-}
-
 func final : ()(input : MyType?) = {
-    //...
+    // ...
 
     if input {
         print("found value")
-        //...
+        // ...
     } else {
         print("no value")
     }
 
-    //...
+    // ...
 }
 
 // the `valueOptional` is declared as optional and

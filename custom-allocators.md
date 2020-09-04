@@ -44,11 +44,11 @@ Allocator :: type {
     }
 
     allocate : (pointer : Unknown*)(properties : Allocation) = {
-        //...
+        // ...
     }
 
     deallocate : ()(pointer : Unknown*) = {
-        //...
+        // ...
     }
 }
 
@@ -83,11 +83,11 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething : ()(myType : MyType*) = {
-    //...
+doSomething final : ()(myType : MyType*) = {
+    // ...
 }
 
-func : ()() = {
+func final : ()() = {
     allocator : MyAllocator     // create an instance of the custom allocator
 
     myType : MyType @ allocator // allocate using the custom allocator
@@ -110,7 +110,7 @@ This context pointer can be changed to point to a custom allocator thus every al
 :: import Module.System.Allocators
 
 MyAllocator :: type {
-    //...
+    // ...
 }
 
 MyType :: type {
@@ -118,12 +118,12 @@ MyType :: type {
     myValue2 : String 
 }
 
-doSomethingElse : ()(myType : MyType*) = {
-    //...
+doSomethingElse final : ()(myType : MyType*) = {
+    // ...
 }
 
-doSomething : ()(myType : MyType*) = {
-    //...
+doSomething final : ()(myType : MyType*) = {
+    // ...
 
     // allocate `myOtherType` using the allocator contained within the context
     // `___` automatically (which in this example points to a custom allocator)
@@ -135,7 +135,7 @@ doSomething : ()(myType : MyType*) = {
     // destructed and deallocated
 }
 
-func : ()() = {
+func final : ()() = {
     allocator : MyAllocator         // create an instance of the custom allocator
 
     // remember the pointers to the old allocator
@@ -174,15 +174,15 @@ MyType :: type {
     myValue2 : String
 }
 
-allocate : (pointer : Unknown*)(bytes : TypeSize, alignment : TypeSize) = {
-    //...
+allocate final : (pointer : Unknown*)(bytes : TypeSize, alignment : TypeSize) = {
+    // ...
 }
 
-deallocate : ()(pointer : Unknown*) = {
-    //...
+deallocate final : ()(pointer : Unknown*) = {
+    // ...
 }
 
-func : ()() = {
+func final : ()() = {
     pointer = allocate(sizeof MyType, alignof MyType)
     
     // convert the raw pointer

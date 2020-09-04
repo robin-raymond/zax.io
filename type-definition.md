@@ -91,7 +91,7 @@ C :: type {
     value2 := 0
 }
 
-func : ()() = {
+func final : ()() = {
     // create `a`, `b`, and `c` with default values
     a : A
     b : B
@@ -122,7 +122,7 @@ func : ()() = {
 Types can be declared globally, inside other types, inside functions and inside locally defined types within functions. The type system is flexible to allow types as needed where needed.
 
 ````zax
-func : ()() = {
+func final : ()() = {
     // declare a variable and define its anonymous type in a single step
     myType : :: type {
         value1 : Integer
@@ -231,13 +231,13 @@ myFunc2 final : ()()
 ````zax
 // declare and define a function that returns nothing and takes a variadic input
 // value and assigns code to execute
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
 // declare and define a function that returns a `true` or `false` value and
 // takes a single `Integer` input and assign code to execute
-greaterThanThree : (result : Boolean)(value : Integer) = {
+greaterThanThree final : (result : Boolean)(value : Integer) = {
     return value > 3
 }
 
@@ -252,13 +252,13 @@ if greaterThanThree(10)
 #### Function declaration and definition with capturing
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
 // declare and define a function that returns nothing and takes a single
 // `String` argument and has the ability to capture values 
-compareToKnownAnimals : ()(value : String) = {
+compareToKnownAnimals final : ()(value : String) = {
 
     // declare and define a function that returns nothing and takes a single
     // `String` argument and captures the `value` variable value

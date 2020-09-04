@@ -13,11 +13,11 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething : ()(input : MyType*) = {
+doSomething final : ()(input : MyType*) = {
     // code that 
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
@@ -44,23 +44,23 @@ func : (result : String)() = {
 A pointer marked as `own` can only only be owned by a single variable at a time. When an pointer marked as `own` is transferred to another pointer marked as `own` the ownership of the pointer is transferred. Only pointers marked as `own` can transfer to other pointers marked as `own` or alternative transfer to pointers marked as `strong`.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : ()() = {
+func final : ()() = {
     value1 : MyType* own @  // allocated using the context allocator
     value2 : MyType* own    // no allocation is performed and pointer points
                             // to nothing
@@ -82,23 +82,23 @@ Enforcement of explicit ownership is done for these reasons:
 * ensures any transfer of ownership was done knowingly rather than accidentally
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : ()() = {
+func final : ()() = {
     value1 : MyType* @          // allocated using the context allocator and
                                 // pointer is `own` implicitly
     value2 : MyType* own        // no allocation is performed and the `own`
@@ -128,7 +128,7 @@ Allocating and deallocating is done by specifying the allocator to use after the
 
 ````zax
 MyCustomAllocator :: type {
-    //... allocate/deallocate functions documented elsewhere ...
+    // ... allocate/deallocate functions documented elsewhere ...
 }
 
 MyType :: type {
@@ -136,11 +136,11 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething : ()(input : MyType*) = {
+doSomething final : ()(input : MyType*) = {
     // code that 
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     allocator : MyCustomAllocator
 
@@ -173,7 +173,7 @@ The `discard` keyword can be used with a pointer type indicating that the type d
 
 ````zax
 MyCustomAllocator :: type {
-    //... allocate/deallocate functions documented elsewhere ...
+    // ... allocate/deallocate functions documented elsewhere ...
 }
 
 MyType :: type {
@@ -181,7 +181,7 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething : ()(input : MyType*) = {
+doSomething final : ()(input : MyType*) = {
     // code that 
 }
 
@@ -214,23 +214,23 @@ func : (result : String)() = {
 Similar to a pointer marked as `own`, a pointer marked as `discard` can only only be owned by a single variable at a time. When an pointer marked as `discard` is transferred to another pointer marked as `discard` the ownership of the pointer is transferred.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : ()() = {
+func final : ()() = {
     value1 : MyType* discard @  // allocated using the context allocator
     value2 : MyType* discard    // no allocation is performed
 
@@ -250,7 +250,7 @@ The `collect` keyword can be used with a pointer type indicating that the type d
 
 ````zax
 MyCustomAllocator :: type {
-    //... allocate/deallocate functions documented elsewhere ...
+    // ... allocate/deallocate functions documented elsewhere ...
 }
 
 MyType :: type {
@@ -258,11 +258,11 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething : ()(input : MyType*) = {
-    //...
+doSomething final : ()(input : MyType*) = {
+    // ...
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     allocator : MyCustomAllocator
 
@@ -291,23 +291,23 @@ func : (result : String)() = {
 Similar to a pointer marked as `own`, a pointer marked as `collect` can only only be owned by a single variable at a time. When an pointer marked as `collect` is transferred to another pointer marked as `collect` the ownership of the pointer is transferred. However, as the type's lifetime is tied to the allocator where the type was allocated thus the need to transfer ownership of `collect` pointers is only done for convenience of ensuring only one variable contains the pointer to a type and to allow common transfer behavior for `own`, `discard` and `collect` pointers.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
 MyType :: type {
     myValue1 : Integer
     myValue2 : String
 }
 
-print : ()(...) = {
-    //...
-}
-
-printIfValidPointer : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
     if pointerToValue
         print("true")
     else
         print("false")
 }
 
-func : ()() = {
+func final : ()() = {
     value1 : MyType* collect @      // allocated using the context allocator
     value2 : MyType* collect        // no allocation is performed
 
@@ -333,13 +333,13 @@ MyType :: type {
 
 pointerToAValue : MyType*   // the pointer will point to nothing by default
 
-doSomething : ()(input : MyType*) = {
-    //...
+doSomething final : ()(input : MyType*) = {
+    // ...
 
     pointerToAValue = input
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
 
     scope {
@@ -374,11 +374,11 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething : ()(input : MyType*) = {
-    //...
+doSomething final : ()(input : MyType*) = {
+    // ...
 }
 
-func : (result : String)() = {
+func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the

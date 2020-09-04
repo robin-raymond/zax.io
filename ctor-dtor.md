@@ -12,16 +12,16 @@ The triple plus `+++` and triple minus `---` represent reserved function names o
 Constructs and destructors never have return values when called. Zax does not support exceptions, thus the language cannot throw any exceptions either and errors cannot be returned during the construction or destruction process. Constructors and destructors cannot be deferred asynchronously to another thread as they must execute and complete from the thread they are called.
 
 ````zax
-generateRandomUuid : (Uuid uuid)() = {
-    //...
+generateRandomUuid final : (Uuid uuid)() = {
+    // ...
 }
 
-follow : ()(...) = {
-    //...
+follow final : ()(...) = {
+    // ...
 }
 
-unfollow : ()(...) = {
-    //...
+unfollow final : ()(...) = {
+    // ...
 }
 
 // this type has no constructor as ever value is implicitly initialized
@@ -77,16 +77,16 @@ myType4 : MyType = generateRandomUuid()
 Constructors can accept multiple arguments. The arguments operator like any other function except the `{}` operators are used to indicate the initialize of a type that requires multiple arguments during construction.
 
 ````zax
-generateRandomUuid : (Uuid uuid)() = {
-    //...
+generateRandomUuid final : (Uuid uuid)() = {
+    // ...
 }
 
-follow : (success : Boolean)(...) = {
-    //...
+follow final : (success : Boolean)(...) = {
+    // ...
 }
 
-unfollow : ()(...) = {
-    //...
+unfollow final: ()(...) = {
+    // ...
 }
 
 MyType :: type {
@@ -96,10 +96,10 @@ MyType :: type {
 
     +++ final : ()(id : Uuid, retries : Integer) = {
         _.id = id
-        do {
+        redo while retries > 1 {
             if follow(id)
                 break
-        while (retries > 1)
+        }
     }
 
     --- final : ()() = {
@@ -122,20 +122,20 @@ Constructors and destructors will automatically construct contained types as par
 Destructors are called implicitly for contained types unless the container calls the destructor explicitly.
 
 ````zax
-print : ()(...) = {
-    //....
+print final : ()(...) = {
+    // ....
 }
 
-generateRandomUuid : (Uuid uuid)() = {
-    //...
+generateRandomUuid final : (Uuid uuid)() = {
+    // ...
 }
 
-follow : ()(...) = {
-    //...
+follow final : ()(...) = {
+    // ...
 }
 
-unfollow : ()(...) = {
-    //...
+unfollow final : ()(...) = {
+    // ...
 }
 
 MyType :: type {
@@ -174,28 +174,28 @@ MyOtherType :: type {
 The compiler will not generate automatic calls to contained constructors if the container's constructor code contains explicit calls to the contained type's constructor. The programmer is responsible for ensuring all code paths call the container's constructor. If some code paths lead to scenarios where a default constructor may not be called then undefined behaviors might happen if the contained type is accessed or during the type's automatic destruction. The compiler bases the decision to include automatic contained value construction entirely based on the container explicitly calling the contained type's constructor or not.
 
 ````zax
-print : ()(...) = {
-    //....
+print final : ()(...) = {
+    // ....
 }
 
-generateRandomUuid : (Uuid uuid)() = {
-    //...
+generateRandomUuid final : (Uuid uuid)() = {
+    // ...
 }
 
-blueMoon : (result : Boolean)() = {
-    //...
+blueMoon final : (result : Boolean)() = {
+    // ...
 }
 
-venusInRetrograde : (result : Boolean)() = {
-    //...
+venusInRetrograde final : (result : Boolean)() = {
+    // ...
 }
 
 follow : ()(...) = {
-    //...
+    // ...
 }
 
 unfollow : ()(...) = {
-    //...
+    // ...
 }
 
 MyType :: type {
@@ -254,24 +254,24 @@ MyOtherType :: type {
 Only access variables from contained types after automatic or manual construction of contained type is performed. Accessing non-constructed contained types can cause undefined behavior.
 
 ````zax
-print : ()(...) = {
-    //....
+print final : ()(...) = {
+    // ....
 }
 
-generateRandomUuid : (Uuid uuid)() = {
-    //...
+generateRandomUuid final : (Uuid uuid)() = {
+    // ...
 }
 
-follow : ()(...) = {
-    //...
+follow final : ()(...) = {
+    // ...
 }
 
-unfollow : ()(...) = {
-    //...
+unfollow final : ()(...) = {
+    // ...
 }
 
 followInfo final : (result : String)(uuid : Uuid) = {
-    //...
+    // ...
 }
 
 MyType :: type {
@@ -315,20 +315,20 @@ MyOtherType :: type {
 The compiler will scan the constructor for manual calls to contained type's constructors. For ever constructor the compiler sees, the automatic code to construct the contained type is bypassed. This can be used to force the compiler to acknowledge externally performed construction/destruction where the compiler would not be able to recognize the external construction/destruction otherwise.
 
 ````zax
-print : ()(...) = {
-    //....
+print final : ()(...) = {
+    // ....
 }
 
-generateRandomUuid : (Uuid uuid)() = {
-    //...
+generateRandomUuid final : (Uuid uuid)() = {
+    // ...
 }
 
-follow : ()(...) = {
-    //...
+follow final : ()(...) = {
+    // ...
 }
 
-unfollow : ()(...) = {
-    //...
+unfollow final : ()(...) = {
+    // ...
 }
 
 MyType :: type {
@@ -348,10 +348,10 @@ MyType :: type {
     }
 }
 
-magicFunction : ()(pointer : MyType*) = {
-    //...
+magicFunction final : ()(pointer : MyType*) = {
+    // ...
     pointer.+++("magic value")
-    //...
+    // ...
 }
 
 MyOtherType :: type {
@@ -385,20 +385,20 @@ MyOtherType :: type {
 The compiler will normally generate the code to destruct contained types automatically. However, if precise control over the order of destruction is needed other than the default FILO construction / destruction then manual destruction can be performed.The compiler will scan the destructor for manual destruction of contained types and suppress the default destruction of contained types.
 
 ````zax
-print : ()(...) = {
-    //....
+print final : ()(...) = {
+    // ....
 }
 
-generateRandomUuid : (Uuid uuid)() = {
-    //...
+generateRandomUuid final : (Uuid uuid)() = {
+    // ...
 }
 
-follow : ()(...) = {
-    //...
+follow final : ()(...) = {
+    // ...
 }
 
-unfollow : ()(...) = {
-    //...
+unfollow final : ()(...) = {
+    // ...
 }
 
 MyType :: type {
@@ -434,20 +434,20 @@ MyOtherType :: type {
 Allocation and construction can be separated.
 
 ````zax
-print : ()(...) = {
-    //....
+print final : ()(...) = {
+    // ....
 }
 
-generateRandomUuid : (Uuid uuid)() = {
-    //...
+generateRandomUuid final : (Uuid uuid)() = {
+    // ...
 }
 
-follow : ()(...) = {
-    //...
+follow final : ()(...) = {
+    // ...
 }
 
-unfollow : ()(...) = {
-    //...
+unfollow final : ()(...) = {
+    // ...
 }
 
 MyType :: type {
@@ -656,7 +656,7 @@ The `once` keyword for constructable types incurs some additional overhead not p
 
 ````zax
 print final : ()(...) = {
-    //...
+    // ...
 }
 
 uniqueId final : (result : Integer)() = {
@@ -682,7 +682,7 @@ MyType :: type {
     name own : String
 }
 
-mySingleton : (result : MyType&)() = {
+mySingleton final : (result : MyType&)() = {
     singleton once : MyType = "Alice"
     return singleton
 }

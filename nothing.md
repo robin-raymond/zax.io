@@ -19,7 +19,7 @@ The self pointer (`_`) can be checked with `if` to verify if the created instanc
 
 ````zax
 MyType :: type {
-    +++ : ()() = {
+    +++ final : ()() = {
         // the empty constructor
     }
 
@@ -27,7 +27,7 @@ MyType :: type {
     // when used in a constructor, the `Unknown` type indicates the nothing
     // instance is being constructed allowing the object to set itself up to be
     // the nothing instance
-    +++ : (result : MyType*)(:Unknown) = {
+    +++ final final : (result : MyType*)(:Unknown) = {
         // reset function pointers to nothing
         doSomething = {}
         doSomethingElse = { [[discard]] value }
@@ -35,11 +35,11 @@ MyType :: type {
     }
 
     doSomething : ()() = {
-        //...
+        // ...
     }
 
     doSomethingElse : ()(value : Integer) = {
-        //...
+        // ...
     }
 
     print final : ()(...) = {
@@ -47,7 +47,7 @@ MyType :: type {
         if !_
             return
 
-        //...        
+        // ...        
     }
 }
 
@@ -64,16 +64,16 @@ Whereas this will crash:
 ````zax
 MyType :: type {
 
-    doSomething : ()() = {
-        //...
+    doSomething final : ()() = {
+        // ...
     }
 
-    doSomethingElse : ()(value : Integer) = {
-        //...
+    doSomethingElse final : ()(value : Integer) = {
+        // ...
     }
 
     print final : ()(...) = {
-        //...        
+        // ...        
     }
 }
 
@@ -103,7 +103,7 @@ MyType :: type {
     value1 : Integer
     value2 : String deep
 
-    +++ : ()(:Unknown) = {
+    +++ final : ()(:Unknown) = {
     }
 }
 

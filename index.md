@@ -53,8 +53,8 @@ Zax is a strongly typed compile time language with some key features:
     * Familiar flow controls
         * `if`, `else`
         * `switch`, `case`, `default`
-        * `while`
-        * `do`, `while`
+        * `while` / `until`
+        * `redo` `while` / `redo` `until`
         * `each`, `in`
         * `for`, `in`
     * `scope` control and logic grouping with `break` and `continue`
@@ -125,7 +125,17 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Flow Control](flow-control.md)
 
+## [Functions](functions.md)
+
+## [Optional Types](optional.md)
+
 ## [Scope](scope.md)
+
+## [Lazy Functions](lazy.md)
+
+## [Variadic Functions](variadic.md)
+
+## [Operator Overloading](operator.md)
 
 ## [Composition](composition.md)
 
@@ -138,10 +148,6 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 ## [Handle Pointers](handle.md)
 
 ## [Strong and Weak Pointers](strong-weak.md)
-
-## [Functions](functions.md)
-
-## [Optional Types](optional.md)
 
 ## [Constructors and Destructors](ctor-dtor.md)
 

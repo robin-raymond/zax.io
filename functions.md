@@ -33,7 +33,7 @@ Functions can have multiple return results and multiple arguments. The return re
 
 ````zax
 // declare a function with no return results and no arguments.
-weigh : (
+weigh final : (
     grams [[discard]] : Float,
     ounces [[discard]] : Float
 )(
@@ -55,7 +55,7 @@ gramOnly := weigh("letter")
 ````
 
 ````zax
-welcome : (
+welcome final : (
     accountId : String,
     secretCode : String
 )(
@@ -73,7 +73,7 @@ accountId:, secretCode: = welcome("Pat", "Jones", "Would you like some water?")
 ### Error handling using the `except` keyword
 
 ````zax
-login : (
+login final : (
     lastLogin : String,
     error : Error
 )(
@@ -85,7 +85,7 @@ login : (
     return "October 7, 2020",
 }
 
-renderAccount : (myError : Error)(username : String) = {
+renderAccount final : (myError : Error)(username : String) = {
 
     // The `except` keyword will capture a return result and if the return
     // result evaluates to true the result will automatically be returned
@@ -111,12 +111,12 @@ The language support polymorphism based on strong type matching. Two (or more) f
 [Value polymorphism](flow-control.md) is also supported which is discussed in the [flow control](flow-control.md) section.
 
 ````zax
-func : ()(value : String) = {
-    //...
+func final : ()(value : String) = {
+    // ...
 }
 
-func : ()(value : Integer) = {
-    //...
+func final : ()(value : Integer) = {
+    // ...
 }
 
 func("hello")   // the String version of function will be called
@@ -127,11 +127,12 @@ func(42)        // the Integer version of function will be called
 ### Functions can capture values
 
 ````zax
-changeValue : (result : Boolean)() = {
+print final : ()(...) = {
+    // ...
 }
 
-print : ()(...) = {
-    //...
+changeValue final : (result : Boolean)() = {
+    // ...
 }
 
 a : Integer = 1
@@ -158,8 +159,8 @@ func()
 #### Function declaration and definition with capturing value reassignment
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
 // declare and define a variable and function type with no return results, an
@@ -191,14 +192,16 @@ magicNumber(1001)   // will display "Horray -=> You've found the number"
 Functions can capture by reference (or by other type) by declaring a new variable that refers to the original variable.
 
 ````zax
+print final : ()(...) = {
+    // ...
+}
+
+assert final : ()(okay : Boolean) = {
+    // ...
+}
+
 changeValue : (result : Boolean)() = {
-}
-
-print : ()(...) = {
-    //...
-}
-
-assert : ()(okay : Boolean) = {
+    // ...
 }
 
 a : Integer = 1
@@ -232,11 +235,11 @@ assert(a == 5 || a == 42)
 ### Functions can be reassigned to new code
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
-save : ()(...) = {
+save final : ()(...) = {
 }
 
 func : ()(myValue : Integer) = {
@@ -279,8 +282,8 @@ func = {
 Functions will allocate space needed to capture values but function pointers do not have the space to capture any value contents. Function pointers are more space efficient when stored inside types with the tradeoff of being the inability to capture values.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
 // define and declare a function that return no results and takes no input
@@ -291,7 +294,7 @@ funcWithNoCapture : ()() *
 
 // reassign the function to new executable code
 funcWithNoCapture = {
-    //...
+    // ...
 }
 
 // execute the declared function
@@ -302,7 +305,7 @@ myMessage : String = "Try to capture me!"
 // ERROR: The function variable named `funcWithNoCapture` is not capable of
 // capturing data and thus will error if a variable capture was attempted
 funcWithNoCapture = [myMessage] {
-    //...
+    // ...
 }
 ````
 
@@ -310,11 +313,11 @@ funcWithNoCapture = [myMessage] {
 #### More errors when attempting to capture with capture disabled
 
 ````zax
-value := 42
-
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
+
+value := 42
 
 // ERROR: The function is a raw function pointer and cannot capture any values.
 func : ()()* = [value] {
@@ -337,15 +340,15 @@ func()
 ### Compatible definitions can be reassigned
 
 ````zax
-print : ()(...) = {
-    // ....
-}
-
-save : (result : Boolean)(...) = {
+print final : ()(...) = {
     // ...
 }
 
-sound : ()(...) = {
+save final : (result : Boolean)(...) = {
+    // ...
+}
+
+sound final : ()(...) = {
     // ...
 }
 
@@ -388,8 +391,8 @@ result3 := func1(42)
 Unlike results which must be captured, arguments can default their values so long as any placeholder for the argument is acknowledged as existing.
 
 ````zax
-func : ()(value : Integer) = {
-    //...
+func final : ()(value : Integer) = {
+    // ...
 }
 
 // Allowed to call the function with a value
@@ -408,11 +411,11 @@ func()
 Or a function with two arguments defaulted:
 
 ````zax
-func : ()(
+func final : ()(
     value1 : Integer,
     value2 : Integer
 ) = {
-    //...
+    // ...
 }
 
 // Allowed as two arguments are acknowledged of having existed which matches
@@ -423,12 +426,12 @@ func(,)
 Or a function with multiple arguments defaulted:
 
 ````zax
-func : ()(
+func final : ()(
     value1 : Integer,
     value2 : Integer,
     value3 : Integer
 ) = {
-    //...
+    // ...
 }
 
 // Allowed as all arguments are acknowledged of having existed which matches
@@ -444,7 +447,7 @@ Unlike arguments that can be passed default values, defaulted arguments do not n
 
 ````zax
 func : ()(value : Integer = 42) = {
-    //...
+    // ...
 }
 
 // Allowed to call the function with a value
@@ -457,11 +460,11 @@ func()
 Or a function with two arguments where the second argument is defaulted:
 
 ````zax
-func : ()(
+func final : ()(
     value1 : Integer,
     value2 : Integer = 103
 ) = {
-    //...
+    // ...
 }
 
 // Allowed as the first argument is acknowledged of having existed which matches
@@ -472,12 +475,12 @@ func(42)
 Or a function with multiple arguments defaulted:
 
 ````zax
-func : ()(
+func final : ()(
     value1 : Integer,
     value2 : Integer = 42,
     value3 : Integer
 ) = {
-    //...
+    // ...
 }
 
 // Allowed as all arguments are acknowledged of having existed which matches
@@ -499,7 +502,7 @@ MyType :: type {
     value2 := 0
     value3 := 0
 
-    bucket : (output : Integer)() = {
+    bucket final : (output : Integer)() = {
         // `value1`, `value2`, `value3` are accessible as local variables
         // with an implicit this pointer being passed to the function
         return (value1 + value2 + value3) % 17
@@ -529,8 +532,8 @@ The example below creates a `mutator` that returns a value:
 
 ````zax
 // length is a calculated value type and not a true independent value
-length mutator : (output : Integer)() = {
-    //...
+length mutator final : (output : Integer)() = {
+    // ...
     return output
 }
 
@@ -545,12 +548,12 @@ The example below creates a `mutator` that returns a value and a `mutator` that 
 
 ````zax
 // length is a calculated value type and not a true independent value
-length mutator : (output : Integer)() = {
-    //...
+length mutator final : (output : Integer)() = {
+    // ...
     return output
 }
-length mutator : ()(input : Integer) = {
-    //...
+length mutator final : ()(input : Integer) = {
+    // ...
 }
 
 // the `length` function is called which returns an `Integer` value
@@ -563,15 +566,15 @@ length = 10
 The example below creates two polymorphic `mutator` that both accept a value:
 
 ````zax
-calculateHistoricalAge : (output : Integer)() = {
-    //...
+calculateHistoricalAge final : (output : Integer)() = {
+    // ...
 }
 
-person mutator : ()(input : Integer) = {
-    //...
+person mutator final : ()(input : Integer) = {
+    // ...
 }
-person mutator : ()(input : String) = {
-    //...
+person mutator final : ()(input : String) = {
+    // ...
 }
 
 // the `person` function is called that accepts an `Integer` value
@@ -592,7 +595,7 @@ The example below replaces a `mutator` function that accepts an input value:
 
 ````zax
 length mutator : ()(input : Integer) = {
-    //... do something ...
+    // ... do something ...
 }
 
 // the seemingly complex declaration below does the following:
@@ -601,7 +604,7 @@ length mutator : ()(input : Integer) = {
 //   matching the original `length` `mutator`
 // * assign the function `length` to a new replacement function
 length = : ()(input : Integer) = {
-    //... do something else ...
+    // ... do something else ...
 }
 
 // the second function definition is called and not the first definition
@@ -612,7 +615,7 @@ The example below replaces a `mutator` function that returns an output value:
 
 ````zax
 length mutator : (output : Integer)() = {
-    //... do something ...
+    // ... do something ...
     return output
 }
 
@@ -622,7 +625,7 @@ length mutator : (output : Integer)() = {
 //   matching the original `length` `mutator`
 // * assign the function `length` to a new replacement function
 length = : (output : Integer)() = {
-    //... do something else ...
+    // ... do something else ...
     return output
 }
 
@@ -640,19 +643,19 @@ Each of the functions below is executed after declaration:
 ````zax
 // declare a function that takes zero arguments and returns no results
 : ()() = {
-    //...
+    // ...
 }()
 
 // declare a function that takes one argument and returns no results
 : ()(input : Integer) = {
-    //...
+    // ...
 }(5)
 
 
 newValue := : (output : Integer)() = {
-    //...
+    // ...
     return output
-}
+}(10)
 ````
 
 ### Functions marked as `final`
@@ -665,7 +668,7 @@ MyType :: type {
     value2 := 0
     value3 := 0
 
-    bucket final : (output : Integer)() = {
+    bucket : (output : Integer)() = {
         // allowed to access variables since the contents of the variables
         // are not changed
         return (value1 + value2 + value3) % 17
@@ -694,7 +697,7 @@ Functions marked as `constant` inside a type may not change any values or call a
 
 ````zax
 saveToDisk final :: ()(value : Integer) = {
-    //...
+    // ...
 }
 
 MyType :: type {
@@ -714,13 +717,13 @@ MyType :: type {
         saveToDisk(value3)
     }
 
-    resetValues : ()(value := 0) = {
+    resetValues final : ()(value := 0) = {
         value1 = value
         value2 = value
         value3 = value
     }
 
-    saveThenResetValues : ()(value := 0) constant = {
+    saveThenResetValues final : ()(value := 0) constant = {
         // allowed to call save since the function is declared as `constant`.
         save()
 
@@ -745,15 +748,15 @@ bucket := myType.bucket()
 
 ````zax
 saveToDisk final :: ()(value : Integer) = {
-    //...
+    // ...
 }
 
 Mutex :: type {
     lock final : ()() = {
-        //...
+        // ...
     }
     unlock final : ()() = {
-        //...
+        // ...
     }
 }
 
@@ -792,17 +795,17 @@ The argument split (`<-`) operator with named declarations `{}` can be used to f
 
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
-func : ()(
+func final : ()(
     age : Integer,
     name : String,
     weight : Float,
     defaultSmiley : Rune
 ) = {
-    //...
+    // ...
 }
 
 func(42, <- {.name = "Boothby", .age = 61, .weight = 120}, r'😀')
@@ -814,17 +817,17 @@ func(42, <- {.name = "Boothby", .age = 61, .weight = 120}, r'😀')
 The split operator (`<-') can take a type and create an argument list for a function to satisfy the functions argument list. For any matchings type names to the argument names (not already fulfilled arguments) will be automatically filled as arguments to the function. Any additional type values unmatched will be ignored. Any unfulfilled arguments will need to be filled as per standard argument passing rules.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
-func : ()(
+func final : ()(
     age : Integer,
     name : String,
     weight : Float,
     defaultSmiley : Rune
 ) = {
-    //...
+    // ...
 }
 
 MyType :: type {
@@ -853,17 +856,17 @@ print(myType.weight)
 The argument combine operator (`->`) can be used to define and declare a new anonymous type whose values contain the results of the remaining arguments returned from a function.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
-func : (
+func final : (
     output1 : Integer,
     output2 : String,
     output3 : Float,
     output5 : Rune
 )() = {
-    //...
+    // ...
     return output1, output2
 }
 
@@ -886,17 +889,17 @@ print(remaining.output4)
 The argument combine operator (`->`) can be used to assign values returned from function directly into an existing type. For the names of return arguments unfulfilled in existing return results, the return argument names are matched to the names in the type declared and any matching names are treated as if they were removed from the return result list as they are fulfilled. Any non matching names can be declared as additional arguments need to be captured as per standard argument returning rules. If none of the names match when using the combine operator (`->`), an attempt is made to apply an automatic `as` operator from the remaining returned types (as if they were a combined type) up to the final value present in the destination type. If the types are deemed compatible (as per `as` casting rules) those arguments are considered fulfilled and treated as if they were removed from the returned argument list. If neither method results in any matches then the compiler will issue an error. Any unmatched values present in the result results will need to be fulfilled as per standard argument returning rules.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
-func : (
+func final : (
     age : Integer,
     name : String,
     weight : Float,
     defaultSmiley : Rune
 )() = {
-    //...
+    // ...
 }
 
 MyType :: type {

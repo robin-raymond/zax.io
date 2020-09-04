@@ -9,11 +9,11 @@ Scopes can be used to help flow control by breaking or continuing out of a neste
 ### Unnamed scopes
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
-func : ()() = {
+func final : ()() = {
 
     a := 0
 
@@ -41,7 +41,7 @@ func : ()() = {
 Named scopes can be used for flow control and can transfer flow from an inner scope to an outer scope. This helps break out of loops or continue loops.
 
 ````zax
-funcWork : ()() = {
+funcWork final : ()() = {
 
     scope process_work {
 
@@ -60,7 +60,7 @@ funcWork : ()() = {
     finishWork()
 }
 
-funcParse : ()() = {
+funcParse final : ()() = {
 
     while parsing() {
         scope prepare_next_token {
@@ -86,23 +86,23 @@ funcParse : ()() = {
 // Scopes can be used to create flow logic as needed.
 
 ````zax
-isHappyNumber : (result : Boolean)(value : Integer) = {
-    //... insert code that returns true or false...
+print final : ()(...) = {
+    // ...
 }
 
-isSadNumber : (result : Boolean)(value : Integer) = {
-    //... insert code that returns true or false...
+isHappyNumber final : (result : Boolean)(value : Integer) = {
+    // ... insert code that returns true or false...
 }
 
-isOrdinaryNumber : (result : Boolean)(value : Integer) = {
-    //... insert code that returns true or false...
+isSadNumber final : (result : Boolean)(value : Integer) = {
+    // ... insert code that returns true or false...
 }
 
-print : ()(...) = {
-    //...
+isOrdinaryNumber final : (result : Boolean)(value : Integer) = {
+    // ... insert code that returns true or false...
 }
 
-messedUpFunc : ()() = {
+messedUpFunc final : ()() = {
 
     a := 0
 
@@ -147,15 +147,15 @@ messedUpFunc : ()() = {
 However, transferring from an outer to an inner scope is not legal. Transferring from an inner scope to an outer relative scope is not legal where the compiler detects bypassing of data initialization (which can cause the runtime will be in an undetermined state).
 
 ````zax
-lookupWeatherCenter : (output : String)() = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
-print : ()(...) = {
-    //...
+lookupWeatherCenter final : (output : String)() = {
+    // ...
 }
 
-func : ()() = {
+func final : ()() = {
 
     scope check_weather {
 
@@ -186,26 +186,26 @@ func : ()() = {
 
 ### Anonymous scopes with `break` and `continue`
 
-Anonymous scopes that are not defined with a scope name are considered insignificant and will not influence a `break` or `continue` in the code. When a `break` or `continue` is encounter which does not name a scope, the nearest outer `scope`, `while`, `for`, `forever`, `each`, `do` / `while` are used as the code flow points. The `if` and `using` statements are not affected by `break` or `continue`.
+Anonymous scopes that are not defined with a scope name are considered insignificant and will not influence a `break` or `continue` in the code. When a `break` or `continue` is encounter which does not name a scope, the nearest outer `scope`, `while`, `for`, `forever`, `each`, `redo` `while` are used as the code flow points. The `if` and `using` statements are not affected by `break` or `continue`.
 
 ````zax
-sunny : (result : Boolean)() = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
-snowing : (result : Boolean)() = {
-    //...
+sunny final : (result : Boolean)() = {
+    // ...
 }
 
-stormIsComing : (result : Boolean) = {
-    //...
+snowing final : (result : Boolean)() = {
+    // ...
 }
 
-print : ()(...) = {
-    //...
+stormIsComing final : (result : Boolean) = {
+    // ...
 }
 
-func : ()() = {
+func final : ()() = {
 
     while true {
 
@@ -236,23 +236,23 @@ func : ()() = {
 Scopes that are defined as explicitly as a `scope` (while still remaining anonymous) are considered significant and will impact the flow control of inner `break` and `continue`.
 
 ````zax
-sunny : (result : Boolean)() = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
-snowing : (result : Boolean)() = {
-    //...
+sunny final : (result : Boolean)() = {
+    // ...
 }
 
-stormIsComing : (result : Boolean) = {
-    //...
+snowing final : (result : Boolean)() = {
+    // ...
 }
 
-print : ()(...) = {
-    //...
+stormIsComing final : (result : Boolean) = {
+    // ...
 }
 
-func : ()() = {
+func final : ()() = {
 
     while true {
 
@@ -288,7 +288,7 @@ func : ()() = {
 Similar to how [functions](functions.md#functions-can-capture-values) can capture variables, scopes can capture variable too. Capturing variables in scopes follow all the same capture rules as would function scopes. This methodology can be useful for ensuring only captured variables are accessed and preventing other local scope variables from being visible inside the scope. This `scope` forms creates a light weight function isolation pattern and has all of the flow control rules of a normal `scope`.
 
 ````zax
-func : ()() = {
+func final : ()() = {
     myValue1 : Integer
     myValue2 : String
 
@@ -303,7 +303,7 @@ func : ()() = {
         // ERROR: `myValue2` is not captured inside this scope
         ++myValue2
 
-        //...
+        // ...
     }
 }
 ````
@@ -316,7 +316,7 @@ A `scope` is not a function, but it can be treated as a lightweight function tha
 The example below demonstrates a scope being treated as a function that accepts `myValue1` as input passed by value and `output` is treated as a return result by being declared outside the `scope` and captured by reference.
 
 ````zax
-func : ()() = {
+func final : ()() = {
     myValue1 : Integer
     myValue2 : String
 

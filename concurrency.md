@@ -22,13 +22,13 @@ func : ()() = {
 }
 
 
-spawnThreadThatCallsFuncForever : ()() = {
-    //...
+spawnThreadThatCallsFuncForever final : ()() = {
+    // ...
     
     while true
         func()
 
-    //...
+    // ...
 }
 
 spawnThreadThatCallsFuncForever()
@@ -49,7 +49,7 @@ Rather than performing a copy whenever the immutable type is passed to functions
 
 A qualifier of `deep` can be applied to a type to ensure a full copy of the type is performed prior to transferred the type's instance to a new thread. The `deep` qualifier can be used to ensure a completely independent copy of a type is made so a copy of an immutable type is made whenever the type is passed to a different thread.
 
-A qualifier of `deep` can be applied to the function definition where all input and output arguments automatically have `deep` applied to each argument type where appropriate. Where `deep` is applied to a function, another advantage is any captured values also have the `deep` attribute applied, i.e. any copies performed on captured values will cause a `deep` copy to be performed. If a non-final function is marked `deep` then any replacement assignment of the function must also be marked as `deep`.
+A qualifier of `deep` can be applied to the function definition where all input and output arguments automatically have `deep` applied to each argument type where appropriate. Where `deep` is applied to a function, another advantage is any captured values also have the `deep` attribute applied, i.e. any copies performed on captured values will cause a `deep` copy to be performed. Related, the parallel allocators are automatically substituted over the sequential allocators for a function call declared as `deep`. If a non-final function is marked `deep` then any replacement assignment of the function must also be marked as `deep`.
 
 While seemingly a [`last` pointers/references](pointers.md#using-the-last-type-qualifier-to-optimize-content-transfer) method can seemingly be used to transfer out the contents of the data to a new type's instance prior to transfer to a new thread but the `last` does not guarantee any shared state is indeed the final copy. This mechanism can only work if the passed in type is truly the last instance of a type before it's disposal.
 
@@ -57,7 +57,7 @@ While seemingly a [`last` pointers/references](pointers.md#using-the-last-type-q
 ````zax
 MyType :: type {
     animal : String = "alligator"
-    //...
+    // ...
 
     +++ final : ()(rhs : MyType constant &) = {
         // this version of the constructor will be called under normal
@@ -82,7 +82,7 @@ MyType :: type {
     }
 }
 
-getAsTemporary : (result : MyType)(input : MyType) = {
+returnAsTemporary final : (result : MyType)(input : MyType) = {
     // `input` was passed by value and a shallow copy of `input` was made
     // and the returned MyType automatically has the `last` qualifier applied
     temp : MyType = input
@@ -99,7 +99,7 @@ myOtherType : MyType = myType
 // in theory, `myTypeFromLast` should be it's own clone of `MyType` but the
 // the `MyType last &` constructor only performed a shallow copy so the
 // memory backing the types could still be shared
-myTypeFromLast := getAsTemporary(myType)
+myTypeFromLast := returnAsTemporary(myType)
 
 // the `deep` qualifier is applied to the type and the `deep` version of the
 // copy constructor will be removed and `myTypeFromDeep` will truly contain
@@ -126,7 +126,7 @@ MyType :: type deep {
 // `deep` this the type will automatically be treated as a deep type during
 // calls to `promise` or `task` functions
 myFunc final : ()(myType : MyType) promise = {
-    //...
+    // ...
 }
 
 
@@ -136,13 +136,42 @@ myType : MyType
 later := myFunc(myType)
 
 later.then = {
-    //...
+    // ...
 }
 
 // ...
 
 // ... to be potentially run on a different thread...
 later.callable()
+````
+
+### Creating asynchronous function out of `lazy` functions
+
+A `lazy` function can be converted into an asynchronous function (see [lazy functions](lazy.md)). When a function marked as `lazy` returns a `lazy` function, the `lazy` function can be passed and invoked from an alternative thread.
+
+On caution, `lazy` functions are not expected to be marked as deep `deep` where the compiler will not issue a warning if the `deep` qualifier was not applied. If a lazy function isn't designed for thread safety, unexpected behaviors can ensue.
+
+````zax
+
+runOnThread final : ()(callable : ) = {
+    // ...
+    result := callable()
+    // ...
+}
+
+func final : (value : Double)(algorithm : String deep) lazy = {
+    forever {
+        // ... complex algorithm ...
+        yield value
+    }
+    [never]
+}
+
+later := func()
+
+runOnThread(later)
+
+// ...
 ````
 
 
@@ -152,7 +181,7 @@ Calling a function labelled as `promise` does not invoke a direct call to the fu
 
 ````zax
 myFunc final : ()(value1 : Integer) promise = {
-    //...
+    // ...
 }
 
 /*
@@ -177,9 +206,9 @@ later.then = {
 EmptyFunctionType final : ()()
 
 executeCallableOnAnotherThread final : ()(callable : EmptyFunctionType) = {
-    //...
+    // ...
     callable()
-    //...
+    // ...
 }
 
 // `myFunc` will get executed when `callable()` is called from the other thread
@@ -193,7 +222,7 @@ By declaring pass by-value input or output argument variable types on a `promise
 
 ````zax
 myFunc final : ()(value1 : Integer, value2 : String deep) promise = {
-    //...
+    // ...
 }
 
 /*
@@ -223,9 +252,9 @@ later2.then = {
 EmptyFunctionType final : ()()
 
 executeCallableOnAnotherThread final : ()(callable : EmptyFunctionType) = {
-    //...
+    // ...
     callable()
-    //...
+    // ...
 }
 
 // `myFunc` will get executed when `callable()` is called from the other thread
@@ -240,7 +269,7 @@ By declaring a promise function as `deep`, all pass by-value input or output arg
 
 ````zax
 myFunc final : ()(value1 : Integer, value2 : String) deep promise = {
-    //...
+    // ...
 }
 
 /*
@@ -270,9 +299,9 @@ later2.then = {
 EmptyFunctionType final : ()()
 
 executeCallableOnAnotherThread final : ()(callable : EmptyFunctionType) = {
-    //...
+    // ...
     callable()
-    //...
+    // ...
 }
 
 // `myFunc` will get executed when `callable()` is called from the other thread
@@ -290,19 +319,19 @@ A `promise` function can return arguments. The returned arguments are returned b
 EmptyFunctionType final : ()()
 
 executeCallableOnMainThread final : ()(callable : EmptyFunctionType) = {
-    //...
+    // ...
     callable()
-    //...
+    // ...
 }
 
 executeCallableOnAnotherThread final : ()(callable : EmptyFunctionType) = {
-    //...
+    // ...
     callable()
-    //...
+    // ...
 }
 
 myFunc final : (result : String)(value1 : Integer) deep promise = {
-    //...
+    // ...
 }
 
 /*
@@ -320,7 +349,7 @@ later.then = {
     // called after the `myFunc` is completed with the return result
     
     resultCallbackFunc final : ()(result : String) deep promise = {
-        //...
+        // ...
     }
 
     // pass the callable function returned from the promise into a
@@ -342,7 +371,7 @@ In the example below a generator `task` function lazily counts forever starting 
 ````zax
 // the function runs forever, which is okay for `task` functions as they can
 // have their execution cancelled when they are no longer needed
-countForever : (result : Integer)() task = {
+countForever final : (result : Integer)() task = {
     while true {
         yield result
         ++result
@@ -390,7 +419,7 @@ TemplatedTaskResult :: type {
 scheduleProducer : ()(producer :) = {
     
     invokeCallable final : ()(producer :) = {
-        switch status := producer.callable() ;; status {
+        switch status := producer.callable() {
             case Coroutine.Suspend:       break
             case Coroutine.Reschedule:    scheduleProducer(producer)
             case Coroutine.Compete:       break
@@ -407,7 +436,7 @@ myTask := countForever()
 myTask.consumer.then = {
     // reactivate the task to perform the next count
     defer myTask.consumer.activate()
-    //...
+    // ...
 }
 
 myTask.producer.resume = [producer = myTask.producer] {
@@ -428,7 +457,7 @@ scheduleProducer(myTask.producer)
 // at end of scope cause the consumer to cancel the task
 defer myTask.consumer.cancel()
 
-//...
+// ...
 ````
 
 
@@ -437,34 +466,34 @@ defer myTask.consumer.cancel()
 A `task` function can call other `task` functions easily by using the `await` keyword to obtain a single result from a called `task` method. This creates a method by which one `task` can begin executing another `task` where all the tasks will be scheduled collectively. At any time the entire chain of tasks can be cancelled where the compiler will schedule cleanup of the tasks.
 
 ````zax
-scheduleTaskProducer : ()(producer :) = {
-    //...
+scheduleTaskProducer final : ()(producer :) = {
+    // ...
 }
 
 func1 final : (result : Integer)() task = {
-    //...
+    // ...
     return result
 }
 
 func2 final : (result : String)(input : Integer) task = {
     
-    //...
+    // ...
     value := await func1()
-    //...
+    // ...
 
     return result
 }
 
 func3 final : ()(input : Integer) task = {
-    //...
+    // ...
     value := await func2(input)
-    //...
+    // ...
 }
 
 myTask := func3(42)
 
 myTask.consumer.then = {
-    //...
+    // ...
 }
 
 scheduleTaskProducer(myTask.producer)
@@ -477,16 +506,16 @@ defer myTask.consumer.cancel()
 
 
 ````zax
-scheduleTaskProducer : ()(producer :) = {
-    //...
+scheduleTaskProducer final : ()(producer :) = {
+    // ...
 }
 
 EmptyFunctionPrototype final : ()()
 
 externalThreadThatWillResumeTask : ()(resume : EmptyFunctionPrototype) = {
-    //...
+    // ...
     resume()
-    //...
+    // ...
 }
 
 func final : (result : Integer)() task = {
@@ -507,7 +536,7 @@ func final : (result : Integer)() task = {
 myTask := func(42)
 
 myTask.consumer.then = {
-    //...
+    // ...
 }
 
 scheduleTaskProducer(myTask.producer)
@@ -525,11 +554,11 @@ Functions will not throw exceptions upon cancellation. Any construction/assignme
 In the example below two function exit points exist in the `fetchRandomDataForever` function. The `await` can be automatically converted to a quick `return` from the function if the awaited task is cancelled. The `yield` can convert into quick `return` from the function.
 
 ````zax
-fetchRandomNumber : (result : Integer)() task = {
-    //...
+fetchRandomNumber final : (result : Integer)() task = {
+    // ...
 }
 
-fetchRandomDataForever : (result : Integer)() task = {
+fetchRandomDataForever final : (result : Integer)() task = {
     while true {
         // the function can exit if the awaited `task` is cancelled whereupon
         // the `number` type is not constructed nor assigned a value
@@ -548,15 +577,15 @@ myTask.consumer.then = {
     // reactivate the task to perform the next fetch
     defer myTask.consumer.activate()
 
-    //...
+    // ...
 }
 
-//...
+// ...
 
 // cause the scheduled `task` to quick exit
 myTask.consumer.cancel()
 
-//...
+// ...
 ````
 
 
@@ -568,13 +597,13 @@ If the `deep` keyword is placed on a function's argument then that argument will
 
 ````zax
 // only the `input` argument will utilize the `deep` copy mechanism
-func1 : (result : Integer)(input : String deep) task = {
-    //...
+func1 final : (result : Integer)(input : String deep) task = {
+    // ...
 }
 
 // all arguments will utilize the `deep` copy mechanism
-func2 : (result : String)(input : String) deep task = {
-    //...
+func2 final : (result : String)(input : String) deep task = {
+    // ...
 }
 
 value := "momma bear"
@@ -582,7 +611,7 @@ value := "momma bear"
 myTask1 := func1(value)
 myTask2 := func2(value)
 
-//...
+// ...
 ````
 
 

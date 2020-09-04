@@ -46,8 +46,8 @@ myType1 = myType3               // allowed (source is `immutable` but
 Functions that are not marked `constant` are not callable if a type is instantiated using its `immutable` form.
 
 ````zax
-print : ()(...) = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
 MyType :: type {
@@ -55,15 +55,15 @@ MyType :: type {
     value2 : String = "life"
 
     func1 final : ()(value : Integer) = {
-        //...
+        // ...
         value1 = value
-        //...
+        // ...
     }
 
     func2 final : ()(value : Integer) = {
-        //...
+        // ...
         print("Are these the same? ", value1, value, " ... you decide...")
-        //...
+        // ...
     }
 }
 
@@ -98,7 +98,7 @@ MyType :: type mutable {
                             // type since only a changing type could require
                             // additional capacity
 
-    //...
+    // ...
 }
 
 MyType :: type immutable {
@@ -106,7 +106,7 @@ MyType :: type immutable {
 
     // no variable named `capacity` in the `immutable` version
 
-    //...
+    // ...
 }
 
 myType1 : MyType                // pick the `default` mutability for the type
@@ -129,11 +129,11 @@ If a type has a `mutable` and `immutable` version, one of the two type qualifier
 
 ````zax
 MyType :: type mutable {
-    //...
+    // ...
 }
 
 MyType :: type immutable default {
-    //...
+    // ...
 }
 
 myType1 : MyType                // pick the `default` mutability for the type
@@ -155,7 +155,7 @@ Since a type is by `default` `mutable` when both mutability qualifiers are suppo
 // indicate the type implementation supports a `mutable` and `immutable` version and
 // the `default` is specified as `immutable`
 MyType :: type mutable immutable default {
-    //...
+    // ...
 }
 
 myType1 : MyType                // pick the `default` mutability for the type
@@ -174,7 +174,7 @@ While by default a type is declared to dual support being both `mutable` and `im
 
 ````zax
 MyType :: type immutable {
-    //...
+    // ...
 }
 
 myType1 : MyType                // pick the `default` mutability for the type
@@ -193,7 +193,7 @@ As a `mutable` and `immutable` type can be entirely different implementations, e
 
 ````zax
 MyType :: type mutable {
-    //...
+    // ...
 }
 
 MyType :: type immutable default {
@@ -221,27 +221,27 @@ When a type supports both `mutable` and `immutable` within the sample type's def
 
 ````zax
 MyType :: type {
-    //...
+    // ...
 }
 
 // accept the default mutability of the type (which is `mutable`)
 func1 final : ()(value : MyType&) = {
-    //...
+    // ...
 }
 
 // accept the `mutable` version of a type
 func2 final : ()(value : MyType mutable &) = {
-    //...
+    // ...
 }
 
 // accept the `immutable` version of a type
 func3 final : ()(value : MyType immutable &) = {
-    //...
+    // ...
 }
 
 // accept a `constant` version of a `mutable` type
 func4 final : ()(value : MyType constant &) = {
-    //...
+    // ...
 }
 
 
@@ -284,31 +284,31 @@ When a type supports both `mutable` and `immutable` except with two different ty
 
 ````zax
 MyType :: type mutable {
-    //...
+    // ...
 }
 
 MyType :: type immutable {
-    //...
+    // ...
 }
 
 // accept the default mutability of the type (which is `mutable`)
 func1 final : ()(value : MyType&) = {
-    //...
+    // ...
 }
 
 // accept the `mutable` version of a type
 func2 final : ()(value : MyType mutable &) = {
-    //...
+    // ...
 }
 
 // accept the `immutable` version of a type
 func3 final : ()(value : MyType immutable &) = {
-    //...
+    // ...
 }
 
 // accept a `constant` version of a `mutable` type
 func4 final : ()(value : MyType constant &) = {
-    //...
+    // ...
 }
 
 
@@ -355,39 +355,39 @@ Important caveat: even though adding an `as` operator to convert from `immutable
 
 ````zax
 MyType :: type mutable {
-    //...
+    // ...
 
-    operator as : (result : MyType immutable)() constant = {
-        //...
+    operator as final : (result : MyType immutable)() constant = {
+        // ...
     }
 }
 
 MyType :: type immutable {
-    //...
+    // ...
 
-    operator as : (result : MyType immutable)() constant = {
-        //...
+    operator as final : (result : MyType immutable)() constant = {
+        // ...
     }
 }
 
 // accept the `default` mutability of the type (which is `mutable`)
 func1 final : ()(value : MyType&) = {
-    //...
+    // ...
 }
 
 // accept the `mutable` version of a type
 func2 final : ()(value : MyType mutable &) = {
-    //...
+    // ...
 }
 
 // accept the `immutable` version of a type
 func3 final : ()(value : MyType immutable &) = {
-    //...
+    // ...
 }
 
 // accept a `constant` version of a `mutable` type
 func4 final : ()(value : MyType constant &) = {
-    //...
+    // ...
 }
 
 
@@ -438,12 +438,12 @@ MyType :: type {
     value1 mutable : Integer
     value2 : String
 
-    func1 : ()() = {
-        //...
+    func1 final : ()() = {
+        // ...
     }
 
-    func2 : ()() constant = {
-        //...
+    func2 final : ()() constant = {
+        // ...
 
         ++value1        // allowed as `value1` is `mutable`
                         // despite the `constant` qualifier

@@ -112,7 +112,7 @@ The options for panic conditions are:
 
 ````zax
 randomValue final : (output : S32)() = {
-    //...
+    // ...
     return output
 }
 
@@ -126,15 +126,15 @@ castedValue2 := value cast U8
 
 [[panic=always, intrinsic-type-cast-overflow]]
 
-//...
+// ...
 
 [[panic=never, intrinsic-type-cast-overflow]]
 
-//...
+// ...
 
 [[panic=default, intrinsic-type-cast-overflow]]
 
-//...
+// ...
 
 [[panic=never, x-strange-experimental-panic]]
 ````
@@ -151,7 +151,7 @@ Upon importing a module, all panic states are pushed and all panic states are po
 
 [[panic=never, intrinsic-type-cast-overflow]]
 
-//... code with the panic checks disabled
+// ... code with the panic checks disabled
 
 [[panic=pop]]
 ````
@@ -178,6 +178,8 @@ The following are registered panic scenarios, default states, and their meaning:
     * an `if` statement encounter a value which can never happen (because of the `[[never]]` directive or the `[[always]]` directive)
 * `impossible-code-flow` (always)
     * a code path was followed what was marked as impossible (because of the `[[never]]` directive or the `[[always]]` directive)
+* `lazy-already-complete` (always)
+    * an attempt was made to call a lazy function that has already returned from the function
 * `value-polymorphic-function-not-found`
     * a function supporting value polymorphism was called but none of the pre-condition checks succeeded
 
@@ -207,14 +209,14 @@ Only one `always` deprecation can be active at a time. The `never` directive wil
 ````zax
 [[deprecate]] \
 MyOldBadlyDesignedType :: type {
-    //...
+    // ...
 }
 
 // usage of this type should only be performed when
 // requesting this version number at minimum
 [[deprecate,min="2.3"]] \
 MyShinyNewType :: type {
-    //...
+    // ...
 }
 
 ValidType :: type {
@@ -224,11 +226,11 @@ ValidType :: type {
     [[deprecate=always,error,max="1.1"]]
 
     mrT80sFunc : ()() = {
-        //...
+        // ...
     }
 
     markyMarkFunc : ()() = {
-        //...
+        // ...
     }
 
     eightTrack : MyOldBadlyDesignedType
@@ -240,17 +242,17 @@ ValidType :: type {
     // this function is deprecated if used accessed outside the local context
     [[deprecate,context=local]] \
     needsRedesignFunc : ()() = {
-        //..
+        // ...
     }
 
     // this function is always warned as being deprecated
     [[deprecate,context=all]] \
     mightNeedThisSoNotReadyToRemoveFunc : ()() = {
-        //...
+        // ...
     }
 
     newerOkayFunc : ()() = {
-        //..
+        // ...
     }
 }
 ````
@@ -263,22 +265,22 @@ The `inline` directive ``[[inline]]`` can be used to signal to the compiler when
 ````zax
 // prefer the function to inline
 func1 final [[inline]] : ()() = {
-    //...
+    // ...
 }
 
 // let the compiler decide if inlining is preferred or not
 func2 final [[inline=maybe]] : ()() = {
-    //...
+    // ...
 }
 
 // only allow the function to be created inline
 func2 final [[inline=always]] : ()() = {
-    //...
+    // ...
 }
 
 // never allow the function to be inlined
 func3 final [[inline=never]] : ()() = {
-    //...
+    // ...
 }
 ````
 
@@ -290,7 +292,7 @@ func3 final [[inline=never]] : ()() = {
 Return result arguments on functions marked as `[[discard]]` may be ignored by the caller and will not require the compiler to enforce capturing of the function call's result. Without this directive the `result-not-captured` warning will occur if a function result is not captured.
 
 ````zax
-pushToQueue : (
+pushToQueue final : (
     newQueueSize : Integer
 )(
     value : Integer
@@ -310,7 +312,7 @@ pushToQueue(42)
 ignoredResult := pushToQueue(42)
 
 
-pushToQueueVersion2 : (
+pushToQueueVersion2 final : (
     newQueueSize [[discard]] : Integer
 )(
     value : Integer
@@ -330,15 +332,15 @@ pushToQueueVersion2(42 * 2)
 Functions with multiple arguments can mark each argument with `[[discard]]` to ensure which arguments must be captured by default and which arguments can be discarded and ignored.
 
 ````zax
-queuedValue : (value : Integer)() = {
-    //...
+queuedValue final : (value : Integer)() = {
+    // ...
 }
 
-queueSize : (size : Integer)() = {
-    //...
+queueSize final : (size : Integer)() = {
+    // ...
 }
 
-readNextValue : (
+readNextValue final : (
     nextValue : Integer,
     remaining : Integer
 )() = {
@@ -356,7 +358,7 @@ nextValue2 := readNextValue()
 // argument is still not captured and thus will cause a compiler error
 nextValue3:, = 
 
-readNextValueVersion2 : (
+readNextValueVersion2 final : (
     nextValue : Integer,
     remaining [[discard]] : Integer
 )() = {
@@ -376,20 +378,20 @@ nextValue5:, = readNextValueVersion2()
 #### Functions with `discard` directive on input arguments
 
 ````zax
-func : ()(input : Integer) = {
+func final : ()(input : Integer) = {
     // ERROR: The variable named `input` is declared but never used
 }
 
-funcVersion2 : ()(input [[discard]] : Integer) = {
+funcVersion2 final : ()(input [[discard]] : Integer) = {
     // This is allowed since the input variable is discarded intentionally
 }
 
-funcVersion3 : ()([[discard]] : Integer) = {
+funcVersion3 final : ()([[discard]] : Integer) = {
     // This is allowed as the argument is knowingly not important to capture
     // and may be discarded
 }
 
-funcVersion4 : ()(: Integer) = {
+funcVersion4 final : ()(: Integer) = {
     // This is allowed as the argument is knowingly declared with an unnamed
     // variable and thus may be discarded with the need to
     // mark with `[[discard]]`
@@ -414,12 +416,12 @@ funcVersion4()  // ERROR
 Variables that are declared but never used must be marked as `[[discard]]` or the compiler will generate a `variable-declared-but-not-used` warning. The compiler enforces that all declared named variables are referred to or marked with `[[discard]]`.
 
 ````zax
-func : (result : Integer)() = {
-    return 42
+print final : ()(...) = {
+    // ...
 }
 
-print : ()(...) = {
-    //...
+func final : (result : Integer)() = {
+    return 42
 }
 
 // Allowed since the result is captured and used elsewhere
@@ -446,15 +448,15 @@ The discard can be applied to values after declaration which will force the comp
 
 ````zax
 func : ()(input : Integer) = {
-    //...
+    // ...
 }
 
-//...
+// ...
 
 // replace func with a new implementation that ignores the input variable
 func = {
     [[discard]] input
-    //...
+    // ...
 }
 ````
 
@@ -465,14 +467,14 @@ Types declared with the `[[discard]]` directive may be constructed without ever 
 
 ````zax
 MyMutx [[discard]] :: type {
-    //...
+    // ...
 }
 
 MyLock [[discard]] :: type {
-    //...
+    // ...
 
     +++ final : ()(lock : MyLock&) = {
-        //...
+        // ...
     }
 }
 
@@ -483,7 +485,7 @@ mutex : MyMutx
 // constructing the value
 lock : MyLock = mutex
 
-//... code which never referenced `lock` variable ...
+// ... code which never referenced `lock` variable ...
 ````
 
 
@@ -534,7 +536,7 @@ metaFunction : ()(input :) [[requires]] {
         return false
     return true
 } = {
-    //...
+    // ...
 }
 
 /*
@@ -542,12 +544,12 @@ metaFunction : ()(input :) [[requires]] {
 // metaFunction will evaluate to a `true` indicating the function is
 // selectable as a candidate:
 metaFunction : ()(input :) true = {
-    //...
+    // ...
 }
 
 // or to a `false` indicating the function cannot be selected as a candidate:
 metaFunction : ()(input :) false = {
-    //...
+    // ...
 }
 
 */
@@ -571,7 +573,7 @@ Types are as follows:
 
 ````zax
 random final : ()() = {
-    //...
+    // ...
 }
 
 double final [[execute]] : (result : Integer)(value : Integer) = {
@@ -583,7 +585,7 @@ compileItDouble final [[execute, compile]] : (result : Integer)(value : Integer)
 }
 
 generateItDouble final [[execute, generate]] : (result : Integer)(...) = {
-    //... code here generated token which replaces the generator code ...
+    // ... code here generated token which replaces the generator code ...
 }
 
 doubleNow final [[execute=now]] : (result : Integer)(value : Integer) = {
@@ -674,7 +676,7 @@ The `void` directive `[[void]]` declares a type that has a memory offset into a 
 
 ````zax
 assert final : ()(condition : Boolean) = {
-    //...
+    // ...
 }
 
 MyPacket :: type {
@@ -703,14 +705,14 @@ Using the directive with the `if` statement:
 
 ````zax
 doSomething final : ()() = {
-    //...
+    // ...
 }
 
 doSomethingElse final : ()() = {
-    //...
+    // ...
 }
 
-func : ()() = {
+func final : ()() = {
     condition final : (result : Boolean)() = { return true }
     failure final : (result : Boolean)() = { return false }
 
@@ -731,7 +733,7 @@ func : ()() = {
     if failure() [[unlikely]]
         return
     
-    //...
+    // ...
 }
 ````
 
@@ -739,10 +741,10 @@ Using the directive with the `switch` statement:
 
 ````zax
 doSomething : ()() = {
-    //...
+    // ...
 }
 
-func : ()(value : Integer) = {
+func final : ()(value : Integer) = {
     switch value {
         case 1 [[likely]]
             doSomething()
@@ -777,14 +779,14 @@ Using the directive with the `if` statement:
 
 ````zax
 doSomething final : ()() = {
-    //...
+    // ...
 }
 
 doSomethingElse final : ()() = {
-    //...
+    // ...
 }
 
-func : ()() = {
+func final : ()() = {
     condition final : (result : Boolean)() = { return true }
     failure final : (result : Boolean)() = { return false }
 
@@ -805,18 +807,18 @@ func : ()() = {
     if failure() [[never]]
         return
     
-    //...
+    // ...
 }
 ````
 
 Using the directive with the `switch` statement:
 
 ````zax
-doSomething : ()() = {
-    //...
+doSomething final : ()() = {
+    // ...
 }
 
-func : ()(value : Integer) = {
+func final : ()(value : Integer) = {
     switch value {
         case 1 [[never]]
             doSomething()
@@ -846,12 +848,12 @@ The `[[never]]` directive can be used to mark code flows which are impossible to
 Example of an impossible code path:
 
 ````zax
-print final : ()() = {
-    //...
+print final : ()(...) = {
+    // ...
 }
 
 random final : (result : Integer)() = {
-    //...
+    // ...
 }
 
 forever {
@@ -910,7 +912,7 @@ The `[[file]]` and `[[line]]` directives have dual meaning. When used without an
 
 ````zax
 print final : ()(...) = {
-    //...
+    // ...
 }
 
 trace final [[inline=always]] : ()() = {
@@ -936,7 +938,7 @@ MyType :: type {
     value2 : String 
 }
 
-giveMeMyType : (myType : MyType&)() = {
+giveMeMyType final : (myType : MyType&)() = {
     // no thread locking mechanism will surround this code
     singleton once [[lock-free]] : MyType
     return singleton
@@ -949,7 +951,7 @@ initializeMyType private := giveMeMyType()
 
 ### `sequential` directive
 
-When a `promise` or `task` is declared and a by-value type is passed to a function not qualified as `deep`, the compiler will expect that type passed to be declared as `deep` or the compiler will assume an error was made by the programmer. The compiler will assume the function to be thread-unsafe and thus a `task-not-deep` or `promise-not-deep` will be issued. This is done to ensure that types potentially crossing a thread boundary are automatically deep copied in an effort to prevent concurrency issues.
+When a `promise` or `task` is declared and a by-value type is passed to a function is not qualified as `deep`, the compiler will expect that type passed to be declared as `deep` or the compiler will assume an error was made by the programmer. The compiler will assume the function to be thread-unsafe and thus a `task-not-deep` or `promise-not-deep` will be issued. This is done to ensure that types potentially crossing a thread boundary are automatically deep copied in an effort to prevent concurrency issues.
 
 If the `promise` or `task` will never be used from a different thread context then the `[[sequential]]` directive can be used to acknowledge the `promise` or `task` as being exclusively sequentially accessed and thus a `deep` operation will not need to be applied. Further, any type declared as `deep` which normally would cause a `deep` copy to occur would not longer perform `deep` copies of the type for that `promise` or `task` call. Individual arguments for promises or tasks declared as `deep` will still perform `deep` copies.
 
@@ -959,8 +961,8 @@ MyType :: type {
     value1 : Integer* @
 }
 
-func : ()(myType : MyType) promise [[sequential]] = {
-    //...
+func final : ()(myType : MyType) promise [[sequential]] = {
+    // ...
 }
 
 myType : MyType

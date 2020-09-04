@@ -6,8 +6,8 @@
 Zax arrays are multi dimensional. Arrays can be of a fixed size or they can be a dynamic size. All array dimensions have an implicit `length` mutator to indicate their current size. Arrays are zero based. Once arrays are allocated they cannot be resized but their contents can be replaced.
 
 ````zax
-randomNumber : (result : Integer)() = {
-    //...
+randomNumber final : (result : Integer)() = {
+    // ...
 }
 
 // all types are automatically initialized to the default Integer value of 0
@@ -213,7 +213,7 @@ MyType :: type {
 }
 
 func : ()(value : MyType*) = {
-    //...
+    // ...
 }
 
 // construct an array of structures implicitly as aos

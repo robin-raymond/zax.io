@@ -97,7 +97,7 @@ As a side note, replacing the `[[requires]]` and the code block that follows wit
 
 ````zax
 isSelectable final : (result : Boolean)(...) = {
-    //...
+    // ...
 }
 
 next final : (
@@ -191,7 +191,7 @@ The usage of `final` is recommended with meta-functions declarations to ensure t
 
 ````zax
 assert final : ()(check : Boolean) = {
-    //...
+    // ...
 }
 
 MyType :: type {
@@ -202,7 +202,7 @@ MyType :: type {
     // with different types will create a new `add` variable inside `MyType`
     // per unique type usage! This most likely was not desired and will cause
     // size bloat inside of MyType
-    add : ()(value :) = {
+    add final : ()(value :) = {
         total += value as Integer
     }
 }
