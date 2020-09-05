@@ -124,7 +124,7 @@ func(42)        // the Integer version of function will be called
 ````
 
 
-### Functions can capture values
+### Functions value capturing
 
 ````zax
 print final : ()(...) = {
@@ -186,50 +186,6 @@ messageToDisplay = "Move along, nothing to see here people"
 magicNumber(1001)   // will display "Horray -=> You've found the number"
 ````
 
-### Functions input / output binding
-
-If a function's output matches the input of another function they can be bound together as a newly creates single function. Each of the output arguments from the first function must match the input arguments from the second function.
-
-````zax
-func1 final : (result : Integer)(input : String) = {
-    // ...
-}
-func2 final : (result : String)(input : Integer) = {
-    // ...
-}
-
-func3 final := func1 | func2      // func3 takes a `String` and returns a `String`
-func4 final := func3 | func1      // func4 takes a `String` an returns an `Integer`
-
-// calling func4() actually calls func1(func2(func1()))
-value : Integer = func4("5")
-````
-
-
-### Function input argument capturing and binding
-
-A function's input argument can be captured and automatically becomes an argument input argument to function call creating a new function which has one less input argument required.
-
-````zax
-print final : ()(...) = {
-    // ...
-}
-
-func1 final : ()(name : String, age : Integer) = {
-    print("name:", name, "age:", age)
-}
-
-myNameIs final := "Slim"
-
-func2 final := [name = myNameIs] | func1
-
-// will print "name: Slim age: 47"
-func2(47)
-
-// will print "name: Slim age: 48"
-func2(48)
-````
-
 
 ### Functions can capture reference
 
@@ -273,6 +229,122 @@ a = 5
 
 func()
 assert(a == 5 || a == 42)
+````
+
+
+### Function input capturing and chaining
+
+#### Functions input / output binding
+
+If a function's output matches the input of another function they can be bound together as a newly creates single function. Each of the output arguments from the first function must match the input arguments from the second function.
+
+````zax
+func1 final : (result : Integer)(input : String) = {
+    // ...
+}
+func2 final : (result : String)(input : Integer) = {
+    // ...
+}
+
+func3 final := func1 | func2      // func3 takes a `String` and returns a `String`
+func4 final := func3 | func1      // func4 takes a `String` an returns an `Integer`
+
+// calling func4() actually calls func1(func2(func1()))
+value : Integer = func4("5")
+````
+
+
+#### Function input argument capturing and binding
+
+A function's input argument can be captured and automatically becomes an argument input argument to function call creating a new function which has one less input argument required. If the name of an argument match the name of the function's input argument then the variable can be captured just by-name alone. If the name of an argument does not match any input argument name and no re-assigned name is given, then the argument is attempted to be matched positionally (excluding any positions which already have a match).
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+func1 final : ()(name : String, age : Integer) = {
+    print("name:", name, "age:", age)
+}
+
+myNameIs final := "Slim"
+
+func2 final := [name = myNameIs] | func1
+
+// will print "name: Slim age: 47"
+func2(47)
+
+// will print "name: Slim age: 48"
+func2(48)
+
+
+name final := "Shady"
+
+// capture the `name` variable which is the functions input variable `name`
+func3 final := [name] | func1
+
+// will print "name: Shady age: 47"
+func3(47)
+
+// capture the `name` variable, and capture by-value positionally
+// (excluding name which is already matched)
+func4 final := [name, 48] | func1
+
+// will print "name: Shady age: 48"
+func4()
+````
+
+
+#### Function with arguments capturing
+
+A function can captured a full invocation of a function as a new function. When captured, the function invocation is not actually called immediately. Instead the capture returns a new function which has all the input arguments captured. The return values of the new function match the original arguments of the captured function. This allows the newly captured and created function to be called later and this new function can be invoked more than once.
+
+````zax
+func final : (result : String)(input1 : Integer, input2 : String) = {
+    // ...
+}
+
+// capture a function call invocation for later
+// (don't actually call the function now)
+funcLater := [] func(2, "hello")
+
+// call the previously captured function
+result := funcLater()
+
+// call the previously captured function again
+result := funcLater()
+````
+
+#### Function invocation chaining
+
+The invocation chaining operator (`|>`) can be used to feed the result of one function as the input to the next function. Input arguments are attempted to be matched by name first. After any output to matching to output matching are removed, then the renaming input and output arguments are matched positional. Finally the remaining arguments that do not match will be taken from the function's invocation input argument list.
+
+An initial input value (which is not a function) can be chained as the first input argument to chain into the first link of a function invocation chain.
+
+The invocation chaining operator (`|>`) should not be confused with the pipe operator (`|`) or the shift right operator (`>>`). On many languages those operators would take the output of one function and apply those operators into the output of another function. Often the output of the first (and all subsequent operations) is the very type used to start the chain with those operators. This is how `std::cout` works in C++. The result of `std::cout << value` is the `std::cout&` object itself (i.e. `return *this`). Whereas in Zax, the chaining operator (`|>`) literally takes the output of one function and feeds it as the input to the next function. 
+
+````zax
+double : (result : Integer)(input : Integer) = {
+    return input * 2
+}
+
+square : (result : Integer)(input : Integer) = {
+    return input * input
+}
+
+half : (result : Integer)(input : Integer) = {
+    return input / 2
+}
+
+squareAndAdd : (result : Integer)(input : Integer, add : Integer) = {
+    return input * input + add
+}
+
+// the result of this function is "50", ((5 * 2) * (10)) / 2
+result := 5 |> double() |> square() |> half()
+
+// the result of this function is "38", (((4 * 2) * (8)) + 12) / 2
+result := 4 |> double() |> squareAndAdd(12) |> half()
 ````
 
 

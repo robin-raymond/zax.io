@@ -145,6 +145,45 @@ later.then = {
 later.callable()
 ````
 
+
+### Creating asynchronous functions from captured function invocations
+
+Using function invocation capturing and function chaining, an invocation of a function can be captured (but not called immediately). Another new function can be created to capture the results of the not yet invoked function and feed that result into another function after. This final newly minted function can be sent to a different thread to execute where the return result will invoke a callback when the function is complete.
+
+On caution, invoked captured functions are not expected to be marked as deep `deep` where the compiler will not issue a warning if the `deep` qualifier was not applied. If a invoked capture function isn't designed for thread safety, unexpected behaviors can ensue.
+
+An example of invocation capture with a later callback invoked from a different thread:
+
+````zax
+// a function that invokes a function that has no return result
+invokeOnAnotherThread(funcLater :) = {
+    // ...
+    
+    funcLater()
+
+    // ...
+}
+
+myFunc final : (result : Integer)(value1 : Integer, value2 : String) = {
+    // ...
+}
+
+then final : ()(input : Integer) = {
+    // ...
+}
+
+// capture an invocation of a function
+// (doesn't actually call the function)
+later := [] myFunc(42, "meaning of life" as deep)
+
+// chain the output of the function to the input of the `then` function
+laterThen := later | then
+
+// send the function to a different thread to execute
+invokeOnAnotherThread(laterThen)
+````
+
+
 ### Creating asynchronous function out of `lazy` functions
 
 A `lazy` function can be converted into an asynchronous function (see [lazy functions](lazy.md)). When a function marked as `lazy` returns a `lazy` function, the `lazy` function can be passed and invoked from an alternative thread.

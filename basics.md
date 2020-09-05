@@ -263,6 +263,7 @@ allocatorof     // returns the allocator used for an allocated instance
 ?               // post-unary optional type operator
 ??              // ternary operator
 ???             // uninitialized type operator
+|>              // function invocation chaining
 ->              // post-unary argument combine operator
                 // combine remaining function result arguments into a
                 // single automatic defined type
