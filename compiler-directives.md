@@ -977,7 +977,290 @@ later.callable()
 ````
 
 
-#### `file` / `line` generate code directive
+### `variables` and `types` mutability defaults directive
+
+#### `variables` default directive
+
+The `[[variables=<options>]]` directive declares defaults for the declaration of all variables. See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules. No `push` or `pop` option exists as the default for a project should not be mixed and matched. Either the project's world is mutable by default, or immutable by default.
+
+The options are:
+* `final` - any declared variable is disallowed changing its value (but makes no promise about mutable contents within the variable)
+* `varies` (default) - any declared variable is allowed to change its value and contents
+* `mutable` - a `constant` applied to a `mutable` type is ignored for the type and the type becomes mutable (not recommended)
+* `immutable` (default) - a `constant` applied to a `mutable` type is respected an the the remains `immutable` and `constant`
+
+
+Example of how `varies` / `final` default applied to variables:
+
+````zax
+MyType :: type {
+    value1 : Integer = 5
+    value2 : String = "hello"
+}
+
+[[variables=varies]] 
+
+x1 := 5
+x1 = 6          // OKAY
+
+x2 final := 5
+x2 = 6          // ERROR: variable value is `final`
+
+x3 varies := 5
+x3 = 6          // OKAY
+
+mx1 : MyType
+mx1.value1 = 6  // OKAY
+
+mx2 final : MyType
+mx2.value1 = 6  // OKAY
+
+mx3 varies : MyType
+mx3.value1 = 6  // OKAY
+
+
+[[variables=final]]
+
+y1 := 5
+y1 = 6          // ERROR: variable value is `final`
+
+y2 final := 5
+y2 = 6          // ERROR: variable value is `final`
+
+y3 varies := 5
+y3 = 6          // OKAY
+
+my1 : MyType
+my1.value1 = 6  // OKAY
+
+my2 final : MyType
+my2.value1 = 6  // OKAY
+
+my3 varies : MyType
+my3.value1 = 6  // OKAY
+````
+
+Example of how `mutable` / `immutable` default applied to variables:
+
+````zax
+MyType :: type {
+    value1 : Integer = 5
+    value2 : String = "hello"
+}
+
+[[variables=immutable]] 
+
+x1 := 5
+x1 = 6          // OKAY
+
+x2 : constant = 5
+x2 = 6          // ERROR: type is `constant`
+
+x3 : inconstant = 6
+x3 = 6          // OKAY
+
+mx1 : MyType
+mx1.value1 = 6  // OKAY
+
+mx2 final : MyType constant
+mx2.value1 = 6  // ERROR: type is `constant`
+
+mx3 varies : MyType inconstant
+mx3.value1 = 6  // OKAY
+
+
+[[variables=mutable]]
+
+y1 := 5
+y1 = 6          // OKAY
+
+y2 : constant = 5
+y2 = 6          // OKAY
+
+y3 : inconstant = 6
+y3 = 6          // OKAY
+
+my1 : MyType
+my1.value1 = 6  // OKAY
+
+my2 final : MyType constant
+my2.value1 = 6  // OKAY
+
+my3 varies : MyType inconstant
+my3.value1 = 6  // OKAY
+````
+
+
+#### `types` default directives
+
+The `[[variables=<options>]]` directive declares defaults for the declaration of all types (and not a type's definition). See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules. No `push` or `pop` option exists as the default for a project should not be mixed and matched. Either the project's world is mutable by default, or immutable by default.
+
+The options are:
+* `mutable` - (default) if a default is not specified for a type, a declared type is assumed to be `mutable`
+* `immutable` - if a default is not specified for a type, a declared type is assumed to be `immutable`
+* `constant` - if a `mutable` type is declared, the type is assumed to be `constant` once constructed
+* `inconstant` - (default) if a `mutable` type is declared, the type is assumed to remain `mutable` (unless `constant` is applied)
+
+
+Example of how `mutable` / `mutable` default applied to types:
+
+````zax
+MyType :: type {
+    value1 : Integer = 5
+    value2 : String = "hello"
+}
+
+[[types=mutable]] 
+
+x1 := 5
+x1 = 6          // OKAY
+
+x2 : mutable = 5
+x2 = 6          // OKAY
+
+x3 : immutable = 5
+x3 = 6          // ERROR: type is immutable
+
+mx1 : MyType
+mx1.value1 = 6  // OKAY
+
+mx2 : MyType mutable
+mx2.value1 = 6  // OKAY
+
+mx3 : MyType immutable
+mx3.value1 = 6  // ERROR: type is immutable
+
+
+[[types=immutable]]
+
+y1 := 5
+y1 = 6          // ERROR: type is immutable
+
+y2 : mutable = 5
+y2 = 6          // OKAY
+
+y3 : immutable = 5
+y3 = 6          // ERROR: type is immutable
+
+my1 : MyType
+my1.value1 = 6  // ERROR: type is immutable
+
+my2 : MyType mutable
+my2.value1 = 6  // OKAY
+
+my3 : MyType immutable
+my3.value1 = 6  // ERROR: type is immutable
+````
+
+
+Example of how `constant` / `inconstant` default applied to types:
+
+````zax
+MyType :: type {
+    value1 : Integer = 5
+    value2 : String = "hello"
+}
+
+[[types=inconstant]] 
+
+x1 := 5
+x1 = 6          // OKAY
+
+x2 : inconstant = 5
+x2 = 6          // OKAY
+
+x3 : constant = 5
+x3 = 6          // ERROR: type is constant
+
+mx1 : MyType
+mx1.value1 = 6  // OKAY
+
+mx2 : MyType inconstant
+mx2.value1 = 6  // OKAY
+
+mx3 : MyType constant
+mx3.value1 = 6  // ERROR: type is constant
+
+
+[[types=constant]]
+
+y1 := 5
+y1 = 6          // ERROR: type is constant
+
+y2 : inconstant = 5
+y2 = 6          // OKAY
+
+y3 : constant = 5
+y3 = 6          // ERROR: type is constant
+
+my1 : MyType
+my1.value1 = 6  // ERROR: type is constant
+
+my2 : MyType inconstant
+my2.value1 = 6  // OKAY
+
+my3 : MyType constant
+my3.value1 = 6  // ERROR: type is constant
+````
+
+
+#### `functions` default directives
+
+The `[[functions=<options>]]` directive declares defaults for the declaration of all functions within types. See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules. No `push` or `pop` option exists as the default for a project should not be mixed and matched. Either the project's world is mutable by default, or immutable by default.
+
+The options are:
+* `constant` - a function declared on a type is `constant` by default
+* `inconstant` - (default) a function declared on a type is `inconstant` by default
+
+
+Example of how `constant` / `inconstant` default applied to functions:
+
+````zax
+
+[[functions=inconstant]] 
+
+MyType1 :: type {
+    value1 : Integer = 5
+    value2 : String = "hello"
+
+    func1 : ()() = {
+        value1 = 6              // OKAY
+    }
+
+    func2 : ()() inconstant = {
+        value1 = 6              // OKAY
+    }
+
+    func3 : ()() constant = {
+        value1 = 6              // ERROR: value1 is `constant`
+                                // (as function is constant)
+    }
+}
+
+[[functions=constant]] 
+
+MyType2 :: type {
+    value1 : Integer = 5
+    value2 : String = "hello"
+
+    func1 : ()() = {
+        value1 = 6              // ERROR: value1 is `constant`
+                                // (as function is constant)
+    }
+
+    func2 : ()() inconstant = {
+        value1 = 6              // OKAY
+    }
+
+    func3 : ()() constant = {
+        value1 = 6              // ERROR: value1 is `constant`
+                                // (as function is constant)
+    }
+}
+````
+
+
+### `file` / `line` generate code directive
 
 For generated source files, the file/line directives `[[file="<name>"]]` indicates to the compiler the current source was generated by some process using another file as input. The name indicates the path to that original file. The line directive `[[line=<n>, increment=<n>]]` indicates the original source's line number so the generated output's line number can track the original source. The `increment` argument indicates how much to increment the counted line number of the original source file per output line found in the file being compiled (whose default is `1`).
 

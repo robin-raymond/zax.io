@@ -3,7 +3,62 @@
 
 ## Mutability
 
-A `mutable` type is a type that can have its contents modified after the type has been instantiated. An `immutable` type is a type whose contents cannot be modified once the type is constructed. A `constant` type is a promise not to modify a `mutable` type enforced by the compiler. A `mutable` type can be passed into functions which accept the `mutable` type as `constant` and thus will not perform any modifications to the type despite the type fundamentally being `mutable`. Since `immutable` types cannot have their values changed once created, the `constant` keyword has no applicability to `immutable` types.
+A `mutable` type is a type that can have its contents modified after the type has been instantiated. An `immutable` type is a type whose contents cannot be modified once the type is constructed (and enforced by the compiler). A `mutable` variable overrides a type's `constant` or `inconstant` declaration. An `immutable` variable will respect a type's `constant` or `inconstant` declaration (and makes no promise otherwise). Variables are defaulted and implicitly declared as `immutable` and rarely used as part of a variable's declaration.
+
+A `constant` type is a promise not to modify a `mutable` type enforced by the compiler. An `inconstant` type is an allowance to modify a mutable type. A type's `constant` function is a promise that a function will not modify its type's `mutable` contents (and enforced by the compiler). A type's `inconstant` function is a declaration that a function is allowed to modify the contents of its mutable types.
+
+A `final` variable is not allowed to change its value once instantiated (and enforced by the compiler). A `final` variables makes no promise about changing `mutable` contents contained within a variable's type, and only applies to the direct value of a variable. A `varies` variable allows `mutable` values and `mutable` contents to be changed.
+
+A `mutable` type can be passed into functions which accept the `mutable` type as `constant` and thus deny modification of that type's value and contents (enforced by the compiler).
+
+Since `immutable` types cannot have their values changed once created, the `constant` or `inconstant` keyword has no applicability to `immutable` types. An `immutable` type is always `immutable` and cannot be made `inconstant`; the contents of an immutable type are `final` and `constant` once constructed. A `mutable` variable declaration can override the `constant` to become `inconstant` and `final` to become `varies` for a variable inside a `constant` or `immutable` type.
+
+Quick lookup guide:
+````
+mutable         // applied to a type, the contents of the type are modifiable
+mutable         // applied to a variable inside a type, the contents of the
+                // variable can be changed even if the type is `constant` or
+                // `immutable`
+immutable       // applied to a type, declares the type as being immutable
+                // where all the values are `final` once constructed
+                // regardless of the types mutability
+immutable       // applied to a variable, causes the type to respect the
+                // mutability of `constant` or `inconstant` or `mutable` or
+                // `immutable` types
+                // (a variable's default and not typically used)
+constant        // applied to a type, the contents of a `mutable` type
+                // are disallowed to be modified (has no applicability
+                // for `immutable` types which are effectively always constant)
+constant        // applied to a function, the function promises to
+                // not modify any mutable contents within a type
+inconstant      // applied to a type, the contents of a mutable type
+                // are allowed to be modified (has no applicability
+                // for `immutable` types which are effectively always constant)
+inconstant      // applied to a function, the function declares it is
+                // allowed to modify any mutable contents within a type
+final           // a variable which receives its final value once constructed
+                // (but makes no promise not to modify the contents of any
+                // contained values within the value)
+varies          // a variable which is allowed to have its value change
+                // over time (and makes no promise about the contents of any
+                // contained values within the value)
+                // (a type's default and not typically used unless the default
+                // is overridden with a compiler directive)
+
+Opposites:
+final vs varies         // applies to the ability to change a variable's
+                        // value (or not); makes no promise about a types
+                        // contained contents
+immutable vs mutable    // when applied to a type, applies to the ability
+                        // modify the contents a type (or not)
+immutable vs mutable    // when applied to a variable, applies to the ability
+                        // modify the contents of a type regardless if the
+                        // type is constant or not
+constant vs inconstant  // applied to a type, the allowance of modification
+                        // of a types contents (or disallowance)
+constant vs inconstant  // applied to a function, the allowance of a function
+                        // to modify contained types or not
+````
 
 
 ### By default types are both `mutable` and `immutable`
@@ -145,6 +200,7 @@ myType4 : MyType constant       // pick the `default` mutability for the type
                                 // ignored
 ````
 
+
 ##### Using `default` to specify the `default` mutability with combined types
 
 If a type has dual support for `mutable` and `immutable`, the type has a `default` mutability of `mutable`. However, the `default` mutability can be explicit. One of the two type qualifiers can be marked as `default` to indicate which qualified type is instantiated by `default` when neither mutability qualifier is specified.
@@ -166,6 +222,7 @@ myType4 : MyType constant       // pick the `default` mutability for the type
                                 // which is `immutable` and thus `constant` is
                                 // ignored
 ````
+
 
 ### Types only supporting `mutable` or `immutable`
 
@@ -211,6 +268,7 @@ myType4 : MyType constant       // pick the `default` mutability for the type
                                 // which is `immutable` and thus `constant` is
                                 // ignored
 ````
+
 
 ### Automatic conversion of qualifiers
 
@@ -277,6 +335,7 @@ func2(myType4)                  // ERROR: `func2` expects a non-`constant` type
 func3(myType4)                  // allowed
 func4(myType4)                  // allowed
 ````
+
 
 #### Automatic conversion of qualifiers when two different implementations of mutability exists
 
@@ -425,11 +484,11 @@ func4(myType4)                  // allowed
 ````
 
 
-### Mutable variables
+### `mutable` variables
 
 Variables contained with types marked as `immutable` or `constant` cannot have their values changed. In both of these cases, the inability to change contained values is both a promise and enforced by the compiler. However, cases do exist where a variable might need its contents changed despite the promise the contents of the type are not changing.
 
-To circumvent a compiler's enforcement of non changeable contained types, the `mutable` keyword must be declared on a variable. Declaring a variable as `mutable` is not the same as declaring a type as `mutable`. A variable declared as `mutable` implies the type's variable will be treated as non-`constant` even if the calling function is executed in a from `constant` function or from within an `immutable` type.
+To circumvent a compiler's enforcement of non-changeable contained types, the `mutable` keyword must be declared on a variable. Declaring a variable as `mutable` is not the same as declaring a type as `mutable`. A variable declared as `mutable` implies the type's variable will be treated as non-`constant` even if the calling function is executed in a from `constant` function or from within an `immutable` type.
 
 A variable can be declared `mutable` entirely separate from the type's mutability. For example, mutable variable could be a pointer type to an immutable type named `SomeType`, i.e. `variable mutable : SomeType immutable*`.
 

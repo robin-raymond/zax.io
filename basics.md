@@ -80,6 +80,7 @@ in
 is
 immutable
 import
+inconstant
 keyword
 lazy
 managed
@@ -106,6 +107,7 @@ weak
 while
 until
 using
+varies
 void
 yield
 ````
@@ -353,6 +355,9 @@ warning             // display a warning or control compiler warning behaviors
 ````zax
 // variables are recommended lower camelCase as well as type a type names as upper CamelCase
 variableName : TypeName
+
+// function variables as prototypes are recommended using upper CamelCase
+FunctionPrototype final : ()()
 
 // scope names are recommended with lower_case_with_underscores
 scope my_scope {

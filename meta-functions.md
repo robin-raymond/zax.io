@@ -159,7 +159,7 @@ result3 := add("hello ", "world")   // yet another function variable `add` with
 importantValue : Float = 14.5
 
 // declare a function that matches the signature of the `Float` version of `add`
-alternativeAdd : final (
+alternativeAdd final : (
     output : Float
 )(
     input1 : Float,
