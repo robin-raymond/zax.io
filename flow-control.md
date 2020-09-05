@@ -1177,7 +1177,7 @@ func final : ()(value : Integer) = {
     // ...
 }
 
-while true {
+forever {
     // each time the function is called a different function may be invoked
     func(random())
 }

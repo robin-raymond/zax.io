@@ -25,7 +25,7 @@ func : ()() = {
 spawnThreadThatCallsFuncForever final : ()() = {
     // ...
     
-    while true
+    forever
         func()
 
     // ...
@@ -364,15 +364,15 @@ executeCallableOnAnotherThread(later.callable)
 
 ### Using `task` to schedule asynchronous function calling
 
-A `task` operates similar to a `promise`. The key difference is that a `task` can return data more than once and can be scheduled and rescheduled for future processing later. A `task` can also suspend itself allowing for the `then` to proactively request the task be reactivated to continue processing more data. When a `task` is no longer needed, the `task`'s `cancel` function can be called to indicate the `task` should clean itself up and should only continuing scheduling itself for the purpose of final cleanup.
+A `task` operates similar to a `promise`. The key difference is that a `task` can return data once or more times and can be scheduled and rescheduled for future processing later. A `task` can also suspend itself allowing for the a `then` callback to proactively request the `task` be reactivated and continue processing. When a `task` is no longer needed, the `task`'s `cancel` function can be called to indicate the `task` should clean itself up and should only continuing scheduling itself for the purpose of final cleanup.
 
-In the example below a generator `task` function lazily counts forever starting at `0`. When the `task` is first executed, the task does not actually run but returns `producer` and `consumer` types. The `producer` type can be sent to a different thread of execution whereupon the task can be scheduled until completed. The `consumer` type can be used to attach a callback to receive a callback every time a result the `task` returns. The `yield` keyword operates like the return keyword, except the function does not exit. Instead the `yield` causes the current values to be returned from the `task` and the `task` will continue to run. The compiler will break the `task` function into sub-functions that can be started and stopped for scheduling purposes.
+In the example below a generator `task` function lazily counts forever starting at `0`. When the `task` function is first executed, the `task` does not actually run but returns `producer` and `consumer` types. The `producer` type can be sent to a different thread of execution whereupon the `task` can be scheduled until completed. The `consumer` type can be used to attach a callback to receive a callback every time a result the `task` returns. The `yield` keyword operates like the return keyword, except the function does not exit. Instead the `yield` causes the current values to be returned from the `then` callback and the `task` will continue to run (after `activate()` is called). The compiler will break the `task` function into sub-functions that can be started and stopped for scheduling purposes.
 
 ````zax
 // the function runs forever, which is okay for `task` functions as they can
 // have their execution cancelled when they are no longer needed
 countForever final : (result : Integer)() task = {
-    while true {
+    forever {
         yield result
         ++result
     }
@@ -575,7 +575,7 @@ fetchRandomNumber final : (result : Integer)() task = {
 }
 
 fetchRandomDataForever final : (result : Integer)() task = {
-    while true {
+    forever {
         // the function can exit if the awaited `task` is cancelled whereupon
         // the `number` type is not constructed nor assigned a value
         number := await fetchRandomNumber()
@@ -626,6 +626,166 @@ value := "momma bear"
 
 myTask1 := func1(value)
 myTask2 := func2(value)
+
+// ...
+````
+
+
+### Using `channel` to schedule asynchronous function calling
+
+A `channel` operates similar to a `task`. The key difference is that a `channel` can be called once or more times with additional input arguments while continuing to execute within the context of the same function call. Like a `task`, a `channel` can return data one or more times. Like a `task`, a `channel` can be scheduled and rescheduled for future processing later. A `channel` can also suspend itself allowing for a `then` function callback to proactively request the `channel` be reactivated and continue processing. Just like a task, when a `channel` is no longer needed, the `channel`'s `cancel` function can be called to indicate the `channel` should clean itself up and should only continuing scheduling itself for the purpose of final cleanup.
+
+A `channel` function can be suspended and resumed or cancelled in exactly the same manner as a `task`, and a `channel` function can `await` a `task` function.
+
+In the example below a generator `channel` function lazily counts forever starting at `0` and will read from the channel to reset the number at a new sequence. When the `channel` function is first executed, the `channel` function does not actually run but returns `producer` and `consumer` types after performing initial setup with a channel type passed into the `channel` function. The `producer` type can be sent to a different thread of execution whereupon the `channel` can be scheduled until completed. The `consumer` type can be used to attach a callback to receive a callback every time a result the `channel` returns. The `yield` keyword operates like the return keyword, except the function does not exit. Instead the `yield` causes the current values to be returned from the `then` callback and the `channel` will continue to run (after `activate()` is called). The compiler will break the `channel` function into sub-functions that can be started and stopped for scheduling purposes.
+
+````zax
+// the function runs forever, which is okay for `channel` functions as they can
+// have their execution cancelled when they are no longer needed
+countForever final : (result : Integer)(input : Integer) channel = {
+    forever {
+        yield result
+        ++result
+
+        // `awaitable()` is a compiler provided implicit capture of a function
+        // that returns true if there is data available to read
+        if awaitable() {
+            // read the data from the consumer, if no data was available
+            // the function would suspend itself
+            result = await
+        }
+    }
+    [[never]]
+}
+
+/*
+enum Coroutine.Status {
+    Suspend,
+    Reschedule,
+    Complete
+}
+
+TemplatedChannelResult :: type {
+
+    producer : :: type {
+        // the consumer scheduler will call this routine to perform the
+        // next batch of channel work
+        callable : (status : Coroutine.Status)()
+
+        // this routine tells the co-routine to start the cancellation process
+        // the next time `callable()` is invoked
+        cancel : ()()
+
+        // this function must be installed by the consumer which will
+        // schedule a call to the co-routine `callable()` function; this
+        // function is called by the producer when it needs to schedule
+        // itself for more work after an external event has completed
+        resume : ()()
+    }
+
+    consumer : :: type {
+        // function is installed by the compiler and assigned to point
+        // to the `writer` function provided by the channel type
+        operator () : ()(input : Integer)
+
+        // result is yielded
+        then : ()(result : Integer)
+
+        // returns true if the co-routine is completed its execution
+        isCompleted mutator : (completed : Boolean)()
+
+        // consumer side can install a helper routine which captures a producer
+        // and schedules a call the producer.callable() later
+        // (this routine should be called after receiving a `then` callback)
+        activate : ()()
+
+        // consumer side can install a helper routine which captures a producer
+        // type, calls the `producer.cancel()` when invoked followed by
+        // scheduling a call the `producer.callable()` later
+        cancel : ()()
+    }
+}
+*/
+
+scheduleProducer : ()(producer :) = {
+    
+    invokeCallable final : ()(producer :) = {
+        switch status := producer.callable() {
+            case Coroutine.Suspend:       break
+            case Coroutine.Reschedule:    scheduleProducer(producer)
+            case Coroutine.Compete:       break
+        }
+    }
+
+    // ...
+    callInvokeCallableLaterWithProducer(producer)
+    // ...
+}
+
+MyChannel :: type {
+    ConsumerDataWrittenNotificationPrototype final : ()()
+    ConsumerWriteFunctionPrototype final: ()(input : Integer)
+    ProducerReadFunctionPrototype final: (input : Integer)()
+
+    operator : (
+        consumerWriteData : ConsumerWriteFunctionPrototype,
+        producerReadData : ProducerReadFunctionPrototype
+    )(
+        callWhenConsumerDataWritten : ConsumerDataWrittenNotificationPrototype
+    ) = {
+        //...
+    }
+}
+
+myChannel : MyChannel
+
+myChannelFunc := countForever(myChannel)
+
+/*
+
+// Compiler will perform the following steps:
+
+result : TemplatedChannelResult
+
+writer: , reader: = myChannel(channelFunction.notifyDataWrittenByConsumer)
+
+result.consumer.operator() = writer
+
+channelFunction.internalBind(reader)
+
+*/
+
+
+myChannelFunc.consumer.then = {
+    // reactivate the task to perform the next count
+    defer myChannelFunc.consumer.activate()
+    // ...
+}
+
+myChannelFunc.producer.resume = [producer = myChannelFunc.producer] {
+    scheduleProducer(producer)
+}
+
+myChannelFunc.consumer.activate = [producer = myChannelFunc.producer] {
+    scheduleProducer(producer)
+}
+
+myChannelFunc.consumer.cancel = [producer = myChannelFunc.producer] {
+    producer.cancel()
+    scheduleProducer(producer)
+}
+
+// after the task is setup, a call to `producer.callable()` must be
+// invoked at least once
+scheduleProducer(myChannelFunc.producer)
+
+// send to the function channel as many data writes as desired
+myChannel.consumer(33)
+myChannel.consumer(17)
+myChannel.consumer(1)
+
+// at end of scope cause the consumer to cancel the task
+defer myChannelFunc.consumer.cancel()
 
 // ...
 ````

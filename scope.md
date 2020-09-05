@@ -207,7 +207,7 @@ stormIsComing final : (result : Boolean) = {
 
 func final : ()() = {
 
-    while true {
+    forever {
 
         print("Wonder if the weather will be good?")
 
@@ -254,7 +254,7 @@ stormIsComing final : (result : Boolean) = {
 
 func final : ()() = {
 
-    while true {
+    forever {
 
         print("Wonder if the weather will be good?")
 

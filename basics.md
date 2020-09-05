@@ -57,6 +57,7 @@ await
 break
 build
 case
+channel
 continue
 collect
 constant
