@@ -388,13 +388,18 @@ enum Coroutine.Status {
 TemplatedTaskResult :: type {
 
     producer : :: type {
-        // perform the next batch of coroutine work
+        // the consumer scheduler will call this routine to perform the
+        // next batch of task work
         callable : (status : Coroutine.Status)()
 
-        // request the start the cancellation process
+        // this routine tells the co-routine to start the cancellation process
+        // the next time `callable()` is invoked
         cancel : ()()
 
-        // request the suspended task be rescheduled again
+        // this function must be installed by the consumer which will
+        // schedule a call to the co-routine `callable()` function; this
+        // function is called by the producer when it needs to schedule
+        // itself for more work after an external event has completed
         resume : ()()
     }
 
@@ -402,15 +407,17 @@ TemplatedTaskResult :: type {
         // result is yielded
         then : ()(result : Integer)
 
-        // returns true of the coroutine is completed its execution ()
+        // returns true if the co-routine is completed its execution
         isCompleted mutator : (completed : Boolean)()
 
-        // re-activate this suspended co-routine (after `then` was processed)
-        // but will not reactivate the coroutine is it was cancelled
+        // consumer side can install a helper routine which captures a producer
+        // and schedules a call the producer.callable() later
+        // (this routine should be called after receiving a `then` callback)
         activate : ()()
 
-        // indicate the coroutine will never activate the co-routine so the
-        // coroutine needs to clean itself
+        // consumer side can install a helper routine which captures a producer
+        // type, calls the `producer.cancel()` when invoked followed by
+        // scheduling a call the `producer.callable()` later
         cancel : ()()
     }
 }
@@ -452,6 +459,8 @@ myTask.consumer.cancel = [producer = myTask.producer] {
     scheduleProducer(producer)
 }
 
+// after the task is setup, a call to `producer.callable()` must be
+// invoked at least once
 scheduleProducer(myTask.producer)
 
 // at end of scope cause the consumer to cancel the task
@@ -492,6 +501,8 @@ func3 final : ()(input : Integer) task = {
 
 myTask := func3(42)
 
+// ... setup ...
+
 myTask.consumer.then = {
     // ...
 }
@@ -520,13 +531,16 @@ externalThreadThatWillResumeTask : ()(resume : EmptyFunctionPrototype) = {
 
 func final : (result : Integer)() task = {
 
-    // the `resume` is a function that is auto captured for all task
-    // functions; when `resume()` is called the suspended task will
-    // automatically resume at the point of `suspend`
+    // `resume` is a function that is implicitly captured for all task
+    // functions; this function was setup by the consumer; when the
+    // method `resume()` is called, the suspended task will ask the consumer's
+    // resume() function to reschedule a call to `producer.callable()` which
+    // causes the task to resume from the point of suspension.
     externalThreadThatWillResumeTask(resume)
 
-    // cause the task to `suspend` until `resume()` is called; if `resume()`
-    // is called prior to suspending the task will be rescheduled immediately
+    // cause the task to `suspend` until `resume()` is called by an
+    // external entity; should `resume()` be called prior to suspending the
+    // task will be rescheduled immediately
     suspend
 
     return result
@@ -534,6 +548,8 @@ func final : (result : Integer)() task = {
 
 
 myTask := func(42)
+
+// ... setup ...
 
 myTask.consumer.then = {
     // ...
