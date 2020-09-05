@@ -186,6 +186,50 @@ messageToDisplay = "Move along, nothing to see here people"
 magicNumber(1001)   // will display "Horray -=> You've found the number"
 ````
 
+### Functions input / output binding
+
+If a function's output matches the input of another function they can be bound together as a newly creates single function. Each of the output arguments from the first function must match the input arguments from the second function.
+
+````zax
+func1 final : (result : Integer)(input : String) = {
+    // ...
+}
+func2 final : (result : String)(input : Integer) = {
+    // ...
+}
+
+func3 final := func1 | func2      // func3 takes a `String` and returns a `String`
+func4 final := func3 | func1      // func4 takes a `String` an returns an `Integer`
+
+// calling func4() actually calls func1(func2(func1()))
+value : Integer = func4("5")
+````
+
+
+### Function input argument capturing and binding
+
+A function's input argument can be captured and automatically becomes an argument input argument to function call creating a new function which has one less input argument required.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+func1 final : ()(name : String, age : Integer) = {
+    print("name:", name, "age:", age)
+}
+
+myNameIs final := "Slim"
+
+func2 final := [name = myNameIs] | func1
+
+// will print "name: Slim age: 47"
+func2(47)
+
+// will print "name: Slim age: 48"
+func2(48)
+````
+
 
 ### Functions can capture reference
 
