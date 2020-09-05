@@ -75,6 +75,7 @@ for
 forever
 handle
 hidden
+hint
 if
 in
 is
@@ -232,10 +233,10 @@ as              // safe type conversion operator
 countof         // pre-unary count operator
                 // returns the number elements in a type or
                 // the total reference count for a
-                // `strong`, `weak`, or `handle` pointer
+                // `handle` / `hint`, or `strong` / `weak` pointer
 overhead        // pre-unary overhead operator
                 // obtains a pointer to the overhead information for
-                // an `own`, `handle`, `strong`, or `weak` pointer or
+                // an `own`, `handle`, `hint`, `strong`, or `weak` pointer or
                 // optional type
 overheadof      // pre-unary overhead sizing operator
                 // return the number of bytes overhead is needed for this type
@@ -279,7 +280,7 @@ copycast        // pre-unary unsafe `Unknown` copy cast
                 // treat the raw `Unknown` pointer as pointing to an instance of
                 // the casted type and make a copy of the contents
 lifecast        // unsafe shared lifetime cast operator
-                // converts a raw pointer to share a lifetime an existing
+                // converts a raw pointer to share a lifetime with an existing
                 // `strong` or `handle` pointer
 outerlink       // outer type cast operator
                 // convert from contained type pointer to container type pointer

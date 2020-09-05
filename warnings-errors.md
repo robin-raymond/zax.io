@@ -219,7 +219,7 @@ The following are registered warnings, default states, and their meaning:
     * a source file was requested to be parsed but it cannot be located
 * `asset-not-found` (always)
     * a asset file was requested to be copied but it cannot be located
-* `shadow` (always)
+* `shadowing` (always)
     * a declaration was made which hides another declaration from being accessible
 * `uninitialized-data` (always)
     * an attempt was made to access data believed to be uninitialized

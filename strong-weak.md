@@ -5,16 +5,16 @@
 
 Pointers marked as `strong` will automatically track the lifetime of an allocated type by performing [reference counting](https://en.wikipedia.org/wiki/Reference_counting) so when the last common reference to a type's instance is discarded, the type becomes deallocated.
 
-The `strong` pointers are a form of [smart pointer](https://en.wikipedia.org/wiki/Smart_pointer) logic as a tool to ensure the lifetime of an type's instance is destroyed when the last referencing pointer is discarded. A [`weak` reference](https://en.wikipedia.org/wiki/Weak_reference) can be used to prevent circular dependencies by detecting when a type's instance kept alive by a `strong` pointer is still alive or already destroyed. The usage of `weak` references is a common technique to prevent memory leakage issue as `strong` pointers are not automatically [garbage collected](https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)).
+The `strong` pointers are a form of [smart pointer](https://en.wikipedia.org/wiki/Smart_pointer) logic as a tool to ensure the lifetime of an type's instance is destroyed when the last referencing pointer is discarded. A [`weak` reference](https://en.wikipedia.org/wiki/Weak_reference) can be used to prevent circular dependencies by detecting when a type's instance kept is  alive by a `strong` pointer or already destroyed. The usage of `weak` references is a common technique to prevent memory leakage issue as `strong` pointers are not automatically [garbage collected](https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)).
 
-Thread safety for the reference counting mechanism and `weak` pointer referencing is guaranteed. When a `strong` pointer is assigned to new variables across threads, the reference counting mechanism does not require thread barriers to ensure the count is kept accurate. Concurrency of the lifetime is kept accurate across threads. However, this does not imply accessing the contents of a `strong` pointer has any concurrency protection. If two threads modify the contents of type's instance pointed to by a `strong` pointer, the contents can have concurrency issues.
+Thread safety for the reference counting mechanism `strong` and `weak` pointer referencing is guaranteed. When a `strong` pointer is assigned to new variables across threads, the reference counting mechanism does not require thread barriers to ensure the count is kept accurate. The lifetime is maintained using atomic operations and concurrency of the lifetime is kept accurate across threads. However, this does not imply accessing the contents of a `strong` pointer has any concurrency protection or safety guarantees. If two threads modify the contents of type's instance pointed to by a `strong` pointer at the same time, the contents can have concurrency issues as well as undefined behaviors.
 
 
 ### `strong` versus `handle` pointers
 
-Pointers marked as `strong` operate in the same manner as [`handle` pointers](handle.md) with a few key differences. Whereas `strong` pointers have a `weak` counterpart, `handle` pointers do not have `weak` pointers counterparts. Pointers marked as `strong` have thread safety properties related to the lifetime of the instance whereas `handle` pointers do not.
+Pointers marked as `strong` operate in the same manner as [`handle` pointers](handle-hint.md) with a few key differences. Whereas `strong` pointers have a `weak` counterpart, `handle` pointers have `hint` pointer counterparts. Pointers marked as `strong` have thread safety properties related to the lifetime of the instance whereas `handle` pointers do not.
 
-Due to the overhead because of thread safety guarantees for `strong` pointers, handle pointers are more efficient at the cost of thread safety.
+Due to the overhead because of thread safety guarantees for `strong` pointers, `handle` pointers are more efficient at the cost of thread safety.
 
 
 ### Allocation of `strong` pointers
@@ -53,7 +53,7 @@ func final : (result : String)() = {
         // point to nothing
         value2 : MyType* strong
 
-        // both `value2` and `value1` have a strong pointer to the same
+        // both `value2` and `value1` have a `strong` pointer to the same
         // `MyType` instance
         value2 = value1
 
@@ -511,11 +511,11 @@ func final : (result : String)() = {
         copyOfWeakHead : MyType* weak = headPointer.next.head
 
         // the `MyType` instance pointed to by the `weak` pointer is still
-        // alive thus converting the `weak` point to a strong pointer will
-        // obtain a strong pointer reference to the original type's instance
+        // alive thus converting the `weak` point to a `strong` pointer will
+        // obtain a `strong` pointer reference to the original type's instance
         printIfValidPointer(copyOfWeakHead as strong)   // will print "true"
 
-        // the strong pointer both point to the same head type's instance
+        // the `strong` pointer both point to the same head type's instance
         assert((copyOfWeakHead as strong) == headPointer)
 
         // reset the head pointer to point to nothing (which is the only
@@ -591,7 +591,7 @@ func final : (result : String)() = {
         // instance (otherwise `value1` pointer to nothing)
         value1 = value2
 
-        // `value2`'s strong pointer was automatically reset when ownership
+        // `value2`'s `strong` pointer was automatically reset when ownership
         // was exclusively taken over by `value1`
         assert(!value2)
 

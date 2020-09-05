@@ -145,7 +145,7 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Custom Allocators](custom-allocators.md)
 
-## [Handle Pointers](handle.md)
+## [Handle Pointers](handle-hint.md)
 
 ## [Strong and Weak Pointers](strong-weak.md)
 
