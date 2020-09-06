@@ -504,6 +504,8 @@ void function() {
 
 In the Zax language forcefully converting from a contained type to the type's container requires sing the `outercast` operator. Using this operator must be done with caution as the programmer is forcefully telling the compiler that the composition relationship is guaranteed. If the programmer was wrong then undefined behavior will result.
 
+An `outercast` can be ambiguous if the container type contains two (or more) of the same type which matches the type being casted. The compiler doesn't have any RTTI information necessary to make the appropriate decision as to which of the multiple instance the type is being casted from and thus would issue a `outercast-ambiguous` error. Using `coutermorph` on a `managed` type would resole this issue. Alternatively, consider containing one of the duplicate types inside another container to make the route to cast to the outer container type non-ambiguous.
+
 ````zax
 A :: type {
     foo : Integer

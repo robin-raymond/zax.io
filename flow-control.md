@@ -1241,7 +1241,7 @@ A [nothing instance](nothing.md) can filter between normal function calls and fu
 
 ````zax
 MyType :: type {
-    +++ final : ()(:Unknown) = {
+    +++ final : ()(:Nothing) = {
         // instance to a nothing type
     }
 

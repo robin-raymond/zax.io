@@ -71,6 +71,8 @@ The following are registered errors, and their meaning:
     * an attempt was made to call a function where none of the function candidates available are a viable choice
 * `function-candidate-ambiguous`
     * an attempt was made to call a function where two (or more) matches are equally selectable even with all qualifiers considered
+* `outercast-ambiguous`
+    * an attempt was made to cast from a contained pointer to a container pointer but which from type is ambiguous
 * `enum-to-underlying-needs-as-operator`
     * an attempt was made to directly convert an enum to its underlying type without first casing to the underlying type
 * `enum-to-incompatible-type`
@@ -240,9 +242,9 @@ The following are registered warnings, default states, and their meaning:
 * `promise-not-deep` (always)
     * `promise` has by-value arguments that should have the `deep` qualifier for parallel processing
 * `unknown-directive` (error)
-    * an directive not prefixed with `x-` was encountered which was not understood
+    * a directive not prefixed with `x-` was encountered which was not understood
 * `unknown-direction-argument` (error)
-    * an directive argument not prefixed with `x-` was encountered which was not understood
+    * a directive argument not prefixed with `x-` was encountered which was not understood
 * `forever` (always)
     * code was detected that appears to run forever
 * `divide-by-zero` (error)
@@ -264,7 +266,7 @@ The following are registered warnings, default states, and their meaning:
 * `export-disabled-from-export-never` (always)
     * an export keyword was encountered on a type that cannot be exported due to the `[[export=never]]` directive
 * `redundant-access-via-self` (always)
-    * an attempt to access a value via the self variable (`_`) was made in a non ambiguous situation
+    * an attempt to access a value via the self variable (`_`) was made in a non-ambiguous situation
 * `redundant-access-via-own` (always)
     * an attempt to access a value via an `own` declared contained variable name where the variable name is not ambiguous
 * `bad-style` (always)

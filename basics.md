@@ -279,14 +279,14 @@ outercast       // unsafe outer type cast operator
 copycast        // pre-unary unsafe `Unknown` copy cast
                 // treat the raw `Unknown` pointer as pointing to an instance of
                 // the casted type and make a copy of the contents
-lifecast        // unsafe shared lifetime cast operator
+lifetimecast    // unsafe shared lifetime cast operator
                 // converts a raw pointer to share a lifetime with an existing
                 // `strong` or `handle` pointer
-outerlink       // outer type cast operator
+outermorph      // outer type morphing operator
                 // convert from contained type pointer to container type pointer
                 // (safely via a managed type's RTTI)
-lifelink        // shared lifetime cast operator
-                // links a raw pointer to an existing `strong` or `handle`
+lifetimemorph   // shared lifetime morphing operator
+                // binds a raw pointer to an existing `strong` or `handle`
                 // pointer (safely checks if the pointer to a type points to
                 // memory within the allocated `strong` or `handle` pointer)
 sizeof          // pre-unary size of operator
@@ -422,6 +422,7 @@ MyType :: type {
 :: import Module.System.Types
 
 unknown : Unknown   // used as a generic pointer type to an unknown type
+nothing : Nothing   // used as a generic type of nothing
 void : Void         // an alias of the Unknown type
 boolean : Boolean   // A value representing true of false
 

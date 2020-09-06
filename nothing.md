@@ -9,13 +9,13 @@ Zax allows types to have a special nothing instance of a type. Whenever a pointe
 
 Nothing instances help reduce the code checks required to check the validity of pointers by a allowing nothing instance to be substituted in the place of a real instance and behave as if a real instance exists. The nothing instance literally does nothing (or as close to nothing as possible). This is why Zax has pointers to nothing and not pointers to null. Nothing pointers may actually point to a real instance in memory that does nothing when invoked.
 
-To declare that a type supports nothing instances, an `Unknown` type must be passed into the constructor as it's only input argument. This is known as the nothing constructor. Passing an `Unknown` type instance is not possible as `Unknown` can only exist in its pointer form despite `Unknown` being a legal type. The Zax language treats passing an `Unknown` non-pointer in the constructor as the indicator the nothing type instance is being constructed.
+To declare that a type supports nothing instances, an `Nothing` type must be declare on a constructor as it's only input argument. This is known as the nothing constructor. Creating a `Nothing` type instance is not possible as the `Nothing` cannot be instantiated. The Zax language treats receiving of a `Nothing` type in the constructor as the indicator the type is being declared as the constructor to create a nothing instance for the type.
 
-Unlike other constructors, a nothing constructor may return a pointer to an instance of the constructed type. This is allowed so the constructor may return an alternative pointer representing the nothing instance into another constructed type that is binary compatible with the original type. Normally `_` would be returned indicating the nothing pointer is indeed a pointer to the self instance, or the constructor may omit the return type entirely.
+Unlike other constructors, a nothing constructor may return a pointer to an instance of the constructed type. This is allowed so the constructor may return an alternative pointer representing the nothing instance projected from another constructed type that is binary compatible with the original type. Normally `_` would be returned indicating the nothing pointer is indeed a pointer to the self instance, or the constructor may omit the return type entirely.
 
-Nothing instances are constructed into global memory. A nothing instance should perform no operations for functions called within it (or as little as possible) and return safe values from functions where possible.
+Nothing instances are constructed into global memory. A nothing instance should perform no operations for functions called within the type's nothing instance (or as little as possible) and return values that would be considered safe from functions where possible.
 
-The self pointer (`_`) can be checked with `if` to verify if the created instance is the nothing instance or a real instance.
+The self pointer (`_`) can be checked within a type's function with `if` to verify if the call was made into the nothing instance or into a real instance.
 
 ````zax
 MyType :: type {
@@ -23,11 +23,11 @@ MyType :: type {
         // the empty constructor
     }
 
-    // a `Unknown` argument is not an empty argument list or a null type;
-    // when used in a constructor, the `Unknown` type indicates the nothing
+    // a `Nothing` argument is not an empty argument list or a null type;
+    // when used in a constructor, the `Nothing` type indicates the nothing
     // instance is being constructed allowing the object to set itself up to be
     // the nothing instance
-    +++ final final : (result : MyType*)(:Unknown) = {
+    +++ final final : (result : MyType*)(:Nothing) = {
         // reset function pointers to nothing
         doSomething = {}
         doSomethingElse = { [[discard]] value }
@@ -103,7 +103,7 @@ MyType :: type {
     value1 : Integer
     value2 : String deep
 
-    +++ final : ()(:Unknown) = {
+    +++ final : ()(:Nothing) = {
     }
 }
 
