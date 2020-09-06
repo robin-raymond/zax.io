@@ -705,7 +705,7 @@ C :: type {
 doSomething final : ()(a : A* strong) = {
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type and create a `strong` pointer from `a`
-    b := (a outerlink B*) lifetimemorph a
+    b := (a outermorph B*) lifetimemorph a
 }
 
 function final : ()() = {

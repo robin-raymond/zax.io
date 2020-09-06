@@ -545,7 +545,7 @@ doSomething : ()(a : A*) = {
     // `a`'s type `A` must be declared as `managed` and thus currently does not
     // include the runtime type information overhead on the type to know if
     // converting from an `A*` to a `B*` is possible
-    b4 := a outerlink B*
+    b4 := a outermorph B*
 }
 
 function final : ()() = {
@@ -562,7 +562,7 @@ function final : ()() = {
 
 ##### Zax runtime downcast
 
-In the Zax language, the keyword `managed` must be included on the type declaration where a type might be used as a source of conversion using the `safcompose` operator. The `downcast` keyword will use this overhead RTTI properties to perform a conversion if it is allowed. As runtime type information requires additional resource overhead for a given type, the `managed` keyword signals the type needs to include the overhead whenever the type is instantiated.
+In the Zax language, the keyword `managed` must be included on the type declaration where a type might be used as a source of conversion using the `lifetimemorph` operator. The `lifetimemorph` keyword will use this overhead RTTI properties to perform a conversion if it is allowed. As runtime type information requires additional resource overhead for a given type, the `managed` keyword signals the type needs to include the overhead whenever the type is instantiated.
 
 ````zax
 A :: type managed {
@@ -589,7 +589,7 @@ doSomething final : ()(a : A*) = {
 
     // ERROR:
     // while `a` can be converted to a `B*` additional RTTI overhead is required
-    // to perform the conversion thus the compiler forces the `downcast`
+    // to perform the conversion thus the compiler forces the `outermorph`
     // operator to be used to acknowledge the overhead requirements (which are
     // normally not present for simple pointer math offset conversions)
     b2 := a as B*
@@ -604,7 +604,7 @@ doSomething final : ()(a : A*) = {
     // SAFEST:
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type
-    b4 := a outerlink B*
+    b4 := a outermorph B*
 
     if b4 {
         // ...
