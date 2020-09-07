@@ -44,13 +44,13 @@ myArray : Integer[5] = {{ 1, 2, 3, 4, 5 }}
 Multi dimensional arrays:
 
 ````zax
-myArray : Integer[5][2] = {{
+myArray : Integer[5][2] = {{ "{{" }}
     { 1, -1 },
     { 2, -2 },
     { 3, -3 },
     { 4, -4 },
     { 5, -5}
-}}
+{{ "}}" }}
 ````
 
 Simple array where type and size is assumed:
