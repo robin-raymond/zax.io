@@ -1121,7 +1121,7 @@ func final : ()(
     // ...
 }
 
-func(42, <- := {.name = "Boothby", .age = 61, .weight = 120}, r'😀')
+func(42, <- := {{ .name = "Boothby", .age = 61, .weight = 120 }}, r'😀')
 ````
 
 

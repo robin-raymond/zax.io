@@ -305,6 +305,8 @@ $               // templated argument declaration
 $...            // variadic types
 {               // scope begin
 }               // scope end
+{{              // value, array or by-name type initialization begin
+}}              // value, array or by-name type initialization end
 [[]]            // compiler directive or attribute declaration
 _               // reference to self
                 // a type's pointer to itself within type functions
