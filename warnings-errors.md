@@ -74,7 +74,7 @@ The following are registered errors, and their meaning:
 * `outercast-ambiguous`
     * an attempt was made to cast from a contained pointer to a container pointer but which from type is ambiguous
 * `except-ambiguous`
-    * an attempt was made to return a value using the except but the best match for the return type is ambiguous
+    * an attempt was made to return a value using the `except` statement but the best match for the return type is ambiguous or the defaulted output argument name for the `except` is ambiguous
 * `enum-to-underlying-needs-as-operator`
     * an attempt was made to directly convert an enum to its underlying type without first casing to the underlying type
 * `enum-to-incompatible-type`

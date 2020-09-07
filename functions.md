@@ -72,7 +72,9 @@ accountId:, secretCode: = welcome("Pat", "Jones", "Would you like some water?")
 
 ### Error handling using the `except` keyword
 
-The except keyword performs an `as Boolean` cast on a return type and if it evaluates as `true` then the function immediately performs a `return` with the captured value as the return from the function as a kind of short circuit.
+The except keyword performs an `as Boolean` cast on a named return output argument from a function being called, and if it evaluates as `true` then the function immediately performs a `return` with the captured value from the function that called the function with the `except` statement (as a kind of short circuit). The name of the return variable from the called function is placed after the `except` keyword, and the compiler will perform a best match of the type evaluated in the `except` to one of the output arguments from the calling function which also has output arguments qualified as `except`. The "best match" rules will allow for automatic implicit conversion if one of the return results accepts the `except` result as an input in a constructor. If a best match cannot be determined, an `except-ambiguous` error is issued by the compiler.
+
+As the `except` captures the results from a called function, those results are no longer viewable as returned values for the calling function. Effectively the `except` results are fully consumed.
 
 ````zax
 login final : (
@@ -87,32 +89,30 @@ login final : (
     return "October 7, 2020",
 }
 
-renderAccount final : (myError : Error)(username : String) = {
+renderAccount final : (myError except : Error)(username : String) = {
 
     // The `except` keyword will capture a return result and if the return
-    // result evaluates to true the result will automatically be returned
-    // with all other results retaining their defaulted values.
-    lastLogin:, except myError = login(username)
+    // result evaluates to `true` the result will automatically be returned
+    // with all other results retaining their defaulted values
+    lastLogin := login(username) except error
 
     // This is equivalent to doing the following code
     lastLogin:, capturedError: = login(username)
     if capturedError
-        return , capturedError
+        return capturedError
 
-    // return the default error value for Error which is assumed
-    // to indicate no error in this code.
+    // return the default error value (which for `Error` is assumed
+    // to indicate no error in this code)
     return :
 }
 ````
 
 
-#### `except` appended after a function call
+#### Error handling using the `except` keyword with multiple errors
 
-The except keyword can be placed after a function call if one (or more) of the arguments on the functions returned is labelled as `except`. If more than one return argument has the `except` keyword, then which result is returned is dependent upon the best type match. If a best match cannot be determined, a `except-ambiguous` error is issued by the compiler.
+The `except` keyword can be placed more than once after a function call if more than one output argument is considered an error. The calling function must have `except` on its output argument that match the types being evaluated in the `except` statement. The compiler will attempt to match the return type of the `except` variable to the return type of output arguments. If a best match cannot be determined, an `except-ambiguous` error is issued by the compiler.
 
-When the `except` is placed after the function, the name of the return variable from the called class is placed after the `except` keyword. That indicates which return variable to evaluate as `true` or `false` that becomes returned into the caller's return argument labelled as `except`. When the `except` clause is used after a function, that argument is consumed from the function as if that function never returned that value. Thus any return arguments need not capture that `except` result as it's already captured.
-
-Multiple except clauses can be post-pended to a function. Each performs an individual `except` `as Boolean` check and possible quick return.
+As multiple `except` clauses can be post-pended to a function, each performs an individual `except` `as Boolean` check and performs a possible quick `return` from the calling function. Each `except` is evaluated in order where the first `except` evaluating as `true` causes an immediate short-circuit. The "best match" rules will allow for automatic implicit conversion if one of the return results accepts the `except` result as an input in a constructor.
 
 ````zax
 login final : (
@@ -131,8 +131,8 @@ login final : (
 }
 
 renderAccount final : (
-    // notice the `except` keyword is placed on the return argument indicating
-    // the value which will be returned in the except scenario
+    // notice the `except` keyword is placed on the return arguments indicating
+    // which values can accept the results of the `except` statement
     myError except : Error,
     myNetworkError except : NetworkError
 )(
@@ -140,27 +140,28 @@ renderAccount final : (
 ) = {
 
     // The `except` keyword will capture a return result and if the return
-    // result evaluates to true the result will automatically be returned
-    // with all other results retaining their defaulted values.
+    // result evaluates to `true` the result will automatically be returned
+    // with all other results retaining their defaulted values
     lastLogin := login(username) except error except networkError
 
     // This is equivalent to doing the following code
     lastLogin:, capturedError:, capturedNetworkError  = login(username)
     if capturedError
-        return , capturedError,
+        return capturedError,
 
     if capturedNetworkError
-        return ,, capturedNetworkError
+        return , capturedNetworkError
 
     // return the default error value for Error which is assumed
     // to indicate no error in this code.
-    return :
+    return ,
 }
 ````
 
+
 #### `except` and `!` appended after a function call with implicit conversion
 
-The `except` statement allows a single `!` prior to the return name from the calling function which indicates an `as Boolean` of `false` is the `except` condition rather than the typical `true` case. Further, the "best match" rules will allow for automatic implicit conversion if one of the return results accepts the `except` result as an input in a constructor.
+The `except` statement allows a single `!` prior to the return name from the calling function which indicates an `as Boolean` of `false` is the `except` condition rather than the typical `true` case. The "best match" rules will allow for automatic implicit conversion if one of the return results accepts the `except` result as an input in a constructor.
 
 ````zax
 Good :: type {
@@ -339,6 +340,68 @@ value : Integer = func4("5")
 ````
 
 
+##### Functions input / output binding with `except`
+
+Input and output binding with `except` requires a function prototype with output arguments which include the `except` keyword on the returned values. Without this prototype declaration, the `except` clause would not know where to place the potential `except` result and in which order.
+
+A full prototype can be defined, or many of the types and variable names can be implied. The names of output return variables are defaulted to the name of the last calling function in the chain, or the name of the `except` variable. If two except variables become defaulted with the same name because of `except`, an `except-ambiguous` error is issued by the compiler. If two (or more) `except` results become combined to the same output argument type which have different defaulted `except` names, the first except name in the chain becomes the defaulted name.
+
+Example of the prototyping of the functions:
+
+````zax
+func1 final : (result : Integer, error: Error)(input : String) = {
+    // ...
+}
+func2 final : (result : String, error: AnotherErrorType)(input : Integer) = {
+    // ...
+}
+
+func3 final : (
+    result : String,
+    error1 except : Error, 
+    error2 except : AnotherErrorType
+)() = func1 except error | func2 except error
+
+// two errors share the same type thus will be combined to the same result
+func4 final : (
+    result : String,
+    error1 except : Error,
+    error2 except : AnotherErrorType
+) = func3 except error1 except error2 | func1 except error
+
+value : Integer, error1:, error2: = func4("5")
+````
+
+Implied prototyping value names and types for functions:
+
+````zax
+func1 final : (result : Integer, error: Error)(input : String) = {
+    // ...
+}
+func2 final : (result : String, error: AnotherErrorType)(input : Integer) = {
+    // ...
+}
+
+// the names `error1` and `error2` are explicitly declared on the output
+// argument otherwise the `error` name would be used twice for two different
+// return result types and that would be ambiguous
+func3 final : (:, error1 except:, error2 except:)() = \
+    func1 except error | func2 except error
+
+// the output argument names become `error1` and `error2` and the final
+// `error` default name is not used as it becomes combined into `error1`
+func4 final : (:, except:, except:)() = \
+    func3 except error1 except error2 | func1 except error
+
+// ERROR: `except-ambiguous` will be issues as func1 and func2 both `except`
+// different error types yet assume to use the same defaulted `error` name
+func5 final : (:, except:, except:)() = \
+    func1 except error | func2 except error
+
+value : Integer, error1:, error2: = func4("5")
+````
+
+
 #### Function input argument capturing and binding
 
 A function's input argument can be captured and automatically becomes an argument input argument to function call creating a new function which has one less input argument required. If the name of an argument match the name of the function's input argument then the variable can be captured just by-name alone. If the name of an argument does not match any input argument name and no re-assigned name is given, then the argument is attempted to be matched positionally (excluding any positions which already have a match).
@@ -435,7 +498,9 @@ result = 4 |> double() |> squareAndAdd(12) |> half()
 
 #### Function invocation chaining and `except`
 
-Functions can chain with other functions and short circuit using the `except` mechanism. An except will cause an immediate return from a function if one of the `except` results evaluates as `true` when the `as Boolean` is applied. The standard `except` mechanism applies and the `except` checked variable is consumed from the return result leaving the remaining values to become part of the remaining chain.
+Functions can chain with other functions and short circuit using the `except` mechanism. An `except` will cause an immediate return from a function if one of the `except` results evaluates as `true` when the `as Boolean` is applied. The standard `except` mechanism applies and the `except` checked variable is consumed from the return result leaving the remaining values to become part of the remaining chain.
+
+When an `except` value is encountered that evaluates to `true` (or `false` if `except !value` is used), the entire chain is short circuited at the `except` point.
 
 ````zax
 double : (result : Integer)(input : Integer) = {
