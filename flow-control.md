@@ -10,7 +10,7 @@ The `if` statement tests a condition and if `true` executes the code that follow
 The flow control statement(s) following an `if` or `else` condition must either continue on the following line or must be encapsulated inside a scope.
 
 ````zax
-isNegativeOrGreaterThan10 : (input : Integer) -> (negative : Boolean) = {
+isNegativeOrGreaterThan10 : (negative : Boolean)(input : Integer) = {
 
     if input < 0
         return true
