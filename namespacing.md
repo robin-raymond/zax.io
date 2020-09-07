@@ -165,7 +165,7 @@ FastFooMathModule :: type {
 
     id final := "update-myIdentifier-to-refresh-cache"
 
-    // the requested storage location name for the imported module
+    // the requested local storage folder location name for the imported module
     stableCacheId final := "FastFooMathModule.Unique"
 }
 
