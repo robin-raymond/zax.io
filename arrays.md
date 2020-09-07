@@ -120,11 +120,11 @@ MyType :: type {
 // values is enclosed in a curly bracket `{}` where each named value is
 // separated with a comma (`,`) and each curly brace enclosure contains
 // all the named initialized values per element
-myType2 : MyType[3] = {{
+myType2 : MyType[3] = {{ "{{" }}
     { .value1 = 1, .value2 = "planes", .value3 = 3.14159 },
     { .value3 = 5.0, .value2 = "trains" },
     { .value2 = "automobiles" }
-}}
+{{ "}}" }}
 
 // ERROR: The type does not support a single value as a default and thus a
 // simple argument list of values is ambiguous to which value should be
