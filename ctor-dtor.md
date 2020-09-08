@@ -641,10 +641,10 @@ Animal :: type {
     slimy : Boolean
 }
 
-animal1 : Animal = {{ "{{" }} .animal = "bear", .legs = 2 {{ "}}" }}
-animal2 : Animal = {{ "{{" }} .animal = "spider", .legs = 8 {{ "}}" }}
-animal3 : Animal = {{ "{{" }} .animal = "bird", .canFly = true, .legs = 2 {{ "}}" }}
-animal4 : Animal = {{ "{{" }} .animal = "worm", .slimy = true {{ "}}" }}
+animal1 : Animal = {{ "{{" }} .animal = "bear", .legs = 2 {{ }}}}
+animal2 : Animal = {{ "{{" }} .animal = "spider", .legs = 8 {{ }}}}
+animal3 : Animal = {{ "{{" }} .animal = "bird", .canFly = true, .legs = 2 {{ }}}}
+animal4 : Animal = {{ "{{" }} .animal = "worm", .slimy = true {{ }}}}
 ````
 
 

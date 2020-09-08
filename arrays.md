@@ -38,7 +38,7 @@ Arrays can be default initialized with a set of values.
 Single dimensional arrays:
 
 ````zax
-myArray : Integer[5] = {{ "{{" }} 1, 2, 3, 4, 5 {{ "}}" }}
+myArray : Integer[5] = {{ "{{" }} 1, 2, 3, 4, 5 {{ }}}}
 ````
 
 Multi dimensional arrays:
@@ -50,13 +50,13 @@ myArray : Integer[5][2] = {{ "{{" }}
     { 3, -3 },
     { 4, -4 },
     { 5, -5}
-{{ "}}" }}
+{{ }}}}
 ````
 
 Simple array where type and size is assumed:
 
 ````zax
-myArray := {{ "{{" }} 1, 2, 3, 4, 5 {{ "}}" }}
+myArray := {{ "{{" }} 1, 2, 3, 4, 5 {{ }}}}
 ````
 
 
@@ -87,7 +87,7 @@ MyType :: type {
 // when a single argument constructor is used, each element's constructor
 // argument is separated with a comma (`,`) and contains a single value
 // per array element
-myType1 : MyType[3] = {{ "{{" }} 1, 2, 3 {{ "}}" }}
+myType1 : MyType[3] = {{ "{{" }} 1, 2, 3 {{ }}}}
 
 // when a multiple argument constructor is used, each constructor argument list is
 // enclosed in a curly bracket `{}` where argument is separated with a
@@ -97,7 +97,7 @@ myType2 : MyType[3] = {{ "{{" }}
     { 1, "planes" },
     { 2, "trains" },
     { 3, "automobiles" }
-{{ "}}" }}
+{{ }}}}
 ````
 
 
@@ -124,13 +124,13 @@ myType2 : MyType[3] = {{ "{{" }}
     { .value1 = 1, .value2 = "planes", .value3 = 3.14159 },
     { .value3 = 5.0, .value2 = "trains" },
     { .value2 = "automobiles" }
-{{ "}}" }}
+{{ }}}}
 
 // ERROR: The type does not support a single value as a default and thus a
 // simple argument list of values is ambiguous to which value should be
 // default initialized (although defining `value1`'s Integer type as being
 // `own` could resolve this ambiguity)
-myType1 : MyType[3] = {{ "{{" }} 1, 2, 3 {{ "}}" }}
+myType1 : MyType[3] = {{ "{{" }} 1, 2, 3 {{ }}}}
 ````
 
 
@@ -304,7 +304,7 @@ myArray : Integer[5][2] = {{ "{{" }}
     { 3, -3 },
     { 4, -4 },
     { 5, -5}
-{{ "}}" }}
+{{ }}}}
 
 func1(myArray)
 func2(myArray)
