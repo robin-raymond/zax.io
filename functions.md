@@ -320,9 +320,9 @@ assert(a == 5 || a == 42)
 
 ### Function input capturing and chaining
 
-#### Functions input / output binding
+#### Functions input / output composition
 
-If a function's output matches the input of another function they can be bound together as a newly creates single function. Each of the output arguments from the first function must match the input arguments from the second function.
+If a function's output matches the input of another function they can be bound together as a newly created function using the function composition operator (`>>`). Each of the output arguments from the first function must match the input arguments from the second function. Functions can be composed together in chains of two or more functions where each input is chained to another output.
 
 ````zax
 func1 final : (result : Integer)(input : String) = {
@@ -332,17 +332,23 @@ func2 final : (result : String)(input : Integer) = {
     // ...
 }
 
-func3 final := func1 | func2      // func3 takes a `String` and returns a `String`
-func4 final := func3 | func1      // func4 takes a `String` an returns an `Integer`
+// func3 takes a `String` and returns a `String`
+func3 final := func1 >> func2
+
+// func4 takes a `String` an returns an `Integer`
+func4 final := func3 >> func1
+
+// bind four functions together in a longer chain
+func5 final := func1 >> func2 >> func1 >> func2
 
 // calling func4() actually calls func1(func2(func1()))
 value : Integer = func4("5")
 ````
 
 
-##### Functions input / output binding with `except`
+##### Functions input / output composition with `except`
 
-Input and output binding with `except` requires a function prototype with output arguments which include the `except` keyword on the returned values. Without this prototype declaration, the `except` clause would not know where to place the potential `except` result and in which order.
+Input and output composition with `except` requires a function prototype with output arguments which include the `except` keyword on the returned values. Without this prototype declaration, the `except` clause would not know where to place the potential `except` result and in which order.
 
 A full prototype can be defined, or many of the types and variable names can be implied. The names of output return variables are defaulted to the name of the last calling function in the chain, or the name of the `except` variable. If two except variables become defaulted with the same name because of `except`, an `except-ambiguous` error is issued by the compiler. If two (or more) `except` results become combined to the same output argument type which have different defaulted `except` names, the first except name in the chain becomes the defaulted name.
 
@@ -360,14 +366,14 @@ func3 final : (
     result : String,
     error1 except : Error, 
     error2 except : AnotherErrorType
-)() = func1 except error | func2 except error
+)() = func1 except error >> func2 except error
 
 // two errors share the same type thus will be combined to the same result
 func4 final : (
     result : String,
     error1 except : Error,
     error2 except : AnotherErrorType
-) = func3 except error1 except error2 | func1 except error
+) = func3 except error1 except error2 >> func1 except error
 
 value : Integer, error1:, error2: = func4("5")
 ````
@@ -386,25 +392,46 @@ func2 final : (result : String, error: AnotherErrorType)(input : Integer) = {
 // argument otherwise the `error` name would be used twice for two different
 // return result types and that would be ambiguous
 func3 final : (:, error1 except:, error2 except:)() = \
-    func1 except error | func2 except error
+    func1 except error >> func2 except error
 
 // the output argument names become `error1` and `error2` and the final
 // `error` default name is not used as it becomes combined into `error1`
 func4 final : (:, except:, except:)() = \
-    func3 except error1 except error2 | func1 except error
+    func3 except error1 except error2 >> func1 except error
 
 // ERROR: `except-ambiguous` will be issues as func1 and func2 both `except`
 // different error types yet assume to use the same defaulted `error` name
 func5 final : (:, except:, except:)() = \
-    func1 except error | func2 except error
+    func1 except error >> func2 except error
 
 value : Integer, error1:, error2: = func4("5")
 ````
 
 
-#### Function input argument capturing and binding
+#### Function argument capturing and composition
 
-A function's input argument can be captured and automatically becomes an argument input argument to function call creating a new function which has one less input argument required. If the name of an argument match the name of the function's input argument then the variable can be captured just by-name alone. If the name of an argument does not match any input argument name and no re-assigned name is given, then the argument is attempted to be matched positionally (excluding any positions which already have a match).
+A function can captured a full invocation of a function as a new function. When captured, the function invocation is not actually called immediately. Instead the capture returns a new function which has all the input arguments captured. The return values of the new function match the original arguments of the captured function. This allows the newly captured and created function to be called later and this new function can be invoked more than once.
+
+````zax
+func final : (result : String)(input1 : Integer, input2 : String) = {
+    // ...
+}
+
+// capture a function call invocation for later
+// (don't actually call the function now)
+funcLater := [] >> func(2, "hello")
+
+// call the previously captured function
+result := funcLater()
+
+// call the previously captured function again
+result := funcLater()
+````
+
+
+#### Function input argument capturing and composition
+
+A function's input argument can be captured and automatically becomes an argument input argument to function call creating a new function which has one (or more) less input argument required. If the name of an argument match the name of the function's input argument then the variable can be captured just by-name alone. If the name of an argument does not match any input argument name and no re-assigned name is given, then the argument is attempted to be matched positionally (excluding any positions which already have a match).
 
 ````zax
 print final : ()(...) = {
@@ -417,7 +444,7 @@ func1 final : ()(name : String, age : Integer) = {
 
 myNameIs final := "Slim"
 
-func2 final := [name = myNameIs] | func1
+func2 final := [name = myNameIs] >> func1
 
 // will print "name: Slim age: 47"
 func2(47)
@@ -429,39 +456,19 @@ func2(48)
 name final := "Shady"
 
 // capture the `name` variable which is the functions input variable `name`
-func3 final := [name] | func1
+func3 final := [name] >> func1
 
 // will print "name: Shady age: 47"
 func3(47)
 
 // capture the `name` variable, and capture by-value positionally
 // (excluding name which is already matched)
-func4 final := [name, 48] | func1
+func4 final := [name, 48] >> func1
 
 // will print "name: Shady age: 48"
 func4()
 ````
 
-
-#### Function with arguments capturing
-
-A function can captured a full invocation of a function as a new function. When captured, the function invocation is not actually called immediately. Instead the capture returns a new function which has all the input arguments captured. The return values of the new function match the original arguments of the captured function. This allows the newly captured and created function to be called later and this new function can be invoked more than once.
-
-````zax
-func final : (result : String)(input1 : Integer, input2 : String) = {
-    // ...
-}
-
-// capture a function call invocation for later
-// (don't actually call the function now)
-funcLater := [] func(2, "hello")
-
-// call the previously captured function
-result := funcLater()
-
-// call the previously captured function again
-result := funcLater()
-````
 
 #### Function invocation chaining
 
