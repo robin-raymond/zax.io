@@ -504,7 +504,7 @@ void function() {
 
 In the Zax language forcefully converting from a contained type to the type's container requires sing the `outercast` operator. Using this operator must be done with caution as the programmer is forcefully telling the compiler that the composition relationship is guaranteed. If the programmer was wrong then undefined behavior will result.
 
-An `outercast` can be ambiguous if the container type contains two (or more) of the same type which matches the type being casted. The compiler doesn't have any RTTI information necessary to make the appropriate decision as to which of the multiple instance the type is being casted from and thus would issue a `outercast-ambiguous` error. Using `coutermorph` on a `managed` type would resole this issue. Alternatively, consider containing one of the duplicate types inside another container to make the route to cast to the outer container type non-ambiguous.
+An `outercast` can be ambiguous if the container type contains two (or more) of the same type which matches the type being casted. The compiler doesn't have any RTTI information necessary to make the appropriate decision as to which of the multiple instance the type is being casted from and thus would issue a `outercast-ambiguous` error. Using `outerof` on a `managed` type would resole this issue. Alternatively, consider containing one of the duplicate types inside another container to make the route to cast to the outer container type non-ambiguous.
 
 ````zax
 A :: type {
@@ -545,7 +545,7 @@ doSomething : ()(a : A*) = {
     // `a`'s type `A` must be declared as `managed` and thus currently does not
     // include the runtime type information overhead on the type to know if
     // converting from an `A*` to a `B*` is possible
-    b4 := a outermorph B*
+    b4 := a outerof B*
 }
 
 function final : ()() = {
@@ -562,7 +562,7 @@ function final : ()() = {
 
 ##### Zax runtime downcast
 
-In the Zax language, the keyword `managed` must be included on the type declaration where a type might be used as a source of conversion using the `lifetimemorph` operator. The `lifetimemorph` keyword will use this overhead RTTI properties to perform a conversion if it is allowed. As runtime type information requires additional resource overhead for a given type, the `managed` keyword signals the type needs to include the overhead whenever the type is instantiated.
+In the Zax language, the keyword `managed` must be included on the type declaration where a type might be used as a source of conversion using the `lifetimeof` operator. The `lifetimeof` keyword will use this overhead RTTI properties to perform a conversion if it is allowed. As runtime type information requires additional resource overhead for a given type, the `managed` keyword signals the type needs to include the overhead whenever the type is instantiated.
 
 ````zax
 A :: type managed {
@@ -589,7 +589,7 @@ doSomething final : ()(a : A*) = {
 
     // ERROR:
     // while `a` can be converted to a `B*` additional RTTI overhead is required
-    // to perform the conversion thus the compiler forces the `outermorph`
+    // to perform the conversion thus the compiler forces the `outerof`
     // operator to be used to acknowledge the overhead requirements (which are
     // normally not present for simple pointer math offset conversions)
     b2 := a as B*
@@ -604,7 +604,7 @@ doSomething final : ()(a : A*) = {
     // SAFEST:
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type
-    b4 := a outermorph B*
+    b4 := a outerof B*
 
     if b4 {
         // ...

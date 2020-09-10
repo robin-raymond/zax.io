@@ -185,43 +185,51 @@ constant_ : Type constant
 
 #### Overloadable
 ````
-+               // plus operator
--               // minus operator
++               // pre-unary plus operator
+-               // pre-unary minus operator
++               // binary plus operator
+-               // binary minus operator
 ++              // (pre or post) unary increment operator
 --              // (pre and post) unary decrement operator
 *               // multiply operator
 /               // divide operator
 %               // modulus divide operator
 =               // assign operator
-^               // binary xor operator
-&               // binary and operator
-|               // binary or operator
-<<              // binary left shift operator
->>              // binary right shift operator
-<<<             // binary left rotate operator
->>>             // binary right rotate operator
-~               // pre-unary one's compliment operator
+^               // binary bitwise xor operator
+&               // binary bitwise and operator
+|               // binary bitwise or operator
+<<              // binary bitwise left shift operator
+>>              // binary bitwise right shift operator
+<<<             // binary bitwise left rotate operator
+>>>             // binary bitwise right rotate operator
+~               // pre-unary bitwise one's compliment operator
+~|              // pre-unary bitwise parity operator
+~&              // binary bitwise clear operator
 !               // pre-unary logical not operator
-&&              // logical and operator
-||              // logical or operator
-^^              // logical exclusive or operator
-+=              // add and assign operator
--=              // subtract and assign operator
-*=              // multiply and assign operator
-/=              // divide and assign operator
-%=              // modulus divide and assign operator
-==              // is equal operator
-!=              // is not equal operator
-<               // is less than operator
->               // is greater than operator
-<=              // is less than operator
->=              // is greater than operator
-^=              // binary xor and assign operator
-|=              // binary or and assign operator
-<<=             // binary left shift and assign operator
->>=             // binary right shift and assign operator
-<<<=            // binary left rotate and assign operator
->>>=            // binary right rotate and assign operator
+&&              // binary logical and operator
+||              // binary logical or operator
+^^              // binary logical exclusive or operator
++=              // binary add and assign operator
+-=              // binary subtract and assign operator
+*=              // binary multiply and assign operator
+/=              // binary divide and assign operator
+%=              // binary modulus divide and assign operator
+==              // binary is equal operator
+!=              // binary is not equal operator
+<=>             // binary three-way comparison operator
+<               // binary is less than operator
+>               // binary is greater than operator
+<=              // binary is less than operator
+>=              // binary is greater than operator
+~=              // binary bitwise one's compliment operator
+^=              // binary bitwise xor and assign operator
+|=              // binary bitwise or and assign operator
+~|=             // binary bitwise parity operator
+~&=             // binary bitwise clear and assign operator
+<<=             // binary bitwise left shift and assign operator
+>>=             // binary bitwise right shift and assign operator
+<<<=            // binary bitwise left rotate and assign operator
+>>>=            // binary bitwise right rotate and assign operator
 .               // post-unary dereference operator
 '               // literal start or end operator
 "               // literal start or end operator
@@ -246,6 +254,7 @@ allocatorof     // returns the allocator used for an allocated instance
 
 
 #### Non overloadable
+
 ````
 *               // post-unary pointer type declaration
 &               // post-unary reference type declaration or
@@ -265,6 +274,7 @@ allocatorof     // returns the allocator used for an allocated instance
 ::.             // data type dereference operator
 ?               // post-unary optional type operator
 ??              // ternary operator
+                // (combined with sub-statement separator operator `;;`)
 ???             // uninitialized type operator
 >>              // function composition
 |>              // function invocation chaining
@@ -283,10 +293,10 @@ copycast        // pre-unary unsafe `Unknown` copy cast
 lifetimecast    // unsafe shared lifetime cast operator
                 // converts a raw pointer to share a lifetime with an existing
                 // `strong` or `handle` pointer
-outermorph      // outer type morphing operator
+outerof         // outer type instance of operator
                 // convert from contained type pointer to container type pointer
                 // (safely via a managed type's RTTI)
-lifetimemorph   // shared lifetime morphing operator
+lifetimeof      // shared lifetimeof operator
                 // binds a raw pointer to an existing `strong` or `handle`
                 // pointer (safely checks if the pointer to a type points to
                 // memory within the allocated `strong` or `handle` pointer)

@@ -220,7 +220,7 @@ func final : ()() = {
 Pointers can be casted by way of three casting methods:
 * raw conversion of the pointer type using the `cast` operator
 * compatible [composition](composition.md) conversion of the pointer type using the `outercast` operator
-* runtime conversation of compatible [composition](composition.md) pointer types using the `outermorph` operator
+* runtime conversation of compatible [composition](composition.md) pointer types using the `outerof` operator
 
 The `as` operator can only be used to convert a pointer to/from an intrinsic number type of equal or greater capacity than the pointer.
 

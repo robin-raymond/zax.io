@@ -654,9 +654,9 @@ Transferring to an `own` pointer have limitations. Only if the pointer marked as
 
 #### Converting from a container `strong` pointer to a contained `strong` pointer
 
-The `lifetimemorph` operators can be used to cast a raw pointer to a variable which has the same lifetime as an original `strong` or `handle` pointer to a `strong` or `handle` pointer respectively.
+The `lifetimeof` operators can be used to cast a raw pointer to a variable which has the same lifetime as an original `strong` or `handle` pointer to a `strong` or `handle` pointer respectively.
 
-A `strong` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained type is the same as the container type, only a `strong` pointer to the container type may exist (despite both types being considered as a single instance). The `lifetimemorph` operator is especially useful to create a `strong` pointer of a contained type from a `strong` pointer to the container's type.
+A `strong` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained type is the same as the container type, only a `strong` pointer to the container type may exist (despite both types being considered as a single instance). The `lifetimeof` operator is especially useful to create a `strong` pointer of a contained type from a `strong` pointer to the container's type.
 
 Example as follows:
 
@@ -669,7 +669,7 @@ MyType :: type {
 myType : MyType* strong @
 
 // create a pointer to `value` and link the lifetime of `myType` to the pointer
-value : Integer* strong = myType.value1 lifetimemorph myType
+value : Integer* strong = myType.value1 lifetimeof myType
 
 // resetting the `myType`'s `strong` pointer will not impact the real lifetime
 // of the instance connected to `myType` (as the `value` `strong` pointer will
@@ -684,9 +684,9 @@ value. = 5
 
 #### Converting from a container `strong` pointer to a contained `strong` pointer
 
-While any pointer to any type can be linked to a `strong` or `handle` pointer using the `lifetimecast` operator, a `lifetimemorph` operator can link a pointer to a contained type back to the original `strong` or `handle` pointer safely by verifying the pointer refers to a memory addresses within the bounds of the allocated `strong` or `handle` pointer.
+While any pointer to any type can be linked to a `strong` or `handle` pointer using the `lifetimecast` operator, a `lifetimeof` operator can link a pointer to a contained type back to the original `strong` or `handle` pointer safely by verifying the pointer refers to a memory addresses within the bounds of the allocated `strong` or `handle` pointer.
 
-An example of a runtime `lifetimemorph` being applied onto a `strong` pointer:
+An example of a runtime `lifetimeof` being applied onto a `strong` pointer:
 
 ````zax
 A :: type managed {
@@ -705,7 +705,7 @@ C :: type {
 doSomething final : ()(a : A* strong) = {
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type and create a `strong` pointer from `a`
-    b := (a outermorph B*) lifetimemorph a
+    b := (a outerof B*) lifetimeof a
 }
 
 function final : ()() = {
@@ -714,16 +714,16 @@ function final : ()() = {
     value.bar = 2
 
     // link a `strong` pointer to `a` from `value`
-    a : A* strong = value.a lifetimemorph value
+    a : A* strong = value.a lifetimeof value
 
     doSomething(a)
 }
 ````
 
 
-#### `lifetimemorph` versus `lifetimecast`
+#### `lifetimeof` versus `lifetimecast`
 
-The exclusive difference between these operators is safety. The `lifetimecast` operator will force a conversion of any raw pointer to link to `strong` or `handle` pointer even for unrelated pointers. The `lifetimemorph` operator will validate the raw pointer actually points inside the address boundaries of the `strong` or `handle` pointer. If it does not then `lifetimemorph` will return a pointer to nothing.
+The exclusive difference between these operators is safety. The `lifetimecast` operator will force a conversion of any raw pointer to link to `strong` or `handle` pointer even for unrelated pointers. The `lifetimeof` operator will validate the raw pointer actually points inside the address boundaries of the `strong` or `handle` pointer. If it does not then `lifetimeof` will return a pointer to nothing.
 
 
 ### `strong` and `weak` overhead and control blocks
