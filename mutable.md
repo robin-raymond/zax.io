@@ -63,7 +63,7 @@ constant vs inconstant  // applied to a function, the allowance of a function
 
 ### By default types are both `mutable` and `immutable`
 
-Declaring a type without the `mutable` or `immutable` qualifiers implies a type is allowed to be both `mutable` and `immutable`. The `default` mutability of a type is `mutable` if the type is both `mutable` and `immutable`
+Declaring a type without the `mutable` or `immutable` qualifiers implies a type is allowed to be both `mutable` and `immutable`. The `default` mutability of a type is `mutable` if the type is both `mutable` and `immutable`. The default mutability for type can be specified, and overbidden with explicit qualifiers on instantiation if the type allows for alternative mutability.
 
 ````zax
 // type supports both `mutable` and `immutable` form and defaults as `mutable`
