@@ -53,8 +53,6 @@ The following are registered errors, and their meaning:
     * a request to convert one type to another using the `as` where no compatible conversion was found
 * `soa-aos-incompatible`
     * cannot convert from an `aos` to an `soa` or from an `soa` to an `aos`
-* `intrinsic-type-cast-overflow` (always)
-    * an intrinsic type may overflow during the `cast` operator to a type with lower bit sizing
 * `constant-overflow`
     * a constant value overflows the underlying type
 * `needs-dereferencing`
@@ -134,8 +132,8 @@ The options for warnings are:
 * `default` - enables or disables the warnings for all statements that follow according to the compiler's defaults
 * `error` - forces enabled warnings to be treated as an error for all statements that follow
 * `warning` - forces enabled warnings to be treated as merely a warning for all statements that follow
-* `lock` - disallows any imported module from changing a warning states
-* `unlock` - allows any imported module from changing a warning states
+* `lock` - disallows any imported module from changing a warning state
+* `unlock` - allows any imported module from changing a warning state
 
 
 ````zax
@@ -197,7 +195,7 @@ Upon importing a module, all warnings are pushed and all warnings are popped at 
 The following are registered warnings, default states, and their meaning:
 * `warning-directive` (always)
     * a warning directive was encountered where a specific registered warning name was not provided
-* `to-do`
+* `to-do` (always)
     * a warning directive to indicate code is known to be missing and must be completed at a later point in time
 * `intrinsic-type-cast-overflow` (always)
     * an intrinsic type may overflow during the `cast` operator to a type with lower bit sizing
@@ -245,7 +243,7 @@ The following are registered warnings, default states, and their meaning:
     * `promise` has by-value arguments that should have the `deep` qualifier for parallel processing
 * `unknown-directive` (error)
     * a directive not prefixed with `x-` was encountered which was not understood
-* `unknown-direction-argument` (error)
+* `unknown-directive-argument` (error)
     * a directive argument not prefixed with `x-` was encountered which was not understood
 * `forever` (always)
     * code was detected that appears to run forever

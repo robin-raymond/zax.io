@@ -104,12 +104,12 @@ task
 true
 type
 union
-weak
-while
 until
 using
 varies
 void
+weak
+while
 yield
 ````
 

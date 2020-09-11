@@ -106,9 +106,8 @@ The options for panic conditions are:
 * `always` - enables the panic for all statements that follow
 * `never` - disables the panic for all statements that follow
 * `default` - enables or disables the panic for all statements that follow according to the compiler's defaults
-* `lock` - disallows any imported module from changing a panic states
-* `unlock` - allows any imported module from changing a panic states
-
+* `lock` - disallows any imported module from changing a panic state
+* `unlock` - allows any imported module from changing a panic state
 
 ````zax
 randomValue final : (output : S32)() = {
@@ -180,7 +179,7 @@ The following are registered panic scenarios, default states, and their meaning:
     * a code path was followed what was marked as impossible (because of the `[[never]]` directive or the `[[always]]` directive)
 * `lazy-already-complete` (always)
     * an attempt was made to call a lazy function that has already returned from the function
-* `value-polymorphic-function-not-found`
+* `value-polymorphic-function-not-found` (always)
     * a function supporting value polymorphism was called but none of the pre-condition checks succeeded
 
 
