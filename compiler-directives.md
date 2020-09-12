@@ -259,7 +259,13 @@ ValidType :: type {
 
 ### The `inline` function directives
 
-The `inline` directive ``[[inline]]`` can be used to signal to the compiler when to inline a `final` function directly into code or when to call the function as an explicit function call. By default the compiler will decide if inlining a function is desirable.
+The `inline` directive ``[[inline=option]]`` can be used to signal to the compiler when to inline a `final` function directly into code or when to call the function as an explicit function call. By default the compiler will decide if inlining a function is desirable.
+
+The following options are available for the inline directive:
+* `maybe` (default) - the compiler decides if it is best to `inline` the function or not
+* `always` - the compiler is forced to `inline` the function but all variables declared are not visible to the caller's scope
+* `descope` - the compiler is forced to `inline` the function and all variables declared are visible to the caller's scope
+* `never` - the compiler may never `inline` this function
 
 ````zax
 // prefer the function to inline
@@ -275,12 +281,81 @@ func2 final [[inline=maybe]] : ()() = {
 // only allow the function to be created inline
 func2 final [[inline=always]] : ()() = {
     // ...
+    myValue : Integer
+    // ...
+}
+
+// only allow the function to be created inline
+func3 final [[inline=descope]] : ()() = {
+    // ...
+    myValue : Integer
+    // ...
 }
 
 // never allow the function to be inlined
-func3 final [[inline=never]] : ()() = {
+func4 final [[inline=never]] : ()() = {
     // ...
 }
+
+func1()
+func2()
+[[descope]] func3() // calling a function with an `[[inline=descope]]`
+                    // requires a declaration of `[[descope]]` on the function
+                    // or a warning `descope-directive-required` will be issued
+func4()
+
+// OKAY: the definition for `myValue` comes from the `[[inline=descope]]`
+myValue *= 3
+
+// ...
+````
+
+
+### The `descope` directive
+
+The `descope` directive `[[descope]]` treats an inner scope as part of the outer scope. As such, no destructors will trigger at the end of scope and all variables declared as part of a scope are treated with the same visibility as the outer scope. Variables declared within a `descope` are treated as having been declared as part of the outer scope thus non-polymorphic variables with the same name will cause a `duplicate-symbol` error rather than shadowing the outer variable.
+
+Example when used with an `if` statement:
+
+````zax
+[[descope]] if true {
+    myValue : U32 = 5
+    // ...
+} else {
+    myValue : U16 = 10
+    // ...
+}
+
+myValue *= 2
+````
+
+Example when used with a normal scope:
+
+````zax
+[[descope]] scope my_scope {
+    myValue1 : Integer = 6
+    myValue2 : Integer = 7
+    // ...
+}
+
+myValue1 *= 2 + myValue2
+````
+
+Example of possible flow control error condition when used with a normal scope:
+
+````zax
+[[descope]] scope my_scope {
+    myValue1 : Integer = 6
+
+    if true
+        break   // ERROR: will issue `scope-flow-control-skips-declaration`
+                // as `myValue2` declaration would be skipped
+
+    myValue2 : Integer = 7
+    // ...
+}
+
+myValue1 *= 2 + myValue2
 ````
 
 
@@ -569,6 +644,7 @@ Types are as follows:
 * `compile` - the code block will evaluate to constant data of compatible type to the context required and expects compile type constants to be passed into the function
 * `runtime` (default) - the code block will execute if the values passed in are compile time constants, or will evaluate to runtime code if the values passed in are not compile time compatible.
 
+If `generate` is compiled with the `[[inline=always]]`, the output generated code will emit tokens directly into the scope where the executed function is called.
 
 ````zax
 random final : ()() = {

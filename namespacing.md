@@ -193,7 +193,7 @@ While the example code appears on the surface as verbose, the alternative requir
 // By first testing if the module was already defined by another module
 // importing `MySource`, the code can be share any definition from an importer.
 
-if !compiles { testFastFooMathModule : Module.FastFooMathModule } {
+[[descope]] if !compiles { testFastFooMathModule : Module.FastFooMathModule } {
 
     // No previous definition was found because `Module.FastFooMathModule` was
     // never defined so define the module now
@@ -217,7 +217,7 @@ if !compiles { testFastFooMathModule : Module.FastFooMathModule } {
 }
 
 // Another test to ensure `Module.ThirdPartyModule` isn't already defined
-if !compiles { testThirdPartyModule : Module.ThirdPartyModule } {
+[[descope]] if !compiles { testThirdPartyModule : Module.ThirdPartyModule } {
     ThirdPartyModule :: type {
         type final := "git"
         repository final := "https://github.com/immmutable/repo2",
@@ -270,7 +270,7 @@ importantNumber final : (result : Integer)() = {
 // and in this particular example, an existing module would be detected so
 // the definition of the module will be taken from the importer's definition
 
-if !compiles { testFastFooMathModule : Module.FastFooMathModule } {
+[[descope]] if !compiles { testFastFooMathModule : Module.FastFooMathModule } {
 
     // In this example, this definition will not be used
 
@@ -292,7 +292,7 @@ if !compiles { testFastFooMathModule : Module.FastFooMathModule } {
 
 // Test for additional compilation options specified by the importer of
 // this module
-if !compiles { testOptions : Module.Options } {
+[[descope]] if !compiles { testOptions : Module.Options } {
 
     // In this example, this definition of options would not be used
     Options :: type {

@@ -89,6 +89,8 @@ The following are registered errors, and their meaning:
     * the alignment is not supported
 * `duplicate-case`
     * a `switch` has duplicate `case` values
+* `duplicate-symbol`
+    * a non-polymorphic variable, `type` or `union` was re-declared within the same scope
 * `condition-expects-boolean`
     * a conditional statement (i.e. `if`, `while`, `redo` `while`) expected a `Boolean` type or an `as` convertible type to `Boolean`
 * `missing-end-of-comments`
@@ -101,6 +103,11 @@ The following are registered errors, and their meaning:
     * an attempt was made to access a variable outside of a function or `scope` capture barrier
 * `unmatched-push`
     * missing a matching `push` on an `error`, `warning`, or `panic` directive
+* `scope-flow-control-skips-declaration`
+    * an attempt was made to use `break` or `continue` within a scope which would cause important declarations to be skipped
+* `inline-function-not-final`
+    * an attempt was made to declare a non-final function as `[[inline]]`
+
 
 ### Forcing the compiler to issue a warning
 
@@ -272,3 +279,5 @@ The following are registered warnings, default states, and their meaning:
     * an attempt to access a value via an `own` declared contained variable name where the variable name is not ambiguous
 * `bad-style` (always)
     * the style of the code is found to be undesirable and language or compiler changes in the future may be breaking
+* `descope-directive-required` (always)
+    * calling an `[[inline-descope]]` function requires the `[[descope]]` declaration to acknowledge the current scope is become polluted with new variables from the inlined function
