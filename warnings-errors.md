@@ -99,7 +99,8 @@ The following are registered errors, and their meaning:
     * the requires directive failed to compile or the evaluated code returned false
 * `value-not-captured`
     * an attempt was made to access a variable outside of a function or `scope` capture barrier
-
+* `unmatched-push`
+    * missing a matching `push` on an `error`, `warning`, or `panic` directive
 
 ### Forcing the compiler to issue a warning
 
