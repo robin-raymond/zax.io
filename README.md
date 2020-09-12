@@ -30,4 +30,6 @@ Zax is a data oriented modern refresh of a compile time language which offers hi
 * Package manager (source importation is favoured)
 * Object oriented modeling
 
+A prototype for the  [zax-compiler](https://github.com/robin-raymond/zax-compiler) is being developed in C++.
+
 Please visit the website [zax.io](https://zax.io/) for a detailed overview of the language.
