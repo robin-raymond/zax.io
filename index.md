@@ -112,6 +112,10 @@ Zax is a strongly typed compile time language with some key features:
     * Runtime code panics (with selective disabling)
     * Harmonized warning suppression code mechanisms across compilers
 
+
+A prototype for the  [zax-compiler](https://github.com/robin-raymond/zax-compiler) is being developed in C++.
+
+
 ## Credit and Inspiration
 
 Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en.wikipedia.org/wiki/C_(programming_language)), [Pascal](https://en.wikipedia.org/wiki/Pascal_(programming_language)), [Java](https://en.wikipedia.org/wiki/Java_(programming_language)), [JavaScript](https://en.wikipedia.org/wiki/JavaScript), [Jai](https://en.wikipedia.org/?title=JAI_(programming_language)), [Objective-C](https://en.wikipedia.org/wiki/Objective-C), [C#](https://en.wikipedia.org/wiki/C_Sharp_(programming_language)), [F#](https://en.wikipedia.org/wiki/F_Sharp_(programming_language)), and [Haskell](https://en.wikipedia.org/wiki/Haskell_(programming_language)) and finally pays homage to [Dr. Seuss](https://en.wikipedia.org/wiki/The_Sneetches_and_Other_Stories#The_Zax).
