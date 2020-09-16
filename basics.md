@@ -355,6 +355,7 @@ void                // declared contained value occupies
                     // without allocating space for the contained value
 return              // controls code generation for the return statement
 source              // loads a related source file
+tab-stop            // sets the tab-stop for the source that follows
 time                // time of compile as a string literal
 unlikely            // indicates which code paths are less likely
                     // (for optimization)

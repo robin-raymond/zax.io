@@ -1360,3 +1360,16 @@ egglessChocolateMousse : String
 fudge : Integer
 gulabJamun : String
 ````
+
+
+### `tab-stop` directive
+
+The `tab-stop` directive `[[tab-stop=<n>]]` controls the source code tab stop for the tokens that follow. This control what alignment the tab ASCII character (`\t`) is assumed within the source code. Tab stops are reset to the default for each module imported. The default tab stop is `8`' unless otherwise specified.
+
+````zax
+[[tab-stop=4]]
+
+func : ()() = {
+    // ...
+}
+````
