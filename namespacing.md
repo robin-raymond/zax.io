@@ -173,13 +173,29 @@ FastFoo :: import FastFooMathModule
 ````
 
 
+### `Module` global scope alias
+
+The global scope has a namespace alias called `Module`. Every type and variable defined at global scope is also visible within the `Module` scope.
+
+For example:
+
+````zax
+a := 10
+b := 20
+
+c := a * b
+d := Module.a * Module.b    // `c` and `d` will contain the same value
+````
+
+
+
 ### Sharing an imported module across imported modules
 
-Modules can import modules which can import other modules. These imported modules may end up being common between different imported modules. For example, a module named `FastFooMathModule` could be used by the local source code as well as an imported module might use the same module. However, only if both modules share an identical module definition will the same imported module be used otherwise two unique importations of the same module may occur. Typically a programmer may only want a single instance of a module (although this is not universally true).
+Modules can import modules which can import other modules. These imported modules may end up being common between different imported modules. For example, a module named `FastFooMathModule` could be used by the local source code as well as an imported module might use the same module. However, only if both modules share an identical module definition will the same imported module code be used and shared otherwise two unique importations of the same module may occur. Typically a programmer may only want a single instance of a module (although this is not universally true).
 
 Zax has a methodology to ensure two modules share the same module definition thus ensuring imported modules can all import the same module definition (depending on their needs).
 
-The generated `Module` type includes definitions from whatever code imported the current module. If nothing imported the current module then only standard `System` modules exist. By checking of instantiated a type compiles using the `compiles` keyword, an existing definition for a module that is desired to become imported can be validated before creating a new import definition.
+The generated `Module` type may includes definitions from whatever code imported the current module. If nothing imported the current module then only standard `System` modules exist and `Module` will not include any definitions. By checking if an instantiated type compiles using the `compiles` keyword, an existing definition for a module that is desired to become imported can be validated before creating a new import definition.
 
 In the example below, both `MySource` and `ThirdParty` wish to import a `FastFooMathModule` module and `MySource` imports `ThirdParty`. They will all share the same definition of `FastFooMathModule` by ensuring only one definition for the `import` module is used. The `MySource` will export its definition of `FastFooMathModule` to `ThirdParty` (as well as some compilation options) so they are able to share their imported module without creating two imported instances of `FastFooMathModule`.
 
@@ -209,11 +225,11 @@ While the example code appears on the surface as verbose, the alternative requir
         stableCacheId final := "FastFooMathModule.Unique"
     }
 } else {
-
     // Some external importer has already defined the module so use this
     // definition instead of our own definition
 
-    FastFooMathModule :: alias Module.FastFooMathModule
+    // i.e. the `FastFooMathModule` was already defined
+    // FastFooMathModule :: alias Module.FastFooMathModule
 }
 
 // Another test to ensure `Module.ThirdPartyModule` isn't already defined
@@ -229,7 +245,11 @@ While the example code appears on the surface as verbose, the alternative requir
         stableCacheId final := "ThirdPartyModule.Unique"
     }
 } else {
-    ThirdPartyModule :: alias Module.ThirdPartyModule
+    // Some external importer has already defined the module so use this
+    // definition instead of our own definition
+
+    // i.e. the `ThirdPartyModule` was already defined
+    // ThirdPartyModule :: alias Module.ThirdPartyModule
 }
 
 assert final : ()(value : Boolean) = {
@@ -242,7 +262,7 @@ ThirdParty :: import Module.ThirdPartyModule {
 
     // as `ThirdPartyModule` imports the `FastFooMathModule`, export our
     // definition of this imported module to the imported `ThirdPartyModule`
-    FastFooMathModule :: alias FastFooMathModule
+    FastFooMathModule :: alias Module.FastFooMathModule
 
     // export other compilation options for ThirdPartyModule
     Options :: type {
@@ -286,21 +306,20 @@ importantNumber final : (result : Integer)() = {
     }
 } else {
     // In this example, the importer's definition will be used
-    FastFooMathModule :: alias Module.FastFooMathModule
+    // FastFooMathModule :: alias Module.FastFooMathModule
 }
 
 
 // Test for additional compilation options specified by the importer of
 // this module
 [[descope]] if !compiles { testOptions : Module.Options } {
-
     // In this example, this definition of options would not be used
     Options :: type {
         debug final : constant = true
     }
 } else {
     // In this example, this definition from the importer would be used
-    Options :: alias Module.Options
+    // Options :: alias Module.Options
 }
 
 
@@ -308,7 +327,7 @@ print final : ()(...) = {
     // ...
 }
 
-FastFoo :: import FastFooMathModule
+FastFoo :: import Module.FastFooMathModule
 
 lifesMeaning export final : (result : Integer)() = {
     // a compile time test to see if compiling in debug mode
@@ -335,7 +354,7 @@ whatIsTheMeaningOfLife final export : (result : Integer)() = {
 
 When a name or dotted name is encountered, the name is resolved by componentizing the name first where the components are read left to right. The name is checked against the most local names in scope first and if the name is not found then the outer scope is checked. If the name is found then the next name component is checked (if any are present) to see if matching sub-components of the found item exist. If all the component names match then the name is resolved. If the component names are not found then the outer scopes continue to be checked until a full match can be found. If no match can be made then an error is reported by the compiler.
 
-Since the same name can exist in an inner scope as an outer scope, an outer name might end up becoming shadowed and hidden from view. By intentional design, the language can only check from inner to outer scope so once a match is found any hidden names will not be accessible from that scope. No language operator can be used to start the search from the global scope. The `alias` keyword can be used to give a new name to a shadowed name so the item can be located by its `alias` name.
+Since the same name can exist in an inner scope as an outer scope, an outer name might end up becoming shadowed and hidden from view. By intentional design, the language can only check from inner to outer scope so once a match is found any hidden names will not be accessible from that scope. No language operator can be used to start the search from the global scope. However, all global scope types and variables are visible within the built-in named `Module` (which is a referenced alias to the current module). The `alias` keyword can be used to give a new name to a shadowed name so the item can be located by its `alias` name.
 
 ````zax
 MyType :: type {
@@ -360,3 +379,8 @@ func final : ()() = {
     valueB : NonShadowedName
 }
 ````
+
+
+### Operator namespacing
+
+Unlike other namespaced type and variables, operators declared in global scope do not have a method to be located by namespace. Instead, the search for matching operators is done by searching the current module first, then searching each module for global matching operators in the order they were imported. Operators contained within imported modules of imported modules are not searched for matches as imports of imports are never visible.

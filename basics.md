@@ -118,7 +118,7 @@ yield
 
 Zax supports keyword aliasing using the declaration `alias keyword`. The verbose nature of the default keywords are made to ensure the language is natural rather than using shortened keywords that are inconsistently applied to the language. However, the keywords can be aliased to friendly names to type. The same reserved status applies to any aliased keywords within the context of where the original keyword would be allowed. An alias does not remove the original keyword from being available.
 
-Aliased keywords must be declared prior to usage. Attempting to use an aliased keywords prior to declaration will cause the compiler to treat the symbolic name as a normal symbolic declaration instead of its replacement alias.
+Aliased keywords must be declared prior to usage and they are scoped to the module (unless exported). Attempting to use an aliased keywords prior to declaration will cause the compiler to treat the symbolic name as a normal symbolic declaration instead of its replacement alias.
 
 A word of caution: the temptation can be to use very short abbreviated words to save on typing but reading a language should be natural, not lead to too many variable name conflicts, and be consistent and non-confusing. For projects shared publicly, this can even be a greater source of confusion if different projects use different keywords and may be difficult for newcomers to learn new keyword standards. Besides, modern editors typically have common word completion.
 
@@ -126,8 +126,11 @@ Common aliases are placed in `Module.System.Keywords`:
 
 ````zax
 // important common keywords that should be familiar to existing programmers
-:: import Module.System.Keywords
+[[resolve=now]] :: import Module.System.Keywords
+````
 
+From the `Module.System.Keywords`
+````
 // some example keywords that are aliased in the keywords module
 const export :: alias keyword constant
 property export :: alias keyword mutator
@@ -140,7 +143,7 @@ downcast export :: alias keyword outercast
 
 Zax allows operators and expressions to become aliased into keywords using the declaration `alias operator keyword`. This allows natural language keywords to be applied to operators should a natural language alternative to the operator be desirable. Whenever the aliased keyword is seen, the operator is automatically substituted.
 
-Aliased operators and expressions must be declared prior to usage. Attempting to use an aliased operator prior to declaration will cause the compiler to treat the operator as a symbolic name instead of its replacement alias.
+Aliased operators and expressions must be declared prior to usage and they are scoped to the module (unless exported). Attempting to use an aliased operator prior to declaration will cause the compiler to treat the operator as a symbolic name instead of its replacement alias.
 
 A small caveat: comments are not operators and cannot be aliased. The compiler treats comments as a first pass filtering of text meant for humans and they are not treated as part of the language (even where a compiler might capture the comments for documentation purposes).
 
@@ -353,6 +356,7 @@ reserve             // reserve non-accessible unused space in a type
 void                // declared contained value occupies
                     // a location within a type
                     // without allocating space for the contained value
+resolve             // controls when a declaration should resolve
 return              // controls code generation for the return statement
 source              // loads a related source file
 tab-stop            // sets the tab-stop for the source that follows

@@ -5,9 +5,9 @@
 
 ### Basic overloading
 
-Operators (e.g. greater than (`>`), less than (`<`>), equal to (`=`)) can be augmented with new functions. This allows types to support additional operations in symbolic form rather than requiring natural language. Operators can be declared in global scope where two arguments will be required for binary operations and one operator is required for unary operators.
+Overloadable operators (e.g. greater than (`>`), less than (`<`>), equal to (`=`)) can be augmented with new functions. This allows types to support additional operations in symbolic form rather than requiring natural language. Operators can be declared in global scope where two arguments will be required for binary operations and one operator is required for unary operators.
 
-The resulting type for an operator is entirely arbitrary but the recommendation is to follow the norms expectations. For example, comparison operators are expected to return `Boolean` values and returning a String from these operations would be unnatural.
+The resulting type for an operator is entirely arbitrary but the recommendation is to follow the normal expectations of a consumer of the programming interface. For example, comparison operators are expected to return `Boolean` values and thus returning a String from these operations would be unnatural.
 
 Adding three new operators for mixing `String` types and `Integer` types:
 
@@ -46,6 +46,7 @@ myValue2 += myValue1
 // ERROR: the operator `+=` that takes an integer and a string is not found
 myValue1 += myValue2
 ````
+
 
 ### Operator overloading from within types
 
@@ -156,3 +157,4 @@ value2 : Byte = roman'IX'
 // result's type is omitted and becomes a `Byte` type with a value of 3724
 value3 : Word = roman"MMMDCCXXIV"
 ````
+

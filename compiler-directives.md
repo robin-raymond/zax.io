@@ -632,12 +632,7 @@ metaFunction : ()(input :) false = {
 
 ### The `execute` directive
 
-The `execute` directive `[[execute=<option>,<type>]]` evaluates and runs a code block at compile time.
-
-Options are:
-* `delay` (default) - attempt to compile the code and run it now but should it fail (possibly due to types or variables later declared), delay and retry compilation when other terms have evaluated
-* `last` - only attempt to compile the code at the last instance possible (all `last` `export` directives are done in sequence they are found unless they are found to not compile and then they are pushed to the back of the compile queue)
-* `now` - immediately execute the code block as all terms required to evaluate must already be defined at this point of compilation
+The `execute` directive `[[execute=<type>]]` evaluates and runs a code block at compile time.
 
 Types are as follows:
 * `generate` - the functional code block will generate new code as a substitute for the code block (i.e. the generator emits code tokens)
@@ -655,15 +650,15 @@ double final [[execute]] : (result : Integer)(value : Integer) = {
     return value * 2
 }
 
-compileItDouble final [[execute, compile]] : (result : Integer)(value : Integer) = {
+compileItDouble final [[execute=compile]] : (result : Integer)(value : Integer) = {
     return value * 2
 }
 
-generateItDouble final [[execute, generate]] : (result : Integer)(...) = {
+generateItDouble final [[execute=generate]] : (result : Integer)(...) = {
     // ... code here generated token which replaces the generator code ...
 }
 
-doubleNow final [[execute=now]] : (result : Integer)(value : Integer) = {
+doubleNow final [[execute]] [[resolve=now]] : (result : Integer)(value : Integer) = {
     return value * 2
 }
 
@@ -681,12 +676,27 @@ value := compileItDouble(random())
 value := generateItDouble(random())
 
 // ERROR: not all of the terms are able to evaluate at this time
-// `[[execute=now]]` is forcing order to matter where normally order of
+// `[[resolve=now]]` is forcing order to matter where normally order of
 // resolution is okay to be resolved later
 sevenDouble := doubleNow(seven)
 
 seven := 7
 ````
+
+
+### The `resolve` directive
+
+The `resolve` directive `[[resolve=<option>,retry=<true/false>]]` indicates to the compiler when the specific import, type, execute, or compile statement must be resolved.
+
+Options are:
+* `trial` (default) - attempt to resolve the declaration now
+* `lazy` - only attempt to resolve the declaration if it is referenced
+* `last` - only attempt to resolve the declaration at the last instance possible (all `last` directives are done in sequence they are found unless they are found to not resolve and then they are pushed to the back of the resolve queue)
+* `now` - immediately resolve the declaration and assume all terms required to evaluate must already be defined at this point
+
+Retry options are:
+* `true` - (default for all but `now`) if the resolution fails, retry the resolve at a later time
+* `false` - (default for only `now`) if the resolution fails, consider the declaration unresolvable
 
 
 ### The `align` directive
