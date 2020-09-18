@@ -99,6 +99,7 @@ redo
 return
 requires
 scope
+shallow
 soa
 suspend
 switch
@@ -268,8 +269,8 @@ allocatorof     // returns the allocator used for an allocated instance
                 // allocate using the standard allocator and construct type
 @@              // post-unary parallel allocator operator
                 // allocate using the parallel allocator and construct type
-@!              // post-unary sequential allocator operator
-                // allocate using the sequential allocator and construct type
+@!              // post-unary synchronous allocator operator
+                // allocate using the synchronous allocator and construct type
 .               // name resolution operator
 ,               // argument operator
 ;               // statement separator operator
@@ -337,6 +338,8 @@ ___             // context; a pointer to the context
 ````
 align               // align contained types to a zero modulus address boundary
 asset               // copy asset to built bundle
+asynchronous        // indicates a function not normally considered to
+                    // operate asynchronously may perform asynchronously
 compiler            // compiler name as a string literal 
 compiles            // if a code block that follows compiles a `true` is
                     // replaced otherwise a false is replaced

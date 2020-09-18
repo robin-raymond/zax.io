@@ -1034,11 +1034,17 @@ initializeMyType private := giveMeMyType()
 ````
 
 
-### `sequential` directive
+### `synchronous` directive
 
-When a `promise` or `task` is declared and a by-value type is passed to a function is not qualified as `deep`, the compiler will expect that type passed to be declared as `deep` or the compiler will assume an error was made by the programmer. The compiler will assume the function to be thread-unsafe and thus a `task-not-deep` or `promise-not-deep` will be issued. This is done to ensure that types potentially crossing a thread boundary are automatically deep copied in an effort to prevent concurrency issues.
+When a `promise` or `task` is declared, the function is assumed to be implicitly `[[asynchronous]]`. This default can be overridden by using the `synchronous` directive `[[synchronous]]`. When the `synchronous` directive is used, the function is no longer operating asynchronously and all assumptions about any `asynchronous` intentions are no longer present. The `[[synchronous]]` directive effectively changes the expectation of the function from `asynchronous` to `synchronous` and indicates the code is not designed to be thread-aware.
 
-If the `promise` or `task` will never be used from a different thread context then the `[[sequential]]` directive can be used to acknowledge the `promise` or `task` as being exclusively sequentially accessed and thus a `deep` operation will not need to be applied. Further, any type declared as `deep` which normally would cause a `deep` copy to occur would not longer perform `deep` copies of the type for that `promise` or `task` call. Individual arguments for promises or tasks declared as `deep` will still perform `deep` copies.
+The implicit assumption for `asynchronous` functions is that pass by-values should be qualified as `deep`. The compiler will assume the function to be thread-unsafe and thus a `asynchronous-not-deep` will be issued normally on `asynchronous` for any pass by-value arguments that are not explicitly qualified as `deep`. This is done to ensure that types potentially crossing a thread boundary are automatically `deep` copied in an effort to prevent concurrency issues.
+
+If the `promise` or `task` will never be used from a different thread context then the `[[synchronous]]` directive can be used to acknowledge the `promise` or `task` as being exclusively synchronously accessed and thus a `deep` qualifier will not be expected to be applied. Further, any type declared as `deep` which normally would cause a `deep` copy to occur will perform `shallow` copies of the type for that `promise` or `task` call. Individual arguments for promises or tasks declared as `deep` explicitly will still perform `deep` copies.
+
+If a promise or task truly is `asynchronous` (as it is implicitly defaulted), but the pass by-value should only be `shallow` copied, the `shallow` qualifier could be specified. This changes the pass by-value from being implicitly a `shallow` copy to explicitly being a `shallow` copy and the `asynchronous-not-deep` warning will no longer present.
+
+The `[[synchronous]]` and `[[asynchronous]]` are mutually exclusive and indicate opposite code intentions.
 
 
 ````zax
@@ -1046,19 +1052,61 @@ MyType :: type {
     value1 : Integer* @
 }
 
-func final : ()(myType : MyType) promise [[sequential]] = {
+func final : ()(myType : MyType) promise [[synchronous]] = {
     // ...
 }
 
 myType : MyType
 
-// OKAY: the warning `promise-not-deep` will not be issued
+// OKAY: the warning `asynchronous-not-deep` will not be issued
 later := func(myType)
 
 // ...
 
 // must be called from the same thread or undefined behaviors may result
 later.callable()
+````
+
+### `asynchronous` directive
+
+Unlike a `promise` or a `task`, functions are assumed to operate as `[[synchronous]]`. Using the `[[asynchronous]]` directive tells the compiler that a function will perform asynchronous operations despite not being a `promise` or `task` which are by default assumed to be labelled `[[asynchronous]]` implicitly.  The `[[asynchronous]]` directive effectively changes the expectation of the function from `synchronous` to `asynchronous` and indicates the code is not designed to be thread-aware.
+
+When a function is labelled as `asynchronous`, a function is excepted that all pass by-value arguments are qualified with the `deep` specifier. The compiler will issue an `asynchronous-not-deep` warning if the `deep` qualifier is missing (as normally values are implicitly `shallow`). Adding the `deep` qualifier will override the default `shallow` behavior, or if the values should be `shallow` copied then the `shallow` qualifier can be used either on the individual pass by-value argument or on the function as a whole.
+
+The `[[synchronous]]` and `[[asynchronous]]` are mutually exclusive and indicate opposite code intentions.
+
+
+````zax
+MyType :: type {
+    // ...
+}
+
+// functions labelled as `asynchronous` expects all pass by-value functions
+// to use the `deep` qualifier rather than the implicit `shallow` thus a
+// warning is issued to indicate the oversight
+func1 final : ()(myType : MyType) [[asynchronous]] = {
+    // ...
+}
+
+// the pass by-value is `shallow` copied explicitly thus no warning is issued
+func2 final : ()(myType : MyType shallow) [[asynchronous]] = {
+    // ...
+}
+
+// the pass by-value is `deep` copied thus no warning is issued
+func3 final : ()(myType : MyType deep) [[asynchronous]] = {
+    // ...
+}
+
+// all pass by-values are `shallow` copied thus no warning is issued
+func4 final : ()(a : MyType, b : MyType) shallow [[asynchronous]] = {
+    // ...
+}
+
+// all pass by-values are `deep` copied thus no warning is issued
+func5 final : ()(a : MyType, b : MyType) deep [[asynchronous]] = {
+    // ...
+}
 ````
 
 

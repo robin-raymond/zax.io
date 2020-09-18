@@ -251,10 +251,8 @@ The following are registered warnings, default states, and their meaning:
     * a duplicate qualifier was specified, e.g. `constant`, `immutable`, `mutable`, `deep`, etc.
 * `specifier-ignored` (always)
     * a qualifier was specified which is ignored in the context
-* `task-not-deep` (always)
-    * `task` has by-value arguments that should have the `deep` qualifier for parallel processing
-* `promise-not-deep` (always)
-    * `promise` has by-value arguments that should have the `deep` qualifier for parallel processing
+* `asynchronous-not-deep` (always)
+    * `task`, `promise` and `[[asynchronous]]` functions having pass by-value arguments should have the `deep` qualifier for parallel processing
 * `unknown-directive` (error)
     * a directive not prefixed with `x-` was encountered which was not understood
 * `unknown-directive-argument` (error)
