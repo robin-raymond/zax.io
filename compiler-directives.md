@@ -178,7 +178,7 @@ The following are registered panic scenarios, default states, and their meaning:
 * `impossible-code-flow` (always)
     * a code path was followed what was marked as impossible (because of the `[[never]]` directive or the `[[always]]` directive)
 * `lazy-already-complete` (always)
-    * an attempt was made to call a lazy function that has already returned from the function
+    * an attempt was made to call a `lazy` function that has already returned from the function
 * `value-polymorphic-function-not-found` (always)
     * a function supporting value polymorphism was called but none of the pre-condition checks succeeded
 
@@ -571,7 +571,7 @@ If `error` is specified then the failure to compile the code will evaluate to a 
 
 Options are as follows:
 * `delay` (default) - attempt to compile the code but should it fail (possibly due to types or variables later declared), delay and retry compilation when other terms have evaluated
-* `last` - only attempt to compile the code at the last instance possible (all `last` `export` directives are done in sequence they are found unless they are found to not compile and then they are pushed to the back of the compile queue)
+* `last` - only attempt to compile the code at the `last` instance possible (all `last` `export` directives are done in sequence they are found unless they are found to not compile and then they are pushed to the back of the compile queue)
 * `now` - immediately evaluate the code block as all terms required to evaluate must already be defined at this point of compilation
 
 

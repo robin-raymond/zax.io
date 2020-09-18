@@ -51,7 +51,7 @@ A qualifier of `deep` can be applied to a type to ensure a full copy of the type
 
 A qualifier of `deep` can be applied to the function definition where all input and output arguments automatically have `deep` applied to each argument type where appropriate. Where `deep` is applied to a function, another advantage is any captured values also have the `deep` attribute applied, i.e. any copies performed on captured values will cause a `deep` copy to be performed. Related, the parallel allocators are automatically substituted over the sequential allocators for a function call declared as `deep`. If a non-final function is marked `deep` then any replacement assignment of the function must also be marked as `deep`.
 
-While seemingly a [`last` pointers/references](pointers.md#using-the-last-type-qualifier-to-optimize-content-transfer) method can seemingly be used to transfer out the contents of the data to a new type's instance prior to transfer to a new thread but the `last` does not guarantee any shared state is indeed the final copy. This mechanism can only work if the passed in type is truly the last instance of a type before it's disposal.
+While seemingly a [`last` pointers/references](pointers.md#using-the-last-type-qualifier-to-optimize-content-transfer) method can seemingly be used to transfer out the contents of the data to a new type's instance prior to transfer to a new thread but the `last` does not guarantee any shared state is indeed the final copy. This mechanism can only work if the passed in type is truly the `last` instance of a type before it's disposal.
 
 
 ````zax
@@ -66,7 +66,7 @@ MyType :: type {
     }
     +++ final : ()(rhs : MyType last &) = {
         // this version of the constructor will be called when the
-        // last instance of a type is being transferred from the source
+        // `last` instance of a type is being transferred from the source
         // type to the destination type
         animal = rhs.animal
     }
@@ -188,7 +188,7 @@ invokeOnAnotherThread(laterThen)
 
 A `lazy` function can be converted into an asynchronous function (see [lazy functions](lazy.md)). When a function marked as `lazy` returns a `lazy` function, the `lazy` function can be passed and invoked from an alternative thread.
 
-On caution, `lazy` functions are not expected to be marked as deep `deep` where the compiler will not issue a warning if the `deep` qualifier was not applied. If a lazy function isn't designed for thread safety, unexpected behaviors can ensue.
+On caution, `lazy` functions are not expected to be marked as deep `deep` where the compiler will not issue a warning if the `deep` qualifier was not applied. If a `lazy` function isn't designed for thread safety, unexpected behaviors can ensue.
 
 ````zax
 

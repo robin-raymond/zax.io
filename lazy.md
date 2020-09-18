@@ -30,7 +30,7 @@ print(later())  // will print "6"
 print(later())  // will print "7"
 print(later())  // will print "8"
 
-// dispose of the lazy function explicitly
+// dispose of the `lazy` function explicitly
 // (can be implicit too by falling out of scope)
 later =:
 ````

@@ -83,7 +83,7 @@ func final : ()() = {
     value : A
     value.myInteger = 42
 
-    // `reference` is a pointer to type `A` which must always contain a
+    // reference is a pointer to type `A` which must always contain a
     // valid pointer to a type of `A` 
     reference : A& = value
 
@@ -134,7 +134,7 @@ func final : ()() = {
     // `value` is a type of `A`
     value : Integer
 
-    // `reference` is a pointer to type `Integer` which must always contain a
+    // reference is a pointer to type `Integer` which must always contain a
     // valid pointer to a type of `Integer` 
     reference : Integer& = value
 
@@ -388,16 +388,20 @@ func4() // will execute the code defined in func2
 
 ### Using the `last` type qualifier to optimize content transfer
 
-References and pointers can have a qualifying tag of `last` appended to their type. A reference or pointer that is tagged as being `last` indicates this instance is the last reference to the type and the contents contained in the type will be discarded if not lifted or consumed. By knowing the last instance of a variable is being passed into a function, the ownership of the contents can be lifted from the passed argument to a new type or consumed. Later when the instance is disposed, the lifted/consumed contents will have been transferred out of the referred or pointed to type and thus the contents won't need to be copied prior to their discarding. This helps optimize the usage of the variables.
+Normally references and pointers `lease` their ownership to other functions for a period of time. The true owner of the reference or pointer is not relevant but the owner much keep the lifetime of the underlying type alive while the reference or pointer is in use. The `lease` reference and pointer qualifier indicates that the reference is leasing it's lifetime from somewhere else. Be default, all references and pointers are pre-qualified with `lease` and thus this qualifier is redundant and need not to be specified.
 
-Types marked as `last` cannot be `constant` as a type with a `constant` qualifier could not have its contents lifted or consumed due to the the contents being immutable.
+Alternatively, references and pointers can have a qualifier of `last` appended to their type. The `last` qualifier on a reference or pointer indicates the receiver of this type will inherit the contents of the type as this reference or pointer is the very `last` owner to the underlying type's contents. The contents contained in the type will be discarded if not claimed. By knowing the `last` qualifier is specified on a type's instance, the ownership of the contents can be claimed by a receiving function. This helps optimization by transferring the contents out of one type's instance into another prior to an instance's disposal rather than making content copies. Later when the instance is disposed, the claimed contents will have already been transferred out of the referred or pointer. This saves contents from having to be cloned only to have the original contents disposed moments later. 
 
-Types passed by value do not require the `last` qualifier as value passed types can always have their contents lifted or consumed. Passing by value would always causes a fresh copy of the value whose copy cannot have any shared ownership with the caller (except `strong` or `handle` pointers which are designed to have shared ownership to a common pointed to instance regardless).
+Types qualified as `last` cannot be `constant` or `immutable` types as these types cannot have their contents transferred out due to the the contents being effectively `immutable`. The `lease` option is required (and defaulted) for any `constant` and `immutable` references or pointers.
+
+Types passed by-value do not require the `last` qualifier as value passed types can always have their contents transferred out already. Passing by-value always causes a fresh copy of the type's instance's contents rather than providing any `lease` reference or pointer to an existing type's contents (except `strong` or `handle` pointers which are designed specifically to have shared ownership to a common pointed to instance).
+
+The `as` operator can be used to change the `last` or `lease` qualifier on a type. The `last` and `lease` qualifiers are mutually exclusive and a `last` cannot be applied to a type that is currently qualified as `constant` or `immutable`.
 
 
 #### Temporary variables
 
-Temporary variables passed by value to a function can be converted automatically or manually into a `last` pointer or `reference`.
+When the compiler detects that a type's instance is about to be disposed, and the instance does not need to be leased, the compiler can automatically apply the `last` qualifier rather than defaulting to the `lease` qualifier. This optimization is applied to temporary type instane whose instance is never captured into a named variable. Temporary variables passed by-value to a function can be converted automatically, or the programmer can manually convert an instance into a `last` pointer or reference.
 
 ````zax
 print final : ()(...) = {
@@ -495,4 +499,56 @@ myTemporary6.subvalue.animal = "Hippo"
 myTemporary7 := augmentFunc(augmentFunc(myTemporary6))
 
 print(myTemporary7.name) // prints "Happy Happy Sally"
+````
+
+
+#### `lease` a `last` reference or pointer
+
+A function that receives a `last` reference may wish to call other functions that will operate on the `last` instance prior to disposal. Caution must be used or subsequent calls to other functions may also assume the `last` qualifier and transfer the contents out of the function.
+
+The `lease` or `last` qualifier should be reapplied when sending the reference for use into other functions. The compiler will issue a `lease-or-last` warning where ambiguity exists. The compiler will assume `lease` qualification where the ambiguity exists.
+
+````zax
+MyType ::type {
+    SubType :: type {
+        animal : String
+    }
+
+    value : Integer
+    name : String
+
+    subvalue : SubType* own @
+}
+
+display final : ()(value : MyType&) = {
+    // ...
+}
+
+display final : ()(value : MyType& last) = {
+    // ...
+}
+
+doSomething final : ()(value : MyType& last) = {
+    // ...
+    // WARNING: `lease-or-last` is issued as the intention to call
+    // the `lease` or `last` version of the `display` function is unclear
+    display(value)
+
+    // no warning is issued as the intention to `lease` the type is clear
+    display(value as lease)
+
+    // no warning is issued as the intention to make the instance the `last`
+    // owner is clear
+    display(value as last)
+
+    //...
+}
+
+myType : MyType
+
+// ...
+
+doSomething(myType as last)
+
+//...
 ````

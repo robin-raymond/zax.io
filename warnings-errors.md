@@ -93,8 +93,10 @@ The following are registered errors, and their meaning:
     * a non-polymorphic variable, `type` or `union` was re-declared within the same scope
 * `condition-expects-boolean`
     * a conditional statement (i.e. `if`, `while`, `redo` `while`) expected a `Boolean` type or an `as` convertible type to `Boolean`
-* `missing-end-of-comments`
-    * a multiline comment was started but the matching end of comments token is missing
+* `missing-end-of-quote`
+    * a quote `'` or`"` was started but the matching end quote `'` or `"` is missing
+* `missing-end-of-comment`
+    * a comment `/*` or `/**` was started but the matching end comment `*/` or `**/` is missing
 * `compiles-directive-error`
     * the compiles directive failed to compile code and thus forced an error
 * `requires-directive-error`
@@ -107,6 +109,10 @@ The following are registered errors, and their meaning:
     * an attempt was made to use `break` or `continue` within a scope which would cause important declarations to be skipped
 * `inline-function-not-final`
     * an attempt was made to declare a non-final function as `[[inline]]`
+* `constant-syntax`
+    * a constant was found to contain a syntax error
+* `syntax`
+    * a syntax error was found
 
 
 ### Forcing the compiler to issue a warning
@@ -281,3 +287,5 @@ The following are registered warnings, default states, and their meaning:
     * the style of the code is found to be undesirable and language or compiler changes in the future may be breaking
 * `descope-directive-required` (always)
     * calling an `[[inline-descope]]` function requires the `[[descope]]` declaration to acknowledge the current scope is become polluted with new variables from the inlined function
+* `lease-or-last` (always)
+    * the compiler is uncertain if a `lease` or `last` polymorphic version of a function should be used where a function that received a `last` instance is then passing that instance to another function which accepts both a `lease` or a `last` instance

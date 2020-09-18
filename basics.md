@@ -83,7 +83,9 @@ immutable
 import
 inconstant
 keyword
+last
 lazy
+lease
 managed
 mutable
 mutator
