@@ -20,7 +20,7 @@ func final [[x-bytecode=lacrosse]] : ()()
 
 ### The `source` directive
 
-The `source` compiler directive `[[source="<path/file.zax>", required=<value>, generated=<yes|no>]]` instructs the compiler to pause compiling the current file and continue compiling tokens from the mentioned file until completely parsed then resume compiling the current file. The `source` directive always locates files relative to the current file. If a path is not found, then the parent of the current path is attempted and so on until the `source` is located or the file is not found (where the compiler will issue an error). Paths are always separated with unix forward slashes ('/'). File names are recommended to be always lowercase and words should be separated with a dash sign (`-`).
+The `source` compiler directive `[[source="<path/file.zax>", required=<yes|no|warn>, generated=<yes|no>]]` instructs the compiler to pause compiling the current file and continue compiling tokens from the mentioned file until completely parsed then resume compiling the current file. The `source` directive always locates files relative to the current file. If a path is not found, then the parent of the current path is attempted and so on until the `source` is located or the file is not found (where the compiler will issue an error). Paths are always separated with unix forward slashes ('/'). File names are recommended to be always lowercase and words should be separated with a dash sign (`-`).
 
 An optional argument named `required` is available. If the value is `yes` then the file must be found (default behavior) or the `source-not-found` error will occur. If `required` is `no` then the compiler will ignore this file being absent. If `required` is `warn` then the compiler will issue the `source-not-found` warning. The file extension `zax` is the recommended default extension.
 
@@ -50,7 +50,7 @@ sub-path/sub-file.zax
 
 ### The `asset` directive
 
-The `asset` compiler directive `[[asset="<path/file.zax>", required=<value>, rename="<new-name>", generated=<yes|no>]]` instructs the compiler copy the file into the output target's assets. The `asset` directive always locates files relative to the current file. If a path is not found, then the parent of the current path is attempted and so on until the `asset` is located or the file is not found (where the compiler will issue an error). Paths are always separated with unix forward slashes ('/').
+The `asset` compiler directive `[[asset="<path/file.zax>", required=<yes|no|warn>, rename="<new-name>", generated=<yes|no>]]` instructs the compiler copy the file into the output target's assets. The `asset` directive always locates files relative to the current file. If a path is not found, then the parent of the current path is attempted and so on until the `asset` is located or the file is not found (where the compiler will issue an error). Paths are always separated with unix forward slashes ('/').
 
 An optional argument named `required` is available. If the value is `yes` then the file must be found (default behavior) or the `asset-not-found` error will occur. If `required` is `no` then the compiler will ignore this file being absent. If `required` is `warn` then the compiler will issue the `asset-not-found` warning. The file extension `zax` is the recommended default extension.
 
