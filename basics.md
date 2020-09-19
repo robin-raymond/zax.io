@@ -596,7 +596,13 @@ octal := o'12345670'            // becomes a base-8 numbers
 duodecimal := d'1234567890AB'   // becomes a base-12 number
 hexadecimal := h'ABC123'        // becomes a base-16 number
 
-asciiString := ascii'some ascii string'
+string := 'no escapes exist in string'
+
+asciiString := ascii'some ascii string with escapes\n'
+
+wstring := w"no escapes exist in w string"
+
+unicode := unicode"some unicode strings with escapes\n"
 
 utf8String := utf8'utf8 string does not have escape sequences ' \
               'as remains "as is".'
