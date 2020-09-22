@@ -287,3 +287,5 @@ The following are registered warnings, default states, and their meaning:
     * calling an `[[inline-descope]]` function requires the `[[descope]]` declaration to acknowledge the current scope is become polluted with new variables from the inlined function
 * `lease-or-last` (always)
     * the compiler is uncertain if a `lease` or `last` polymorphic version of a function should be used where a function that received a `last` instance is then passing that instance to another function which accepts both a `lease` or a `last` instance
+* `newline-after-continuation` (always)
+    * expecting new line after continuation operator
