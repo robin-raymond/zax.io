@@ -161,13 +161,16 @@ renderAccount final : (
 
 #### `except` and `!` appended after a function call with implicit conversion
 
-The `except` statement allows a single `!` prior to the return name from the calling function which indicates an `as Boolean` of `false` is the `except` condition rather than the typical `true` case. The "best match" rules will allow for automatic implicit conversion if one of the return results accepts the `except` result as an input in a constructor.
+The `except` statement allows a single `!` prior to the return name from the calling function which indicates an `as Boolean` of `false` is the `except` condition rather than the typical `true` case. The "best match" rules will allow for automatic implicit conversion if one of the return results accepts the `except` result as an input in a constructor, or if the except type has an `as` operator to convert to an `except` type. The "best match" will consider a constructor as priority over an `as` operator.
 
 ````zax
 Good :: type {
     // ...
     operator as final : (result : Boolean)() = {
         // ... returns `true` if the type is in a good state ...
+    }
+    operator as final : (result : Error)() = {
+        // ... converts to an Error type ...
     }
 }
 
@@ -188,6 +191,159 @@ myFunc final : (
     if externalFunction() except !good
 }
 ````
+
+
+#### `except` and `!` appended after a function call with explicit conversion
+
+The `except` statement allows a single `!` prior to the returned name from the calling function which indicates an `as Boolean` of `false` is the `except` condition rather than the typical `true` case. The "best match" rules will allow for automatic implicit conversion if one of the return results accepts the `except` result as an input in a constructor, or if the except type has an `as` operator to convert to an `except` type. The "best match" will consider a constructor as priority over an `as` operator. However, the `as` operator can be applied to the `except` keyword to cause explicit conversion using a conversion routine from the `except` type.
+
+````zax
+Good :: type {
+    // ...
+    operator as final : (result : Boolean)() = {
+        // ... returns `true` if the type is in a good state ...
+    }
+    operator as final : (result : Error)() = {
+        // ... converts to an Error type ...
+    }
+}
+
+Error :: type {
+    +++ final : ()(good : Good) = {
+        // ...
+    }
+}
+
+externalFunction final : (good : Good)() = {
+    // ...
+}
+
+myFunc final : (
+    result : Integer,
+    myError except : Error
+)() = {
+    // explicitly invoke the `as` operator on the `good` argument
+    if externalFunction() except !good as Error
+}
+````
+
+
+#### `except` and `catch` error handling
+
+Calling a function returning an `except` error result can be captured using the `catch` clause without the valid return path ever executing.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType :: type {
+    // ...
+}
+
+Error :: type {
+    // ...
+}
+
+myFunc final : (myType : MyType, myError except : Error)() = {
+    // ...
+}
+
+doSomething final : ()() = {
+    scope my_scope {
+        result1 := myFunc() catch myError {
+            print(myError)
+            // return from the function explicitly
+            return
+        }
+
+        result2 := myFunc() catch myError {
+            // break out of a named scope (but breaking any scope would work)
+            break my_scope
+        }
+    }
+    // ...
+}
+````
+
+
+#### `except` and `catch` error handling with multiple `except` types
+
+Calling a function returning multiple `except` error results can be captured using the `catch` clause without the valid return path ever executing. The `catch` and the `except` can be intermingled as desired.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType :: type {
+    // ...
+}
+
+Error :: type {
+    // ...
+}
+
+myFunc final : (
+    myType : MyType,
+    myError except : Error,
+    myOtherError except : Error)() = {
+    // ...
+}
+
+doSomething final : (error: Error)() = {
+    scope my_scope {
+        result1 := myFunc() catch myError {
+            print(myError)
+            // return from the function explicitly returning the error
+            return myError
+        } catch myOtherError {
+            print(myOtherError)
+            break   // break out of the innermost scope
+        }
+
+        result2 := myFunc() except myError catch myOtherError {
+            // break out of named scope
+            break my_scope
+        }
+    }
+    // ...
+}
+````
+
+#### `except` and `!` with `catch` error handling
+
+The `catch` statement allows a single `!` prior to the returned name from the calling function which indicates an `as Boolean` of `false` is the `catch` condition rather than the typical `true` case.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType :: type {
+    // ...
+}
+
+Good :: type {
+    // ...
+    operator as final : (error : Error)() = {
+        // ...
+    }
+}
+
+myFunc final : (myType : MyType, success except : Good)() = {
+    // ...
+}
+
+doSomething final : ()() = {
+    result := myFunc() catch !success {
+        print(success as Error)
+        return
+    }
+    // ...
+}
+````
+
 
 
 ### Function polymorphism

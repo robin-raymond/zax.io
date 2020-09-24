@@ -57,6 +57,7 @@ await
 break
 build
 case
+catch
 channel
 continue
 collect
