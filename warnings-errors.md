@@ -113,6 +113,8 @@ The following are registered errors, and their meaning:
     * a constant was found to contain a syntax error
 * `syntax`
     * a syntax error was found
+* `output-failure`
+    * an attempt to generate output or copy an asset to the output failed
 
 
 ### Forcing the compiler to issue a warning
