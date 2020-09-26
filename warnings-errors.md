@@ -7,7 +7,9 @@
 
 #### Forcing the compiler to issue an error
 
-An `error` can forcefully be issued by the compiler by using the `[[error="<message>", <optional-registered-error-name>]]` compiler directive. If the compiler compiles-in an `error` directive, the compiler will display the error and halt. A compiler error may optionally include one of the built-in error names or declare a custom error name with a `x-` prefix.
+An `error` can forcefully be issued by the compiler by using the `[[error="<message>", <optional-registered-error-name>,name=<opt-name>, value=<opt-value>, name, value...]]` compiler directive. If the compiler compiles-in an `error` directive, the compiler will display the error and halt. A compiler error may optionally include one of the built-in error names or declare a custom error name with a `x-` prefix.
+
+The optional `name` and `value` are any arguments that are part of the error message to display. The `name` value is looked up in the string and substituted with the `value`. Multiple `name` and `value` pairs may exist.
 
 ````zax
 if sizeof Integer != 4 {
@@ -37,8 +39,10 @@ The following are registered errors, and their meaning:
     * a requested import module was found but the module cannot be imported due to a failure
 * `source-not-found`
     * a source file was requested to be parsed but it cannot be located
+    * name=`$file$` - the file name that could not be found
 * `asset-not-found`
     * a asset file was requested to be copied but it cannot be located
+    * name=`$file$` - the file name that could not be found
 * `wild-character-mismatch`
     * a wild character pattern was in an incorrect way
 * `final-function-points-to-nothing`
@@ -115,11 +119,14 @@ The following are registered errors, and their meaning:
     * a syntax error was found
 * `output-failure`
     * an attempt to generate output or copy an asset to the output failed
+    * name=`$file$` - the file name that could not be created or updated
 
 
 ### Forcing the compiler to issue a warning
 
-A `warning` can forcefully be issued by the compiler by using the `[[warning="<message>", <optional-registered-warning-name>]]` compiler directive. If the compiler compiles-in a `warning` directive, the compiler will display the warning and continue to compile. A compiler warning may optionally include one of the built-in warning names or declare a custom warning name with a `x-` prefix.
+A `warning` can forcefully be issued by the compiler by using the `[[warning="<message>", <optional-registered-warning-name>, name=<opt-name>, value=<opt-value>, name, value...]]` compiler directive. If the compiler compiles-in a `warning` directive, the compiler will display the warning and continue to compile. A compiler warning may optionally include one of the built-in warning names or declare a custom warning name with a `x-` prefix.
+
+The optional `name` and `value` are any arguments that are part of the error message to display. The `name` value is looked up in the string and substituted with the `value`. Multiple `name` and `value` pairs may exist.
 
 ````zax
 if sizeof Integer > 4 {
@@ -233,10 +240,12 @@ The following are registered warnings, default states, and their meaning:
     * usage of a deprecated function, variable, or type discovered
 * `directive-not-understood` (always)
     * usage of a non `x-` prefixed directive was not understood or usage of a non `x-` prefixed directive option was not understood
-* `source-not-found` (always)
+* `source-not-found` (always$)
     * a source file was requested to be parsed but it cannot be located
+    * name=`$file$` - the file name that could not be found
 * `asset-not-found` (always)
     * a asset file was requested to be copied but it cannot be located
+    * name=`$file$` - the file name that could not be found
 * `shadowing` (always)
     * a declaration was made which hides another declaration from being accessible
 * `uninitialized-data` (always)
