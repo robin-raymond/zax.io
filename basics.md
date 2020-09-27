@@ -344,6 +344,8 @@ asynchronous        // indicates a function not normally considered to
 compiler            // compiler name as a string literal 
 compiles            // if a code block that follows compiles a `true` is
                     // replaced otherwise a false is replaced
+concept             // declare a function as a compile time check for a
+                    // input / output argument type within a meta-function
 date                // date of compile as a string literal
 deprecate           // declare API sections as being deprecated
 discard             // suppress warning on unused variable or

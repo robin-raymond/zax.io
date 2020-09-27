@@ -630,6 +630,47 @@ metaFunction : ()(input :) false = {
 ````
 
 
+### The `concept` directive
+
+The `concept` directive `[[concept=<option>,error]]` is similar to the `requires` directive but instead causes a `final` function to be treated as a type for the sake of meta-programming. The `concept` directive will evaluate the function whenever the function name is used as a type in a meta-function. Inside the `concept` function, code is executed at compile time to evaluate if meta-type is compatible with the input or output arguments at compile type.
+
+The `concept` directive can use `if` clauses with the `compiles` clauses to further evaluate compile time without execution clauses.
+
+Functions using the `concept` have a single input argument representing the type to be evaluated which is unspecified or alternatively another `concept` labelled function type which also must evaluate to true. The variable passed in is not initialized, never constructed, and never destructed and is a placeholder to contain the evaluated type. This value can further evaluated in a `compiles` directive to test if various operations would succeed if the value was real.
+
+If `error` is specified then the failure to compile or returning false will cause a compiler error.
+
+Options are as follows:
+* `delay` (default) - attempt to compile and run the code but should it fail (possibly due to types or variables later declared), delay and retry compilation when other terms have evaluated
+* `last` - only attempt to compile and run the code at the last instance possible (all `last` `export` directives are done in sequence they are found unless they are found to not compile and then they are pushed to the back of the compile queue)
+* `now` - immediately evaluate and run the code block as all terms required to evaluate must already be defined at this point of compilation
+
+````zax
+UseSimpleType final : (result : Boolean)(ignored : $Type) [[concept]] = {
+    if ![[compiles]] {
+        ++ignored;
+        --ignored;
+        ignored += 5;
+        ignored -= 5;
+    } return false
+    if sizeof $Type > sizeof U32
+        return false
+    return true
+}
+
+myFunc final : ()(bar : UseSimpleType) = {
+    // ...
+}
+
+myFunc final : ()(bar : ) = {
+    // ...
+}
+
+myFunc(5 as U8)     // first `myFunc` used as it's the most specific evaluation
+myFunc(5 as U64)    // last `myFunc` used as the first is not a candidate
+````
+
+
 ### The `execute` directive
 
 The `execute` directive `[[execute=<type>]]` evaluates and runs a code block at compile time.

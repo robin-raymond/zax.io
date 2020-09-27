@@ -106,6 +106,30 @@ next final : (
     value1 :,
     value2 :
 ) [[requires]] { return isSelectable(value1, value2) } = {
+    // ...
+}
+````
+
+
+#### Meta-function selection using the `concept` directive
+
+For meta-functions, the `[[concept]]` directive can be used as a compile type mechanism to check if the function can be selected as a candidate for a given input, or output argument specified. If the the code in the `[[concept]]` block fails to compile or returns false then the meta-function cannot be selected as a legal candidate by the caller. The executed code must evaluate to a `true` or `false` statement.
+
+````zax
+IsSelectable final : (result : Boolean)(ignored : ) [[concept]] = {
+    if sizeof ignored > sizeof Integer
+        return false
+    // ...
+    return true
+}
+
+next final : (
+    result :
+)(
+    value1 : IsSelectable,
+    value2 : IsSelectable
+) = {
+    // ...
 }
 ````
 

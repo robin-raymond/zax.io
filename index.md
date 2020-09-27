@@ -169,6 +169,8 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Meta-Functions](meta-functions.md)
 
+## [Meta-Types](meta-types.md)
+
 ## [Partial Types](partial.md)
 
 ## [Concurrency](concurrency.md)
