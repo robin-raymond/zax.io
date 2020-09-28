@@ -1263,6 +1263,228 @@ myType.save()
 ````
 
 
+### By-value `move` arguments
+
+The `move` qualifier can be applied to by-value input arguments. This changes the calling semantics where the callee receives full ownership of the by-value type and the callee is responsible for destroying the type upon function exit. Once a type is moved, the by-value the caller no longer has visibility to the moved value as the callee will have destroyed the type.
+
+To pass an input argument by-value the `as move` qualification must be added to a defaulted by-value `copy` to signify the ownership transfer.
+
+Pointers and references to types cannot be moved as the ownership is being leased by whomever created the pointer or reference.
+
+The `last` keyword is similar to `move` but `last` only applies to pointers and references whereas `move` only applies to by-value arguments. This allows for functions to inherit ownership of the contents within a pointer or reference type but the construction and destruction of the type's instance remains as normal.
+
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType :: type {
+    // ...
+    --- final : ()() = {
+        print("destroyed")
+    }
+}
+
+func1 final : ()(value : myType move) = {
+    // `value` is not copy constructed as it was moved into place
+
+    // ...
+
+    // as normally would occur, `value` is destroyed as it is passed by-value
+}
+
+func2 final : ()(value : myType) = {
+    // `value` may or may not be copy constructed depending if it was moved
+    // into this function or not
+
+    // ...
+
+    // as normally would occur, `value` is destroyed as it is passed by-value
+}
+
+a : MyType
+func1(a as move)
+// illegal to refer to `a` after this call
+
+b : MyType
+func2(b as move)
+// illegal to refer to `b` after this call
+
+c : MyType
+func2(c)
+// safe to refer to `c` after this call as a copy of `c` was given to `func2`
+
+// `a` nor `b` are destructed
+// `c` is destructed
+````
+
+
+#### Polymorphism `move` selection
+
+The `move` is a factor in deciding which polymorphic function should be called. This can allow for a function that accepts a by-value `move` qualifier and a function that accepts a defaulted by-value `copy` qualifier.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType :: type {
+    // ...
+    --- final : ()() = {
+        print("destroyed")
+    }
+}
+
+func final : ()(value : myType) = {
+    // `value` is not copy constructed as it was moved into place
+
+    // ...
+
+    // as normally would occur, `value` is destroyed as it is passed by-value
+}
+
+func final : ()(value : myType move) = {
+    // `value` may or may not be copy constructed depending if it was moved
+    // into this function or not
+
+    // ...
+
+    // as normally would occur, `value` is destroyed as it is passed by-value
+}
+
+a : MyType
+func(a)
+
+b : MyType
+func(b as move)
+// illegal to refer to `b` after this call
+
+// `b` is not destructed
+// `a` is destructed
+````
+
+
+#### `move` qualification is automatically applied
+
+The `move` qualification is automatically applied to subsequent calls to other called functions when receiving an input `move` qualified by-value type. However, the `copy-or-move` warning will be issued if a called polymorphic function supports both `move` or `copy` semantics. The `as move` or `as copy` must be performed on a type to re-apply the `move` or `copy` semantics to distinguish the two scenarios. This warning is issued by the compiler to prevent surprising automatic moved type destruction when calling other functions.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType :: type {
+    // ...
+    --- final : ()() = {
+        print("destroyed")
+    }
+}
+
+func final : ()(value : myType) = {
+    // this function will receive a copy of `a` (but never an `b`)
+
+    // ...
+}
+
+func final : ()(value : myType move) = {
+    // this function will receive a moved copy of `b` (but never an `a`)
+
+    // ...
+}
+
+funcAlwaysMoved1 : ()(value : myType move) = {
+    if value is move
+        print("yes, this type was moved")   // this will print
+
+    // WARNING: `copy-or-move` as a move type may be attempting to call the
+    // `move` or `copy` version of the polymorphic `func`
+    func(value)
+}
+
+funcAlwaysMoved2 : ()(value : myType move) = {
+    if value is move
+        print("yes, this type was moved")   // this will print
+
+    // OKAY: the intent is clear to call the `move` version
+    func(value as move)
+}
+
+a : MyType
+funcAlwaysMoved1(a as move)
+
+b : MyType
+funcAlwaysMoved2(b as move)
+
+// `a`'s ownership is moved into `funcAlwaysMoved1`
+// `b`'s ownership is moved into `funcAlwaysMoved2`
+````
+
+
+#### `move` versus explicit `copy` qualification
+
+By default all functions that receive by-value arguments have the `copy` qualification applied unless the `move` qualification is explicitly applied. The `copy` and `move` qualifiers are mutually exclusive. The `copy` qualifier is redundant as it is automatically applied by default. One key difference does exist between explicitly and implicit qualifying a by-value argument as `copy`. Arguments that are explicitly marked as `copy` cannot ever receive a `move` type and any attempt to pass a `move` type into an explicitly `copy` qualified type will cause an `explicit-copy-cannot-receive-move` error.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType :: type {
+    // ...
+    --- final : ()() = {
+        print("destroyed")
+    }
+}
+
+func final : ()(value : myType copy) = {
+    // this function will receive a copy of `a` (but never an `b`)
+
+    // ...
+}
+
+a : MyType
+// OKAY: a copy of the value is made
+func(a)
+
+b : MyType
+// ERROR: `explicit-copy-cannot-receive-move` error
+func(b as move)
+````
+
+
+#### `move` on output arguments
+
+The `move` qualifier can be applied to output arguments. This causes the return value to not be copied followed by a  destruction by the callee by transferring the responsibility of destruction to the caller. Normally types have return value optimization (i.e. copy elision) enabled where return values are implied `move` out of the called functions. However, the `copy` or `move` qualifier can be applied to ensure the compiler is enforcing the proper semantics on a return value.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType :: type {
+    // ...
+    --- final : ()() = {
+        print("destroyed")
+    }
+}
+
+func1 final : (myType : MyType move)() = {
+    // ...
+}
+
+func2 final : (myType : MyType copy)() = {
+    // ...
+}
+
+// `a` receives a moved result (thus is not constructed/destructed again)
+a := func1()
+// `b` receives a copied result (thus the callee and caller both destroy the
+// type as the returned type was definitely copied)
+b := func2()
+````
+
+
 ### Split and combine argument operators
 
 ### Splitting type into a function call
@@ -1284,7 +1506,7 @@ func final : ()(
     // ...
 }
 
-func(42, <- := {{ "{{" }} .name = "Boothby", .age = 61, .weight = 120 {{ }}}}, r'😀')
+func(42, <- := { .name = "Boothby", .age = 61, .weight = 120 }, r'😀')
 ````
 
 

@@ -120,6 +120,10 @@ The following are registered errors, and their meaning:
 * `output-failure`
     * an attempt to generate output or copy an asset to the output failed
     * name=`$file$` - the file name that could not be created or updated
+* `explicit-lease-cannot-receive-last`
+    * an attempt to call an explicitly by reference or by pointer `lease` qualified value with a `last` qualified value
+* `explicit-copy-cannot-receive-move`
+    * an attempt to call an explicit by-value `copy` with a `move` qualified value
 
 
 ### Forcing the compiler to issue a warning
@@ -238,9 +242,9 @@ The following are registered warnings, default states, and their meaning:
     * code has been found to cause a reference or pointer to a known destructed value
 * `deprecate-directive` (always)
     * usage of a deprecated function, variable, or type discovered
-* `directive-not-understood` (always)
+* `directive-not-understood` (error)
     * usage of a non `x-` prefixed directive was not understood or usage of a non `x-` prefixed directive option was not understood
-* `source-not-found` (always$)
+* `source-not-found` (always)
     * a source file was requested to be parsed but it cannot be located
     * name=`$file$` - the file name that could not be found
 * `asset-not-found` (always)
@@ -296,7 +300,9 @@ The following are registered warnings, default states, and their meaning:
     * the style of the code is found to be undesirable and language or compiler changes in the future may be breaking
 * `descope-directive-required` (always)
     * calling an `[[inline-descope]]` function requires the `[[descope]]` declaration to acknowledge the current scope is become polluted with new variables from the inlined function
-* `lease-or-last` (always)
+* `lease-or-last` (error)
     * the compiler is uncertain if a `lease` or `last` polymorphic version of a function should be used where a function that received a `last` instance is then passing that instance to another function which accepts both a `lease` or a `last` instance
+* `copy-or-move` (error)
+    * the compiler is uncertain if a `move` or `copy` polymorphic version of a function should be used where a function that received a `move` instance is then passing that instance to another function which accepts both a `move` or a `copy` instance
 * `newline-after-continuation` (always)
     * expecting new line after continuation operator

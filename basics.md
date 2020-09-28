@@ -62,6 +62,7 @@ channel
 continue
 collect
 constant
+copy
 deep
 default
 defer
@@ -88,6 +89,7 @@ last
 lazy
 lease
 managed
+move
 mutable
 mutator
 once
@@ -323,8 +325,10 @@ $               // templated argument declaration
 $...            // variadic types
 {               // scope begin
 }               // scope end
-{{ "{{" }}              // value, array or by-name type initialization begin
-{{ }}}}              // value, array or by-name type initialization end
+[{              // array initialization begin
+}]              // array initialization end
+{               // multiple constructor argument initialization open
+.               // pre-unary named variable and argument initialization
 [[]]            // compiler directive or attribute declaration
 _               // reference to self
                 // a type's pointer to itself within type functions
