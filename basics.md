@@ -253,9 +253,9 @@ countof         // pre-unary count operator
                 // the total reference count for a
                 // `handle` / `hint`, or `strong` / `weak` pointer
 overhead        // pre-unary overhead operator
-                // obtains a pointer to the overhead information for
-                // an `own`, `handle`, `hint`, `strong`, or `weak` pointer or
-                // optional type
+                // obtains a pointer to the overhead information for a
+                // pointer, `own`, `handle`, `hint`, `strong`, or `weak`
+                // pointer or optional type
 overheadof      // pre-unary overhead sizing operator
                 // return the number of bytes overhead is needed for this type
                 // i.e. typically the size of a control block
