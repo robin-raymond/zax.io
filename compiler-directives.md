@@ -192,7 +192,7 @@ The options for panic conditions are:
 * `yes` (default) - enables the deprecation for only to the current statement
 * `no` - disables the deprecation for only to the current statement
 * `always` - enables the deprecation for all statements that follow
-* `never` - disables deprecation for all statements that follow (`min`,`max`, `context` are ignored)
+* `never` - disables deprecation for all statements that follow (`context`, `error`, `min`, `max`, are disallowed)
 
 The `error` argument is optional and if specified the warning is forced into an error without the possibility to treat the deprecation as only a warning.
 
@@ -780,7 +780,7 @@ MyOtherType :: type {
 
 ### The `reserve` directive
 
-The `reserve` directive ``[[reserve=<n>, initialize=<n>]]` forces bytes to be reserved into a type which have no value associated with the space. The `initialize` option allows a value to be pre-filled into the reserved memory.
+The `reserve` directive `[[reserve=<n>, initialize=<n>]]` forces bytes to be reserved into a type which have no value associated with the space. The `initialize` option allows a value to be pre-filled into the reserved memory.
 
 ````zax
 MyPacket :: type {
