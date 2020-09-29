@@ -1009,6 +1009,16 @@ Options are as follows:
 * `never` - the function never returns and the compiler can generate jump assembly instructions without instruction pointer stack frame pushes or return instructions
 * `interrupt` - the function will be called directly from an interrupt and the compiler should generate interrupt return instructions instead of standard return instructions
 
+````zax
+doForever final : ()() [[return=never]] = {
+    // ...
+}
+
+doForever()
+
+[[never]]
+````
+
 
 ### The `export` directive
 
