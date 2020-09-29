@@ -1022,12 +1022,29 @@ doForever()
 
 ### The `export` directive
 
-The `export` directive `[[export=<option>]]` tells the compiler to apply the export keyword to all exportable types found or disable a previous `export` directive.
+The `export` directive `[[export=<option>]]` tells the compiler to apply the export keyword to all exportable types found, or disable a previous `export` directive.
 
 The options are:
-* `default` (default) - export keyword operates as normal (will disable the any previous `always` or `never` `export` directives)
 * `always` - all exportable types are automatically exported after this directive
-* `never` - disable the exporting of all exportable types after this directive
+* `never` (default) - disable the exporting of all exportable types after this directive
+* `yes` - the next type or declared variable is exported
+* `no` - the next type or declared variable is not exported
+
+````zax
+[[export=always]]
+foo : Integer
+
+MyType :: type {
+    // ....
+}
+
+[[export=never]]
+myPrivateData : Integer
+
+MyPrivateType :: type {
+    // ...
+}
+````
 
 
 ### The literal directives
