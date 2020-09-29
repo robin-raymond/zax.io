@@ -43,7 +43,7 @@ For speed and efficiency reasons, types may utilize a `shallow` copy methodology
 
 #### Efficient `immutable` type data sharing and concurrency
 
-Types marked as `immutable` are an excellent example where this kind of optimization can be useful since an immutable type might need to allocate data for storage but once allocated not need modify contents ever again. Copying immutable variables from one instance to another could be expensive given each copy would need another allocation, a copy of the contents, and a deallocation when the immutable type is no longer needed.
+Types qualified as `immutable` are an excellent example where this kind of optimization can be useful since an immutable type might need to allocate data for storage but once allocated not need modify contents ever again. Copying immutable variables from one instance to another could be expensive given each copy would need another allocation, a copy of the contents, and a deallocation when the immutable type is no longer needed.
 
 Rather than performing a copy whenever the immutable type is passed to functions, a simple `handle` pointer to the real data might be utilized. A `handle` pointer keeps a simple reference count to a type and disposes of the data when the final instance of a type is disposed and thus is perfectly suitable for `immutable` data sharing. While a `strong` pointer could be used instead of a `handle` type, a `strong` pointer incurs additional concurrency overhead every time a reference count is incremented or decremented since the reference count for `strong` pointers must be thread-safe. This overhead can cause a CPU to operate less efficiently as it can disrupt things like CPU branch predictability and CPU caches.
 
@@ -51,7 +51,7 @@ Normally when a type is passed by-value, the `shallow` qualifier is implicitly a
 
 A qualifier of `deep` can be applied to a type to ensure a full copy of the type is performed prior to transferred the type's instance to a new thread. The `deep` qualifier can be used to ensure a completely independent copy of a type is made so a copy of an immutable type is made whenever the type is passed to a different thread.
 
-A qualifier of `deep` can be applied to the function definition where all input and output arguments automatically have `deep` applied to each argument type where appropriate. Where `deep` is applied to a function, another advantage is any captured values also have the `deep` attribute applied, i.e. any copies performed on captured values will cause a `deep` copy to be performed. Related, the parallel allocators are automatically substituted over the sequential allocators for a function call declared as `deep`. If a non-final function is marked `deep` then any replacement assignment of the function must also be marked as `deep`.
+A qualifier of `deep` can be applied to the function definition where all input and output arguments automatically have `deep` applied to each argument type where appropriate. Where `deep` is applied to a function, another advantage is any captured values also have the `deep` attribute applied, i.e. any copies performed on captured values will cause a `deep` copy to be performed. Related, the parallel allocators are automatically substituted over the sequential allocators for a function call declared as `deep`. If a non-final function is qualified as `deep` then any replacement assignment of the function must also be qualified as `deep`.
 
 While seemingly a [`last` pointers/references](pointers.md#using-the-last-type-qualifier-to-optimize-content-transfer) method can seemingly be used to transfer out the contents of the data to a new type's instance prior to transfer to a new thread but the `last` does not guarantee any shared state is indeed the final copy. This mechanism can only work if the passed in type is truly the `last` instance of a type before it's disposal.
 
@@ -152,7 +152,7 @@ later.callable()
 
 Using function invocation capturing and function chaining, an invocation of a function can be captured (but not called immediately). Another new function can be created to capture the results of the not yet invoked function and feed that result into another function after. This final newly minted function can be sent to a different thread to execute where the return result will invoke a callback when the function is complete.
 
-On caution, invoked captured functions are not expected to be marked as deep `deep` where the compiler will not issue a warning if the `deep` qualifier was not applied. If a invoked capture function isn't designed for thread safety, unexpected behaviors can ensue.
+On caution, invoked captured functions are not expected to be qualified as `deep` where the compiler will not issue a warning if the `deep` qualifier was not applied. If a invoked capture function isn't designed for thread safety, unexpected behaviors can ensue.
 
 An example of invocation capture with a later callback invoked from a different thread:
 
@@ -188,9 +188,9 @@ invokeOnAnotherThread(laterThen)
 
 ### Creating asynchronous function out of `lazy` functions
 
-A `lazy` function can be converted into an asynchronous function (see [lazy functions](lazy.md)). When a function marked as `lazy` returns a `lazy` function, the `lazy` function can be passed and invoked from an alternative thread.
+A `lazy` function can be converted into an asynchronous function (see [lazy functions](lazy.md)). When a function qualified as `lazy` returns a `lazy` function, the `lazy` function can be passed and invoked from an alternative thread.
 
-On caution, `lazy` functions are not expected to be marked as deep `deep` where the compiler will not issue a warning if the `deep` qualifier was not applied. If a `lazy` function isn't designed for thread safety, unexpected behaviors can ensue.
+On caution, `lazy` functions are not expected to be qualified as `deep` where the compiler will not issue a warning if the `deep` qualifier was not applied. If a `lazy` function isn't designed for thread safety, unexpected behaviors can ensue.
 
 ````zax
 
@@ -604,7 +604,7 @@ defer myTask.consumer.cancel()
 
 #### `task` cancellation
 
-Whenever a function marked as `task` encounters an `await`, `yield` or a `suspend` statement, the function might cause a quick exit from the current function if the `task` is cancelled. This is done to ensure predictable `task` function exit points and to ensure `task` functions are not left in undetermined state. Function cleanup occurs as needed and the compiler can insert code to cause additional clean-up calls for any `task` scheduler as needed. If `await`, `yield` or `suspend` is called after a task is cancelled during the automatic cleanup, those statements will become new instant exit points in whatever routines called them.
+Whenever a function qualified as `task` encounters an `await`, `yield` or a `suspend` statement, the function might cause a quick exit from the current function if the `task` is cancelled. This is done to ensure predictable `task` function exit points and to ensure `task` functions are not left in undetermined state. Function cleanup occurs as needed and the compiler can insert code to cause additional clean-up calls for any `task` scheduler as needed. If `await`, `yield` or `suspend` is called after a task is cancelled during the automatic cleanup, those statements will become new instant exit points in whatever routines called them.
 
 Functions will not throw exceptions upon cancellation. Any construction/assignment of variables from an awaited function will not complete in the event of a cancellation (thus any constructed variables will also not be destructed in turn).
 
@@ -840,7 +840,7 @@ A double at symbol, known as the parallel allocator operator (`@@`), is a compil
 
 Whenever a `strong` pointer type is allocator or a `deep` copy is performed, the standard allocator (`___.allocator`) in the context is replaced by the parallel allocator temporarily (i.e. assigned to `___.parallel.allocator`) automatically. This is done to ensure that any allocated data is entirely allocated in a thread safe manner (and deallocated later in a thread safe manner). Once the allocation is complete, the original standard allocator is restored allowing any future constructor and allocations of other types to use the potentially faster sequential (`___.sequential.allocator`) allocator if that was previously in use.
 
-Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers marked as `own` are allocated using the standard allocator which is typically set to the sequential allocator by default. If an `own` pointer gets transferred later into a `strong` pointer, the standard allocator should be replaced with the parallel allocator.
+Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers qualified as `unique` or `own` are allocated using the standard allocator which is typically set to the sequential allocator by default. If an `own` pointer gets transferred later into a `strong` pointer or across thread boundaries, the standard allocator should be replaced with the parallel allocator.
 
 
 ````zax

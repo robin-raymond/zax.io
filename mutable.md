@@ -98,7 +98,7 @@ myType1 = myType3               // allowed (source is `immutable` but
 
 ### `constant` functions and mutability
 
-Functions that are not marked `constant` are not callable if a type is instantiated using its `immutable` form.
+Functions that are not qualified as `constant` are not callable if a type is instantiated using its `immutable` form.
 
 ````zax
 print final : ()(...) = {
@@ -486,7 +486,7 @@ func4(myType4)                  // allowed
 
 ### `mutable` variables
 
-Variables contained with types marked as `immutable` or `constant` cannot have their values changed. In both of these cases, the inability to change contained values is both a promise and enforced by the compiler. However, cases do exist where a variable might need its contents changed despite the promise the contents of the type are not changing.
+Variables contained with types qualified as `immutable` or `constant` cannot have their values changed. In both of these cases, the inability to change contained values is both a promise and enforced by the compiler. However, cases do exist where a variable might need its contents changed despite the promise the contents of the type are not changing.
 
 To circumvent a compiler's enforcement of non-changeable contained types, the `mutable` keyword must be declared on a variable. Declaring a variable as `mutable` is not the same as declaring a type as `mutable`. A variable declared as `mutable` implies the type's variable will be treated as non-`constant` even if the calling function is executed in a from `constant` function or from within an `immutable` type.
 

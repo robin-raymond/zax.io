@@ -36,11 +36,11 @@ later =:
 ````
 
 
-#### Functions marked as `lazy` which complete
+#### Functions qualified as `lazy` which complete
 
-Functions marked as `lazy` may eventually complete (or complete after at least one call). Upon completion a `lazy` function may not be called again without a panic or undefined behavior. Either the function should only ever be expected to be called once, or a fixed number of times, or the function should use some kind signal to prevent the `lazy` function being called beyond it's lifetime.
+Functions qualified as `lazy` may eventually complete (or complete after at least one call). Upon completion a `lazy` function may not be called again without a panic or undefined behavior. Either the function should only ever be expected to be called once, or a fixed number of times, or the function should use some kind signal to prevent the `lazy` function being called beyond it's lifetime.
 
-One simple signalling technique to signal function completion is to return an optional result (which may not have a value). When the function marked as `lazy` has exhausted its results, the function can return a defaulted optional using `return :`. The calling code will have to verify the result is valid and stop calling the `lazy` function once the first empty optional result is received.
+One simple signalling technique to signal function completion is to return an optional result (which may not have a value). When the function qualified as `lazy` has exhausted its results, the function can return a defaulted optional using `return :`. The calling code will have to verify the result is valid and stop calling the `lazy` function once the first empty optional result is received.
 
 ````zax
 print final : ()(...) = {
@@ -68,7 +68,7 @@ print(later())  // a panic will occur
 ````
 
 
-#### Functions marked as `lazy` are not automatically `deep`
+#### Functions qualified as `lazy` are not automatically `deep`
 
-Unlike `promise` or `task`, functions marked as `lazy` are not expected be marked as `deep` (and thus don't require the `[[sequential]]` directive to suppress warnings about `deep` not being utilized). The use case for a `lazy` functions is not presumed to mostly be related to asynchronous programming. In fact, `lazy` functions make great iterators or generators which are entirely unrelated to [concurrency](concurrency.md).
+Unlike `promise` or `task`, functions qualified as `lazy` are not expected be qualified as `deep` (and thus don't require the `[[sequential]]` directive to suppress warnings about `deep` not being utilized). The use case for a `lazy` functions is not presumed to mostly be related to asynchronous programming. In fact, `lazy` functions make great iterators or generators which are entirely unrelated to [concurrency](concurrency.md).
 

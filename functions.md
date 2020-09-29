@@ -1167,9 +1167,9 @@ myType.bucket = {
 ````
 
 
-### Functions marked as `constant` in function types
+### Functions qualified as `constant` in function types
 
-Functions marked as `constant` inside a type may not change any values or call any the type's functions that are not marked as `constant`. This advertises the type's function as being safe to call without any risk to the underlying data within the type being changed as a result of calling the function.
+Functions qualified as `constant` inside a type may not change any values or call any the type's functions that are not qualified as `constant`. This advertises the type's function as being safe to call without any risk to the underlying data within the type being changed as a result of calling the function.
 
 ````zax
 saveToDisk final :: ()(value : Integer) = {
@@ -1203,7 +1203,7 @@ MyType :: type {
         // allowed to call save since the function is declared as `constant`.
         save()
 
-        // ERROR: The function was marked as `constant` thus changing any of
+        // ERROR: The function was qualified as `constant` thus changing any of
         // the type's values or calling non-constant type function for the
         // `constant` type is disallowed.
         resetValues(value)
@@ -1220,7 +1220,7 @@ bucket := myType.bucket()
 ````
 
 
-#### Variables marked as `mutable` in relation to `constant` function types
+#### Variables qualified as `mutable` in relation to `constant` function types
 
 ````zax
 saveToDisk final :: ()(value : Integer) = {
@@ -1244,8 +1244,8 @@ MyType :: type {
     value3 := 0
 
     save final : ()() constant = {
-        // allowed to call non-`constant` functions on the `constant` mutex value
-        // since the value is marked as `mutable`
+        // allowed to call non-`constant` functions on the `constant`
+        // mutex value since the value is qualified as `mutable`
         mutex.lock()
         saveToDisk(value1)
         saveToDisk(value2)
@@ -1423,7 +1423,7 @@ funcAlwaysMoved2(b as move)
 
 #### `move` versus explicit `copy` qualification
 
-By default all functions that receive by-value arguments have the `copy` qualification applied unless the `move` qualification is explicitly applied. The `copy` and `move` qualifiers are mutually exclusive. The `copy` qualifier is redundant as it is automatically applied by default. One key difference does exist between explicitly and implicit qualifying a by-value argument as `copy`. Arguments that are explicitly marked as `copy` cannot ever receive a `move` type and any attempt to pass a `move` type into an explicitly `copy` qualified type will cause an `explicit-copy-cannot-receive-move` error.
+By default all functions that receive by-value arguments have the `copy` qualification applied unless the `move` qualification is explicitly applied. The `copy` and `move` qualifiers are mutually exclusive. The `copy` qualifier is redundant as it is automatically applied by default. One key difference does exist between explicitly and implicit qualifying a by-value argument as `copy`. Arguments that are explicitly qualified as `copy` cannot ever receive a `move` type and any attempt to pass a `move` type into an explicitly `copy` qualified type will cause an `explicit-copy-cannot-receive-move` error.
 
 ````zax
 print final : ()(...) = {

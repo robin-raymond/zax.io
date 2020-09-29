@@ -105,7 +105,7 @@ function final : ()() = {
 
 #### Multiple `own` variables
 
-When more than one variable is marked `own` within a type, the `own` variables all become accessible as if the contained declarations of the `own` variables were part of the container's type. Some ambiguity can occur if two or more contained declarations share the same name. If the ambiguous name is referenced, the compiler will not know which contained variable was intended to be accessed. To solve this issue, the variables remain accessible from their original contained names. In other words, `own` variables are a convenience to see the contained types as a merged type but fundamentally the `own` variables retain their original contained relationship.
+When more than one variable is qualified as `own` within a type, the `own` variables all become accessible as if the contained declarations of the `own` variables were part of the container's type. Some ambiguity can occur if two or more contained declarations share the same name. If the ambiguous name is referenced, the compiler will not know which contained variable was intended to be accessed. To solve this issue, the variables remain accessible from their original contained names. In other words, `own` variables are a convenience to see the contained types as a merged type but fundamentally the `own` variables retain their original contained relationship.
 
 ````zax
 A :: type {

@@ -95,7 +95,7 @@ Variadic arguments can be forwarded from one function to another function withou
 
 The `last` qualifier helps optimize the variadic transfer. Types qualified as `last` can optimize data transfer when passed as an argument or received as a result.
 
-The `last` qualifier can be applied to a variadic function to cause all passed in values to be marked as last instances whose contents are being forwarded to another function. The `last` qualifier is implicitly applied to values passed by-value which are known not to be in use further in the code. By-reference arguments will only have `last` automatically applied if the type passed into the variadic function was already qualified as `last`. The programmer can add the `last` qualifier to the `...` expression automatically using the `as` operator with the `last` qualifier.
+The `last` qualifier can be applied to a variadic function to cause all passed in values to be qualified as `last` instances whose contents are being forwarded to another function. The `last` qualifier is implicitly applied to values passed by-value which are known not to be in use further in the code. By-reference arguments will only have `last` automatically applied if the type passed into the variadic function was already qualified as `last`. The programmer can add the `last` qualifier to the `...` expression automatically using the `as` operator with the `last` qualifier.
 
 ````zax
 func final : ()(...) = {

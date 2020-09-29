@@ -3,7 +3,7 @@
 
 ## Handle Pointers
 
-Pointers marked as `handle` will automatically track the lifetime of an allocated type by performing [reference counting](https://en.wikipedia.org/wiki/Reference_counting) so when the last common reference to a type's instance is discarded, the type becomes deallocated.
+Pointers qualified as `handle` will automatically track the lifetime of an allocated type by performing [reference counting](https://en.wikipedia.org/wiki/Reference_counting) so when the last common reference to a type's instance is discarded, the type becomes deallocated.
 
 The `handle` pointers are a form of [smart pointer](https://en.wikipedia.org/wiki/Smart_pointer) logic as a tool to ensure the lifetime of an type's instance is destroyed when the last referencing pointer is discarded. A [`hint` reference](https://en.wikipedia.org/wiki/Weak_reference) can be used to prevent circular dependencies by detecting when a type's instance is kept alive by a `handle` pointer or already destroyed. The usage of `hint` references is a common technique to prevent memory leakage issue as `handle` pointers are not automatically [garbage collected](https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)).
 
@@ -13,14 +13,14 @@ Thread safety is not addressed with `handle` or `hint` pointers and `handle` poi
 
 ### `handle` versus `strong` pointers
 
-Pointers marked as `handle` operate in the same manner as [`strong` pointers](strong-weak.md) with a few key differences. Whereas `strong` pointers have a `weak` counterpart, `handle` pointers have a `hint` counterpart. Pointers marked as `strong` have thread safety properties related to the lifetime of the instance whereas `handle` pointers do not.
+Pointers qualified as `handle` operate in the same manner as [`strong` pointers](strong-weak.md) with a few key differences. Whereas `strong` pointers have a `weak` counterpart, `handle` pointers have a `hint` counterpart. Pointers qualified as `strong` have thread safety properties related to the lifetime of the instance whereas `handle` pointers do not.
 
 Due to the overhead because of thread safety guarantees for `strong` pointers, `handle` pointers are more efficient at the cost of thread safety.
 
 
 ### Allocation of `handle` pointers
 
-Pointers marked as `handle` are allocated in similar manners to other pointers, such as `own`, `discard`, `strong`, `discard`, and `collect` pointers. The difference is that `handle` pointers can be co-owned by more than one variable. When the last variable holding the `handle` pointer is discarded (or reset to empty) the allocated type is destructed, and deallocated (unless a `hint` pointer still exists to a combined control and allocation block).
+Pointers qualified as `handle` are allocated in similar manners to other pointers, such as `own`, `discard`, `strong`, `discard`, and `collect` pointers. The difference is that `handle` pointers can be co-owned by more than one variable. When the last variable holding the `handle` pointer is discarded (or reset to empty) the allocated type is destructed, and deallocated (unless a `hint` pointer still exists to a combined control and allocation block).
 
 ````zax
 print final : ()(...) = {
@@ -74,7 +74,7 @@ func final : (result : String)() = {
 
 ### `handle` pointer value replacement
 
-Pointers marked as `handle` can only point to a single instance of a type. If the pointer is reset to point to a new instance of a type then the original ownership claim is released and if the value was the last owner of the type's instance then the type is discarded and the memory is deallocated.
+Pointers qualified as `handle` can only point to a single instance of a type. If the pointer is reset to point to a new instance of a type then the original ownership claim is released and if the value was the last owner of the type's instance then the type is discarded and the memory is deallocated.
 
 ````zax
 print final : ()(...) = {
@@ -423,7 +423,7 @@ func final : (result : String)() = {
 
 ### Using `hint` pointers to break a chain
 
-Pointers marked as `hint` will only contain a valid pointer to a type's instance so long as the original allocated type is not destructed/deallocated. In other words, `hint` points will not extend the lifetime of a `handle` pointer beyond the last `handle` pointer keeping a type's instance alive.
+Pointers qualified as `hint` will only contain a valid pointer to a type's instance so long as the original allocated type is not destructed/deallocated. In other words, `hint` points will not extend the lifetime of a `handle` pointer beyond the last `handle` pointer keeping a type's instance alive.
 
 ````zax
 print final : ()(...) = {
@@ -541,7 +541,7 @@ func final : (result : String)() = {
 
 ### Transferring `own` pointers to `handle` pointers
 
-Pointers marked as `own` can be transferred to pointers marked as `handle`. Once the transfer is completed, the original `own` pointer will point to nothing as the `handle` pointer will track the lifetime of the instance. Likewise, pointers marked as `handle` can be transferred to pointers marked as `own` on the condition that no other pointers marked as `handle` point to the same instance of a type otherwise  the resulting `handle` pointer will point to nothing.
+Pointers qualified as `own` can be transferred to pointers qualified as `handle`. Once the transfer is completed, the original `own` pointer will point to nothing as the `handle` pointer will track the lifetime of the instance. Likewise, pointers qualified as `handle` can be transferred to pointers qualified as `own` on the condition that no other pointers qualified as `handle` point to the same instance of a type otherwise  the resulting `handle` pointer will point to nothing.
 
 ````zax
 print final : ()(...) = {
@@ -644,9 +644,9 @@ func final : (result : String)() = {
 
 ### Transferring `handle` pointers to `strong` pointers
 
-Pointers marked as `handle` cannot be directly transferred to a pointer marked as `strong`. The only method by which this transfer can happen is if the `handle` pointer is first transferred to an `own` pointer and then transferred to a `strong` pointer. The vice versa limitation is true. Pointers marked as `strong` cannot be directly transferred to a pointer marked as `handle`. The only method by which this transfer can happen is if the `strong` pointer is first transferred to an `own` pointer and then transferred to a `handle` pointer.
+Pointers qualified as `handle` cannot be directly transferred to a pointer qualified as `strong`. The only method by which this transfer can happen is if the `handle` pointer is first transferred to an `own` pointer and then transferred to a `strong` pointer. The vice versa limitation is true. Pointers qualified as `strong` cannot be directly transferred to a pointer qualified as `handle`. The only method by which this transfer can happen is if the `strong` pointer is first transferred to an `own` pointer and then transferred to a `handle` pointer.
 
-Transferring to an `own` pointer has limitations. Only if the pointer marked as `handle` or `strong` is the exclusive reference to the instance of a type can the transfer to an `own` pointer occur.
+Transferring to an `own` pointer has limitations. Only if the pointer qualified as `handle` or `strong` is the exclusive reference to the instance of a type can the transfer to an `own` pointer occur.
 
 
 #### Transferring `handle` pointers across threads

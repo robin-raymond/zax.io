@@ -5,7 +5,7 @@
 
 ### Simple allocation with automatic destruction
 
-Types can be allocated and then de-allocated automatically when owning pointers fall out of scope.
+Types can be allocated and then de-allocated automatically when `own` or `unique` pointers fall out of scope. Allocated types with the `@`, `@@` or `@!` allocators are implicitly qualified as `unique`. The `own` qualification requires explicit definition (and has additional control block overhead).
 
 ````zax
 MyType :: type {
@@ -21,11 +21,11 @@ func final : (result : String)() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
-        // context's allocator and is `own` implicitly in `value1`
+        // context's allocator and is `unique` implicitly in `value1`
         value1 : MyType* @
 
         // `value2` is allocated with the same context allocator and
-        // `value2` is explicitly marked as `own`
+        // `value2` is explicitly qualified as `own`
         value2 : MyType* own @    
 
         doSomething(value1)
@@ -39,9 +39,45 @@ func final : (result : String)() = {
 ````
 
 
+#### Transferring ownership of an `unique` pointer
+
+A pointer qualified as `unique` (implicitly or explicitly) can only only be owned by a single variable at a time. When an pointer qualified as `unique` is transferred to another pointer qualified as `unique` the ownership of the pointer is transferred. Only pointers qualified as `unique` can transfer to other pointers qualified as `unique` and cannot be transferred to other qualified pointer types such as `own`, `handle` or `strong`.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType :: type {
+    myValue1 : Integer
+    myValue2 : String
+}
+
+printIfValidPointer final : ()(pointerToValue : MyType*) = {
+    if pointerToValue
+        print("true")
+    else
+        print("false")
+}
+
+func final : ()() = {
+    value1 : MyType* unique @   // allocated using the context allocator
+    value2 : MyType* unique     // no allocation is performed and pointer points
+                                // to nothing
+
+    // ownership of the `unique` pointer is
+    // transferred from `value1` to `value2`
+    value2 = value1
+
+    printIfValidPointer(value1)     // will print "false"
+    printIfValidPointer(value2)     // will print "true"
+}
+````
+
+
 #### Transferring ownership of an `own` pointer
 
-A pointer marked as `own` can only only be owned by a single variable at a time. When an pointer marked as `own` is transferred to another pointer marked as `own` the ownership of the pointer is transferred. Only pointers marked as `own` can transfer to other pointers marked as `own` or alternative transfer to pointers marked as `strong`.
+A pointer qualified as `own` can only only be owned by a single variable at a time. When an pointer qualified as `own` is transferred to another pointer qualified as `own` the ownership of the pointer is transferred. Only pointers qualified as `own` can transfer to other pointers qualified as `own` or alternative transfer to pointers qualified as `handle` or `strong`.
 
 ````zax
 print final : ()(...) = {
@@ -73,12 +109,13 @@ func final : ()() = {
 }
 ````
 
-#### Implicit ownership vs explicit ownership transfer
 
-Implicitly `own` pointers cannot be transferred to explicitly `own` pointers (or `discard`, `collect`, `strong`, or `weak` pointer declarations).
+#### Implicit unique vs explicit own transfer
+
+Implicit `unique` pointers cannot be transferred explicitly to `own` pointers (or `discard`, `collect`, `strong`, or `weak` pointer declarations).
 
 Enforcement of explicit ownership is done for these reasons:
-* ensures the programmer acknowledges the additional data type overhead needed to track the originating allocator is acceptable (implicit `own` pointers do not require additional space overhead although additional code overhead is created for the automatic pointer destruction and deallocation)
+* ensures the programmer acknowledges the additional data type overhead needed to track the originating allocator is acceptable (implicit `unique` pointers do not require additional control block overhead although additional code overhead is created for the automatic pointer destruction and deallocation)
 * ensures any transfer of ownership was done knowingly rather than accidentally
 
 ````zax
@@ -100,13 +137,14 @@ printIfValidPointer final : ()(pointerToValue : MyType*) = {
 
 func final : ()() = {
     value1 : MyType* @          // allocated using the context allocator and
-                                // pointer is `own` implicitly
+                                // pointer is `unique` implicitly
     value2 : MyType* own        // no allocation is performed and the `own`
                                 // pointer points to nothing
 
-    // ERROR: The `value1` pointer was implicitly `own` and thus cannot transfer
-    // ownership to `value2` which is marked explicitly `own`. To correct the
-    // error, mark `value1` as `own` explicitly to allow ownership transfer.
+    // ERROR: The `value1` pointer was implicitly `unique` and thus
+    // cannot transfer ownership to `value2` which is qualified
+    // explicitly `own`. To correct the error, mark `value1` as `own`
+    // explicitly to allow ownership transfer.
     value2 = value1
 
     printIfValidPointer(value1)     // will print "false"
@@ -150,7 +188,7 @@ func final : (result : String)() = {
         value1 : MyType* @ allocator
 
         // `value2` is allocated with the same custom allocator and
-        // `value2` is explicitly marked as `own`
+        // `value2` is explicitly qualified as `own`
         value2 : MyType* own @ allocator
 
         doSomething(value1)
@@ -211,7 +249,7 @@ func : (result : String)() = {
 
 #### Transferring ownership of a `discard` pointer
 
-Similar to a pointer marked as `own`, a pointer marked as `discard` can only only be owned by a single variable at a time. When an pointer marked as `discard` is transferred to another pointer marked as `discard` the ownership of the pointer is transferred.
+Similar to a pointer qualified as `own`, a pointer qualified as `discard` can only only be owned by a single variable at a time. When an pointer qualified as `discard` is transferred to another pointer qualified as `discard` the ownership of the pointer is transferred.
 
 ````zax
 print final : ()(...) = {
@@ -288,7 +326,7 @@ func final : (result : String)() = {
 
 #### Transferring ownership of an `collect` pointer
 
-Similar to a pointer marked as `own`, a pointer marked as `collect` can only only be owned by a single variable at a time. When an pointer marked as `collect` is transferred to another pointer marked as `collect` the ownership of the pointer is transferred. However, as the type's lifetime is tied to the allocator where the type was allocated thus the need to transfer ownership of `collect` pointers is only done for convenience of ensuring only one variable contains the pointer to a type and to allow common transfer behavior for `own`, `discard` and `collect` pointers.
+Similar to a pointer qualified as `own`, a pointer qualified as `collect` can only only be owned by a single variable at a time. When an pointer qualified as `collect` is transferred to another pointer qualified as `collect` the ownership of the pointer is transferred. However, as the type's lifetime is tied to the allocator where the type was allocated thus the need to transfer ownership of `collect` pointers is only done for convenience of ensuring only one variable contains the pointer to a type and to allow common transfer behavior for `own`, `discard` and `collect` pointers.
 
 ````zax
 print final : ()(...) = {

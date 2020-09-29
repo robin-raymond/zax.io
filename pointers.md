@@ -478,7 +478,7 @@ myTemporary4 := augmentFunc(myTemporary3)
 
 // `myTemporary3` is used as a reference in another function earlier thus
 // a dangling reference may have been made thus the variable
-// cannot be marked as `last`
+// cannot be qualified as `last`
 myTemporary5 := augmentFunc(myTemporary3)
 
 print(myTemporary4.name) // prints "Big Happy Happy Fred"
@@ -556,7 +556,7 @@ doSomething(myType as last)
 
 #### `last` versus explicit `lease` qualification
 
-By default all functions that receive references or pointers have `lease` qualification applied unless the `last` qualification is explicitly applied. The `lease` and `last` qualifiers are mutually exclusive. The `lease` qualifier is redundant as it is automatically applied by default. One key difference does exist between explicitly and implicit qualifying a reference or pointer argument as `lease`. Arguments that are explicitly marked as `lease` cannot ever receive a `last` type and any attempt to pass a `last` type into an explicitly `lease` qualified type will cause an `explicit-lease-cannot-receive-last` error.
+By default all functions that receive references or pointers have `lease` qualification applied unless the `last` qualification is explicitly applied. The `lease` and `last` qualifiers are mutually exclusive. The `lease` qualifier is redundant as it is automatically applied by default. One key difference does exist between explicitly and implicit qualifying a reference or pointer argument as `lease`. Arguments that are explicitly qualified as `lease` cannot ever receive a `last` type and any attempt to pass a `last` type into an explicitly `lease` qualified type will cause an `explicit-lease-cannot-receive-last` error.
 
 ````zax
 MyType ::type {

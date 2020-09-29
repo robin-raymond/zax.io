@@ -3,7 +3,7 @@
 
 ## Strong and Weak Pointers
 
-Pointers marked as `strong` will automatically track the lifetime of an allocated type by performing [reference counting](https://en.wikipedia.org/wiki/Reference_counting) so when the last common reference to a type's instance is discarded, the type becomes deallocated.
+Pointers qualified as `strong` will automatically track the lifetime of an allocated type by performing [reference counting](https://en.wikipedia.org/wiki/Reference_counting) so when the last common reference to a type's instance is discarded, the type becomes deallocated.
 
 The `strong` pointers are a form of [smart pointer](https://en.wikipedia.org/wiki/Smart_pointer) logic as a tool to ensure the lifetime of an type's instance is destroyed when the last referencing pointer is discarded. A [`weak` reference](https://en.wikipedia.org/wiki/Weak_reference) can be used to prevent circular dependencies by detecting when a type's instance kept is  alive by a `strong` pointer or already destroyed. The usage of `weak` references is a common technique to prevent memory leakage issue as `strong` pointers are not automatically [garbage collected](https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)).
 
@@ -12,14 +12,14 @@ Thread safety for the reference counting mechanism `strong` and `weak` pointer r
 
 ### `strong` versus `handle` pointers
 
-Pointers marked as `strong` operate in the same manner as [`handle` pointers](handle-hint.md) with a few key differences. Whereas `strong` pointers have a `weak` counterpart, `handle` pointers have `hint` pointer counterparts. Pointers marked as `strong` have thread safety properties related to the lifetime of the instance whereas `handle` pointers do not.
+Pointers qualified as `strong` operate in the same manner as [`handle` pointers](handle-hint.md) with a few key differences. Whereas `strong` pointers have a `weak` counterpart, `handle` pointers have `hint` pointer counterparts. Pointers qualified as `strong` have thread safety properties related to the lifetime of the instance whereas `handle` pointers do not.
 
 Due to the overhead because of thread safety guarantees for `strong` pointers, `handle` pointers are more efficient at the cost of thread safety.
 
 
 ### Allocation of `strong` pointers
 
-Pointers marked as `strong` are allocated in similar manners to other pointers, such as `own`, `discard`, `handle`, and `collect` pointers. The difference is that `strong` pointers can be co-owned by more than one variable. When the last variable holding the `strong` pointer is discarded (or reset to empty) the allocated type is destructed and deallocated.
+Pointers qualified as `strong` are allocated in similar manners to other pointers, such as `own`, `discard`, `handle`, and `collect` pointers. The difference is that `strong` pointers can be co-owned by more than one variable. When the last variable holding the `strong` pointer is discarded (or reset to empty) the allocated type is destructed and deallocated.
 
 ````zax
 print final : ()(...) = {
@@ -73,7 +73,7 @@ func final : (result : String)() = {
 
 ### `strong` pointer value replacement
 
-Pointers marked as `strong` can only point to a single instance of a type. If the pointer is reset to point to a new instance of a type then the original ownership claim is released and if the value was the last owner of the type's instance then the type is discarded and the memory is deallocated.
+Pointers qualified as `strong` can only point to a single instance of a type. If the pointer is reset to point to a new instance of a type then the original ownership claim is released and if the value was the last owner of the type's instance then the type is discarded and the memory is deallocated.
 
 ````zax
 print final : ()(...) = {
@@ -422,7 +422,7 @@ func final : (result : String)() = {
 
 ### Using `weak` pointers to break a chain
 
-Pointers marked as `weak` will only contain a valid pointer to a type's instance so long as the original allocated type is not destructed/deallocated. In other words, `weak` points will not extend the lifetime of a `strong` pointer beyond the last `strong` pointer keeping a type's instance alive.
+Pointers qualified as `weak` will only contain a valid pointer to a type's instance so long as the original allocated type is not destructed/deallocated. In other words, `weak` points will not extend the lifetime of a `strong` pointer beyond the last `strong` pointer keeping a type's instance alive.
 
 ````zax
 print final : ()(...) = {
@@ -540,9 +540,9 @@ func final : (result : String)() = {
 
 ### Transferring `own` pointers to `strong` pointers
 
-Pointers marked as `own` can be transferred to pointers marked as `strong`. Once the transfer is completed, the original `own` pointer will point to nothing as the `strong` pointer will track the lifetime of the instance. Likewise, pointers marked as `strong` can be transferred to pointers marked as `own` on the condition that no other pointers marked as `strong` point to the same instance of a type otherwise the resulting `strong` pointer will point to nothing.
+Pointers qualified as `own` can be transferred to pointers qualified as `strong`. Once the transfer is completed, the original `own` pointer will point to nothing as the `strong` pointer will track the lifetime of the instance. Likewise, pointers qualified as `strong` can be transferred to pointers qualified as `own` on the condition that no other pointers qualified as `strong` point to the same instance of a type otherwise the resulting `strong` pointer will point to nothing.
 
-Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers marked as `own` are allocated using the standard allocator which is typically set to the sequential allocator by default. If an `own` pointer gets transferred later into a `strong` pointer, the standard allocator should be replaced with the parallel allocator.
+Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers qualified as `own` are allocated using the standard allocator which is typically set to the sequential allocator by default. If an `own` pointer gets transferred later into a `strong` pointer, the standard allocator should be replaced with the parallel allocator.
 
 ````zax
 print final : ()(...) = {
@@ -645,9 +645,9 @@ func final : (result : String)() = {
 
 ### Transferring `strong` pointers to `handle` pointers
 
-Pointers marked as `strong` cannot be directly transferred to a pointer marked as `handle`. The only method by which this transfer can happen is if the `strong` pointer is first transferred to an `own` pointer and then transferred to a `handle` pointer. The vice versa limitation is true. Pointers marked as `handle` cannot be directly transferred to a pointer marked as `strong`. The only method by which this transfer can happen is if the `handle` pointer is first transferred to an `own` pointer and then transferred to a `strong` pointer.
+Pointers qualified as `strong` cannot be directly transferred to a pointer qualified as `handle`. The only method by which this transfer can happen is if the `strong` pointer is first transferred to an `own` pointer and then transferred to a `handle` pointer. The vice versa limitation is true. Pointers qualified as `handle` cannot be directly transferred to a pointer qualified as `strong`. The only method by which this transfer can happen is if the `handle` pointer is first transferred to an `own` pointer and then transferred to a `strong` pointer.
 
-Transferring to an `own` pointer have limitations. Only if the pointer marked as `strong` or `handle` is the exclusive reference to the instance of a type can the transfer to an `own` pointer occur.
+Transferring to an `own` pointer have limitations. Only if the pointer qualified as `strong` or `handle` is the exclusive reference to the instance of a type can the transfer to an `own` pointer occur.
 
 
 ### Casting contained variables into `strong` pointers

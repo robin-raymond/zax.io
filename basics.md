@@ -110,6 +110,7 @@ task
 true
 type
 union
+unique
 until
 using
 varies
