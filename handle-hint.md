@@ -742,9 +742,9 @@ An example `handle` pointer content and control block:
 /*
 HandlePointerControlBlock$(Type) :: type {
     strongCount : Integer
-    [[reserve=(sizeof Integer atomic) - sizeof Integer]]
+    [[reserve=(sizeof Atomic$(Integer)) - sizeof Integer]]
     weakCount : Integer
-    [[reserve=(sizeof Integer atomic) - sizeof Integer]]
+    [[reserve=(sizeof Atomic$(Integer)) - sizeof Integer]]
     allocator : Allocator*
     destructor : ()()*
     deallocateType : Unknown*

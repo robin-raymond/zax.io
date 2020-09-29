@@ -737,8 +737,8 @@ An example `strong` / `weak` pointer content and control block:
 ````zax
 /*
 StrongPointerControlBlock$(Type) :: type {
-    strongCount : Integer atomic
-    weakCount : Integer atomic
+    strongCount : Atomic$(Integer)
+    weakCount : Atomic$(Integer)
     destructor : ()()*
     deallocateType : Unknown*
     deallocateControl : Unknown*

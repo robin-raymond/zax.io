@@ -3,39 +3,6 @@
 
 ## Concurrency
 
-### Using `atomic` types
-
-Any type can be declared with an `atomic` keyword. When the atomic keyword is applied the type operates as normally the type would except every operator or function call on the type is run exclusively across all CPUs. This ensures the contents of a type cannot be accessed by more than one thread of execution at a time.
-
-The `atomic` keyword can also be applied to intrinsic types, like `Integer`, where specialized atomic code will be used for the fastest possible atomic operations on these intrinsic types.
-
-````zax
-puid : Integer atomic
-
-func : ()() = {
-    // no matter how many times the function is called, the `uniqueValue` will
-    // always contain a unique value because the `puid` Integer is operated upon
-    // atomically
-    uniqueValue := puid++
-
-    // ...
-}
-
-
-spawnThreadThatCallsFuncForever final : ()() = {
-    // ...
-    
-    forever
-        func()
-
-    // ...
-}
-
-spawnThreadThatCallsFuncForever()
-spawnThreadThatCallsFuncForever()
-````
-
-
 ### Using the `deep` type qualifier as a method to ensure type data separation across threads
 
 For speed and efficiency reasons, types may utilize a `shallow` copy methodology and data sharing across type instances when a variable is copied from one type instance to another. A true copy of a type may never actually be performed in such a scenario as copying the data may be expensive and non desirable, especially for types that require heap allocations (e.g. variable length strings).

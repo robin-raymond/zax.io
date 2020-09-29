@@ -92,8 +92,12 @@ Zax is a strongly typed compile time language with some key features:
     * `nothing` types instances
     * value polymorphism for functions
 * Asynchronous programming
-    * `atomic` variables and atomic operations
     * Asynchronous function calling
+    * Parallel vs sequential allocators
+    * Lazy type evaluation
+    * Promises
+    * Tasks
+    * Coroutines
 * Meta programming
     * `enum` meta data
     * Automatic compile time `if` / `else`
@@ -112,6 +116,7 @@ Zax is a strongly typed compile time language with some key features:
     * Runtime code panics (with selective disabling)
     * Harmonized warning suppression code mechanisms across compilers
 
+... and much much more ...
 
 A prototype for the  [zax-compiler](https://github.com/robin-raymond/zax-compiler) is being developed in C++.
 

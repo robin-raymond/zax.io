@@ -693,8 +693,8 @@ print final : ()(...) = {
 }
 
 uniqueId final : (result : Integer)() = {
-    value once : Integer atomic
-    return value++
+    value once : Atomic$(Integer)
+    return ++value
 }
 
 // each call to uniqueId will be given a completely unique number regardless of any thread it's called from

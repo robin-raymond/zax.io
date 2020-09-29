@@ -52,7 +52,6 @@ if condition {
 ````zax
 aos
 alias
-atomic
 await
 break
 build
@@ -227,6 +226,7 @@ constant_ : Type constant
 ==              // binary is equal operator
 !=              // binary is not equal operator
 <=>             // binary three-way comparison operator
+<<>>            // binary two-way swap
 <               // binary is less than operator
 >               // binary is greater than operator
 <=              // binary is less than operator
