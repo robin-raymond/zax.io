@@ -81,7 +81,7 @@ Because of the way modules self isolate from each other, one module importing `S
 
 ### Exporting types
 
-By default, symbols in code are not exported beyond the boundary of their originating source. However, the `export` keyword can be applied to variables, types, aliases, and even imports to cause symbols to become visible to an imported module. The compiler can allow all global symbols to be exported from source files but this is not recommended. Contained types and variables are all visible unless they are hidden. Local functions inside others functions are effectively hidden (unless they become returned from or passed into a function).
+By default, symbols in code are not exported beyond the boundary of their originating source. However, the `export` directive can be applied to variables, types, aliases, and even imports to cause symbols to become visible to an imported module. The compiler can allow all global symbols to be exported from source files but this is not recommended. Contained types and variables are all visible unless they are hidden. Local functions inside others functions are effectively hidden (unless they become returned from or passed into a function).
 
 ````zax
 // nothing imported from this module will be exported (despite being imported
@@ -90,7 +90,8 @@ By default, symbols in code are not exported beyond the boundary of their origin
 
 myInteger : Integer         // symbol is only accessible by this source
 
-canYouSeeMe export : String // symbol is exported
+[[export]] \
+canYouSeeMe : String // symbol is exported
 
 Cos1Tan2Arc4Sin :: type {
     value1 : Float
@@ -99,11 +100,13 @@ Cos1Tan2Arc4Sin :: type {
 }
 
 // export `Cos1Tan2Arc4Sin` type under an alias of `FriendlyName`
-FriendlyName export :: alias Cos1Tan2Arc4Sin
+[[export]] \
+FriendlyName :: alias Cos1Tan2Arc4Sin
 
 // all exported symbols found when importing `Module.Useful.FileUtilities` are
 // re-exported to any module importing this code.
-FileUtilities export :: import Module.Useful.FileUtilities
+[[export]] \
+FileUtilities :: import Module.Useful.FileUtilities
 ````
 
 
@@ -118,7 +121,8 @@ Take note that these keywords are not named `secret` or `protected` or anything 
 ````zax
 :: import Module.System.Types
 
-MyType export :: type {
+[[export]] \
+MyType :: type {
     value1 : Float              // symbol is visible
     value2 : String             // symbol is visible
     value3 private : Integer    // symbol is private to everything except
@@ -329,7 +333,8 @@ print final : ()(...) = {
 
 FastFoo :: import Module.FastFooMathModule
 
-lifesMeaning export final : (result : Integer)() = {
+[[export]] \
+lifesMeaning final : (result : Integer)() = {
     // a compile time test to see if compiling in debug mode
     if Options.debug {
         print("The meaning of life is ", FastFoo.whatIsTheMeaningOfLife(), ".")
@@ -344,7 +349,8 @@ lifesMeaning export final : (result : Integer)() = {
   FastFooMath.zax
 */
 
-whatIsTheMeaningOfLife final export : (result : Integer)() = {
+[[export]] \
+whatIsTheMeaningOfLife final : (result : Integer)() = {
     return 42
 }
 ````

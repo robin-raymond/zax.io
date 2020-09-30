@@ -54,7 +54,6 @@ aos
 alias
 await
 break
-build
 case
 catch
 channel
@@ -70,7 +69,6 @@ each
 else
 extension
 except
-export
 false
 for
 forever
