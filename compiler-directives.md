@@ -1026,9 +1026,9 @@ The `export` directive `[[export=<option>]]` tells the compiler to apply the exp
 
 The options are:
 * `always` - all exportable types are automatically exported after this directive
-* `never` (default) - disable the exporting of all exportable types after this directive
-* `yes` - the next type or declared variable is exported
-* `no` - the next type or declared variable is not exported
+* `never` (default option) - disable the exporting of all exportable types after this directive
+* `yes` - (default is no option specified) the next type or declared variable is exported
+* `no` -  the next type or declared variable is not exported
 
 ````zax
 [[export=always]]
@@ -1044,6 +1044,9 @@ myPrivateData : Integer
 MyPrivateType :: type {
     // ...
 }
+
+[export] \
+visibleToImports : Boolean = true
 ````
 
 
