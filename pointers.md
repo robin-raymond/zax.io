@@ -10,7 +10,7 @@
 Pointers do not contain data directly. Instead pointers contain an address in memory where the real data is located. Pointers are defaulted to point to nothing and can be reset to point to nothing. Pointers can also point to garbage data or invalid memory if the value being pointed to is discarded.
 
 ````zax
-A :: type A {
+A :: type {
     myInteger : Integer
 }
 
@@ -21,7 +21,7 @@ func final : ()() = {
 
     // `pointer` is pointer to a type of `A` which points to `value`
     // (taking the address of `value` is not required)
-    pointer : A* = value
+    pointer : A * = value
 
     // the value of `myInteger` in `value` is now `40` instead of `42`
     pointer.myInteger. -= 2
@@ -54,19 +54,19 @@ Pointers and references are almost interchangeable but a few key differences exi
 References are typically used where the value needs to be guaranteed to exist by convention and but a value should not be copied when passed as an argument to a function.
 
 ````zax
-A :: type A {
+A :: type {
     myInteger : Integer
 }
 
 // as `a` is passed by reference, a copy of `a` is not created as `a`
 // references (i.e. points to) the original `A` type passed in
-funcUsingAReference final : ()(a : A&) = {
+funcUsingAReference final : ()(a : A &) = {
     // no need to check if `a` points to nothing, it always has to point
     // to a valid value of type `A` by convention
     a.myInteger *= 2
 }
 
-funcUsingAPointer final : ()(a : A*) = {
+funcUsingAPointer final : ()(a : A *) = {
     // functions that take an `a` pointer may be sent a pointer to nothing
     // and depending on the assumptions of the function a pointer check
     // of nothing might be desired/required
@@ -85,7 +85,7 @@ func final : ()() = {
 
     // reference is a pointer to type `A` which must always contain a
     // valid pointer to a type of `A` 
-    reference : A& = value
+    reference : A & = value
 
     // the value of `myInteger` in `value` is now `80` instead of `40`
     reference.myInteger *= 2
@@ -111,13 +111,13 @@ Pointers and references do not have to point to custom declared types. They can 
 // as `myInteger` is passed by reference, a copy of `myInteger` is not created
 // as `myInteger` references (i.e. points to) the original `Integer` type
 // passed in
-funcUsingReference final : ()(myInteger : Integer&) = {
+funcUsingReference final : ()(myInteger : Integer &) = {
     // no need to check if `myInteger` points to nothing, it always has to point
     // to a valid value of type `Integer` by convention
     myInteger *= 2
 }
 
-funcUsingPointer final : ()(myInteger : Integer*) = {
+funcUsingPointer final : ()(myInteger : Integer *) = {
     // functions that take a `myInteger` pointer may be sent a
     // pointer to nothing and depending on the assumptions of the function
     // a pointer check of nothing might be desired/required
@@ -136,7 +136,7 @@ func final : ()() = {
 
     // reference is a pointer to type `Integer` which must always contain a
     // valid pointer to a type of `Integer` 
-    reference : Integer& = value
+    reference : Integer & = value
 
     // the value of `value` is now `80` instead of `40`
     reference *= 2
@@ -175,12 +175,12 @@ B :: type {
 
 C :: type {
     a : A           // `a` of type `A` is contained within type `C`
-    b1 : B* own @   // `b1` of type `B` is initialized after default
+    b1 : B * own @  // `b1` of type `B` is initialized after default
                     // `own` allocation
-    b2 : B*         // `b2` is an raw pointer to a `B` type but the pointer is
+    b2 : B *        // `b2` is an raw pointer to a `B` type but the pointer is
                     // defaulted to point to nothing
                     // (and no type is allocated)
-    b3 : B* own     // `b3` is an `own` pointer to a `B` type but the pointer is
+    b3 : B * own    // `b3` is an `own` pointer to a `B` type but the pointer is
                     // defaulted to point to nothing
                     // (and no type is allocated)
     value1 := 0
@@ -234,15 +234,15 @@ print final : ()(...) = {
     // ...
 }
 
-func : ()(pointer : U32*) = {
+func : ()(pointer : U32 *) = {
     // treat the U32 pointer as a U16 pointer
-    u16Pointer := pointer as U16*
+    u16Pointer := pointer as U16 *
 
     // access the pointer as if it were a 16 bit unsigned integer pointer...
     print(u16Pointer.)
 
     // POSSIBLE UNDETERMINED BEHAVIORS:
-    // while converting from a `U32*` to a `U16*` might appear safe, the
+    // while converting from a `U32 *` to a `U16 *` might appear safe, the
     // resulting data might end up being the high order bytes on a big endian
     // system and the low order bytes on a little endian system
 
@@ -279,12 +279,12 @@ func2 final : simpleFunc = {
 }
 
 // declare a raw Unknown pointer
-pointer1 : Unknown*
-pointer2 : Unknown*
+pointer1 : Unknown *
+pointer2 : Unknown *
 
 // cast the func1
-pointer1 = func1 cast Unknown*
-pointer2 = func2 cast Unknown*
+pointer1 = func1 cast Unknown *
+pointer2 = func2 cast Unknown *
 
 // cast back from a raw pointer using the type of the variables definition
 func3 = pointer1 copycast :simpleFunc
@@ -320,12 +320,12 @@ func2 : simpleFunc = [message] {
 }
 
 // declare a raw Unknown pointer
-pointer1 : Unknown*
-pointer2 : Unknown*
+pointer1 : Unknown *
+pointer2 : Unknown *
 
 // cast the func1
-pointer1 = func1 cast Unknown*
-pointer2 = func2 cast Unknown*
+pointer1 = func1 cast Unknown *
+pointer2 = func2 cast Unknown *
 
 // cast back from a raw pointer using the type of the variables definition
 func3 = pointer1 copycast :simpleFunc
@@ -352,7 +352,7 @@ print final : ()(...) = {
 }
 
 // the function is defined as pointer to a function and cannot capture values
-simpleFunc final : ()(value : Integer)*
+simpleFunc final : ()(value : Integer) *
 
 // not legal to capture any values
 func1 final : simpleFunc = {
@@ -366,12 +366,12 @@ func2 final : simpleFunc = {
 }
 
 // declare a raw Unknown pointer
-pointer1 : Unknown*
-pointer2 : Unknown*
+pointer1 : Unknown *
+pointer2 : Unknown *
 
 // cast the func1
-pointer1 = func1 cast Unknown*
-pointer2 = func2 cast Unknown*
+pointer1 = func1 cast Unknown *
+pointer2 = func2 cast Unknown *
 
 // cast back from a raw pointer using the type of the variables definition
 func3 = pointer1 cast :simpleFunc
@@ -416,7 +416,7 @@ MyType :: type {
     value : Integer
     name : String
 
-    subvalue : SubType* own
+    subvalue : SubType * own
 }
 
 func final : (result : MyType)() = {
@@ -425,7 +425,7 @@ func final : (result : MyType)() = {
     return result
 }
 
-augmentFunc final : (result : MyType)(input : MyType& constant) = {
+augmentFunc final : (result : MyType)(input : MyType constant &) = {
     result.value = input.value
     result.name = "Big " + input.name
 
@@ -438,7 +438,7 @@ augmentFunc final : (result : MyType)(input : MyType& constant) = {
     return result
 }
 
-augmentFunc final : (result : MyType)(input : MyType& last) = {
+augmentFunc final : (result : MyType)(input : MyType & last) = {
     result.value = input.value
     result.name = "Happy " + input.name
 
@@ -517,18 +517,18 @@ MyType ::type {
     value : Integer
     name : String
 
-    subvalue : SubType* own @
+    subvalue : SubType * own @
 }
 
-display final : ()(value : MyType&) = {
+display final : ()(value : MyType &) = {
     // ...
 }
 
-display final : ()(value : MyType& last) = {
+display final : ()(value : MyType & last) = {
     // ...
 }
 
-doSomething final : ()(value : MyType& last) = {
+doSomething final : ()(value : MyType & last) = {
     // ...
     // WARNING: `lease-or-last` is issued as the intention to call
     // the `lease` or `last` version of the `display` function is unclear
@@ -567,14 +567,14 @@ MyType ::type {
     value : Integer
     name : String
 
-    subvalue : SubType* own @
+    subvalue : SubType * own @
 }
 
-display final : ()(value : MyType& lease) = {
+display final : ()(value : MyType & lease) = {
     // ...
 }
 
-doSomething final : ()(value : MyType& last) = {
+doSomething final : ()(value : MyType & last) = {
     // ...
 
     // ERROR: `explicit-lease-cannot-receive-last` error as the explicit

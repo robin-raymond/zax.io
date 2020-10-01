@@ -13,7 +13,7 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething final : ()(input : MyType*) = {
+doSomething final : ()(input : MyType *) = {
     // code that 
 }
 
@@ -22,11 +22,11 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and is `unique` implicitly in `value1`
-        value1 : MyType* @
+        value1 : MyType * @
 
         // `value2` is allocated with the same context allocator and
         // `value2` is explicitly qualified as `own`
-        value2 : MyType* own @    
+        value2 : MyType * own @    
 
         doSomething(value1)
         doSomething(value2)
@@ -53,7 +53,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -61,8 +61,8 @@ printIfValidPointer final : ()(pointerToValue : MyType*) = {
 }
 
 func final : ()() = {
-    value1 : MyType* unique @   // allocated using the context allocator
-    value2 : MyType* unique     // no allocation is performed and pointer points
+    value1 : MyType * unique @   // allocated using the context allocator
+    value2 : MyType * unique     // no allocation is performed and pointer points
                                 // to nothing
 
     // ownership of the `unique` pointer is
@@ -89,7 +89,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -97,8 +97,8 @@ printIfValidPointer final : ()(pointerToValue : MyType*) = {
 }
 
 func final : ()() = {
-    value1 : MyType* own @  // allocated using the context allocator
-    value2 : MyType* own    // no allocation is performed and pointer points
+    value1 : MyType * own @  // allocated using the context allocator
+    value2 : MyType * own    // no allocation is performed and pointer points
                             // to nothing
 
     // ownership of the own pointer is transferred from value1 to value2
@@ -128,7 +128,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -136,9 +136,9 @@ printIfValidPointer final : ()(pointerToValue : MyType*) = {
 }
 
 func final : ()() = {
-    value1 : MyType* @          // allocated using the context allocator and
+    value1 : MyType * @          // allocated using the context allocator and
                                 // pointer is `unique` implicitly
-    value2 : MyType* own        // no allocation is performed and the `own`
+    value2 : MyType * own        // no allocation is performed and the `own`
                                 // pointer points to nothing
 
     // ERROR: The `value1` pointer was implicitly `unique` and thus
@@ -174,7 +174,7 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething final : ()(input : MyType*) = {
+doSomething final : ()(input : MyType *) = {
     // code that 
 }
 
@@ -185,11 +185,11 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // custom allocator and is `own` implicitly in `value1`
-        value1 : MyType* @ allocator
+        value1 : MyType * @ allocator
 
         // `value2` is allocated with the same custom allocator and
         // `value2` is explicitly qualified as `own`
-        value2 : MyType* own @ allocator
+        value2 : MyType * own @ allocator
 
         doSomething(value1)
         doSomething(value2)
@@ -219,7 +219,7 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething final : ()(input : MyType*) = {
+doSomething final : ()(input : MyType *) = {
     // code that 
 }
 
@@ -231,7 +231,7 @@ func : (result : String)() = {
         // the @ operator allocates `value1` dynamically with the
         // custom allocator but the value is merely destructed but not
         // deallocated when the value falls out of scope
-        value1 : MyType* discard @ allocator
+        value1 : MyType * discard @ allocator
 
         doSomething(value1)
 
@@ -261,7 +261,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -269,8 +269,8 @@ printIfValidPointer final : ()(pointerToValue : MyType*) = {
 }
 
 func final : ()() = {
-    value1 : MyType* discard @  // allocated using the context allocator
-    value2 : MyType* discard    // no allocation is performed
+    value1 : MyType * discard @  // allocated using the context allocator
+    value2 : MyType * discard    // no allocation is performed
 
     // ownership of the discard pointer is transferred from value1 to value2
     value2 = value1
@@ -296,7 +296,7 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething final : ()(input : MyType*) = {
+doSomething final : ()(input : MyType *) = {
     // ...
 }
 
@@ -308,7 +308,7 @@ func final : (result : String)() = {
         // the @ operator allocates `value1` dynamically with the
         // custom allocator but the value is not destructed nor
         // deallocated until the custom allocator is destructed
-        value1 : MyType* collect @ allocator
+        value1 : MyType * collect @ allocator
 
         doSomething(value1)
 
@@ -338,7 +338,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -346,8 +346,8 @@ printIfValidPointer final : ()(pointerToValue : MyType*) = {
 }
 
 func final : ()() = {
-    value1 : MyType* collect @      // allocated using the context allocator
-    value2 : MyType* collect        // no allocation is performed
+    value1 : MyType * collect @      // allocated using the context allocator
+    value2 : MyType * collect        // no allocation is performed
 
     // ownership of the `collect` pointer is transferred from
     // `value1` to `value2`
@@ -369,9 +369,9 @@ MyType :: type {
     myValue2 : String
 }
 
-pointerToAValue : MyType*   // the pointer will point to nothing by default
+pointerToAValue : MyType *  // the pointer will point to nothing by default
 
-doSomething final : ()(input : MyType*) = {
+doSomething final : ()(input : MyType *) = {
     // ...
 
     pointerToAValue = input
@@ -383,7 +383,7 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator
-        value1 : MyType* own @
+        value1 : MyType * own @
 
         doSomething(value1)
 
@@ -412,7 +412,7 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething final : ()(input : MyType*) = {
+doSomething final : ()(input : MyType *) = {
     // ...
 }
 
@@ -421,12 +421,12 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator
-        value1 : MyType* own @
+        value1 : MyType * own @
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator (which is verbosely expressed but is
         // functionally equivalent to `value1`'s allocation)
-        value1 : MyType* own @ ___.allocator
+        value1 : MyType * own @ ___.allocator
 
         doSomething(value1)
 
@@ -453,18 +453,18 @@ An example `own` pointer content and control block:
 OwnPointerControlBlock$(Type) :: type {
     [[reserve=sizeof Atomic$(Integer)]]
     [[reserve=sizeof Atomic$(Integer)]]
-    allocator : Allocator*
-    destructor : ()()*
-    deallocateType : Unknown*
-    deallocateControl : Unknown*
+    allocator : Allocator *
+    destructor : ()() *
+    deallocateType : Unknown *
+    deallocateControl : Unknown *
     type : :: union {
         type : $Type
     }
 }
 
 OwnPointerContents$(Type) :: type {
-    instance : $Type*
-    control : OwnPointerControlBlock$($Type)*
+    instance : $Type *
+    control : OwnPointerControlBlock$($Type) *
 }
 */
 ````

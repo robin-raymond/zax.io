@@ -94,36 +94,36 @@ AnotherType :: type {
     value2 : WString
 }
 
-func final : ()(input : MyType*) = {
+func final : ()(input : MyType *) = {
     // ...
 }
 
 myType : MyType
 anotherType : AnotherType
 
-myTypePointer1 := myType as MyType*     // allowed
+myTypePointer1 := myType as MyType *    // allowed
 myTypePointer2 := myType as *           // allowed - type is deduced
-myTypePointer2 : MyType* = myType       // allowed - implicit casting
+myTypePointer2 : MyType * = myType      // allowed - implicit casting
 
 func(myType)                            // allowed - implicit casting
 
 
-// ERROR: cannot convert from myType to AnotherType* as the types do not match
-myOtherTypePointer := myType as AnotherType*
+// ERROR: cannot convert from myType to AnotherType * as the types do not match
+myOtherTypePointer := myType as AnotherType *
 
 // UNDEFINED BEHAVIOR: casting a pointer to one type into a pointer of another
 // can lead to undefined behaviors if the pointers are accessed
-myOtherTypePointer := myType cast AnotherType*
+myOtherTypePointer := myType cast AnotherType *
 
-// ERROR: cannot convert from `AnotherType` to `MyType*`
+// ERROR: cannot convert from `AnotherType` to `MyType *`
 func(anotherType)
 
-// ERROR: cannot convert from `AnotherType*` to `MyType*`
-func(anotherType cast AnotherType*)
+// ERROR: cannot convert from `AnotherType *` to `MyType *`
+func(anotherType cast AnotherType *)
 
 // UNDEFINED BEHAVIOR: casting a pointer to one type into a pointer of another
 // can lead to undefined behaviors if the pointers are accessed
-func(anotherType cast MyType*)
+func(anotherType cast MyType *)
 ````
 
 
@@ -153,33 +153,33 @@ funcByValue final : ()(input : MyType) = {
     // ...
 }
 
-funcByRef final : ()(input : MyType&) = {
+funcByRef final : ()(input : MyType &) = {
     // ...
 }
 
 myType : MyType
 anotherType : AnotherType
 
-myTypePointer := myType as MyType*      // allowed
+myTypePointer := myType as MyType *     // allowed
 
-myTypeRef1 := myType as MyType&         // allowed - implicit casting 
+myTypeRef1 := myType as MyType &        // allowed - implicit casting 
 myTypeRef2 := myType as &               // allowed - deduced reference type
-myTypeRef3 : MyType& = myType           // allowed - implicit casting 
+myTypeRef3 : MyType & = myType          // allowed - implicit casting 
 myTypeRef4 : & = myType                 // allowed - implicit casting with
                                         // deduced reference type
 funcByValue(myType)                     // allowed - copy
 funcByRef(myType)                       // allowed
 
 
-myTypeRef5 := myTypePointer as MyType&  // allowed - implicit casting 
+myTypeRef5 := myTypePointer as MyType & // allowed - implicit casting 
 myTypeRef6 := myTypePointer as &        // allowed - deduced reference type
 
-funcByValue(myTypePointer as MyType&)   // allowed - copy
-funcByRef(myTypePointer as MyType&)     // allowed - implicit casting
+funcByValue(myTypePointer as MyType &)  // allowed - copy
+funcByRef(myTypePointer as MyType &)    // allowed - implicit casting
 
 
 // ERROR: cannot implicitly convert from a pointer type to a reference type
-myTypeRef7 : MyType& = myTypePointer 
+myTypeRef7 : MyType & = myTypePointer 
 myTypeRef8 : & = myTypePointer
 funcByValue(myTypePointer)
 funcByRef(myTypePointer)
@@ -188,17 +188,17 @@ funcByRef(myTypePointer)
 if myTypePointer {
     // safe because the pointer was checked if it points to something
     // valid and this code executes and the conversion is performed
-    checkedType := myTypePointerToNothing as MyType&
+    checkedType := myTypePointerToNothing as MyType &
 }
 
-myTypeRefA := myTypePointer. as MyType& // allowed - already a reference
+myTypeRefA := myTypePointer. as MyType &// allowed - already a reference
 myTypeRefB := myTypePointer. as &       // allowed - already a reference
 
-funcByValue(myTypePointer. as MyType&)  // allowed - copy
+funcByValue(myTypePointer. as MyType &) // allowed - copy
 funcByRef(myTypePointer. as &)          // allowed - already a reference
 
 
-myTypeRefC : MyType& = myTypePointer.   // allowed - already a reference
+myTypeRefC : MyType & = myTypePointer.  // allowed - already a reference
 myTypeRefD : & = myTypePointer.         // allowed - already a reference
 myTypeRefE := myTypePointer.            // allowed - copy with
                                         // deduced type
@@ -246,20 +246,20 @@ funcByRef(myTypePointer.)               // allowed
 
 
 
-myTypePointerToNothing : MyType*                    // points to nothing
+myTypePointerToNothing : MyType *       // points to nothing
 
 if myTypePointerToNothing {
     // safe because the pointer was checked if it points to something
     // valid (this code will not execute)
-    checkedType := myTypePointerToNothing as MyType&
+    checkedType := myTypePointerToNothing as MyType &
 }
 
-myTypePanic1 := myTypePointerToNothing as MyType&   // PANIC AT RUNTIME
+myTypePanic1 := myTypePointerToNothing as MyType &  // PANIC AT RUNTIME
 myTypePanic2 := myTypePointerToNothing as &         // PANIC AT RUNTIME
 myTypePanic3 := myTypePointerToNothing as MyType    // PANIC AT RUNTIME
 
-funcByValue(myTypePointerToNothing as MyType&)      // PANIC AT RUNTIME
-funcByRef(myTypePointerToNothing as MyType&)        // PANIC AT RUNTIME
+funcByValue(myTypePointerToNothing as MyType &)     // PANIC AT RUNTIME
+funcByRef(myTypePointerToNothing as MyType &)       // PANIC AT RUNTIME
 
 funcByValue(myTypePointerToNothing as &)            // PANIC AT RUNTIME
 funcByRef(myTypePointerToNothing as &)              // PANIC AT RUNTIME
@@ -267,13 +267,13 @@ funcByRef(myTypePointerToNothing as &)              // PANIC AT RUNTIME
 funcByValue(myTypePointerToNothing as MyType)       // PANIC AT RUNTIME
 funcByRef(myTypePointerToNothing as MyType)         // PANIC AT RUNTIME
 
-myTypePanic4 := myTypePointerToNothing. as MyType&  // PANIC AT RUNTIME
+myTypePanic4 := myTypePointerToNothing. as MyType & // PANIC AT RUNTIME
 myTypePanic5 := myTypePointerToNothing. as &        // PANIC AT RUNTIME
 myTypePanic6 := myTypePointerToNothing. as MyType   // PANIC AT RUNTIME
 
 
 // ERROR: cannot implicitly convert from a pointer type to a reference type
-myTypePanicA : MyType& = myTypePointerToNothing
+myTypePanicA : MyType & = myTypePointerToNothing
 myTypePanicB : & = myTypePointerToNothing
 myTypePanicC : MyType = myTypePointerToNothing
 
@@ -283,7 +283,7 @@ funcByValue(myTypePointerToNothing)
 funcByRef(myTypePointerToNothing)
 
 
-myTypePanicD : MyType& = myTypePointerToNothing.    // PANIC AT RUNTIME
+myTypePanicD : MyType & = myTypePointerToNothing.   // PANIC AT RUNTIME
 myTypePanicE : & = myTypePointerToNothing.          // PANIC AT RUNTIME
 myTypePanicF : MyType = myTypePointerToNothing.     // PANIC AT RUNTIME
 
@@ -345,10 +345,10 @@ compatibleType := myType as CompatibleType     // allowed
 // ERROR: the destination type is not compatible with the source type
 incompatibleType := myType as IncompatibleType
 
-byRefValue1 := myType as CompatibleType&    // allowed
+byRefValue1 := myType as CompatibleType &    // allowed
 
 // ERROR: not all of the values in `MyType` are available in `CompatibleType`
-byRefValue2 := compatibleType as MyType&
+byRefValue2 := compatibleType as MyType &
 ````
 
 
@@ -388,10 +388,10 @@ compatibleType := myType cast CompatibleType        // safe but discouraged
 // WARNING: undefined behaviors will occur during copy construction
 incompatibleType := myType cast IncompatibleType    // unsafe
 
-byRefValue1 := myType cast CompatibleType&          // safe but discouraged
+byRefValue1 := myType cast CompatibleType &          // safe but discouraged
 
 // WARNING: undefined behaviors will occur if `byRefValue2` is accessed
-byRefValue2 := compatibleType cast MyType&          // unsafe
+byRefValue2 := compatibleType cast MyType &          // unsafe
 ````
 
 
@@ -424,7 +424,7 @@ myType : MyType
 incompatibleType1 := myType cast IncompatibleType
 
 // ERROR: cannot convert to the destination type by reference
-byRefValue1 := myType as IncompatibleType&
+byRefValue1 := myType as IncompatibleType &
 ````
 
 
@@ -448,7 +448,7 @@ MyType :: type {
     }
 
     // explicitly enable the reference conversion
-    operator as final : (result : AnotherCompatibleType&)() constant = default
+    operator as final : (result : AnotherCompatibleType &)() constant = default
 
     // all `as` operators that are not explicitly defined will match this
     // lower priority casting meta-function where the compiler will
@@ -481,10 +481,10 @@ compatibleType := myType cast CompatibleType
 incompatibleType := myType as IncompatibleType  // allowed
 
 // ERROR: this `as` operator is explicitly disabled
-byRefValue1 := myType as CompatibleType&
+byRefValue1 := myType as CompatibleType &
 
 // ERROR: cannot convert to the destination type by reference
-byRefValue2 := myType as IncompatibleType&
+byRefValue2 := myType as IncompatibleType &
 
-byRefValue3:= myType as AnotherCompatibleType&  // allowed
+byRefValue3:= myType as AnotherCompatibleType &  // allowed
 ````

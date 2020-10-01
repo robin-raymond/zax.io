@@ -158,12 +158,12 @@ If operating on a function, variable, or an overloadable operator on a type wher
 
 ````zax
 MyType :: type {
-    pointer own : Integer*
+    pointer own : Integer *
     data own : Integer
     realNumber : Float
 }
 
-fetchPointer : (pointer : Unknown*)() = {
+fetchPointer : (pointer : Unknown *)() = {
     // ...
 }
 
@@ -396,7 +396,7 @@ B :: type {
     bar : Integer
 }
 
-doSomething : ()(a : A*) = {
+doSomething : ()(a : A *) = {
 }
 
 function final : ()() = {
@@ -437,7 +437,7 @@ public:
     double weight{};
 };
 
-void doSomething(A *a) {
+void doSomething(A* a) {
     // ...
 
     // covert from A to B and assume that A "is-a" B and not a C
@@ -478,7 +478,7 @@ public:
     double weight{};
 };
 
-void doSomething(A *a) {
+void doSomething(A* a) {
     // ...
 
     // dynamic_cast will return a nullptr if the conversion cannot occur

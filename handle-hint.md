@@ -36,7 +36,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -48,11 +48,11 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `handle` pointer is maintained
-        value1 : MyType* handle @
+        value1 : MyType * handle @
 
         // `value2` is is a `handle` pointer but the value is initialized to
         // point to nothing
-        value2 : MyType* handle
+        value2 : MyType * handle
 
         // both `value2` and `value1` have a handle pointer to the same
         // `MyType` instance
@@ -90,7 +90,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -102,12 +102,12 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `handle` pointer is maintained
-        value1 : MyType* handle @
+        value1 : MyType * handle @
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator and a `handle` pointer is maintained to
         // another `MyType` instance
-        value2 : MyType* handle @
+        value2 : MyType * handle @
 
         printIfValidPointer(value1) // will print "true"
         printIfValidPointer(value2) // will print "true"
@@ -154,7 +154,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -163,18 +163,18 @@ printIfValidPointer final : ()(pointerToValue : MyType*) = {
 
 func final : (
     // `stayingAlive` is a `handle` pointer defaulted to point to nothing
-    stayingAlive : MyType* handle
+    stayingAlive : MyType * handle
 )() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `handle` pointer is maintained
-        value1 : MyType* handle @
+        value1 : MyType * handle @
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator and a `handle` pointer is maintained to
         // another `MyType` instance
-        value2 : MyType* handle @
+        value2 : MyType * handle @
 
         // `stayingAlive` will point to `value2` thus they will both point to
         // the same `MyType` instance
@@ -249,8 +249,8 @@ assert final : ()(check : Boolean) = {
 }
 
 MyType :: type {
-    head : MyType* handle
-    next : MyType* handle
+    head : MyType * handle
+    next : MyType * handle
 
     myValue1 : Integer
     myValue2 : String
@@ -264,7 +264,7 @@ MyType :: type {
     }
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -276,17 +276,17 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `handle` pointer is maintained
-        value1 : MyType* handle @
+        value1 : MyType * handle @
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator and a `handle` pointer is maintained to
         // another `MyType` instance
-        value2 : MyType* handle @
+        value2 : MyType * handle @
 
         // the @ operator allocates `value3` dynamically with the
         // context's allocator and a `handle` pointer is maintained to
         // another `MyType` instance
-        value3 : MyType* handle @
+        value3 : MyType * handle @
 
         // setup pointers to the head of the linked list
         value1.head = value1
@@ -346,8 +346,8 @@ assert final : ()(check : Boolean) = {
 }
 
 MyType :: type {
-    head : MyType* handle
-    next : MyType* handle
+    head : MyType * handle
+    next : MyType * handle
 
     myValue1 : Integer
     myValue2 : String
@@ -361,7 +361,7 @@ MyType :: type {
     }
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -373,17 +373,17 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `handle` pointer is maintained
-        value1 : MyType* handle @
+        value1 : MyType * handle @
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator and a `handle` pointer is maintained to
         // another `MyType` instance
-        value2 : MyType* handle @
+        value2 : MyType * handle @
 
         // the @ operator allocates `value3` dynamically with the
         // context's allocator and a `handle` pointer is maintained to
         // another `MyType` instance
-        value3 : MyType* handle @
+        value3 : MyType * handle @
 
         // setup pointers to the head of the linked list
         value1.head = value1
@@ -435,9 +435,9 @@ assert final : ()(check : Boolean) = {
 }
 
 MyType :: type {
-    head : MyType* hint     // head will not be the lifetime of whatever it
+    head : MyType * hint    // head will not be the lifetime of whatever it
                             // points to alive
-    next : MyType* handle   // next will keep whatever it points to alive
+    next : MyType * handle  // next will keep whatever it points to alive
 
     myValue1 : Integer
     myValue2 : String
@@ -451,7 +451,7 @@ MyType :: type {
     }
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -463,17 +463,17 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `handle` pointer is maintained
-        value1 : MyType* handle @
+        value1 : MyType * handle @
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator and a `handle` pointer is maintained to
         // another `MyType` instance
-        value2 : MyType* handle @
+        value2 : MyType * handle @
 
         // the @ operator allocates `value3` dynamically with the
         // context's allocator and a `handle` pointer is maintained to
         // another `MyType` instance
-        value3 : MyType* handle @
+        value3 : MyType * handle @
 
         // setup pointers to the head of the linked list
         value1.head = value1
@@ -509,7 +509,7 @@ func final : (result : String)() = {
         printIfValidPointer(headPointer.next.next)  // will print "true"
 
         // take the `head` pointer of the `next` pointed type
-        copyOfWeakHead : MyType* hint = headPointer.next.head
+        copyOfWeakHead : MyType * hint = headPointer.next.head
 
         // the `MyType` instance pointed to by the `hint` pointer is still
         // alive thus converting the `hint` point to a `handle` pointer will
@@ -557,7 +557,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -569,11 +569,11 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `handle` pointer is maintained
-        value1 : MyType* own @
+        value1 : MyType * own @
 
         // `value2` is is a `handle` pointer but the value is initialized to
         // point to nothing
-        value2 : MyType* handle
+        value2 : MyType * handle
 
         // `value1` used to own the instance but the instance ownership is
         // transferred from a `value1` to `value2` which now keeps the
@@ -602,7 +602,7 @@ func final : (result : String)() = {
 
         // `value3` is is a `handle` pointer but the value is initialized to
         // point to nothing
-        value3 : MyType* handle
+        value3 : MyType * handle
 
         // once again transfer ownership from `value1` to `value2`
         value2 = value1
@@ -672,10 +672,10 @@ MyType :: type {
     value2 : String
 }
 
-myType : MyType* handle @
+myType : MyType * handle @
 
 // create a pointer to `value` and link the lifetime of `myType` to the pointer
-value : Integer* handle = myType.value1 lifetimeof myType
+value : Integer * handle = myType.value1 lifetimeof myType
 
 // resetting the `myType`'s `handle` pointer will not impact the real lifetime
 // of the instance connected to `myType` (as the `value` `handle` pointer will
@@ -708,19 +708,19 @@ C :: type {
     weight : Double
 }
 
-doSomething final : ()(a : A* handle) = {
+doSomething final : ()(a : A * handle) = {
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type and create a `handle` pointer from `a`
-    b := (a outerof B*) lifetimeof a
+    b := (a outerof B *) lifetimeof a
 }
 
 function final : ()() = {
-    value : B* handle @
+    value : B * handle @
     value.a.foo = 1
     value.bar = 2
 
     // link a `handle` pointer to `a` from `value`
-    a : A* handle = value.a lifetimeof value
+    a : A * handle = value.a lifetimeof value
 
     doSomething(a)
 }
@@ -745,10 +745,10 @@ HandlePointerControlBlock$(Type) :: type {
     [[reserve=(sizeof Atomic$(Integer)) - sizeof Integer]]
     weakCount : Integer
     [[reserve=(sizeof Atomic$(Integer)) - sizeof Integer]]
-    allocator : Allocator*
-    destructor : ()()*
-    deallocateType : Unknown*
-    deallocateControl : Unknown*
+    allocator : Allocator *
+    destructor : ()() *
+    deallocateType : Unknown *
+    deallocateControl : Unknown *
     type : :: union {
         type : $Type
     }
@@ -756,7 +756,7 @@ HandlePointerControlBlock$(Type) :: type {
 
 HandlePointerContents$(Type) :: type {
     instance : $Type *
-    control : HandlePointerControlBlock$($Type)*
+    control : HandlePointerControlBlock$($Type) *
 }
 */
 ````

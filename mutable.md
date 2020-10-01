@@ -283,7 +283,7 @@ MyType :: type {
 }
 
 // accept the default mutability of the type (which is `mutable`)
-func1 final : ()(value : MyType&) = {
+func1 final : ()(value : MyType &) = {
     // ...
 }
 
@@ -351,7 +351,7 @@ MyType :: type immutable {
 }
 
 // accept the default mutability of the type (which is `mutable`)
-func1 final : ()(value : MyType&) = {
+func1 final : ()(value : MyType &) = {
     // ...
 }
 
@@ -430,7 +430,7 @@ MyType :: type immutable {
 }
 
 // accept the `default` mutability of the type (which is `mutable`)
-func1 final : ()(value : MyType&) = {
+func1 final : ()(value : MyType &) = {
     // ...
 }
 
@@ -490,7 +490,7 @@ Variables contained with types qualified as `immutable` or `constant` cannot hav
 
 To circumvent a compiler's enforcement of non-changeable contained types, the `mutable` keyword must be declared on a variable. Declaring a variable as `mutable` is not the same as declaring a type as `mutable`. A variable declared as `mutable` implies the type's variable will be treated as non-`constant` even if the calling function is executed in a from `constant` function or from within an `immutable` type.
 
-A variable can be declared `mutable` entirely separate from the type's mutability. For example, mutable variable could be a pointer type to an immutable type named `SomeType`, i.e. `variable mutable : SomeType immutable*`.
+A variable can be declared `mutable` entirely separate from the type's mutability. For example, mutable variable could be a pointer type to an immutable type named `SomeType`, i.e. `variable mutable : SomeType immutable *`.
 
 ````zax
 MyType :: type {

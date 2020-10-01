@@ -33,19 +33,19 @@ MyType :: type {
         // conditions where a copy of the type needs to be made
         animal = rhs.animal
     }
-    +++ final : ()(rhs : MyType last &) = {
+    +++ final : ()(rhs : MyType & last) = {
         // this version of the constructor will be called when the
         // `last` instance of a type is being transferred from the source
         // type to the destination type
         animal = rhs.animal
     }
-    +++ final : ()(rhs : MyType constant deep &) = {
+    +++ final : ()(rhs : MyType constant & deep) = {
         // this version of the constructor will be called when a `deep`
         // copy of the contents must be performed
         animal = rhs.animal
     }
 
-    merge : (result : MyType&)(rhs : MyType constant &) deep = {
+    merge : (result : MyType &)(rhs : MyType constant &) deep = {
         // ...
         return _.
     }
@@ -66,7 +66,7 @@ myType : MyType
 myOtherType : MyType = myType
 
 // in theory, `myTypeFromLast` should be it's own clone of `MyType` but the
-// the `MyType last &` constructor only performed a shallow copy so the
+// the `MyType & last` constructor only performed a shallow copy so the
 // memory backing the types could still be shared
 myTypeFromLast := returnAsTemporary(myType)
 
@@ -87,7 +87,7 @@ anotherType.merge(myType)
 
 ````zax
 MyType :: type deep {
-    value1 : Integer* @
+    value1 : Integer * @
     value2 : String
 }
 
@@ -818,25 +818,25 @@ SimpleType :: type {
 MyType :: type {
     value1 : Integer
     value2 : String
-    value3 : SimpleType* @      // might be allocated using the parallel or
+    value3 : SimpleType * @     // might be allocated using the parallel or
                                 // sequential allocator depending how
                                 // the container type allocated the type
 }
 
 DoubleType :: type {
-    myType1 : MyType* own @     // even though standard allocator was
+    myType1 : MyType * own @    // even though standard allocator was
                                 // specified, parallel allocation will happen
                                 // in this example (as the container was
                                 // allocated using the parallel allocator)
-    myType2 : MyType* own @     // same as above
+    myType2 : MyType * own @    // same as above
 
-    myType3 : MyType* own @!    // override any request to use the parallel
+    myType3 : MyType * own @!   // override any request to use the parallel
                                 // allocator and allocate using the sequential
                                 // allocator
 }
 
 
-doubleType : DoubleType* own @@ // allocate using the parallel allocator
+doubleType : DoubleType * own @@ // allocate using the parallel allocator
 ````
 
 

@@ -38,16 +38,16 @@ Allocator :: type {
         byteAlignment : TypeSize    // what is the requested alignment for the
                                     // allocation
 
-        destructor : ()(type : Unknown*)*   // function to call if the
+        destructor : ()(type : Unknown *) * // function to call if the
                                             // allocator must call the 
                                             // destructor upon deallocation
     }
 
-    allocate : (pointer : Unknown*)(properties : Allocation) = {
+    allocate : (pointer : Unknown *)(properties : Allocation) = {
         // ...
     }
 
-    deallocate : ()(pointer : Unknown*) = {
+    deallocate : ()(pointer : Unknown *) = {
         // ...
     }
 }
@@ -70,7 +70,8 @@ MyAllocator :: type {
     // disambiguate polymorphic functions.
     allocate override := {
         // access variable named `properties` to determine what allocation
-        // operations to perform and return a `Unknown*` to the allocated memory
+        // operations to perform and return
+        // an `Unknown *` to the allocated memory
     }
 
     deallocate override := {
@@ -83,7 +84,7 @@ MyType :: type {
     myValue2 : String
 }
 
-doSomething final : ()(myType : MyType*) = {
+doSomething final : ()(myType : MyType *) = {
     // ...
 }
 
@@ -118,11 +119,11 @@ MyType :: type {
     myValue2 : String 
 }
 
-doSomethingElse final : ()(myType : MyType*) = {
+doSomethingElse final : ()(myType : MyType *) = {
     // ...
 }
 
-doSomething final : ()(myType : MyType*) = {
+doSomething final : ()(myType : MyType *) = {
     // ...
 
     // allocate `myOtherType` using the allocator contained within the context
@@ -174,11 +175,11 @@ MyType :: type {
     myValue2 : String
 }
 
-allocate final : (pointer : Unknown*)(bytes : TypeSize, alignment : TypeSize) = {
+allocate final : (pointer : Unknown *)(bytes : TypeSize, alignment : TypeSize) = {
     // ...
 }
 
-deallocate final : ()(pointer : Unknown*) = {
+deallocate final : ()(pointer : Unknown *) = {
     // ...
 }
 
@@ -186,7 +187,7 @@ func final : ()() = {
     pointer = allocate(sizeof MyType, alignof MyType)
     
     // convert the raw pointer
-    myType : MyType* = pointer cast MyType*
+    myType : MyType * = pointer cast MyType *
     
     // construct the type (if required)
     myType.+++()

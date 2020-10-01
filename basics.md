@@ -136,10 +136,16 @@ Common aliases are placed in `Module.System.Keywords`:
 From the `Module.System.Keywords`
 ````
 // some example keywords that are aliased in the keywords module
-const export :: alias keyword constant
-property export :: alias keyword mutator
-static export :: alias keyword once
-downcast export :: alias keyword outercast
+[[export=always]]
+
+const :: alias keyword constant
+property :: alias keyword mutator
+static :: alias keyword once
+downcast :: alias keyword outercast
+
+// ...
+
+[[export=never]]
 ````
 
 
@@ -355,6 +361,7 @@ discard             // suppress warning on unused variable or
                     // non captured results
 error               // cause an error in compilation
 execute             // evaluates code blocks at compile time
+export              // make type, variable, etc visible to module importation
 file                // indicates the source for a generated file
 function            // current function as a string literal
 inline              // tells compiler to inline vs call functions

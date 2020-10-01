@@ -27,7 +27,7 @@ MyType :: type {
     // when used in a constructor, the `Nothing` type indicates the nothing
     // instance is being constructed allowing the object to set itself up to be
     // the nothing instance
-    +++ final final : (result : MyType*)(:Nothing) = {
+    +++ final final : (result : MyType *)(:Nothing) = {
         // reset function pointers to nothing
         doSomething = {}
         doSomethingElse = { [[discard]] value }
@@ -51,7 +51,7 @@ MyType :: type {
     }
 }
 
-myType : myType*
+myType : myType *
 
 // these functions do not crash or panic; they simply perform no operation
 myType.doSomething()
@@ -77,7 +77,7 @@ MyType :: type {
     }
 }
 
-myType : MyType*
+myType : MyType *
 
 // attempting to call these functions may cause a panic since the nothing
 // and definitely have undefined behaviors; no type was allocated and the
@@ -108,7 +108,7 @@ MyType :: type {
 }
 
 // default pointer will point to the nothing instance
-myType : MyType*
+myType : MyType *
 
 // nothing prevents the nothing instant values from being set (except a panic
 // of `pointer-to-nothing-accessed` may be issued as the pointer is null)

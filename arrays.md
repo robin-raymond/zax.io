@@ -218,7 +218,7 @@ MyType :: type {
     value3 : Float
 }
 
-func : ()(value : MyType*) = {
+func : ()(value : MyType *) = {
     // ...
 }
 

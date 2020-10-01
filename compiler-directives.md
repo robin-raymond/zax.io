@@ -203,7 +203,7 @@ Context for the deprecate warning:
 
 The `min` option requires the importing module must declare an import of at least this version to use the API. The `max` option requires the importing module must not declare an import version greater than this version. The compiler will treat versions as [point release](https://en.wikipedia.org/wiki/Point_release) notations. The version can be specified using a `version` `String` declaration in the import statement. The `min` and `max` keywords are generally not used together but they can be.
 
-Only one `always` deprecation can be active at a time. The `never` directive will disable any active `always`. Usage of `never` cannot be declared with `error`, `min`, `max` or `context` as they have no applicability and will issue an `incompatible-directive` error. Individual `yes` or `no` temporarily override any `always` deprecations directives for the active statement. Any active deprecation state will not apply to imported modules. There's no way to push or pop deprecations unlike `panic`, `warning`, or `error` directives.
+Only one `always` deprecation can be active at a time. The `never` directive will disable any active `always`. Usage of `never` cannot be declared with `error`, `min`, `max` or `context` as they have no applicability and will issue an `incompatible-directive` error. Individual `yes` or `no` temporarily override any `always` deprecations directives for the active statement. Any active deprecation state will not apply to imported modules. There's no way to `push` or `pop` deprecations unlike `panic`, `warning`, or `error` directives.
 
 ````zax
 [[deprecate]] \
@@ -547,7 +547,7 @@ MyMutx [[discard]] :: type {
 MyLock [[discard]] :: type {
     // ...
 
-    +++ final : ()(lock : MyLock&) = {
+    +++ final : ()(lock : MyLock &) = {
         // ...
     }
 }
@@ -1029,6 +1029,8 @@ The options are:
 * `never` (default option) - disable the exporting of all exportable types after this directive
 * `yes` - (default is no option specified) the next type or declared variable is exported
 * `no` -  the next type or declared variable is not exported
+* `push` - push the current `export` state onto the stack
+* `pop` - pop the previous `export` state from the stack
 
 ````zax
 [[export=always]]
@@ -1094,7 +1096,7 @@ MyType :: type {
     value2 : String 
 }
 
-giveMeMyType final : (myType : MyType&)() = {
+giveMeMyType final : (myType : MyType &)() = {
     // no thread locking mechanism will surround this code
     singleton once [[lock-free]] : MyType
     return singleton
@@ -1120,7 +1122,7 @@ The `[[synchronous]]` and `[[asynchronous]]` are mutually exclusive and indicate
 
 ````zax
 MyType :: type {
-    value1 : Integer* @
+    value1 : Integer * @
 }
 
 func final : ()(myType : MyType) promise [[synchronous]] = {
@@ -1185,13 +1187,15 @@ func5 final : ()(a : MyType, b : MyType) deep [[asynchronous]] = {
 
 #### `variables` default directive
 
-The `[[variables=<options>]]` directive declares defaults for the declaration of all variables. See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules. No `push` or `pop` option exists as the default for a project should not be mixed and matched. Either the project's world is mutable by default, or immutable by default.
+The `[[variables=<options>]]` directive declares defaults for the declaration of all variables. See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules.
 
 The options are:
 * `final` - any declared variable is disallowed changing its value (but makes no promise about mutable contents within the variable)
 * `varies` (default) - any declared variable is allowed to change its value and contents
 * `mutable` - a `constant` applied to a `mutable` type is ignored for the type and the type becomes mutable (not recommended)
 * `immutable` (default) - a `constant` applied to a `mutable` type is respected an the the remains `immutable` and `constant`
+* `push` - push the current `variables` state onto the stack
+* `pop` - pop the previous `variables` state from the stack
 
 
 Example of how `varies` / `final` default applied to variables:
@@ -1297,13 +1301,15 @@ my3.value1 = 6  // OKAY
 
 #### `types` default directives
 
-The `[[variables=<options>]]` directive declares defaults for the declaration of all types (and not a type's definition). See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules. No `push` or `pop` option exists as the default for a project should not be mixed and matched. Either the project's world is mutable by default, or immutable by default.
+The `[[variables=<options>]]` directive declares defaults for the declaration of all types (and not a type's definition). See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules.
 
 The options are:
 * `mutable` - (default) if a default is not specified for a type, a declared type is assumed to be `mutable`
 * `immutable` - if a default is not specified for a type, a declared type is assumed to be `immutable`
 * `constant` - if a `mutable` type is declared, the type is assumed to be `constant` once constructed
 * `inconstant` - (default) if a `mutable` type is declared, the type is assumed to remain `mutable` (unless `constant` is applied)
+* `push` - push the current `types` state onto the stack
+* `pop` - pop the previous `types` state from the stack
 
 
 Example of how `mutable` / `mutable` default applied to types:
@@ -1410,11 +1416,13 @@ my3.value1 = 6  // ERROR: type is constant
 
 #### `functions` default directives
 
-The `[[functions=<options>]]` directive declares defaults for the declaration of all functions within types. See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules. No `push` or `pop` option exists as the default for a project should not be mixed and matched. Either the project's world is mutable by default, or immutable by default.
+The `[[functions=<options>]]` directive declares defaults for the declaration of all functions within types. See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules.
 
 The options are:
 * `constant` - a function declared on a type is `constant` by default
 * `inconstant` - (default) a function declared on a type is `inconstant` by default
+* `push` - push the current `functions` state onto the stack
+* `pop` - pop the previous `functions` state from the stack
 
 
 Example of how `constant` / `inconstant` default applied to functions:
@@ -1493,7 +1501,7 @@ gulabJamun : String
 
 ### `tab-stop` directive
 
-The `tab-stop` directive `[[tab-stop=<n>]]` controls the source code tab stop for the tokens that follow. This control what alignment the tab ASCII character (`\t`) is assumed within the source code. Tab stops are reset to the default for each module imported. The default tab stop is `8`' unless otherwise specified.
+The `tab-stop` directive `[[tab-stop=<n>]]` controls the source code tab stop for the tokens that follow. This control what alignment the tab ASCII character (`\t`) is assumed within the source code. Tab stops are reset to the default for each module imported. The default tab stop is `8` unless otherwise specified.
 
 ````zax
 [[tab-stop=4]]

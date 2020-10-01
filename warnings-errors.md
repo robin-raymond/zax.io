@@ -108,7 +108,7 @@ The following are registered errors, and their meaning:
 * `value-not-captured`
     * an attempt was made to access a variable outside of a function or `scope` capture barrier
 * `unmatched-push`
-    * missing a matching `push` on an `error`, `warning`, or `panic` directive
+    * missing a matching `push` on an `error`, `warning`, `panic`, `variables`, `types`, or `functions` directive
 * `scope-flow-control-skips-declaration`
     * an attempt was made to use `break` or `continue` within a scope which would cause important declarations to be skipped
 * `inline-function-not-final`

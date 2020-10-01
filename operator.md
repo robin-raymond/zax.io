@@ -20,7 +20,7 @@ operator < final : (result : Boolean)(lhs : String, rhs : Integer) = {
     // ...
 }
 
-operator += final : (result : String&)(lhs : String&, rhs : Integer) = {
+operator += final : (result : String &)(lhs : String &, rhs : Integer) = {
     // ...
     return lhs
 }
@@ -63,12 +63,12 @@ MyType :: type {
     value1 : Integer
     value2 : String
 
-    operator += final : (result : MyType&)(rhs : Integer) = {
+    operator += final : (result : MyType &)(rhs : Integer) = {
         value1 += rhs
         return _
     }
 
-    operator += final : (result : MyType&)(rhs : String) = {
+    operator += final : (result : MyType &)(rhs : String) = {
         value2 += rhs
         return _
     }
@@ -87,7 +87,7 @@ MyType :: type {
     }
 }
 
-operator > final : (result : Boolean)(lhs : Integer, rhs : MyType& constant) = {
+operator > final : (result : Boolean)(lhs : Integer, rhs : MyType constant &) = {
     return lhs > rhs.value1
 }
 

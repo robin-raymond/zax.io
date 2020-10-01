@@ -348,7 +348,7 @@ MyType :: type {
     }
 }
 
-magicFunction final : ()(pointer : MyType*) = {
+magicFunction final : ()(pointer : MyType *) = {
     // ...
     pointer.+++("magic value")
     // ...
@@ -359,7 +359,7 @@ MyOtherType :: type {
 
     +++ final : ()() = {
         // obtain a pointer to the contained type
-        pointerContainedType :* = containedType
+        pointerContainedType : * = containedType
 
         // call the magic function that will cause the pointed to contained
         // type to be constructed as part of that function
@@ -553,7 +553,7 @@ MyType :: type {
     value2 : String
 
     // the default copy constructor is disabled
-    +++ final : ()( : MyType& constant)
+    +++ final : ()( : MyType constant &)
 }
 
 // a default empty constructor is created
@@ -579,8 +579,8 @@ MyType :: type {
     // the default copy constructor is still available since that version
     // of the function can be automatically generated still
 
-    +++ final : ()( : MyType& last)
-    +++ final : ()( : MyType& deep constant)
+    +++ final : ()( : MyType & last)
+    +++ final : ()( : MyType constant & deep)
 }
 
 // a default empty constructor is created
@@ -606,14 +606,14 @@ MyType :: type {
     // the default copy constructor is still available since that version
     // of the function can be automatically generated still
 
-    +++ final : ()( : MyType& constant)
-    +++ final : ()( : MyType& last) = default
-    +++ final : ()( : MyType& deep constant) = default
+    +++ final : ()( : MyType constant &)
+    +++ final : ()( : MyType & last) = default
+    +++ final : ()( : MyType & deep constant) = default
 
     // INCORRECT: this version would not create a default as the =: would
     // cause the type to point to an empty version of its own type (i.e.
     // a function pointer to nothing)
-    // +++ final : ()( : MyType& deep constant) =:
+    // +++ final : ()( : MyType & deep constant) =:
 }
 
 // a default empty constructor is created
@@ -715,7 +715,7 @@ MyType :: type {
     name own : String
 }
 
-mySingleton final : (result : MyType&)() = {
+mySingleton final : (result : MyType &)() = {
     singleton once : MyType = "Alice"
     return singleton
 }

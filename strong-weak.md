@@ -35,7 +35,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -47,11 +47,11 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `strong` pointer is maintained
-        value1 : MyType* strong @
+        value1 : MyType * strong @
 
         // `value2` is is a `strong` pointer but the value is initialized to
         // point to nothing
-        value2 : MyType* strong
+        value2 : MyType * strong
 
         // both `value2` and `value1` have a `strong` pointer to the same
         // `MyType` instance
@@ -89,7 +89,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -101,12 +101,12 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `strong` pointer is maintained
-        value1 : MyType* strong @
+        value1 : MyType * strong @
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator and a `strong` pointer is maintained to
         // another `MyType` instance
-        value2 : MyType* strong @
+        value2 : MyType * strong @
 
         printIfValidPointer(value1) // will print "true"
         printIfValidPointer(value2) // will print "true"
@@ -153,7 +153,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -162,18 +162,18 @@ printIfValidPointer final : ()(pointerToValue : MyType*) = {
 
 func final : (
     // `stayingAlive` is a `strong` pointer defaulted to point to nothing
-    stayingAlive : MyType* strong
+    stayingAlive : MyType * strong
 )() = {
 
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `strong` pointer is maintained
-        value1 : MyType* strong @
+        value1 : MyType * strong @
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator and a `strong` pointer is maintained to
         // another `MyType` instance
-        value2 : MyType* strong @
+        value2 : MyType * strong @
 
         // `stayingAlive` will point to `value2` thus they will both point to
         // the same `MyType` instance
@@ -248,8 +248,8 @@ assert final : ()(check : Boolean) = {
 }
 
 MyType :: type {
-    head : MyType* strong
-    next : MyType* strong
+    head : MyType * strong
+    next : MyType * strong
 
     myValue1 : Integer
     myValue2 : String
@@ -263,7 +263,7 @@ MyType :: type {
     }
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -275,17 +275,17 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `strong` pointer is maintained
-        value1 : MyType* strong @
+        value1 : MyType * strong @
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator and a `strong` pointer is maintained to
         // another `MyType` instance
-        value2 : MyType* strong @
+        value2 : MyType * strong @
 
         // the @ operator allocates `value3` dynamically with the
         // context's allocator and a `strong` pointer is maintained to
         // another `MyType` instance
-        value3 : MyType* strong @
+        value3 : MyType * strong @
 
         // setup pointers to the head of the linked list
         value1.head = value1
@@ -345,8 +345,8 @@ assert final : ()(check : Boolean) = {
 }
 
 MyType :: type {
-    head : MyType* strong
-    next : MyType* strong
+    head : MyType * strong
+    next : MyType * strong
 
     myValue1 : Integer
     myValue2 : String
@@ -360,7 +360,7 @@ MyType :: type {
     }
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -372,17 +372,17 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `strong` pointer is maintained
-        value1 : MyType* strong @
+        value1 : MyType * strong @
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator and a `strong` pointer is maintained to
         // another `MyType` instance
-        value2 : MyType* strong @
+        value2 : MyType * strong @
 
         // the @ operator allocates `value3` dynamically with the
         // context's allocator and a `strong` pointer is maintained to
         // another `MyType` instance
-        value3 : MyType* strong @
+        value3 : MyType * strong @
 
         // setup pointers to the head of the linked list
         value1.head = value1
@@ -434,9 +434,9 @@ assert final : ()(check : Boolean) = {
 }
 
 MyType :: type {
-    head : MyType* weak     // head will not be the lifetime of whatever it
+    head : MyType * weak    // head will not be the lifetime of whatever it
                             // points to alive
-    next : MyType* strong   // next will keep whatever it points to alive
+    next : MyType * strong  // next will keep whatever it points to alive
 
     myValue1 : Integer
     myValue2 : String
@@ -450,7 +450,7 @@ MyType :: type {
     }
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -462,17 +462,17 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `strong` pointer is maintained
-        value1 : MyType* strong @
+        value1 : MyType * strong @
 
         // the @ operator allocates `value2` dynamically with the
         // context's allocator and a `strong` pointer is maintained to
         // another `MyType` instance
-        value2 : MyType* strong @
+        value2 : MyType * strong @
 
         // the @ operator allocates `value3` dynamically with the
         // context's allocator and a `strong` pointer is maintained to
         // another `MyType` instance
-        value3 : MyType* strong @
+        value3 : MyType * strong @
 
         // setup pointers to the head of the linked list
         value1.head = value1
@@ -508,7 +508,7 @@ func final : (result : String)() = {
         printIfValidPointer(headPointer.next.next)  // will print "true"
 
         // take the `head` pointer of the `next` pointed type
-        copyOfWeakHead : MyType* weak = headPointer.next.head
+        copyOfWeakHead : MyType * weak = headPointer.next.head
 
         // the `MyType` instance pointed to by the `weak` pointer is still
         // alive thus converting the `weak` point to a `strong` pointer will
@@ -558,7 +558,7 @@ MyType :: type {
     myValue2 : String
 }
 
-printIfValidPointer final : ()(pointerToValue : MyType*) = {
+printIfValidPointer final : ()(pointerToValue : MyType *) = {
     if pointerToValue
         print("true")
     else
@@ -570,11 +570,11 @@ func final : (result : String)() = {
     scope {
         // the @ operator allocates `value1` dynamically with the
         // context's allocator and a `strong` pointer is maintained
-        value1 : MyType* own @
+        value1 : MyType * own @
 
         // `value2` is is a `strong` pointer but the value is initialized to
         // point to nothing
-        value2 : MyType* strong
+        value2 : MyType * strong
 
         // `value1` used to own the instance but the instance ownership is
         // transferred from a `value1` to `value2` which now keeps the
@@ -603,7 +603,7 @@ func final : (result : String)() = {
 
         // `value3` is is a `strong` pointer but the value is initialized to
         // point to nothing
-        value3 : MyType* strong
+        value3 : MyType * strong
 
         // once again transfer ownership from `value1` to `value2`
         value2 = value1
@@ -666,10 +666,10 @@ MyType :: type {
     value2 : String
 }
 
-myType : MyType* strong @
+myType : MyType * strong @
 
 // create a pointer to `value` and link the lifetime of `myType` to the pointer
-value : Integer* strong = myType.value1 lifetimeof myType
+value : Integer * strong = myType.value1 lifetimeof myType
 
 // resetting the `myType`'s `strong` pointer will not impact the real lifetime
 // of the instance connected to `myType` (as the `value` `strong` pointer will
@@ -702,19 +702,19 @@ C :: type {
     weight : Double
 }
 
-doSomething final : ()(a : A* strong) = {
+doSomething final : ()(a : A * strong) = {
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type and create a `strong` pointer from `a`
-    b := (a outerof B*) lifetimeof a
+    b := (a outerof B *) lifetimeof a
 }
 
 function final : ()() = {
-    value : B* strong @
+    value : B * strong @
     value.a.foo = 1
     value.bar = 2
 
     // link a `strong` pointer to `a` from `value`
-    a : A* strong = value.a lifetimeof value
+    a : A * strong = value.a lifetimeof value
 
     doSomething(a)
 }
@@ -739,9 +739,9 @@ An example `strong` / `weak` pointer content and control block:
 StrongPointerControlBlock$(Type) :: type {
     strongCount : Atomic$(Integer)
     weakCount : Atomic$(Integer)
-    destructor : ()()*
-    deallocateType : Unknown*
-    deallocateControl : Unknown*
+    destructor : ()() *
+    deallocateType : Unknown *
+    deallocateControl : Unknown *
     type : :: union {
         type : $Type
     }

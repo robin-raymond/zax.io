@@ -713,7 +713,7 @@ print final : ()(...) = {
     // ...
 }
 
-reverseView final : (result :)(values : Integer[3]&) = {
+reverseView final : (result :)(values : Integer[3] &) = {
     // ... logic is covered in ranges ...    
 }
 
@@ -738,7 +738,7 @@ print final : ()(...) = {
     // ...
 }
 
-reverseView final : (result :)(values : Integer[3]&) = {
+reverseView final : (result :)(values : Integer[3] &) = {
     // ... logic is covered in ranges ...    
 }
 
@@ -887,7 +887,7 @@ func final : ()(fruit : String) = {
 
     realD := uniqueFruit()
 
-    d : String* = realD
+    d : String * = realD
 
     switch fruit {
         case a {
@@ -1255,8 +1255,8 @@ MyType :: type {
     }
 }
 
-myType1 : MyType*       // points to nothing
-MyType2 : MyType* @     // points to an allocated instance
+myType1 : MyType *      // points to nothing
+MyType2 : MyType * @    // points to an allocated instance
 
 myType1.doSomething()   // does nothing
 myType2.doSomething()   // does something
