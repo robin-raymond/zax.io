@@ -85,7 +85,7 @@ Zax is a strongly typed compile time language with some key features:
     * Safe type conversion using `as`
     * Selective runtime type information
     * `defer` end of scope code execution
-    * `private` and `hidden` types during importation
+    * `private` and invisible types during importation
     * Type and variable `alias`
     * Type extension
     * Anonymous types

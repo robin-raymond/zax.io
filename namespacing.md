@@ -81,7 +81,7 @@ Because of the way modules self isolate from each other, one module importing `S
 
 ### Exporting types
 
-By default, symbols in code are not exported beyond the boundary of their originating source. However, the `export` directive can be applied to variables, types, aliases, and even imports to cause symbols to become visible to an imported module. The compiler can allow all global symbols to be exported from source files but this is not recommended. Contained types and variables are all visible unless they are hidden. Local functions inside others functions are effectively hidden (unless they become returned from or passed into a function).
+By default, symbols in code are not exported beyond the boundary of their originating source. However, the `[[export]]` directive can be applied to variables, types, aliases, and even imports to cause symbols to become visible to an importing module. The compiler can allow all global symbols to be exported from source files but this is not recommended. Contained types and variables are all visible unless they are hidden. Local functions inside other functions are effectively hidden (unless they become returned from or passed into a function).
 
 ````zax
 // nothing imported from this module will be exported (despite being imported
@@ -112,11 +112,11 @@ FileUtilities :: import Module.Useful.FileUtilities
 
 #### Hiding exports
 
-Even though a type might be exported, some contained types or variables should be kept `hidden` from the importer of the model. The language includes the `hidden` and `private` keywords that can help keep types and variables out of view.
+Even though a type might be exported, some contained types or variables should be kept hidden from the importer of the model. The language allows for selective `export` enabling using the `[[export=yes]]` or `[[export=no]]` directive. Likewise, all  `private` declared variables are never exported.
 
-Global variables marked as `hidden` are visible to all related (but not imported or exported) source files. Global variables marked as `private` are only visible within the current source file.
+Global variables marked as `[[export=no]]` are still visible to all related source files but not to any importer. Global variables marked as `private` are only visible within the current source file.
 
-Take note that these keywords are not named `secret` or `protected` or anything related as they are meant only to keep namespaces from becoming polluted with types and variables that are meant for internal house keeping. Nothing in the language protects a pointer to the type being taken and the raw memory contents of a type being read byte by byte. No cryptographic promises are implied by usage of the `hidden` or `private` keywords.
+Take note that these are not keywords named `secret` or `protected` or anything related as they are meant only to keep namespaces from becoming polluted with types and variables meant for internal house keeping. Nothing in the language protects a pointer to the type being taken, nor the raw memory contents of a type being read byte by byte. No cryptographic promises are implied by usage of the `[[export=no]]` or `private` keyword.
 
 ````zax
 :: import Module.System.Types
@@ -128,7 +128,8 @@ MyType :: type {
     value3 private : Integer    // symbol is private to everything except
                                 // functions and types within this type
 
-    value4 hidden : String      // symbol is accessible to other types within
+    [[export=no]] \
+    value4 : String             // symbol is accessible to other types within
                                 // the same set of sources but is not visible
                                 // when exported
 
@@ -140,7 +141,7 @@ content : MyType
 content.value1 = 4.3
 content.value2 = "Hello world!"
 content.addOne()                    // value3 is not accessible outside the type
-content.value4 = "Goodbye world!"   // value3 is accessible but
+content.value4 = "Goodbye world!"   // value4 is accessible but
                                     // hidden when exported
 ````
 
