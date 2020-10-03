@@ -67,7 +67,6 @@ defer
 discard
 each
 else
-extension
 except
 false
 for

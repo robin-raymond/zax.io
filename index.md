@@ -87,7 +87,7 @@ Zax is a strongly typed compile time language with some key features:
     * `defer` end of scope code execution
     * `private` and invisible types during importation
     * Type and variable `alias`
-    * Type extension
+    * Partial types
     * Anonymous types
     * `nothing` types instances
     * value polymorphism for functions
