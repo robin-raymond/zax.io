@@ -488,3 +488,41 @@ byRefValue2 := myType as IncompatibleType &
 
 byRefValue3:= myType as AnotherCompatibleType &  // allowed
 ````
+
+
+### Casting as `default`
+
+The `deep`, `last`, and `move` qualifiers can be reset to their default qualification state by casting `as default` on a type. These qualifiers become converted to `shallow`, `lease`, or `copy` as appropriate. This allows for qualifications to become easily stripped from an input argument type in a generic fashion. Since `shallow`, `last`, `move`, `shallow`, `lease`, and `copy` are all mutually exclusive, casting using `as default` simplifies the qualification reset process.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType :: type 
+    a : Integer
+    b : String
+}
+
+func final : ()(value : MyType& normalized) = {
+    print("Called after each func")
+}
+
+func final : ()(value : MyType& deep) = {
+    func(value as default)
+}
+
+func final : ()(value : MyType& last) = {
+    func(value as default)
+}
+
+func final : ()(value : MyType move) = {
+    func(value as default)
+}
+
+myType : MyType
+
+func(myType as deep)
+func(myType as last)
+func(myType as move)
+````
