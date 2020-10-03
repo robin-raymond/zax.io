@@ -196,11 +196,11 @@ myUnion.myFloat.+++()
 // clearer just to initialize the float using the standard type reset method
 // since it's a simple type but effectively `+++` construction of a simple
 // type causes identical behavior
-myUnion.myFloat =:
+myUnion.myFloat = #:
 
 // UNDEFINED BEHAVIOR: resetting a non simple type will cause any destructor
 // to get called but the `b` variable was not in a constructed state
-myUnion.b =:
+myUnion.b = #:
 ````
 
 

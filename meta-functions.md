@@ -333,7 +333,7 @@ alternativeAdd : [myValue] (
 add = alternativeAdd
 
 // the result will be 158 and not 150 since the `alternativeAdd` definition
-// has replaced the `add$(U8)(: Integer, : Integer)` version
+// has replaced the `add$(U8)(# : Integer, # : Integer)` version
 result3 := add$(U8)(100, 50)
 ````
 

@@ -226,7 +226,7 @@ func2 final : ()() = {
 
     // reset `liveAndLetDie` which causes the lifetime originally allocated in
     // `value2` of `func` function to be destructed and deallocated
-    liveAndLetDie =:
+    liveAndLetDie = #:
 
     printIfValidPointer(liveAndLetDie)  // will print "false"
 }
@@ -302,9 +302,9 @@ func final : (result : String)() = {
         printIfValidPointer(value3) // will print "true"
 
         // reset all three `handle` pointers to point to nothing
-        value1 =:
-        value2 =:
-        value3 =:
+        value1 = #:
+        value2 = #:
+        value3 = #:
 
         // validate the pointers are indeed pointing to nothing
         assert(!value1)
@@ -399,16 +399,16 @@ func final : (result : String)() = {
         printIfValidPointer(value3) // will print "true"
 
         // break apart any way the pointer relationships could be circular
-        value1.head =:
-        value2.head =:
-        value3.head =:
+        value1.head = #:
+        value2.head = #:
+        value3.head = #:
 
         // reset all three `handle` pointers to point to nothing
-        value1 =:   // `value1`'s instance will be destructed/deallocated (which
+        value1 = #: // `value1`'s instance will be destructed/deallocated (which
                     // removes the handle pointer to `value2`)
-        value2 =:   // `value2`'s instance will be destructed/deallocated (which
+        value2 = #: // `value2`'s instance will be destructed/deallocated (which
                     // removes the handle pointer to `value3`)
-        value3 =:   // `value3`'s instance will be destructed/deallocated
+        value3 = #: // `value3`'s instance will be destructed/deallocated
 
         // validate the pointers are indeed pointing to nothing
         assert(!value1)
@@ -494,9 +494,9 @@ func final : (result : String)() = {
         printIfValidPointer(headPointer) // will print "true"
 
         // reset all three `handle` pointers to point to nothing
-        value1 =:
-        value2 =:
-        value3 =:
+        value1 = #:
+        value2 = #:
+        value3 = #:
 
         // validate the pointers are indeed pointing to nothing
         assert(!value1)
@@ -522,7 +522,7 @@ func final : (result : String)() = {
         // reset the head pointer to point to nothing (which is the only
         // pointer keeping all three `MyType` instances alive thus all three
         // `MyType` instances are destructed/deallocated)
-        headPointer =:
+        headPointer = #:
 
         // the `MyType` instance originally pointed to by the copy of the
         // `hint` pointer to the head type's instance is now
@@ -680,7 +680,7 @@ value : Integer * handle = myType.value1 lifetimeof myType
 // resetting the `myType`'s `handle` pointer will not impact the real lifetime
 // of the instance connected to `myType` (as the `value` `handle` pointer will
 // keep it's container instance alive)
-myType =:
+myType = #:
 
 // set the `MyType::value1` to `5` (which is still valid as the
 // lifetime of of the original `handle` pointer is kept alive)

@@ -30,7 +30,7 @@ MyType :: type {
     +++ final final : (result : MyType *)(:Nothing) = {
         // reset function pointers to nothing
         doSomething = {}
-        doSomethingElse = { [[discard]] value }
+        doSomethingElse = { # value }
         return _
     }
 

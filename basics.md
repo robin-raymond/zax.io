@@ -323,17 +323,19 @@ offsetof        // offset of operator
 
 Other expressions:
 ````
+#               // discard operator
 $               // templated argument declaration
-...             // variadic values
-$...            // variadic types
+...             // variadic values (array of optional variable arguments)
+$...            // variadic types (array of types of variadic values)
 {               // scope begin
 }               // scope end
 [{              // array initialization begin
 }]              // array initialization end
 {               // multiple constructor argument initialization open
 .               // pre-unary named variable and argument initialization
-[[]]            // compiler directive or attribute declaration
-_               // reference to self
+[[              // compiler directive or attribute declaration open
+]]              // compiler directive or attribute declaration close
+_               // pointer to self
                 // a type's pointer to itself within type functions
 ___             // context; a pointer to the context
 +++             // unary constructor
@@ -355,8 +357,6 @@ concept             // declare a function as a compile time check for a
                     // input / output argument type within a meta-function
 date                // date of compile as a string literal
 deprecate           // declare API sections as being deprecated
-discard             // suppress warning on unused variable or
-                    // non captured results
 error               // cause an error in compilation
 execute             // evaluates code blocks at compile time
 export              // make type, variable, etc visible to module importation

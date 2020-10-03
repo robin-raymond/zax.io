@@ -610,10 +610,10 @@ MyType :: type {
     +++ final : ()( : MyType & last) = default
     +++ final : ()( : MyType & deep constant) = default
 
-    // INCORRECT: this version would not create a default as the =: would
+    // ERROR: this version would not create a default as the = #: would
     // cause the type to point to an empty version of its own type (i.e.
     // a function pointer to nothing)
-    // +++ final : ()( : MyType & deep constant) =:
+    // +++ final : ()( : MyType & deep constant) = #:
 }
 
 // a default empty constructor is created

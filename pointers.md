@@ -38,7 +38,7 @@ func final : ()() = {
 
     // pointer is reset to the default value of it's own type
     // (which effectively points to nothing)
-    pointer =:
+    pointer = #:
 
     // RUNTIME PANIC: a runtime panic would occur since `pointer` is no
     // longer pointing to a valid instance of type `A`
@@ -98,7 +98,7 @@ func final : ()() = {
 
     // resetting a reference actually resets the value in the reference thus
     // the value of `myInteger` in `value` will become 0
-    reference =:
+    reference = #:
 }
 ````
 
@@ -149,7 +149,7 @@ func final : ()() = {
 
     // resetting a reference actually resets the value in the reference thus
     // the value of `value` will become 0
-    reference =:
+    reference = #:
 }
 ````
 
@@ -332,8 +332,8 @@ func3 = pointer1 copycast :simpleFunc
 func4 = pointer2 copycast :func2
 
 // reset the original `func1` and `func2`
-func1 =:
-func2 =:
+func1 = #:
+func2 = #:
 
 func3() // will execute the code defined in func1 and still displays
         // the message "Is this good?"
@@ -378,8 +378,8 @@ func3 = pointer1 cast :simpleFunc
 func4 = pointer2 cast :func2
 
 // reset the original `func1` and `func2`
-func1 =:
-func2 =:
+func1 = #:
+func2 = #:
 
 func3() // will execute the code defined in func1
 func4() // will execute the code defined in func2
@@ -432,7 +432,7 @@ augmentFunc final : (result : MyType)(input : MyType constant &) = {
     // since `input` is not the `last` instance, `input`'s contents cannot be
     // lifted and transferred into the return value and thus a new copy
     // of the value must be made
-    result.subvalue =: @ // allocate a new instance of the subtype
+    result.subvalue = #: @ // allocate a new instance of the subtype
     result.subalue.animal = input.subvalue.animal
 
     return result
@@ -453,7 +453,7 @@ myTemporary1 : MyType
 
 myTemporary1.name = "Fred"
 myTemporary1.value = 5
-myTemporary1.subvalue =: @
+myTemporary1.subvalue = # : @
 myTemporary1.subvalue.animal = "Frog"
 
 print("Hello there!")
@@ -489,7 +489,7 @@ myTemporary6 : MyType
 
 myTemporary6.name = "Sally"
 myTemporary6.value = 7
-myTemporary6.subvalue =: @
+myTemporary6.subvalue = # : @
 myTemporary6.subvalue.animal = "Hippo"
 
 // `myTemporary6` passed into `augmentFunc` is not used again and thus will be

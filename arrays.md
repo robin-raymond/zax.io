@@ -149,7 +149,7 @@ size := 55
 myArray : Integer[size] @
 
 // reset the array to its default state (empty)
-myArray =:
+myArray = #:
 
 // ERROR:
 // dynamically sized arrays require dynamic allocation
@@ -167,7 +167,7 @@ sizeOuter := 2
 myArray : Integer[sizeOuter][sizeInner] @
 
 // reset the array to its default state (empty)
-myArray =:
+myArray = #:
 
 // ERROR:
 // dynamically sized arrays require dynamic allocation

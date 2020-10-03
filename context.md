@@ -51,9 +51,9 @@ func final : ()() = {
     testFunc()                              // will successfully allocate and
                                             // deallocate two types
 
-    ___.allocator =:                        // reset the allocator pointer
+    ___.allocator = #:                      // reset the allocator pointer
                                             // to point to nothing
-
+#
     printIfPointerIsValid(___)              // will print "true"
     printIfPointerIsValid(___.allocator)    // will print "false"
 

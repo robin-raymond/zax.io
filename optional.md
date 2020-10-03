@@ -68,7 +68,7 @@ valueOptional = {}
 
 ### Resetting the optional to uninitialized data
 
-By assigning the he optional to it's default (using `=:`), any contained value is first destructed if previously constructed and the option is reset to contain uninitialized data. If the optional did not contain any valid data then the reset does nothing.
+By assigning the he optional to it's default (using `= #:`), any contained value is first destructed if previously constructed and the option is reset to contain uninitialized data. If the optional did not contain any valid data then the reset does nothing.
 
 ````zax
 MyType :: type {
@@ -85,7 +85,7 @@ valueOptional : MyType?
 valueOptional = value
 
 // `valueOptional` contents are destructed and reset to uninitialized data 
-valueOptional =:
+valueOptional = #:
 ````
 
 

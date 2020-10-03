@@ -156,12 +156,12 @@ loadStringFromUrl final : (
     url : String        // the url to fetch the base64 encoded data
 ) = {
     if base64String:, resourceError: = fetchUrlAsBase64(url) ;; !resourceError {
-        result = decodeBase64(base64String),
+        result = decodeBase64(base64String)
     } else
-        return , resourceError as Error
+        return #, resourceError as Error
 
     cacheDataForLater(result)
-    return result,
+    return result, #
 }
 ````
 

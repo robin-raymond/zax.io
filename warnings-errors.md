@@ -259,9 +259,9 @@ The following are registered warnings, default states, and their meaning:
 * `naming-convention` (always)
     * a declaration was found to not follow standard naming conventions for the language
 * `result-not-captured` (error)
-    * every return result needs to be captured (unless marked with `[[discard]]`)
+    * every return result needs to be captured (unless marked with `#`)
 * `variable-declared-but-not-used` (error)
-    * every declared variable must be used (unless marked with `[[discard]]`)
+    * every declared variable must be used (unless marked with `#`)
 * `duplicate-specifier` (always)
     * a duplicate qualifier was specified, e.g. `constant`, `immutable`, `mutable`, `deep`, etc.
 * `specifier-ignored` (always)

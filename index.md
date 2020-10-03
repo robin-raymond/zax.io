@@ -136,6 +136,10 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Functions](functions.md)
 
+## [Discard Operator](discard.md)
+
+## [Except Error Handling](except.md)
+
 ## [Optional Types](optional.md)
 
 ## [Scope](scope.md)
