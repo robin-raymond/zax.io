@@ -142,6 +142,8 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 
 ## [Optional Types](optional.md)
 
+## [Alias](alias.md)
+
 ## [Scope](scope.md)
 
 ## [Lazy Functions](lazy.md)

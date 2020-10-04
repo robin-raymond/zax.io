@@ -116,73 +116,6 @@ yield
 ````
 
 
-#### Keyword aliasing
-
-Zax supports keyword aliasing using the declaration `alias keyword`. The verbose nature of the default keywords are made to ensure the language is natural rather than using shortened keywords that are inconsistently applied to the language. However, the keywords can be aliased to friendly names to type. The same reserved status applies to any aliased keywords within the context of where the original keyword would be allowed. An alias does not remove the original keyword from being available.
-
-Aliased keywords must be declared prior to usage and they are scoped to the module (unless exported). Attempting to use an aliased keywords prior to declaration will cause the compiler to treat the symbolic name as a normal symbolic declaration instead of its replacement alias.
-
-A word of caution: the temptation can be to use very short abbreviated words to save on typing but reading a language should be natural, not lead to too many variable name conflicts, and be consistent and non-confusing. For projects shared publicly, this can even be a greater source of confusion if different projects use different keywords and may be difficult for newcomers to learn new keyword standards. Besides, modern editors typically have common word completion.
-
-Common aliases are placed in `Module.System.Keywords`:
-
-````zax
-// important common keywords that should be familiar to existing programmers
-[[resolve=now]] :: import Module.System.Keywords
-````
-
-From the `Module.System.Keywords`
-````
-// some example keywords that are aliased in the keywords module
-[[export=always]]
-
-const :: alias keyword constant
-property :: alias keyword mutator
-static :: alias keyword once
-downcast :: alias keyword outercast
-
-// ...
-
-[[export=never]]
-````
-
-
-#### Operator and expression aliasing
-
-Zax allows operators and expressions to become aliased into keywords using the declaration `alias operator keyword`. This allows natural language keywords to be applied to operators should a natural language alternative to the operator be desirable. Whenever the aliased keyword is seen, the operator is automatically substituted.
-
-Aliased operators and expressions must be declared prior to usage and they are scoped to the module (unless exported). Attempting to use an aliased operator prior to declaration will cause the compiler to treat the operator as a symbolic name instead of its replacement alias.
-
-A small caveat: comments are not operators and cannot be aliased. The compiler treats comments as a first pass filtering of text meant for humans and they are not treated as part of the language (even where a compiler might capture the comments for documentation purposes).
-
-````zax
-add :: alias operator keyword +
-not :: alias operator keyword !
-ellipses :: alias operator keyword ...
-this :: alias operator keyword _
-
-value := 1 add 1
-isTrue := not (value != 2)
-
-// "ellipses" becomes `...`
-print : ()(ellipses) = {
-    // ...
-}
-
-MyType :: type {
-    value : Integer
-
-    func final : ()(value : Integer) = {
-        // `this` is not a keyword, it's an alias of `_`
-        this.value = value
-
-        // functionally equivalent to the above statement
-        _.value  value
-    }
-}
-````
-
-
 #### Keyword disambiguation
 
 Keywords are reserved only within the context of where the keyword is allowed. To disambiguate keywords from variables, variables can be postfixed with an underscore (`_`).
@@ -319,6 +252,7 @@ alignof         // pre-unary align of operator
 offsetof        // offset of operator
                 // compute the byte offset of a contained variable from a
                 // container type or container variable
+typeof          // obtain the type of a variable or expression
 ````
 
 Other expressions:
