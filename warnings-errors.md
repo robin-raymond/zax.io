@@ -44,7 +44,7 @@ The following are registered errors, and their meaning:
     * a asset file was requested to be copied but it cannot be located
     * name=`$file$` - the file name that could not be found
 * `wild-character-mismatch`
-    * a wild character pattern was in an incorrect way
+    * a wild character pattern was used in an incorrect way
 * `final-function-points-to-nothing`
     * an attempt was made to call a function marked as `final` which is known to point to nothing
 * `dereference-pointer-to-nothing`
