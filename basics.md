@@ -50,7 +50,6 @@ if condition {
 ### Keywords
 
 ````zax
-aos
 alias
 await
 break
@@ -98,7 +97,6 @@ return
 requires
 scope
 shallow
-soa
 suspend
 switch
 task

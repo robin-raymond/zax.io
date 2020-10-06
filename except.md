@@ -227,7 +227,7 @@ doSomething final : ()() = {
 
 #### `except` and `catch` error handling with multiple `except` types
 
-Calling a function returning multiple `except` error results can be captured using the `catch` clause optionally without the valid return path ever executing. The `catch` and the `except` can be intermingled as desired.
+Calling a function returning multiple `except` error results can be captured using the `catch` clause optionally without the valid return path ever executing. The `catch` and the `except` can be intermingled as desired. Catch can perform an "or" operation on the returned errors where any one error converting to `true` will cause the catch block to execute.
 
 ````zax
 print final : ()(...) = {
@@ -264,10 +264,18 @@ doSomething final : (error: Error)() = {
             // break out of named scope
             break my_scope
         }
+
+        // if either `myError` or `myOtherError` cause an error the `catch`
+        // block will execute
+        result3 := myFunc() catch myError myOtherError {
+            // break out of named scope
+            break my_scope
+        }
     }
     // ...
 }
 ````
+
 
 #### `except` and `!` with `catch` error handling
 

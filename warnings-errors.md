@@ -55,8 +55,6 @@ The following are registered errors, and their meaning:
     * a token was encountered which was not expected
 * `as-conversion-not-compatible`
     * a request to convert one type to another using the `as` where no compatible conversion was found
-* `soa-aos-incompatible`
-    * cannot convert from an `aos` to an `soa` or from an `soa` to an `aos`
 * `constant-overflow`
     * a constant value overflows the underlying type
 * `needs-dereferencing`

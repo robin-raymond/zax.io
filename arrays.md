@@ -207,63 +207,9 @@ myArray : MyType[1000]
 ````
 
 
-### SoA vs AoS
-
-By default, Zax creates all arrays as an [AoS (Array of Structures)](https://en.wikipedia.org/wiki/AoS_and_SoA#Array_of_Structures). Each full type is layed out sequentially in the array in memory. Zax does support creating alternative representations where the array is reformed into a [SoA (Structure of Arrays)](https://en.wikipedia.org/wiki/AoS_and_SoA#Structure_of_Arrays). In the SoA mode, each of the type's contained variables becomes it's own individual array layed out array-by-array of variables sequentially in memory.
-
-````zax
-MyType :: type {
-    value1 : Float
-    value2 : Integer
-    value3 : Float
-}
-
-func : ()(value : MyType *) = {
-    // ...
-}
-
-// construct an array of structures implicitly as aos
-myArray1 : MyType[100]
-
-myArray1[0].value2 = 10
-myArray1[1].value1 = 23.0
-
-func(myArray1[0])
-func(myArray1[1])
-
-
-// same as above, except declared explicitly as aos
-myArray2 : MyType[100] aos
-
-myArray2[22].value1 = 10.0
-myArray2[99].value2 = 23
-
-func(myArray2[22])
-func(myArray2[99])
-
-
-// arrange the memory of the array an SoA manner
-myArray3 : MyType[100] soa
-
-myArray3[11].value1 = 91.77
-myArray3[23].value2 = 11
-
-// ERROR: Cannot convert an soa array entry back to its original type as the
-// contents of type have been split apart in memory and can't be put together 
-func(myArray[11])
-
-// This will succeed as the source type and the destination type are
-// both declared as `soa`
-myArray4 : MyType[] soa @ = myArray3
-
-// ERROR: Cannot copy from an AoS type into an SoA type (or vice versa)
-myArray5 : MyType[] @ = myArray3
-````
-
-
 ### Splicing arrays
 
-Arrays include a implicit `constant` and `final` function named `splice` that extracts a subset of elements out of the array and return a newly created mutable array. If splice is passed values that exceed the ranges, a reduced size or even completely empty element array is returned. The `length` `mutator` should be checked by the developer if they wish to ensure the values in their range will be satisfied by the splice function. Splicing is supported on both `soa` and `aos` arrays.
+Arrays include a implicit `constant` and `final` function named `splice` that extracts a subset of elements out of the array and return a newly created mutable array. If splice is passed values that exceed the ranges, a reduced size or even completely empty element array is returned. The `length` `mutator` should be checked by the developer if they wish to ensure the values in their range will be satisfied by the splice function.
 
 ````zax
 myArray : Integer[1000]
@@ -281,7 +227,7 @@ value3 := myArray.splice(5, 50)
 
 ### Arrays and data overhead
 
-Arrays not only contain contents, they contain sizing and other attributes. The sizing of each dimension is kept as part of the array data separate from the data matrix. This allows the physical memory layout to be placed in memory as a continuous block of types for all array dimensions. Parallel algorithms can adapted to use the data as SIMD or MIMD input. Another advantage to this layout is the ability to use `soa` or `aos` with relatively the same memory layout being used (aside from potential alignment concerns).
+Arrays not only contain contents, they contain sizing and other attributes. The sizing of each dimension is kept as part of the array data separate from the data matrix. This allows the physical memory layout to be placed in memory as a continuous block of types for all array dimensions. Parallel algorithms can adapted to use the data as SIMD or MIMD input.
 
 A raw control block for the array can be obtained with the `overhead` operator.
 
