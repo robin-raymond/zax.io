@@ -381,7 +381,7 @@ MyType :: type {
 
     value : Integer
 
-    function()() {
+    function final : ()() = {
         value : Integer
 
         _.value = 1    // MyType's value is set to 1
