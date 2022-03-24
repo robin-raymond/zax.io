@@ -359,8 +359,8 @@ assumedType := funcReturningType()
 originValue : Integer
 valueBorrowsOriginalValuesType : originalValue
 
-// Symbols that start with _ are reserved but may contain underscores
-// where needed.
+// Symbols that start with _ are reserved for compiler and toolchain generated
+// symbols and may contain additional underscores where needed.
 _reservedVariableName
 _ReservedTypeName
 
@@ -372,11 +372,21 @@ MyType :: type {
     m_no := 0   // NOT recommended as this is a data oriented type and
                 // not an object or classification
 
-    // This pointer for a type is reserved with a single underscore `_` and
-    // type variables can be distinguished from arguments by using
-    // `_.variable` vs a locally declared `variable`
     _no := 0    // NOT recommended
     no_ := 0    // NOT recommended
+
+    // This pointer for a type is reserved as a single underscore `_` and
+    // type variables can be distinguished from arguments by using
+    // `_.variable` vs a locally declared `variable`
+
+    value : Integer
+
+    function()() {
+        value : Integer
+
+        _.value = 1    // MyType's value is set to 1
+        value = 1      // local value is set to 1
+    }
 }
 ````
 
@@ -399,7 +409,7 @@ wchar : WChar       // Signed value representing the size of a
                     // wide string character (minimum 32 bits)
 small : Small       // Small is a signed value of the smallest cpu type
                     // (minimum 8 bits)
-short : Short       // Short is a signed value of the smaller cpu type
+short : Short       // Short is a signed value of a smaller cpu type
                     // (minimum 16 bits)
 integer : Integer   // Integer is a signed value of the fastest cpu type
                     // (minimum 16 bits, 32/64 is typical)
@@ -470,11 +480,11 @@ uptr : UPointer         // unsigned integer large enough to hold the
                         // value of pointer
 
 sptr : SPointer         // signed integer large enough to hold the
-                        // pointer difference between two pointer values
-                        // and must be the same bit size as a UPointer
-                        // (although this type can overflow if the distances
-                        // between the smallest pointer and the largest pointer
-                        // exceed the capacity of the type)
+                        // pointer difference between two pointer values using
+                        // the same memory arena and must be the same bit size
+                        // as a UPointer (although this type can overflow if
+                        // the distances between the smallest pointer and the
+                        // largest pointer exceed the capacity of the type)
 
 slongPtr : SLongPointer // signed integer large enough to hold the pointer
                         // difference between two pointer positions even if the
@@ -520,32 +530,53 @@ wideString : WString = w'hello'
 
 ### Intrinsic system literals
 
-Literals are any constant literal value that requires compile time conversion from the input value to the underlying type. By convention, normal ASCII strings are enclosed with double quotes `"string"` but single quotes are also entirely legal such as `'string'`. The escape sequencing performed inside any string is entirely dependent on the type of the literal. The type of the literal is prefixed before the single (`'`) or double (`"`) quotes. The language has support for some built in literals such as `ascii`, `utf8`, `c`, `w`, `b64`, `b`, `h` and others but the language is flexible and new compile time literals can be added to the language. By convention, all strings except for ascii strings surround the value with `prefix'value'` unless the the particular scenario requires a single quote (`'`) to be embedded into the value where double quotes (`""`) can be used, e.g. `c"'"`.
+Literals are any constant literal value that requires compile time conversion from the input value to the underlying type. Normal strings are enclosed with single quotes `'string'`, or double quotes `"string"`. The difference between single and double quote is merely symantec with the single quote being used as preferred convention. Any escape sequencing interpretation performed inside any literal is entirely dependent on the type of the literal where both single and double quotes utilize the same escaping interpretation logic. Literals do not have to support any escape sequences at all. The default `ascii` string type is applied to strings where a literal type is not specified and no previous literal type is being continued.
 
-Literals can be extended across multiple lines and can toggle between using the single quote (`'`) and the double quote (`"`) as needed. The declaration of the prefix is only required when the type encoding changes (e.g. embedded specific hex wide characters by hex value inside a wide character string would require the `w` prefix to be redeclared after using the `h` prefix as part of the same string sequence). By default, the ascii encoding scheme is assumed unless a specific prefix is specified or the literal is a continuation of a literal being defined.
+The type of the literal is prefixed before the single (`'`) or double (`"`) quotes. The language has support for some built-in literal types such as `a`, `ascii`, `utf8`, `c`, `w`, `unicode`, `b64`, `b`, `h` and others. The language is flexible and new compile time literals can be added to the language. By convention, all literals surround the value with `prefix'value'`. A single quote (`'`) can be embedded into a literal value by utilizing double quotes (`""`) around the literal and double quotes can be embedded into a literal value by using single quotes, e.g. `c'"'` and `c"'"`.
+
+Literals can be extended across multiple lines and can interchange between using the single quote (`'`) and the double quote (`"`) as needed. The declaration of the prefixed literal type is only required initially when specifying a non-default literal type, or when the literal type's encoding changes (e.g. embedded specific hex wide character by hex value inside a wide character string would require the `w` literal prefix to be redeclared after using the `h` literal prefix when part of the same string literal sequence).
 
 ````zax
 // import the module system literals into the global namespace
 :: import Module.System.Literals
 
-char := c'\n'                   // becomes a new line character
-wideChar := r`😀`               // declare a rune character / wide character
-charBackslash := c'\\'          // becomes a backslash
-charDoubleQuote := c'"'         // becomes a double quote
-charSingleQuote := c"'"         // becomes a single quote
-charNulValue := c'\0'           // becomes a NUL character
-binary := b'1011101'            // becomes a base-2 number
-octal := o'12345670'            // becomes a base-8 numbers
-duodecimal := d'1234567890AB'   // becomes a base-12 number
-hexadecimal := h'ABC123'        // becomes a base-16 number
+char := c'\n'                       // c-style escapes supported thus becomes
+                                    // a new line character
+wideChar := r`😀`                   // declare a rune character/wide character
+charBackslash := c'\\'              // becomes a single backslash
+charDoubleQuote := c'"'             // becomes a double quote
+charSingleQuote := c"'"             // becomes a single quote
+charNulValue := c'\0'               // becomes a NUL character
+binary := b'1011101'                // becomes a base-2 number
+binarySequence := 'm' b'1011101'    // becomes a string sequence with an
+                                    // embedded character expressed in base-2
+octal := o'12345670'                // becomes a base-8 number
+octalSequence := 'n' o`76`          // becomes a string sequence with an
+                                    // embedded character expressed in base-8
+duodecimal := d'1234567890AB'       // becomes a base-12 number
+duodecimalSequence := 'y' d'AB'     // becomes a string sequence with an
+                                    // embedded character expressed in base-12
+hexadecimal := h'ABC123'            // becomes a base-16 number
+hexadecimalSequence := 'z' h`EF`    // becomes a string sequence with an
+                                    // embedded character expressed in base-16
+mixedSequence := c'h' 'e' \         // becomes a string sequence containing the
+                 b'01101100' \      // ascii characters "hello"
+                 b'01101100' \
+                 o'157'
 
-string := 'no escapes exist in string'
+runeString := r'0398' '03A4'        // wide character string consisting of
+                                    // the unicode characters Theta and Tau.
 
-asciiString := ascii'some ascii string with escapes\n'
+namespacedType := Module.System.Literals.ascii"hello there!"
 
-wstring := w"no escapes exist in w string"
+string := 'Default is an ascii string type where c-style escapes are ' \
+          'not supported.'
 
-unicode := unicode"some unicode strings with escapes\n"
+asciiString1 := a'an ascii string with c-style escapes\n'
+asciiString2 := ascii'an ascii string without c-style escapes'
+
+wideString1 := w'a wide string with escapes with c-style escapes\n'
+wideString2 := unicode'a wide string without c-style escapes'
 
 utf8String := utf8'utf8 string does not have escape sequences ' \
               'as remains "as is".'
@@ -561,15 +592,15 @@ xmlEntity := xml'John&#39;s Fish &amp; Chip Caf&#233;.'
 mergedLiterals := "This string has no escape sequences thus C:\file\paths is " \
                   "preserved as well as 'single quotes' as ascii.'\n'
 
-anotherWayToEscape := ascii'This string has escape sequences where backslashes'\
+anotherWayToEscape := a'This string has escape sequences where backslashes'\
                       'need escaping for paths like C:\\file but "double'\
                       'quotes" are left "as is"\n'
 
-becarefulSingleQuotes := ascii'single quotes cannot exist inside single quotes'\
-                         'thus use "double quotes"' "around 'single quotes'\n"
+beCarefulSingleQuotes := ascii'single quotes cannot exist inside single quotes'\
+                         ' thus use "double quotes"' "around 'single quotes'\n"
 
-wideStringLiterals := w'Wide string has no escapes but can embed wide values' \
-                      'such as"' h'16F' w'" fairly easily.\n'
+wideStringLiterals := unicode'Wide string has no escapes but can embed wide ' \
+                      'values such as "' r'16F' w'" fairly easily.\n'
 
 continueExisting := w'encoding inside single quotes is continued ' \
                     'without needing to redeclare the encoding so long ' \

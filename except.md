@@ -311,7 +311,6 @@ doSomething final : ()() = {
 ````
 
 
-
 ### Functions input / output composition with `except`
 
 Input and output composition with `except` requires a function prototype with output arguments which include the `except` keyword on the returned values. Without this prototype declaration, the `except` clause would not know where to place the potential `except` result and in which order.

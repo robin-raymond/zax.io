@@ -86,7 +86,7 @@ B :: type {
 
 C :: type {
     a : A           // type C contains a type `A` named `a`
-    b : B           // type C contains a type `A` named `a`
+    b : B           // type C contains a type `B` named `b`
     value1 := 0
     value2 := 0
 }
