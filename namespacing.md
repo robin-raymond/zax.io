@@ -239,6 +239,7 @@ While the example code appears on the surface as verbose, the alternative requir
 
 // Another test to ensure `Module.ThirdPartyModule` isn't already defined
 [[descope]] if !compiles { testThirdPartyModule : Module.ThirdPartyModule } {
+
     ThirdPartyModule :: type {
         type final := "git"
         repository final := "https://github.com/immmutable/repo2",
@@ -249,6 +250,7 @@ While the example code appears on the surface as verbose, the alternative requir
 
         stableCacheId final := "ThirdPartyModule.Unique"
     }
+
 } else {
     // Some external importer has already defined the module so use this
     // definition instead of our own definition

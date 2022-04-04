@@ -5,17 +5,17 @@
 
 ### Basic Overview
 
-Zax allows types to have a special nothing instance of a type. Whenever a pointer to nothing is created for a type that supports nothing instances, the pointer is automatically set to point to the nothing instance. This ensures that an pointer to a real instance of the type always exists even when no allocation for an instance of the type was ever created.
+Zax allows types to have a special nothing instance of a type. Whenever a pointer to nothing is created for a type that supports nothing instances, the pointer is automatically set to point to the nothing instance. This ensures that a pointer always points to a real instance of the type even when no allocated instance of the type was ever created.
 
-Nothing instances help reduce the code checks required to check the validity of pointers by a allowing nothing instance to be substituted in the place of a real instance and behave as if a real instance exists. The nothing instance literally does nothing (or as close to nothing as possible). This is why Zax has pointers to nothing and not pointers to null. Nothing pointers may actually point to a real instance in memory that does nothing when invoked.
+Nothing instances help reduce code checks required to check the validity of pointers by a allowing pointers to nothing instances to be substituted in the place where a real instance would normally be present and behave as if a real instance existed. The nothing instance literally does nothing (or as close to nothing as possible). This is why Zax has pointers to nothing and Zax does not rely on pointers to null where checks must be performed prior to every usage of a pointer which may be null. Nothing pointers will point to a real instance of a type in memory but that type is coded to perform almost no operations when invoked.
 
-To declare that a type supports nothing instances, an `Nothing` type must be declare on a constructor as it's only input argument. This is known as the nothing constructor. Creating a `Nothing` type instance is not possible as the `Nothing` cannot be instantiated. The Zax language treats receiving of a `Nothing` type in the constructor as the indicator the type is being declared as the constructor to create a nothing instance for the type.
+To declare a type as supporting a nothing instance, a `Nothing` type must be declare on a constructor as it's only input argument. This is known as the nothing constructor. Creating a `Nothing` type instance is not possible as the `Nothing` type cannot be directly instantiated. The Zax language treats receiving of a `Nothing` type in the constructor as the indicator the type is being declared as supporting nothing the nothing type and this constructor is used to create a nothing instance for a type.
 
-Unlike other constructors, a nothing constructor may return a pointer to an instance of the constructed type. This is allowed so the constructor may return an alternative pointer representing the nothing instance projected from another constructed type that is binary compatible with the original type. Normally `_` would be returned indicating the nothing pointer is indeed a pointer to the self instance, or the constructor may omit the return type entirely.
+Unlike other constructors, a nothing constructor may return a pointer to an instance of the constructed type. This is allowed so the constructor may return an alternative pointer representing the nothing instance projected from another constructed type that is binary compatible with the original type. Normally `_` would be returned indicating the nothing pointer is indeed a pointer to the self instance, or the constructor may omit the return type entirely and Zax will default the self instance.
 
-Nothing instances are constructed into global memory. A nothing instance should perform no operations for functions called within the type's nothing instance (or as little as possible) and return values that would be considered safe from functions where possible.
+Nothing instances are constructed into global memory by default. A nothing instance should perform no operations for functions called within the type's nothing instance (or as little as possible) and return values that would be considered safe for the caller of the function where possible.
 
-The self pointer (`_`) can be checked within a type's function with `if` to verify if the call was made into the nothing instance or into a real instance.
+The self pointer (`_`) can be checked within a type's function with `if` to verify if the call was made into the nothing instance or into a real instance of a type.
 
 ````zax
 MyType :: type {
@@ -27,18 +27,18 @@ MyType :: type {
     // when used in a constructor, the `Nothing` type indicates the nothing
     // instance is being constructed allowing the object to set itself up to be
     // the nothing instance
-    +++ final final : (result : MyType *)(:Nothing) = {
+    +++ final : (result : MyType *)(:Nothing) = {
         // reset function pointers to nothing
         doSomething = {}
         doSomethingElse = { # value }
         return _
     }
 
-    doSomething : ()() = {
+    doSomething immutable : ()() = {
         // ...
     }
 
-    doSomethingElse : ()(value : Integer) = {
+    doSomethingElse immutable : ()(value : Integer) = {
         // ...
     }
 
@@ -90,13 +90,13 @@ myType.print("hello")
 
 ### Setting values in nothing types
 
-Nothing types are real instance of a type. Thus is a type has values that get set the underlying type's nothing object will retain the value. Thus values in nothing objects should not be set, or if they are set then the data contained must be treated as garbage. The nothing types should be treated as immutable especially for concurrency reasons. If the type is not concurrency safe and modifying the contents causes an issue, undefined behaviors can happen. Accessing final functions (or overridden immutable functions) is the safer use case for types that support having a nothing instance.
+Nothing types are real instance of a type. Thus nothing types have values that map to the underlying type's nothing object. Thus values in nothing objects should not be set, or if they are set then the data contained must be treated as garbage. Nothing objects are not thread safe because they are not designed to be acted upon. Nothing types should be treated as immutable especially for concurrency reasons. If the type is not concurrency safe and modifying the contents causes an issue then undefined behaviors can happen. Accessing final functions (or overridden immutable functions) is considered safe for types that support having a nothing instance.
 
-When values are accessed within a type and the pointer is to nothing, the `pointer-to-nothing-accessed` may be issued (i.e. if not disabled). For type declared with a nothing constructor, a panic will not be issued when calling nothing functions. This is because function can self protect themselves from access (by validating the `_` is not pointing to nothing) whereas values cannot.
+When values are accessed within a type and the pointer is to nothing, the `pointer-to-nothing-accessed` may be issued (i.e. if not explicitly disabled). For type declared with a nothing constructor, a panic will not be issued when calling nothing functions. This is because function can self protect themselves from access (by validating the `_` is not pointing to the nothing instance) whereas values cannot self protect.
 
 If the nothing constructor is not declared on a type, accessing the type's functions may issue the `pointer-to-nothing-accessed` (i.e. if not disabled).
 
-Nothing instances are not meant to be global singletons (although technically they are global singletons). The usage of nothing pointers as singletons that perform functional work is discouraged (but not enforced).
+Nothing instances are not meant to be used as global singletons (although technically they are allocated as global singletons). The usage of nothing pointers as singletons to perform functional work is highly discouraged (but not enforced).
 
 ````zax
 MyType :: type {

@@ -287,7 +287,7 @@ The following are registered warnings, default states, and their meaning:
 * `upgrade-directive` (always)
     * usage of an obsolete directive was found and should be upgraded to its replacement (or removed)
 * `statement-separator-operator-redundant` (always)
-    * a statement separator operator (`;`) was found but is not required in this context
+    * a statement separator operator (`;`) was found but is not connected to another statement in this context
 * `export-disabled-from-export-never` (always)
     * an export keyword was encountered on a type that cannot be exported due to the `[[export=never]]` directive
 * `redundant-access-via-self` (always)
@@ -304,3 +304,5 @@ The following are registered warnings, default states, and their meaning:
     * the compiler is uncertain if a `move` or `copy` polymorphic version of a function should be used where a function that received a `move` instance is then passing that instance to another function which accepts both a `move` or a `copy` instance
 * `newline-after-continuation` (always)
     * expecting new line after continuation operator
+* `allocation-into-raw-pointer` (always)
+    * the compiler detected an attempt to allocate into a raw pointer rather than using a `unique` or other managed pointer type

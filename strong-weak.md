@@ -723,7 +723,51 @@ function final : ()() = {
 
 #### `lifetimeof` versus `lifetimecast`
 
-The exclusive difference between these operators is safety. The `lifetimecast` operator will force a conversion of any raw pointer to link to `strong` or `handle` pointer even for unrelated pointers. The `lifetimeof` operator will validate the raw pointer actually points inside the address boundaries of the `strong` or `handle` pointer. If it does not then `lifetimeof` will return a pointer to nothing.
+The exclusive difference between these operators is safety. A `lifetimecast` operator will force a conversion of any raw pointer to link to `handle` or `strong` pointer even for unrelated pointers. A `lifetimeof` operator will validate a raw pointer actually points inside the address boundaries of the `handle` or `strong` pointer. If the pointer to memory is not located in the correct allocation boundary then `lifetimeof` will return a pointer to nothing. Thus a programmer can choose their tradeoff between safety and speed.
+
+
+#### Converting using `lifetimecast`
+
+Any pointer to any type can be linked to a `handle` or `strong` pointer using the `lifetimecast` operator. The memory is not checked to see if the memory address being casted resides within the memory space of the original `handle` or `strong` pointer. The programmer must be careful to use this feature carefully since this function will forcefully adopt the lifetime of a `handle` or `strong` pointer.
+
+An example of a runtime `lifetimecast` being applied onto a `handle` pointer:
+
+````zax
+A :: type managed {
+    foo : Integer
+}
+
+B :: type {
+    bar : Integer
+    a : A
+}
+
+C :: type {
+    weight : Double
+}
+
+doSomething final : (result : Unknown * strong)(a : A * strong, unknown : Unknown *) = {
+    // forcefully convert from the lifetime of one pointer to another type
+    // without conducting any safety checks to ensure the casted pointer lives
+    // within the memory range of the original allocation
+    b := unknown lifetimecast a
+    assert(b)
+
+    // ...
+    return b
+}
+
+function final : ()() = {
+    value : B * handle @
+    value.a.foo = 1
+    value.bar = 2
+
+    // link a `strong` pointer to `a` from `value`
+    a : A * strong = value.a lifetimeof value
+
+    doSomething(a, value)
+}
+````
 
 
 ### `strong` and `weak` overhead and control blocks

@@ -2,7 +2,7 @@
 
 ## Description
 
-Zax is a data oriented modern refresh of a compile time language which offers high level language capabilities through to low level memory access. The language does not enforce type or memory safety but can be used in a type safe manner if desired.
+Zax is a data oriented modern refresh of a compile time language which offers high level language capabilities including low level memory access. The language does not enforce type or memory safety but can be used in a type safe manner if desired.
 
 ## Goals
 

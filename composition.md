@@ -5,12 +5,12 @@
 
 ### Overview
 
-The Zax programming language does not support inheritance, virtual functions, virtual base classes, abstract classes or other features typically spawned from the Object Orientated world. However, these kind of features are possible within the Zax language and they are done in a way that does not hide these features behind compiler magic, and in a way that can remain even more powerful than their object counterparts.
+The Zax programming language does not support inheritance, virtual functions, virtual base classes, abstract classes or other features typically spawned from the Object Orientated world. However, these kind of features are still possible within the Zax language and they are done in a way that does not hide these features behind compiler magic, and in a way that can remain even more flexible than their object counterparts.
 
 
 ### Composition and not inheritance
 
-In computer languages inheritance is a methodology that compilers use to create hierarchical object relationships between types. But typically inheritance is merely a fancy automatic composition abstraction layered over composition relations where the inheritance structure is entirely managed by the compiler.
+In computer languages inheritance is a methodology that compilers use to create hierarchical object relationships between types. But typically inheritance is merely a fancy automatic composition abstraction layered over composition relations where the inheritance structure is entirely managed by the compiler. Zax has explicit composition where all the types are described and the relationship is fully exposed and understood.
 
 
 #### Example difference between composition and inheritance
@@ -105,7 +105,7 @@ function final : ()() = {
 
 #### Multiple `own` variables
 
-When more than one variable is qualified as `own` within a type, the `own` variables all become accessible as if the contained declarations of the `own` variables were part of the container's type. Some ambiguity can occur if two or more contained declarations share the same name. If the ambiguous name is referenced, the compiler will not know which contained variable was intended to be accessed. To solve this issue, the variables remain accessible from their original contained names. In other words, `own` variables are a convenience to see the contained types as a merged type but fundamentally the `own` variables retain their original contained relationship.
+When more than one variable is qualified as `own` within a type, the `own` variables all become accessible as if the contained declarations of the `own` variables were part of the container's type. Some ambiguity can occur if two or more contained declarations share the same name. If the ambiguous name is referenced, the compiler will not know which contained variable was intended to be accessed. To solve this issue, the variables remain accessible from their original contained names. In other words, `own` variables are a convenience to see the contained types as a merged type but fundamentally the `own` variables retain their original contained `has-a` relationship.
 
 ````zax
 A :: type {
@@ -160,10 +160,10 @@ If operating on a function, variable, or an overloadable operator on a type wher
 MyType :: type {
     pointer own : Integer *
     data own : Integer
-    realNumber : Float
+    realNumber own : Float
 }
 
-fetchPointer : (pointer : Unknown *)() = {
+fetchPointer : (pointer : Integer *)() = {
     // ...
 }
 
@@ -304,6 +304,60 @@ MyType :: type = {
 }
 ````
 
+### Abstract Interfaces Ambiguity
+
+The `override` keyword declared on a variable that does not override another contained type's variable will force any container types to override the value and prevent the contained type from being instantiated outside of a container type. In some cases, these overrides can be ambiguous if two interfaces share the same name.
+
+````zax
+MyInterface1 :: type {
+    start override : ()()
+    stop override : ()()
+    ping override : ()(timeout : Integer)
+    add override : (result : Integer)(value : Integer)
+
+    myValue : Float
+}
+
+MyInterface2 :: type {
+    start override : ()()
+    stop override : ()()
+}
+
+MyType :: type = {
+    myInterface1 own : MyInterface1
+    myInterface2 own : MyInterface2
+
+    // to disambiguate between `start` from `MyInterface1` and `MyInterface2`,
+    // the fully scoped variable name is used within the context of the
+    // of the appropriate interface
+    myInterface1.start override := {
+        // ...
+    }
+    myInterface1.stop override := {
+        // ...
+    }
+
+    myInterface2.start override := {
+        // ...
+    }
+    myInterface2.stop override := {
+        // ...
+    }
+
+    ping override := {
+        // ... (variable `timeout` is accessible) ...        
+    }
+
+    myValue override := 5.0     // not forced to override but is
+                                // allowed to override
+
+    meaningOfLife := 42         // new variable declared separate from interface
+
+    // ERROR: the `add` variable was declared with `override` but the
+    // container type does not override the variable's value
+}
+````
+
 
 ### Slicing
 
@@ -351,7 +405,8 @@ void function() {
 
 ### Downcasting and upcasting (aka outer and inner casting)
 
-As the Zax language does not have inheritance, upcasting and downcasting has a modified meanings. Zax uses a composition model (more of a "has-a" relationship) rather than an "is-a" relationship like Object Oriented languages. Thus the meaning of upcasting and downcasting are not identical. In object languages, the meaning is to convert type type's view from a being one of the "is-a" relationships to another. With Zax composition, the meaning is to access from the container to the contained or vice versa.
+As the Zax language does not have inheritance, upcasting and downcasting has a modified meanings. Zax uses a composition model (i.e. a "has-a" relationship) rather than an "is-a" relationship like Object Oriented languages. Thus the meaning of upcasting and downcasting are not identical. In object languages, the meaning is to convert a type's view from a being one of the "is-a" relationships to another. With Zax composition, the meaning is to access from the container to the contained (or vice versa).
+
 
 #### Upcasting (aka inner casting)
 
@@ -413,9 +468,9 @@ function final : ()() = {
 
 #### Downcasting
 
-In Object Oriented languages, [downcasting](https://en.wikipedia.org/wiki/Downcasting) performs the a conversion where a base class is converted to a derived class. Unlike the upcasting scenario, downcasting is more tricky. In the upcast scenario, a derived object "is-a" base object so no (obvious) conversion is required (other than what a language constraint might impose). However, downcasting a base object is not as clear. In object languages, multiple objects can derive from a single base object. Thus a base object "might be" a particular derived object and is not guaranteed to be a particular derived object. If conversion is done in these languages, the language either requires the programmer force the type from a base object to a derived object (i.e. the programmer knows for certain they are they same object), or run-time information is contained within the object hierarchy which tells the language if the base class can be converted to a particular derived class. For this reason compilers may include "runtime type information" as part of the executable program.
+In Object Oriented languages, [downcasting](https://en.wikipedia.org/wiki/Downcasting) performs the a conversion where a base class is converted to a derived class. Unlike the upcasting scenario, downcasting is more tricky. In the upcast scenario, a derived object "is-a" base object so no (obvious) conversion is required (other than what a language constraint might impose). However, downcasting a base object is not as clear. In object languages, multiple objects can derive from a single base object. Thus a base object "might be" a particular derived object and is not guaranteed to be a particular derived object. If conversion is done in these languages, the language either requires the programmer force the type from a base object to a derived object (i.e. the programmer knows for certain they are they same object), or run-time information is contained within the object hierarchy which tells the language if the base class can be converted to a particular derived class. For this reason compilers may include RTTI (Run Time Type Information) as part of the executable program.
 
-In the Zax language, converting from a contained type to a container type has the same ambiguity. Zax can allow a forced conversion where the container/contained relationship is assumed, or the programmer can opt to include runtime type information as part of the type information.
+In the Zax language, converting from a contained type to a container type has the same ambiguity. Zax can allow a forced conversion where the container/contained relationship is assumed, or the programmer can opt to include RTTI as part of the type information.
 
 ##### C++ forced downcast
 
@@ -562,20 +617,22 @@ function final : ()() = {
 
 ##### Zax runtime downcast
 
-In the Zax language, the keyword `managed` must be included on the type declaration where a type might be used as a source of conversion using the `lifetimeof` operator. The `lifetimeof` keyword will use this overhead RTTI properties to perform a conversion if it is allowed. As runtime type information requires additional resource overhead for a given type, the `managed` keyword signals the type needs to include the overhead whenever the type is instantiated.
+In the Zax language, the keyword `managed` must be included on the type declaration where a type might be used as a source of conversion using the `outerof` operator. The `outerof` keyword will use this overhead RTTI properties to perform a conversion if it is allowed. As runtime type information requires additional resource overhead for a given type, the `managed` keyword signals the type needs to include the overhead whenever the type is instantiated.
 
 ````zax
+// additional overhead is required on the A type to convert from the base
+// type to an outer container type
 A :: type managed {
     foo : Integer
 }
 
 B :: type {
     bar : Integer
-    a : A           // additional overhead is required on the A type
-                    // to allow the conversion to happen
+    a : A           
 }
 
 C :: type {
+    a : A
     weight : Double
 }
 
@@ -613,12 +670,20 @@ doSomething final : ()(a : A*) = {
 }
 
 function final : ()() = {
-    value : B
-    value.a.foo = 1
-    value.bar = 2
+    value1 : B
+    value1.a.foo = 1
+    value1.bar = 2
 
-    // value is said to be upcasted to the `A` type, which is equivalent to
+    // value1 is said to be upcasted to the `A` type, which is equivalent to
     // accessing the contained variable on the `B` type
-    doSomething(value.a)
+    doSomething(value1.a)
+
+    value2 : C
+    value2.a.foo = 1
+    value2.weight = 5.0
+
+    // value1 is said to be upcasted to the `A` type, which is equivalent to
+    // accessing the contained variable on the `C` type
+    doSomething(value2.a)
 }
 ````

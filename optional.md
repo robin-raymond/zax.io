@@ -58,7 +58,7 @@ valueOptional : MyType?
 
 // `valueOptional` is constructed using the empty constructor into the
 // optional value's reserved space and the optional now contains valid data
-valueOptional = : MyType
+valueOptional = # : MyType
 
 // alternative: a special shorthand is reserved to default the optional type to
 // a constructed empty value (thus not requiring the type be specified)

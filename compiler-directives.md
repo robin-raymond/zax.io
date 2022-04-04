@@ -5,7 +5,7 @@
 
 ### Official and extended directives
 
-All official supported directives do not start with an `x-` in the directive. Custom compiler directives are prefixed with `x-` in the directive name. Custom directives are ignored if they are not supported.
+All officially supported directives must be understood to compile and never start with an `x-` prefix. Custom compiler directives are prefixed with `x-` in the directive name. Custom directives are ignored if they are not supported.
 
 ````zax
 // example official directives
@@ -201,7 +201,7 @@ The `error` argument is optional and if specified the warning is forced into an 
 Context for the deprecate warning:
 * `import` (default) - only warn on usages from module performing the import
 * `all` - any usage of this item is to be treated as deprecated
-* `local` - any usage of this item outside the local context is deprecated
+* `local` - any usage of this item in the local context is deprecated
 
 The `min` option requires the importing module must declare an import of at least this version to use the API. The `max` option requires the importing module must not declare an import version greater than this version. The compiler will treat versions as [point release](https://en.wikipedia.org/wiki/Point_release) notations. The version can be specified using a `version` `String` declaration in the import statement. The `min` and `max` keywords are generally not used together but they can be.
 
@@ -215,7 +215,7 @@ MyOldBadlyDesignedType :: type {
 
 // usage of this type should only be performed when
 // requesting this version number at minimum
-[[deprecate,min="2.3"]] \
+[[deprecate, min="2.3"]] \
 MyShinyNewType :: type {
     // ...
 }
@@ -224,7 +224,7 @@ ValidType :: type {
 
     // all of the functions and variables below are now obsoleted and
     // cannot be used beyond version 1.1
-    [[deprecate=always,error,max="1.1"]]
+    [[deprecate=always, error, max="1.1"]]
 
     mrT80sFunc : ()() = {
         // ...
@@ -240,14 +240,14 @@ ValidType :: type {
     [[deprecate=never]]
 
 
-    // this function is deprecated if used accessed outside the local context
-    [[deprecate,context=local]] \
+    // this function is deprecated if used accessed in the local context
+    [[deprecate, context=local]] \
     needsRedesignFunc : ()() = {
         // ...
     }
 
     // this function is always warned as being deprecated
-    [[deprecate,context=all]] \
+    [[deprecate, context=all]] \
     mightNeedThisSoNotReadyToRemoveFunc : ()() = {
         // ...
     }
@@ -363,7 +363,7 @@ myValue1 *= 2 + myValue2
 
 ### The `compiles` directive
 
-The `compiles` directive `[[compiles=<options>, error]]` evaluates the code block that follows into a compile time constant of `true` or `false`. The code block that follows the compiles directive is never executed.
+The `compiles` directive `[[compiles=<options>, error]]` evaluates the code block that follows into a compile time constant of `true` or `false`. The code block that follows the compiles directive is never executed and declarations and definitions within the code block do not become terms.
 
 If `error` is specified then the failure to compile the code will evaluate to a compile time error should the compiled code not evaluate.
 
@@ -372,6 +372,8 @@ Options are as follows:
 * `last` - only attempt to compile the code at the `last` instance possible (all `last` `export` directives are done in sequence they are found unless they are found to not compile and then they are pushed to the back of the compile queue)
 * `now` - immediately evaluate the code block as all terms required to evaluate must already be defined at this point of compilation
 
+Meta-functions can be selected as a candidate or unselected depending on a `true` or `false` statement being present at the end of a functions declaration. The `[[compiles]]` directive can be used in place of this boolean placeholder to enable or disable a meta-function as a candidate based on the `compiles` code block compiling or not. All inputs and outputs are considered captured in the context allowing for compile time reflection of the types.
+
 
 ````zax
 if [[compiles]] { ++value } {
@@ -379,6 +381,33 @@ if [[compiles]] { ++value } {
 } else {
     doSomethingElse()
 }
+
+metaFunction : ()(input :) [[compiles]] {
+
+    // check if a type is defined
+    testedFeature : TestedFeature
+
+    // check if the input argument is compatible and convertible to a simple Integer type
+    check := input as Integer
+
+} = {
+    // ...
+}
+
+/*
+
+// metaFunction will evaluate to a `true` indicating the function is
+// selectable as a candidate:
+metaFunction : ()(input :) true = {
+    // ...
+}
+
+// or to a `false` indicating the function cannot be selected as a candidate:
+metaFunction : ()(input :) false = {
+    // ...
+}
+
+*/
 ````
 
 
@@ -386,7 +415,7 @@ if [[compiles]] { ++value } {
 
 The `requires` directive `[[requires=<options>, error]]` evaluates the code block that follows into a compile time constant of `true` or `false`. The code block that follows the compiles directive is executed if the code compiles. Failure to compile the code will result in the code resolving to `false`. The code must be capable of running at compile time.
 
-If `error` is specified then the failure to compile or returning false will cause a compiler error.
+If `error` is specified then the failure to compile or the `requires` code block returning false will cause a compiler error.
 
 Options are as follows:
 * `delay` (default) - attempt to compile and run the code but should it fail (possibly due to types or variables later declared), delay and retry compilation when other terms have evaluated
@@ -430,7 +459,7 @@ metaFunction : ()(input :) false = {
 
 ### The `concept` directive
 
-The `concept` directive `[[concept=<option>,error]]` is similar to the `requires` directive but instead causes a `final` function to be treated as a type for the sake of meta-programming. The `concept` directive will evaluate the function whenever the function name is used as a type in a meta-function. Inside the `concept` function, code is executed at compile time to evaluate if meta-type is compatible with the input or output arguments at compile type.
+The `concept` directive `[[concept=<option>, error]]` is similar to the `requires` directive but instead causes a `final` function to be treated as a type for the sake of meta-programming. The `concept` directive will evaluate the function whenever the function name is used as a type in a meta-function. Inside the `concept` function, code is executed at compile time to evaluate if meta-type is compatible with the input or output arguments at compile type.
 
 The `concept` directive can use `if` clauses with the `compiles` clauses to further evaluate compile time without execution clauses.
 
@@ -446,10 +475,10 @@ Options are as follows:
 ````zax
 UseSimpleType final : (result : Boolean)(ignored : $Type) [[concept]] = {
     if ![[compiles]] {
-        ++ignored;
-        --ignored;
-        ignored += 5;
-        ignored -= 5;
+        ++ignored
+        --ignored
+        ignored += 5
+        ignored -= 5
     } return false
     if sizeof $Type > sizeof U32
         return false
@@ -508,11 +537,11 @@ four := double(2)
 // invoking `compileItDouble` in this context causes it to execute at
 // compile time as the compiler will generate complete code for all the
 // execution required to run the function
-value := compileItDouble(random())
+value1 := compileItDouble(random())
 
 // invoking `generateItDouble` in this context causes it to generate replacement
 // code tokens for each combination of the types specified
-value := generateItDouble(random())
+value2 := generateItDouble(random())
 
 // ERROR: not all of the terms are able to evaluate at this time
 // `[[resolve=now]]` is forcing order to matter where normally order of
@@ -525,7 +554,7 @@ seven := 7
 
 ### The `resolve` directive
 
-The `resolve` directive `[[resolve=<option>,retry=<true/false>]]` indicates to the compiler when the specific import, type, execute, or compile statement must be resolved.
+The `resolve` directive `[[resolve=<option>, retry=<true/false>]]` indicates to the compiler when the specific import, type, execute, or compile statement must be resolved.
 
 Options are:
 * `trial` (default) - attempt to resolve the declaration now
@@ -619,11 +648,11 @@ assert(sizeof MyType == sizeof Integer + sizeof Uuid)
 
 ### The `likely` / `unlikely` directive
 
-The `likely` and `unlikely` directive indicates which `if` path or `switch` statements are `likely` or `unlikely` to occur to help with compiler optimizations and CPU branching. Attempting to match both `if` paths are `likely` or `unlikely` will result in an `incompatible-directive` error.
+The `likely` and `unlikely` directive indicates which `if` path or `switch` statements are `likely` or `unlikely` to occur to help with compiler optimizations and CPU branching. Attempting to specify both `if` paths are `likely` or `unlikely` will result in an `incompatible-directive` error.
 
-The `switch` statement can have one or more case statements marked as `likely` or `unlikely` but not both. This will tell the compiler to arrange checks in the most optimal way for these scenarios. If a `switch` is done with alternative operators, the order of the tests is fixed and but the `likely` or `unlikely` may offer hints to the compiler to optimize for some scenarios so long as the test order is not compromised.
+The `switch` statement can have one or more case statements marked as `likely` or `unlikely` but not all with the same marking. This will tell the compiler to arrange checks in the most optimal way for these scenarios. If a `switch` is done with alternative operators, the order of the tests is fixed and but the `likely` or `unlikely` may offer hints to the compiler to optimize for some scenarios so long as the test order is not compromised.
 
-On a `switch` the directive applies to the `case` statement not the `case` statement's code. This is done because the optimization is for each individual case test and not on the code path. Because of `case` fallthrough, one `case` may be `likely` and another `unlikely` for the same executed code path.
+On a `switch`, the directive applies to the `case` statement not the `case` statement's code. This is done because the optimization is for each individual case test and not on the destination code path. Because of `case` fallthrough, one `case` may be `likely` and another `unlikely` for the same executed code path.
 
 Using the directive with the `if` statement:
 
@@ -693,7 +722,7 @@ func final : ()(value : Integer) = {
 
 ### The `always` and `never` directives
 
-The `[[always]]` and `[[never]]` directives indicate to the compiler a code path will always be followed or never be followed. This allows references to code to exist but the paths will be optimized to always follow a code path or to never follow a code path. The compiler may issue an `impossible-if-value` if an explicit or implicit `[[never]]` code path was followed.
+The `[[always]]` and `[[never]]` directives indicate to the compiler a code path will always be followed or never be followed. This allows references to code to exist but the paths will be optimized to always follow a code path or to never follow a code path. The compiler may issue an `impossible-if-value` panic if an explicit or implicit `[[never]]` code path was followed.
 
 When `[[never]]` is applied to a `case` statement in a `switch`, the `case` will be treated as an impossible value and the case will be eliminated. This feature can be useful to ensure all enumerators are explicitly handled but to also indicate to the compiler that certain cases can never happen. The compiler may issue an `impossible-switch-value` panic if the value is found.
 
@@ -721,7 +750,7 @@ func final : ()() = {
     else
         doSomethingElse()
 
-    // placing the `always` after the `else` statement treats the
+    // placing the `always` directive after the `else` statement treats the
     // `false` condition as as `always` the path to follow
     if condition()
         doSomething()
@@ -825,7 +854,7 @@ The `export` directive `[[export=<option>]]` tells the compiler to apply the exp
 The options are:
 * `always` - all exportable types are automatically exported after this directive
 * `never` (default option) - disable the exporting of all exportable types after this directive
-* `yes` - (default is no option specified) the next type or declared variable is exported
+* `yes` - (default if no `export` option specified) the next type or declared variable is exported
 * `no` -  the next type or declared variable is not exported
 * `push` - push the current `export` state onto the stack
 * `pop` - pop the previous `export` state from the stack
@@ -852,19 +881,32 @@ visibleToImports : Boolean = true
 
 ### The literal directives
 
-The `[[file]]`, `[[line]]`, `[[function]]`, `[[date]]`, `[[time]]`, `[[compiler]]`, `[[version-compiler]]`, and `[[version-import]]` representing string or numerical literals for the currently compiling code. If a function is inlined then the represented values become the inline values where the directives were inlined into. If any of these values are not applicable, and empty string literal is generated in its place.
+The `[[file]]`, `[[line]]`, `[[function]]`, `[[date]]`, `[[time=<option>]]`, `[[compiler]]`, `[[version-compiler=<option>]]`, and `[[version-import=<option>]]` representing string or numerical literals for the currently compiling code. If a function is inlined then the represented values become the inline values where the directives were inlined into (and possibly recursively so if inlined functions were inturned inlined). If any of these values are not applicable, an empty string literal is generated in its place.
 
 The following meanings are implied by each directive:
-* `file` - the source code file being compiled
-* `line` - the line number being compiled
-* `function` - the function being compiled
-* `date` - the date of compilation
-* `time` - the time of compilation
+* `file` - the source code file being compiled (as string)
+* `line` - the line number being compiled (as an integer)
+* `function` - the function being compiled (as string)
+* `date` - the date of compilation (as string)
+* `time` - the time of compilation (as string)
 * `compiler` - the compiler application generating the source code
 * `version-compiler` - the compiler's version
 * `version-import` - the api version requested for the module being imported
 
-The `[[file]]` and `[[line]]` directives have dual meaning. When used without any arguments (as described in the literals directive section), these directives become string or Integer compile time constants. With arguments these directives can be overloaded (as is the case for `file` and `line`).
+The options for `version-compiler` and `version-import` are:
+* `default` - (default if not specified) the full semantic version as a string
+* `major` - the major version number (as Integer)
+* `minor` - the minor version number (as Integer)
+* `patch` - the patch version number (as Integer)
+* `pre-release` - the pre-release (as string)
+* `build` - the build identifiers (as string)
+
+The options for `time` are:
+* `default` - (default if not specified) the full time as a string
+* `unix` - the compile time number of seconds since the unix epoch (as Integer)
+* `nt` - the compile time expressed as the number of 100 nanoseconds since the NT time epoch (as Integer)
+
+The `[[file]]` and `[[line]]` directives have dual meaning. When used without any arguments (as described in the literals directive section), these directives become string or Integer compile time constants. With arguments, these directives can be overload the current value (as is the case for `file` and `line`).
 
 ````zax
 print final : ()(...) = {
@@ -885,10 +927,9 @@ trace()
 
 ### `lock-free` directive
 
-The `once` keyword will automatically generate thread safe barriers around an instance's construction to ensure that no type instance of the same type will ever be constructed. However, this is additional overhead that might not always be necessary. The `[[lock-free]]` directive disables the creation of this protective code around the instance creation and assumes that the construction of the type will happen entirely single threaded without any possibility of two threads competing for object creation.
+The `once` keyword will automatically generate thread safe barriers around a singleton's instance construction to ensure only a single instance will ever be constructed regardless of the threads accessing. However, this is additional overhead that might not always be necessary. The `[[lock-free]]` directive disables the creation of this protective code around a singleton instance creation and assumes that construction of a type will happen entirely single threaded without any possibility of multiple threads competing for an instance creation.
 
 ````zax
-
 MyType :: type {
     value1 : String
     value2 : String 
@@ -907,15 +948,15 @@ initializeMyType private := giveMeMyType()
 
 ### `synchronous` directive
 
-When a `promise`, `task` or `channel` declared functions are assumed to be implicitly `[[asynchronous]]`. This default can be overridden by using the `synchronous` directive `[[synchronous]]`. When the `synchronous` directive is used, the function is no longer operating asynchronously and all assumptions about any `asynchronous` intentions are no longer present. The `[[synchronous]]` directive effectively changes the expectation of the function from `asynchronous` to `synchronous` and indicates the code is not designed to be thread-aware.
+For `promise`, `task` or `channel` declared functions, those function are assumed to be implicitly `[[asynchronous]]`. This default can be overridden by using the `synchronous` directive `[[synchronous]]`. When the `synchronous` directive is used, a function is no longer operating asynchronously and all assumptions about any `asynchronous` intentions are no longer present. The `[[synchronous]]` directive effectively changes the expectation of a function from `asynchronous` to `synchronous` and indicates the code path does not need to be thread-aware.
 
-The implicit assumption for `asynchronous` functions is that pass by-values should be qualified as `deep`. The compiler will assume the function to be thread-unsafe and thus a `asynchronous-not-deep` will be issued normally on `asynchronous` for any pass by-value arguments that are not explicitly qualified as `deep`. This is done to ensure that types potentially crossing a thread boundary are automatically `deep` copied in an effort to prevent concurrency issues. The function can be labelled explicitly as `deep` or `shallow` to suppress this warning.
+The implicit assumption for `asynchronous` functions is that pass by-values arguments must be qualified as `deep`. The compiler issues an `asynchronous-not-deep` warning on `asynchronous` functions for any pass by-value arguments that are not explicitly qualified as `deep` (or pre-qualified as `deep` based on the type's definition). This check is done to ensure that types potentially crossing a thread boundary are automatically `deep` copied in an effort to prevent concurrency issues. A function can be labelled explicitly as `deep` or `shallow` to suppress this warning by forcing semantics on the arguments.
 
-If a `promise`, `task`, or `channel` declared function will never be used from a different thread context then the `[[synchronous]]` directive can be used to acknowledge the `promise`, `task`, or `channel` declared function as being exclusively synchronously accessed and thus a `deep` qualifier will not be expected to be applied. Further, any type declared as `deep` which normally would cause a `deep` copy to occur will perform `shallow` copies of the type for that `promise`, `task`, or `channel` call. Individual arguments for promises or tasks declared as `deep` explicitly will still perform `deep` copies.
+If a `promise`, `task`, or `channel` declared function will never be used from a different thread contexts then the `[[synchronous]]` directive can be used to acknowledge the `promise`, `task`, or `channel` declared function are exclusively synchronously accessed and thus a `deep` qualifier need not be applied. Further, any type declared as `deep` (which normally would cause a `deep` copy to occur) will perform instead a `shallow` copy of that type (for that `promise`, `task`, or `channel` call). Individual arguments for promises or tasks declared as `deep` explicitly will still perform `deep` copies of arguments.
 
-If a promise or task truly is `asynchronous` (as it is implicitly defaulted), but the pass by-value should only be `shallow` copied, the `shallow` qualifier could be specified. This changes the pass by-value from being implicitly a `shallow` copy to explicitly being a `shallow` copy and the `asynchronous-not-deep` warning will no longer present.
+If a `promise` or `task` truly is `asynchronous` (as it is implicitly defaulted) but the pass by-value should only be `shallow` copied, then the `shallow` qualifier can be specified. This changes the pass by-value from being implicitly a `deep` copy to explicitly being a `shallow` copy and the `asynchronous-not-deep` warning will be suppressed for that argument.
 
-The `[[synchronous]]` and `[[asynchronous]]` are mutually exclusive and indicate opposite code intentions.
+The `[[synchronous]]` and `[[asynchronous]]` are mutually exclusive and they indicate opposite code intentions.
 
 
 ````zax
@@ -935,14 +976,15 @@ later := func(myType)
 // ...
 
 // must be called from the same thread or undefined behaviors may result
-later.callable()
+callable := later.then = { /* ... */ }
+callable()
 ````
 
 ### `asynchronous` directive
 
-Unlike a `promise` or a `task`, functions are assumed to operate as `[[synchronous]]`. Using the `[[asynchronous]]` directive tells the compiler that a function will perform asynchronous operations despite not being a `promise` or `task` which are by default assumed to be labelled `[[asynchronous]]` implicitly.  The `[[asynchronous]]` directive effectively changes the expectation of the function from `synchronous` to `asynchronous` and indicates the code is not designed to be thread-aware.
+Unlike a `promise` or a `task`, functions are assumed to operate as `[[synchronous]]`. Using the `[[asynchronous]]` directive tells the compiler that a function will perform asynchronous operations despite not being a `promise` or `task` which are by default assumed to be labelled `[[asynchronous]]` implicitly.  The `[[asynchronous]]` directive effectively changes the expectation of the function from `synchronous` to `asynchronous` and indicates the code is designed to be thread-aware.
 
-When a function is labelled as `asynchronous`, a function is excepted that all pass by-value arguments are qualified with the `deep` specifier. The compiler will issue an `asynchronous-not-deep` warning if the `deep` qualifier is missing (as normally values are implicitly `shallow`). Adding the `deep` qualifier will override the default `shallow` behavior, or if the values should be `shallow` copied then the `shallow` qualifier can be used either on the individual pass by-value argument or on the function as a whole.
+When a function is labelled as `asynchronous`, a function is excepted that all pass by-value arguments are qualified with the `deep` specifier. The compiler will issue an `asynchronous-not-deep` warning if the `deep` qualifier is missing (as normally values are implicitly `shallow`). Adding the `deep` qualifier will override the default `shallow` behavior. If the values should be `shallow` copied then the `shallow` qualifier can be used either on the individual pass by-value argument or on the function as a whole.
 
 The `[[synchronous]]` and `[[asynchronous]]` are mutually exclusive and indicate opposite code intentions.
 
@@ -988,10 +1030,10 @@ func5 final : ()(a : MyType, b : MyType) deep [[asynchronous]] = {
 The `[[variables=<options>]]` directive declares defaults for the declaration of all variables. See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules.
 
 The options are:
-* `final` - any declared variable is disallowed changing its value (but makes no promise about mutable contents within the variable)
-* `varies` (default) - any declared variable is allowed to change its value and contents
-* `mutable` - a `constant` applied to a `mutable` type is ignored for the type and the type becomes mutable (not recommended)
-* `immutable` (default) - a `constant` applied to a `mutable` type is respected an the the remains `immutable` and `constant`
+* `final` - all declared variable are `final`
+* `varies` (default) - all declared variables are declared as `varies`
+* `mutable` - all declared variables are `mutable`
+* `immutable` (default) - all declared variables are `immutable`
 * `push` - push the current `variables` state onto the stack
 * `pop` - pop the previous `variables` state from the stack
 
@@ -1057,13 +1099,13 @@ MyType :: type {
 [[variables=immutable]] 
 
 x1 := 5
-x1 = 6          // OKAY
+x1 = 6          // OK (immutable variables respect a type's mutability)
 
 x2 : constant = 5
 x2 = 6          // ERROR: type is `constant`
 
 x3 : inconstant = 6
-x3 = 6          // OKAY
+x3 = 6          // OK (immutable variables respect a type's mutability)
 
 mx1 : MyType
 mx1.value1 = 6  // OKAY
@@ -1081,7 +1123,7 @@ y1 := 5
 y1 = 6          // OKAY
 
 y2 : constant = 5
-y2 = 6          // OKAY
+y2 = 6          // OKAY (type is constant but value is mutable)
 
 y3 : inconstant = 6
 y3 = 6          // OKAY
@@ -1090,7 +1132,7 @@ my1 : MyType
 my1.value1 = 6  // OKAY
 
 my2 final : MyType constant
-my2.value1 = 6  // OKAY
+my2.value1 = 6  // OKAY (type is constant but values are mutable)
 
 my3 varies : MyType inconstant
 my3.value1 = 6  // OKAY
@@ -1099,7 +1141,7 @@ my3.value1 = 6  // OKAY
 
 #### `types` default directives
 
-The `[[variables=<options>]]` directive declares defaults for the declaration of all types (and not a type's definition). See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules.
+The `[[types=<options>]]` directive declares defaults for the declaration of all types (and not a type's definition). See the [mutability](mutable.md) section for more details. This directive only applies to all source code following the directive and does not change the defaults for any imported modules.
 
 The options are:
 * `mutable` - (default) if a default is not specified for a type, a declared type is assumed to be `mutable`

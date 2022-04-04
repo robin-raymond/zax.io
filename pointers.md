@@ -156,9 +156,9 @@ func final : ()() = {
 
 ### Pointer property overhead
 
-Pointers can have additional properties associated with them and may contain additional overhead data more than a raw pointer would typically. Additional keywords such as `own` when applied to a pointer will indicate additional functionality is associated with the pointer. See [Memory Allocation](memory-allocation.html) for additional keywords that can add functionality to pointers.
+Pointers can have additional properties associated with them and may contain additional overhead data more than a `raw` pointer would typically. Additional keywords such as `own` when applied to a pointer will indicate additional functionality is associated with the pointer. See [Memory Allocation](memory-allocation.html) for additional keywords that can add functionality to pointers.
 
-In the example below, pointers aren't just raw pointers but can contain ownership properties (which allows the pointer type to deallocate the memory associated with the pointer automatically when a variable owning a pointer to a value is discarded). The programmer acknowledges the the property overhead they wish to include on their pointers as desired/needed. 
+In the example below, pointers aren't just `raw` pointers but can contain ownership properties (which allows the pointer type to deallocate the memory associated with the pointer automatically when a variable owning a pointer to a value is discarded). The programmer acknowledges the the property overhead they wish to include on their pointers as desired/needed. 
 
 ````zax
 A :: type {
@@ -177,7 +177,7 @@ C :: type {
     a : A           // `a` of type `A` is contained within type `C`
     b1 : B * own @  // `b1` of type `B` is initialized after default
                     // `own` allocation
-    b2 : B *        // `b2` is an raw pointer to a `B` type but the pointer is
+    b2 : B *        // `b2` is an `raw` pointer to a `B` type but the pointer is
                     // defaulted to point to nothing
                     // (and no type is allocated)
     b3 : B * own    // `b3` is an `own` pointer to a `B` type but the pointer is
@@ -388,7 +388,7 @@ func4() // will execute the code defined in func2
 
 ### Using the `last` type qualifier to optimize content transfer
 
-Normally references and pointers `lease` their ownership to other functions for a period of time. The true owner of the reference or pointer is not relevant but the owner much keep the lifetime of the underlying type alive while the reference or pointer is in use. The `lease` reference and pointer qualifier indicates that the reference is leasing it's lifetime from somewhere else. Be default, all references and pointers are pre-qualified with `lease` and thus this qualifier is redundant and need not to be specified.
+Normally references and pointers `lease` their ownership to other functions for a period of time. The true owner of the reference or pointer is not relevant but the owner must keep the lifetime of the underlying type alive while the reference or pointer is in use. The `lease` reference and pointer qualifier indicates that the reference is leasing it's lifetime from somewhere else. Be default, all references and pointers are pre-qualified with `lease` and thus this qualifier is redundant and need not to be specified.
 
 Alternatively, references and pointers can have a qualifier of `last` appended to their type. The `last` qualifier on a reference or pointer indicates the receiver of this type will inherit the contents of the type as this reference or pointer is the very `last` owner to the underlying type's contents. The contents contained in the type will be discarded if not claimed. By knowing the `last` qualifier is specified on a type's instance, the ownership of the contents can be claimed by a receiving function. This helps optimization by transferring the contents out of one type's instance into another prior to an instance's disposal rather than making content copies. Later when the instance is disposed, the claimed contents will have already been transferred out of the referred or pointer. This saves contents from having to be cloned only to have the original contents disposed moments later. 
 

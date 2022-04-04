@@ -5,9 +5,9 @@
 
 ### `if`
 
-The `if` statement tests a condition and if `true` executes the code that follows, or `if` `false` then skips the code and proceeds to execute the code following the `else` if present.
+An `if` statement tests a condition and if a condition is `true` then code that follow executes, or `if` a condition is `false` then skips a code block and proceeds to execute code following an `else` statement (if present).
 
-The flow control statement(s) following an `if` or `else` condition must either continue on the following line or must be encapsulated inside a scope.
+Flow control code blocks following an `if` or `else` condition must either continue on the following line or must be encapsulated inside a scope.
 
 ````zax
 isNegativeOrGreaterThan10 : (negative : Boolean)(input : Integer) = {
@@ -36,22 +36,31 @@ isNegative final : (output: Boolean) (input : Integer) = {
     // ERROR: the condition and statement following have no separation
     if input < 0 return true
 
-    // ERROR: the condition and statement are separated but this is not a
-    // legal form of the if statement; surrounding the result
-    // with `{}` would be okay 
+    // ERROR: the condition and statement are still now separated and this is
+    // not a legal form of the `if` statement
     if input < 0; return true
 
-    // OKAY: This is allowed
+    // OKAY: This example is allowed
     if input < 0 { return true }
 
-    // OKAY: This is form is okay
+    // OKAY: This example form is okay
     if input < 0
         return true
 
-    // OKAY: This form is also okay
+    // OKAY: This example form is also okay
     if input < 0 {
         return true
     }
+
+    // the `;` operator causes the code statement that follow to be considered
+    // part of the same statement at the same scope (even though they are
+    // separate statements)
+    if input < -1
+        ++input;
+        value := input * 3;
+        input /= value;
+        return true
+
     return false
 }
 ````
@@ -59,7 +68,7 @@ isNegative final : (output: Boolean) (input : Integer) = {
 
 #### `if` / `else`
 
-The `if` and `else` can be used to run one block of code or another depending `if` the condition is `true` or `false`.
+An `if` and `else` statement can be used to run one block of code or another depending `if` a condition is `true` or `false`.
 
 ````zax
 print final : ()(...) = {
@@ -86,7 +95,7 @@ if fruit == "durian" {
 
 #### `if` / `else if`
 
-If an `if` condition is `false` the `else` statement can immediately be followed by another `if` to condition testing for another condition dependent on the first condition being `false`.
+If an `if` condition is `false` then an `else` statement can immediately be followed by another `if` statement for testing another condition dependent on a first condition being `false`.
 
 ````zax
 print final : ()(...) = {
@@ -125,7 +134,7 @@ print("my disposition is", whatsForLunch("veal"))
 
 #### `if` initialization statements and condition
 
-An `if` statement can contain initialization statements with a condition followed by a repeated code block which must be separated by a sub-statement separator (`;;`). If a value is declared, the declared value's scope only exists within the context of the `if` or `else` control flows.
+An `if` statement can contain an initialization statement with a condition (which must be separated by a sub-statement separator `;;`)followed by a code block. If a value is declared in an initialization statement then that value's scope only exists within the context of an `if` or `else` control flow.
 
 ````zax
 // a happy number is less than -5 and even, or less than -10, or divisible by 3
@@ -142,7 +151,7 @@ assert(isNegative(-15))
 ````
 
 
-This form of if statement is useful for error condition handling without the need for exceptions:
+This form of if statement is useful for error condition handling without a need for exceptions:
 
 ````zax
 Error :: type {
@@ -151,7 +160,7 @@ Error :: type {
 
 loadStringFromUrl final : (
     result : String,    // contents returned from url already base64 decoded
-    error : Error       // error is set when server cannot be reached
+    error : Error       // an error is set when server cannot be reached
 )(
     url : String        // the url to fetch the base64 encoded data
 ) = {
@@ -187,8 +196,7 @@ countToOneHundred final : ()(starting : Integer) = {
 
 #### `while` initialization statements and condition
 
-A `while` statement will repeat over a code block `while` a condition is `true`. A `while` statement can contain initialization statements with a condition followed by a repeated code block which must be separated by a sub-statement separator (`;;`). If a value is declared, the declared value's scope only exists within the context of the `while` control flows.
-
+A `while` statement will repeat over a code block `while` a condition is `true`. A `while` statement can contain initialization statements with a condition followed by a repeatable code block which must be separated by a sub-statement separator (`;;`) except for the repeatable code block. If a value is declared in an initialization statement then that value's scope only exists within the context of a `while` control flow.
 
 ````zax
 print final : ()(...) = {
@@ -210,7 +218,7 @@ countToCosmicNumber final : ()(starting : Integer) = {
 
 #### `while` initialization statements, condition, and post statements
 
-A `while` statement will repeat over a code block `while` a condition is `true`. The `while` loop contains initialization statements, a condition, and a post statements followed by a repeated code block. Each must be separated with sub-statement separators (';;'). The lifetime or variables declared in the initialization statements are scoped to the iterated loop. The post statements are executed after each completed `while`'s code block has completed execution (assuming a `break` statement was not encountered executing the `while` loop's repeated code block).
+A `while` statement will repeat over a code block `while` a condition is `true`. A `while` loop can contain an initialization statement, a condition, and a post loop statement followed by a repeatable code block. Each section must be separated with sub-statement separators (';;') except for the repeatable code block. Variables declared in an initialization statement are scoped to an iterated loop. A post loop statement is executed after each completed repeatable code block has executed (assuming a `break` statement was not encountered while executing a `while` loop's repeatable code block).
 
 This code is valid:
 
@@ -232,7 +240,7 @@ countAndSkipOdds : (output : Integer)() = {
 }
 ````
 
-Alternative forms using the `while` loop:
+Alternative forms using `while` loops:
 
 ````zax
 print final : ()(...) = {
@@ -242,7 +250,8 @@ print final : ()(...) = {
 doStuff final : (output : Integer)() = {
     total := 0
 
-    // OKAY: only the condition is present
+    // OKAY: a condition statement and repeatable code block are present but no
+    // initialization or post loop statement is present
     {
         i := 0
         while i < 100 {
@@ -254,28 +263,71 @@ doStuff final : (output : Integer)() = {
         }
     }
 
-    // OKAY: the post-statements are optional
+    // OKAY: an initialization, condition statement, and repeatable code block
+    // are present but no post loop statement is present
     while i: ;; i < 100 {
         ++i
         ++total
     }
 
-    // OKAY: this code will compile even if post-statements are empty
+    // OKAY: an initialization and a post loop statement are present followed by
+    // a repeatable code block
+    while i: ;; i < 100 ;; ++i {
+        ++total
+    }
+
+    // ERROR: A sub statement separator `;;` was present indicating a post loop
+    // statement should be present; this cause the repeatable code block to
+    // treated as the post loop statement by the compiler, and the compiler
+    // continues to attempt to locate a repeatable code block which isn't
+    // present; thus the compiler will issue an error.
     while i: ;; i < 100 ;; {
         print(i)
         ++i
         ++total
     }
 
-    // OKAY: this code will compile even if post-statements are empty
-    // (although it will repeat forever since `i` is always `< 100`)
-    while i: ;; i < 100 ;;
+    // OKAY: an initialization and a post loop statement are present and a
+    // an empty scope is used in place for the repeatable code block
+    while i: ;; i < 100 ;; ++i {}
+
+    // OKAY: a post loop statement is empty but present
+    while i: ;; i < 100 ;; {} {
+        print(i)
+        ++i
+        ++total
+    }
+
+    // OKAY: an initialization is present and a post loop statement is empty but
+    // present; the repeatable code block is present (although it will repeat
+    // forever since `i` is always `< 100`)
+    while i: ;; i < 100 ;; {}
         print(i)
 
-    // OKAY: this code will compile and the iterated statement is
-    // assumed to be the following line
+    // OKAY: An initialization, condition, and post loop statement are present
+    // and the repeatable code block is present. The `;` operator causes
+    // multiple statements to be combined together and treated as a single
+    // statement at the same scope.
     while i: ;; i < 100 ;; ++i; ++total
         print(i)
+
+    // OKAY: An initialization, condition, and post loop statements are present
+    // and the repeatable code block is present. The `;` operator causes
+    // multiple statements to be combined together and treated as a single
+    // statement at the same scope. The repeatable code block is using the `;`
+    // operator to indicate that all the loop statements are part of the same
+    // statement at the same scope.
+    while i: ;; i < 100 ;; ++i; ++total
+        print(i);
+        print(i % 10)
+
+    // OKAY: An initialization, condition, and post loop statements are present
+    // and the repeatable code block are all present. The `;` operator causes
+    // multiple statements to be combined together and treated as a single
+    // statement at the same scope.
+    while i: ;; i < 100 ;; ++i; ++total {
+        print(i)
+    }
 
     return total
 }
@@ -292,7 +344,7 @@ print final : ()(...) = {
 }
 
 countToOneHundred final : ()(starting : Integer) = {
-    // repeat until starting reaches 100
+    // repeat until `starting` reaches `100`
     until starting > 100 {
         print(starting)
         ++starting
@@ -303,8 +355,7 @@ countToOneHundred final : ()(starting : Integer) = {
 
 #### `until` initialization statements and condition
 
-An `until` statement will repeat over a code block `until` a condition is `true`. An `until` statement can contain initialization statements with a condition followed by a repeated code block which must be separated by a sub-statement separator (`;;`). If a value is declared, the declared value's scope only exists within the context of the `until` control flows.
-
+An `until` statement will repeat over a code block `until` a condition is `true`. An `until` statement can contain an initialization statement with a condition followed by a repeatable code block which must be separated by a sub-statement separator (`;;`) except for the repeatable code block. If a value is declared in an initialization statement then that value's scope only exists within the context of an `until` control flow.
 
 ````zax
 print final : ()(...) = {
@@ -326,7 +377,7 @@ countToCosmicNumber final : ()(starting : Integer) = {
 
 #### `until` initialization statements, condition, and post statements
 
-An `until` statement will repeat over a code block `until` a condition is `true`. The `until` loop contains initialization statements, a condition, and a post statements followed by a repeated code block. Each must be separated with sub-statement separators (';;'). The lifetime or variables declared in the initialization statements are scoped to the iterated loop. The post statements are executed after each completed `until`'s code block has completed execution (assuming a `break` statement was not encountered executing the `until` loop's repeated code block).
+An `until` statement will repeat over a code block `until` a condition is `true`. An `until` loop can contain an initialization statement, a condition, and a post loop statement followed by a repeatable code block. Each must be separated with sub-statement separators (';;') except for the repeated code block. Variables declared in an initialization statement are scoped to the loop. A post statement is executed after each completed repeatable code block has executed (assuming a `break` statement was not encountered executing an `until` loop's repeatable code block).
 
 This code is valid:
 
@@ -358,7 +409,7 @@ print final : ()(...) = {
 doStuff final : (output : Integer)() = {
     total := 0
 
-    // OKAY: only the condition is present
+    // OKAY: only a condition and repeatable code block are present
     {
         i := 0
         until i == 100 {
@@ -370,26 +421,33 @@ doStuff final : (output : Integer)() = {
         }
     }
 
-    // OKAY: the post-statements are optional
+    // OKAY: an initialization and condition statement are present with
+    // a repeatable code block
     until i: ;; i == 100 {
         ++i
         ++total
     }
 
-    // OKAY: this code will compile even if post-statements are empty
-    until i: ;; i == 100 ;; {
+    // OKAY: An initialization and condition statement are present and
+    // and empty post loop statement. The repeatable code block is present.
+    until i: ;; i == 100 ;; {} {
         print(i)
         ++i
         ++total
     }
 
-    // OKAY: this code will compile even if post-statements are empty
-    // (although it will repeat forever since `i` is always `< 100`)
-    until i: ;; i == 100 ;;
-        print(i)
+    // OKAY: An initialization and condition statement are present. A
+    // repeatable code block is present. The `;` operator causes multiple
+    // statements in the repeatable code block to be combined together and
+    // treated as a single statement at the same scope.
+    until i: ;; i == 100
+        print(i);
+        +++i;
+        ++total
 
-    // OKAY: this code will compile and the iterated statement is
-    // assumed to be the following line
+    // OKAY: The `;` operator causes multiple statements in the post loop
+    // statement to be combined together and treated as a single statement at
+    // the same scope.
     until i: ;; i == 100 ;; ++i; ++total
         print(i)
 
@@ -400,7 +458,7 @@ doStuff final : (output : Integer)() = {
 
 ### `redo` `while`
 
-A `redo` `while` statement will repeat over a code block while the condition is true and will always execute at least once.
+A `redo` `while` statement will repeat over a code block while a condition is `true` and it will always execute a repeatable code block at least once.
 
 ````zax
 print final : ()(...) = {
@@ -423,7 +481,7 @@ skipDivisibleBy3 final : ()(starting : Integer, ending : Integer) = {
 
 #### `redo` `while` initialization statements and condition
 
-A `redo` `while` statement will repeat over a code block while the condition is true and will always execute at least once. A `redo` `while` statement can contain initialization statements with a condition followed by a repeated code block which must be separated by a sub-statement separator (`;;`). If a value is declared, the declared value's scope only exists within the context of the `redo` `while` control flows.
+A `redo` `while` statement will repeat over a code block while a condition is `true` and it will always execute a repeatable code block at least once. A `redo` `while` statement can contain an initialization statement with a condition followed by a repeatable code block which must be separated by a sub-statement separator (`;;`) except for the repeatable code block. If a value is declared in an initialization statement then that value's scope only exists within the context of a `redo` `while` control flow.
 
 ````zax
 print final : ()(...) = {
@@ -446,9 +504,9 @@ skipDivisibleBy3 final : ()(ending : Integer) = {
 
 #### `redo` `while` initialization statements, condition, and post statements
 
-A `redo` `while` statement will repeat over a code block while the condition is true and will always execute at least once. A `redo` `while` statement can contain initialization statements with a condition and post statements followed by a repeated code block which must be separated by a sub-statement separator (`;;`). If a value is declared, the declared value's scope only exists within the context of the `redo` `while` control flows.
+A `redo` `while` statement will repeat over a code block while a condition is `true` and it will always execute a repeatable code block at least once. A `redo` `while` statement can contain an initialization statement with a condition and post loop statement followed by a repeatable code block which must be separated by a sub-statement separator (`;;`) except for the repeatable code block. If a value is declared in an initialization statement then that value's scope only exists within the context of a `redo` `while` control flow.
 
-The initialization statements and post statements are not mandatory but the code block must be either put on the next line or surrounded with a scope (`{}`).
+An initialization statement and post loop statement are not mandatory but a repeatable code block must exist.
 
 ````zax
 print final : ()(...) = {
@@ -481,12 +539,13 @@ skipDivisibleBy3 final : ()(starting: Integer, ending : Integer) = {
     }
 }
 
-// OKAY: on a single line where code is surrounded by a scope
-// (the false will cause the loop to exit following the code block execution)
+// OKAY: a single line where repeatable code is surrounded by a scope
+// (the `false` will cause the loop to exit after the code block execution)
 redo while false { print("hello") }
 
-// OKAY: a single statement is allowed on the following line
-// (the false will cause the loop to exit following the code block execution)
+// OKAY: a single statement is allowed on the following line when a scope is
+// not utilized for the repeatable code block
+// (the `false` will cause the loop to exit after the code block execution)
 redo while false
     print("hello")
 ````
@@ -494,7 +553,7 @@ redo while false
 
 ### `redo` `until`
 
-A `redo` `until` statement will repeat over a code block `until` the condition is true and will always execute at least once.
+A `redo` `until` statement will repeat over a code block `until` a condition is `true` and it will always execute a repeatable code block at least once.
 
 ````zax
 print final : ()(...) = {
@@ -506,7 +565,7 @@ assert final : ()(check : Boolean) = {
 }
 
 skipDivisibleBy3 final : ()(starting : Integer, ending : Integer) = {
-    assert(starting < ending);
+    assert(starting < ending)
 
     redo until starting == ending {
         if starting % 3 == 0
@@ -522,7 +581,7 @@ skipDivisibleBy3 final : ()(starting : Integer, ending : Integer) = {
 
 #### `redo` `until` initialization statements and condition
 
-A `redo` `until` statement will repeat over a code block `until` the condition is true and will always execute at least once. A `redo` `until` statement can contain initialization statements with a condition followed by a repeated code block which must be separated by a sub-statement separator (`;;`). If a value is declared, the declared value's scope only exists within the context of the `redo` `until` control flows.
+A `redo` `until` statement will repeat over a code block `until` a condition is `true` and it will always execute a repeatable code block at least once. A `redo` `until` statement can contain an initialization statement with a condition followed by a repeatable code block which must be separated by a sub-statement separator (`;;`) except for the repeatable code block. If a value is declared in an initialization statement then that value's scope only exists within the context of a `redo` `until` control flow.
 
 ````zax
 print final : ()(...) = {
@@ -534,7 +593,7 @@ assert final : ()(check : Boolean) = {
 }
 
 skipDivisibleBy3 final : ()(ending : Integer) = {
-    assert(starting < ending);
+    assert(starting < ending)
 
     redo until starting := ending - 100 ;; starting == ending {
         if starting % 3 == 0
@@ -550,9 +609,9 @@ skipDivisibleBy3 final : ()(ending : Integer) = {
 
 #### `redo` `until` initialization statements, condition, and post statements
 
-A `redo` `until` statement will repeat over a code block `until` the condition is true and will always execute at least once. A `redo` `until` statement can contain initialization statements with a condition and post statements followed by a repeated code block which must be separated by a sub-statement separator (`;;`). If a value is declared, the declared value's scope only exists within the context of the `redo` `until` control flows.
+A `redo` `until` statement will repeat over a code block `until` a condition is `true` and it will always execute a repeatable code block at least once. A `redo` `until` statement can contain an initialization statement with a condition and post loop statement followed by a repeatable code block which must be separated by a sub-statement separator (`;;`) except for the repeatable code block. If a value is declared in an initialization statement then that value's scope only exists within the context of the `redo` `until` control flow.
 
-The initialization statements and post statements are not mandatory but the code block must be either put on the next line or surrounded with a scope (`{}`).
+An initialization statement and a post loop statement are not mandatory but a repeatable code block must exist.
 
 ````zax
 print final : ()(...) = {
@@ -564,7 +623,7 @@ assert final : ()(check : Boolean) = {
 }
 
 skipDivisibleBy3 final : ()(ending : Integer) = {
-    assert(starting < ending);
+    assert(starting < ending)
 
     redo until starting := ending - 100 ;; starting < ending ;; ++starting {
         if starting % 3 == 0
@@ -587,7 +646,7 @@ assert final : ()(check : Boolean) = {
 }
 
 skipDivisibleBy3 final : ()(starting: Integer, ending : Integer) = {
-    assert(starting < ending);
+    assert(starting < ending)
 
     redo until ;; starting < ending ;; ++starting {
         if starting % 3 == 0
@@ -597,12 +656,13 @@ skipDivisibleBy3 final : ()(starting: Integer, ending : Integer) = {
     } 
 }
 
-// OKAY: on a single line where code is surrounded by a scope
-// (the true will cause the loop to exit following the code block execution)
+// OKAY: a single line where the repeatable code block is surrounded by a scope
+// (the `true` will cause the loop to exit following the code block execution)
 redo until true { print("hello") }
 
-// OKAY: a single statement is allowed on the following line
-// (the true will cause the loop to exit following the code block execution)
+// OKAY: a single statement is allowed on the following line as a scope
+// is not present around the repeatable code block
+// (the `true` will cause the loop to exit following the code block execution)
 redo until true
     print("hello")
 ````
@@ -610,7 +670,7 @@ redo until true
 
 ### `each`
 
-The `each` keyword and `in` keyword iterate through a type's contents. For enumerators, the contents are the declared enumerators. For types, the contents are each individual contained variable.
+The `each` keyword and `in` keyword iterate through a type's contents. For enumerators, the contents are the declared enumerator values. For types, the contents are each individual contained variable.
 
 ````zax
 print final : ()(...) = {
@@ -618,10 +678,10 @@ print final : ()(...) = {
 }
 
 Fruit :: enum {
-    apple,
-    banana,
-    pear,
-    orange
+    Apple,
+    Banana,
+    Pear,
+    Orange
 }
 
 listFruit final : ()() = {
@@ -635,14 +695,15 @@ These alternative versions will not compile:
 
 ````zax
 listFruitAlt final : ()() = {
-    // ERROR: missing the `in` keyword and a `;;` is not a substitute
+    // ERROR: missing `in` keyword and a `;;` is not appropriate since `each`
+    // does not contain separated sub-statements in this form
     each fruit: ;; Fruit {
         print(fruit)
     }
 }
 
 listFruitAlt2 final : ()() = {
-    // ERROR: missing the captured value
+    // ERROR: missed capturing a value
     each Fruit {
         print(Fruit)
     }
@@ -652,7 +713,7 @@ listFruitAlt2 final : ()() = {
 
 #### Using `each` to iterate over a type's values
 
-The `each` keyword can be used to iterate over all of the variables contained with a type. The code block that follows the `each` will be re-compiled per subtype to ensure that different types remain compile time strict.
+The `each` keyword can be used to iterate over all variables contained in a type. A repeatable code block that follows an `each` keyword will be re-compiled per subtype to ensure that different subtypes remain compile time strict.
 
 ````zax
 print final : ()(...) = {
@@ -674,9 +735,9 @@ each value: in MyType
 ````
 
 
-#### `each` initializer statements and condition
+#### `each` initializer statement and condition
 
-An `each` statement can contain a initialization statements with a condition followed by repeated code block which must be separated by a sub-statement separator (`;;`). If a value is declared, the declared value's scope only exists within the context of the `each` control flows.
+An `each` statement can contain an initialization statement with a condition followed by repeatable code block which must be separated by a sub-statement separator (`;;`) except for the repeatable code block. If a value is declared in an initialization statement then that value's scope only exists within the context of the `each` control flow.
 
 In the example below, the returned array is captured and iterated one element at a time:
 
@@ -698,15 +759,42 @@ returnAMyType final : (myType : MyType)() = {
     return myType
 }
 
-each myType := returnAMyType ;; value: in myType {
+each myType := returnAMyType() ;; value : in myType {
     print(value, myType.id)             // will print `42` followed by "Life", and each time prints "ABC123"
+}
+````
+
+
+#### Using `each` to iterate over a type's value's metadata
+
+The `each` keyword can be used to iterate over all variables contained in a type and a variable's metadata. A repeatable code block that follows an `each` keyword will be re-compiled per subtype to ensure that different subtypes remain compile time strict.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType :: type {
+    value1 : Integer
+    value2 : String
+}
+
+myType : MyType
+
+myType.value1 = 42
+myType.value2 = "Life"
+
+each value:, metadata: in MyType {
+    print(value)            // will print `42` followed by "Life"
+    print(metadata)         // will print information such as `value1` name
+                            // and other variable properties
 }
 ````
 
 
 ### Using `for` to iterate a range
 
-The `for` will use range iteration to iterate through the entries in arrays or types that support range operations.
+The `for` will use range iteration to iterate through the entries in arrays or other values in other types that support range operations.
 
 ````zax
 print final : ()(...) = {
@@ -724,6 +812,11 @@ values[2] = "superman"
 
 // the iterated type is treated as a range type and the values are iterated
 // based on the range's evaluation
+for value : in values)
+    print(value)    // will print values in reversed order
+
+// a range type is returned and the values are iterated based on the range's
+// evaluation
 for value : in reverseView(values)
     print(value)    // will print values in reversed order
 ````
@@ -731,7 +824,7 @@ for value : in reverseView(values)
 
 #### `for` initializer statement and range iteration
 
-A `for` statement can contain a initialization statements with a condition followed by a repeated code block which must be separated by a sub-statement separator (`;;`). If a value is declared, the declared value's scope only exists within the context of the `for` control flows.
+A `for` statement can contain a initialization statement with a condition followed by a repeatable code block which must be separated by a sub-statement separator (`;;`) except for the repeatable code block. If a value is declared in an initialization statement then that value's scope only exists within the context of the `for` control flow.
 
 ````zax
 print final : ()(...) = {
@@ -750,10 +843,11 @@ returnAnArray final : (result : )() = {
     return values
 }
 
-// the iterated type is treated as a range type and the values are iterated
-// based on the range's evaluation
-for array := returnAnArray ;; value : in reverseView(array)
-    print(value, array[0])    // will print values in reversed order, and "bird" each time
+// an initialization statement is present; a range type is returned and the
+// values are iterated based on the range's evaluation
+for array := returnAnArray() ;; value : in reverseView(array)
+    print(value, array[0])    // will print values in reversed order,
+                              // and "bird" each time
 ````
 
 
@@ -761,7 +855,7 @@ for array := returnAnArray ;; value : in reverseView(array)
 
 #### The `switch`, `case` and `default` flow control
 
-The `switch` statement can be used to test a variable against a set of values. The `switch` statement will compare against a value list and execute zero or more statements based on the value tested. Each value is compared against each `case` value for equality and if `default` is present then any value that does not match an existing `case` causes the `default` code to be executed.
+A `switch` statement can be used to test a variable against a set of values. A `switch` statement will compare against a value list and execute zero or more statements based on values tested. A `switch` value is compared against each `case` value for equality and if `default` is present then any `switch` value that does not match an existing `case` causes a `default` code block to be executed.
 
 ````zax
 doSomething final : ()() = {
@@ -769,7 +863,7 @@ doSomething final : ()() = {
 }
 
 randomBoolean final : (result : Boolean)() = {
-    // ... return true or false randomly ...
+    // ... return `true` or `false` randomly ...
 }
 
 func final : ()(value : Integer) = {
@@ -779,30 +873,36 @@ func final : ()(value : Integer) = {
                 break
             doSomething()
 
-            // a break is not required between case statements as the code
-            // logic will not flow through from one case to another
-            // automatically
+            // unlike other languages, a `break` is not required between
+            // `case` statements as the code logic will not flow through from
+            // one case to another automatically
         }
         case 2
-            // single statement is executed then the switch exits
+            // single statement is executed then the `switch` exits
             doSomething()
         case 3
         case 4 {
             // if `value` is `3` or `4` two statements are executed and then
-            // the switch exits
+            // the `switch` exits
             doSomething()
             doSomething()
         }
         case 5
         case 6
             doSomething()
-            // ERROR: This code will not compile as multiple statements
-            // require using a `{}` scope
+            // ERROR: this code will not compile as multiple statements are
+            // present thus requiring using a `{}` scope or the `;` operator
             doSomething()
         case 7
         case 8
+            // the `;` operator causes both statements to be joined as a
+            // single statement at the same scope
+            doSomething();
+            doSomething()
+        case 9
+        case 10
         default {
-            // values not `1` to `6` will execute a default scenario
+            // values not `1` through `8` will execute this default scenario
             doSomething()
             doSomething()
         }
@@ -813,7 +913,7 @@ func final : ()(value : Integer) = {
 
 #### Using `switch` to compare against runtime values
 
-The `switch` statement can be used to compare against other runtime values. The values cannot be computed inside the `case` statement but they can be used as a comparison.
+A `switch` statement can be used to compare against other runtime values. Values should not be computed inside a `case` statement but values can be used as a comparisons.
 
 ````zax
 doSomething final : ()() = {
@@ -821,7 +921,7 @@ doSomething final : ()() = {
 }
 
 randomBoolean final : (result : Boolean)() = {
-    // ... return true or false randomly ...
+    // ... return `true` or `false` randomly ...
 }
 
 uniqueRandomNumber final : (result : Integer)() = {
@@ -841,17 +941,17 @@ func final : ()(value : Integer) = {
                 break
             doSomething()
 
-            // a break is not required between case statements as the code
+            // a `break` is not required between `case` statements as the code
             // logic will not flow through from one case to another
             // automatically
         }
         case b
-            // single statement is executed then the switch exits
+            // single statement is executed then the `switch` exits
             doSomething()
         case c
         case d {
             // if `value` is `c` or `d` two statements are executed and then
-            // the switch exits
+            // the `switch` exits
             doSomething()
             doSomething()
         }
@@ -862,9 +962,9 @@ func final : ()(value : Integer) = {
 
 #### Using `switch` with complex types
 
-The `switch` can be used to compare against complex types. The complex type must have a comparison operator support.
+A `switch` statement can be used to compare against complex types. Complex types must have comparison operator support.
 
-The example below uses String types but any type could be used.
+The example below uses String types (but any type could be used):
 
 ````zax
 doSomething final : ()() = {
@@ -872,7 +972,7 @@ doSomething final : ()() = {
 }
 
 randomBoolean final : (result : Boolean)() = {
-    // ... return true or false randomly ...
+    // ... return `true` or `false` randomly ...
 }
 
 uniqueFruit final : (result : String)() = {
@@ -896,12 +996,12 @@ func final : ()(fruit : String) = {
             doSomething()
         }
         case b
-            // single statement is executed then the switch exits
+            // single statement is executed then the `switch` exits
             doSomething()
         case c
         case d. {
             // if `fruit` is `c` or `d` two statements are executed and then
-            // the switch exits
+            // the `switch` exits
             doSomething()
             doSomething()
         }
@@ -912,7 +1012,7 @@ func final : ()(fruit : String) = {
 
 #### Using `switch` with alternative operators
 
-The `switch` can be used with other boolean binary operations. When binary operations are used the order of the evaluations of binary conditions occurs in the same order as the `case` conditions.
+A `switch` statement can be used with other boolean binary operators. When binary operators are used, evaluation ordering of binary conditions occur in the same order as `case` conditions.
 
 ````zax
 doSomething final : ()() = {
@@ -920,7 +1020,7 @@ doSomething final : ()() = {
 }
 
 randomBoolean final : (result : Boolean)() = {
-    // ... return true or false randomly ...
+    // ... return `true` or `false` randomly ...
 }
 
 uniqueRandomNumber final : (result : Integer)() = {
@@ -934,17 +1034,17 @@ func final : ()(value : Integer) = {
                 break
             doSomething()
 
-            // a break is not required between case statements as the code
-            // logic will not flow through from one case to another
+            // a `break` is not required between `case` statements as the code
+            // logic will not flow through from one `case` to another
             // automatically
         }
         case b
-            // single statement is executed then the switch exits
+            // single statement is executed then the `switch` exits
             doSomething()
         case > c
         case < d {
             // if `value` is `c` or `d` two statements are executed and then
-            // the switch exits
+            // the `switch` exits
             doSomething()
             doSomething()
         }
@@ -955,7 +1055,7 @@ func final : ()(value : Integer) = {
 
 #### `switch` statement and condition
 
-A `switch` statement can contain a statement followed by a variable to test which must be separated by a `;`. If a value is declared, the declared value's scope only exists within the context of the `switch` control flows. This scenario can be useful to capture a computed value, test the computed value, and later access the previously computed value.
+A `switch` statement can contain a statement followed by a variable to test which must be separated by a sub statement separator (`;;`) operator. If a value is declared in an initialization statement then that value's scope only exists within the context of a `switch` control flow. This scenario can be useful to capture a computed value, test the computed value, and later access the previously computed value.
 
 ````zax
 doSomething final : ()() = {
@@ -963,10 +1063,10 @@ doSomething final : ()() = {
 }
 
 randomBoolean final : (result : Boolean)() = {
-    // ... return true or false randomly ...
+    // ... return `true` or `false` randomly ...
 }
 
-uniqueRandomNumberfinal  : (result : Integer)() = {
+uniqueRandomNumber final  : (result : Integer)() = {
     // .... return a random number never returned before ...
 }
 
@@ -977,24 +1077,24 @@ func final : ()(value : Integer) = {
     c := uniqueRandomNumber()
     d := uniqueRandomNumber()
 
-    switch value := uniqueRandomNumber(); value {
+    switch value := uniqueRandomNumber() ;; value {
         case a {
             // use captured value
             if value < 0 && randomBoolean()
                 break
             doSomething()
 
-            // a break is not required between case statements as the code
-            // logic will not flow through from one case to another
+            // a `break` is not required between `case` statements as the code
+            // logic will not flow through from one `case` to another
             // automatically
         }
         case b
-            // single statement is executed then the switch exits
+            // single statement is executed then the `switch` exits
             doSomething()
         case c
         case d {
             // if `value` is `c` or `d` two statements are executed and then
-            // the switch exits
+            // the `switch` exits
             doSomething()
             doSomething()
         }
@@ -1005,7 +1105,7 @@ func final : ()(value : Integer) = {
 
 ### `using` statement
 
-The `using` statement is akin to a shortened `if` where the condition is not specified and always assumed to be true. This allows a temporary resource to declared and used within a the `using` scope. Unlike a [`scope`](scope.md) capture where variables outside the `scope` become restricted, the using allows full usage of local variables. If a value is declared, the declared value's scope only exists within the context of the `using` control flows.
+A `using` statement is akin to a shortened `if` statement where a condition is not specified and always assumed to be `true`. This allows a temporary resource to declared and used within a `using` scope. Unlike a [`scope`](scope.md) capture where variables outside the `scope` become restricted, a `using` allows full usage of local variables. If a value is declared in an initialization statement then that value's scope only exists within the context of a `using` control flow.
 
 ````zax
 print final : ()(...) = {
@@ -1034,12 +1134,16 @@ using value own := func() {
     print(value1)
     print(value2)
 }
+
+using value own := func()
+    doSomething(value);
+    print(value2)
 ````
 
 
 ### `forever`
 
-A `forever` statement will repeat over a code block until the code issues a `break` (or `continue` with a named scope). The forever statement is akin to a shorthand `while` where the condition is not specified and always assumed to be `true`. This can also be useful for logic that might have mid-loop conditional exit.
+A `forever` statement will repeat over a code block until that code issues a `break` (or `continue` with a named scope). A forever statement is akin to a shorthand `while` where a condition is not specified and always assumed to be `true`. This can also be useful for logic that might have a mid-loop conditional exit.
 
 ````zax
 print final : ()(...) = {
@@ -1058,9 +1162,9 @@ countToOneHundred final : ()(starting : Integer) = {
 ````
 
 
-#### `forever` initialization statements
+#### `forever` initialization statement
 
-A `forever` statement can contain initialization statements. If a value is declared, the declared value's scope only exists within the context of the `while` control flows.
+A `forever` statement can contain an initialization statement. If a value is declared in the initialization statement then that value's scope only exists within the context of a `while` control flow.
 
 
 ````zax
@@ -1083,9 +1187,9 @@ countToCosmicNumber final : ()(starting : Integer) = {
 ````
 
 
-#### `forever` initialization statements and post statements
+#### `forever` initialization statement and post loop statement
 
-The `forever` loop contains initialization statements, and a post statements prior to a repeated code block. Both must be separated with sub-statement separators (';;'). The lifetime or variables declared in the initialization statements are scoped to the iterated loop. The post statements are executed after each completed `forever`'s code block has completed execution (assuming a `break` statement was not encountered executing the `forever` loop's repeated code block).
+A `forever` loop can contain an initialization and a post loop statement prior to a repeatable code block. All must be separated with sub-statement separators (';;') except for the repeatable code block. Variable declared in the initialization statement are scoped to the iterated loop. A post loop statement is executed after each completed `forever`'s repeatable code block has executed (assuming a `break` statement was not encountered executing the `forever` loop's repeatable code block).
 
 This code is valid:
 
@@ -1109,7 +1213,7 @@ countAndSkipOdds final : (output : Integer)() = {
 }
 ````
 
-Alternative forms using the `forever` loop:
+Alternative forms using a `forever` loop:
 
 ````zax
 print final : ()(...) = {
@@ -1119,7 +1223,7 @@ print final : ()(...) = {
 doStuff final : (output : Integer)() = {
     total := 0
 
-    // OKAY: only the condition is present
+    // no initialization or post-loop statement before the repeatable code block
     {
         i := 0
         forever {
@@ -1133,23 +1237,38 @@ doStuff final : (output : Integer)() = {
         }
     }
 
-    // OKAY: this code will compile even if post-statements are empty
-    forever i: ;; {
+    // an initialization statement is present prior to the repeatable code block
+    forever i: {
         ++i
         if i > 100
             break
         ++total
     }
 
-    // OKAY: this code will compile even if post-statements are empty
-    // (although it will repeat forever)
-    forever i: ;;
+    // an initialization statement and an empty post loop statement is present
+    // followed by a repeatable code block
+    forever i: ;; {} {
+        ++i
+        if i > 100
+            break
+        ++total
+    }
+
+    // an initialization statement and post loop statement is present followed
+    // by a repeatable code block (although it will repeat forever)
+    forever i: ;; ++i
         print(i)
 
-    // OKAY: this code will compile
-    // (although it will repeat forever)
-    while i: ;; ++i; ++total
+    // The `;` operator is used to combine a post loop statement as if it were
+    // a single statement.
+    forever i: ;; ++i; ++total
         print(i)
+
+    // The `;` operator is used to combine a repeatable code block as if it
+    // were a single statement.
+    forever i: ;; ++i
+        print(i);
+        print(i % 2)
 
     return total
 }
@@ -1158,11 +1277,11 @@ doStuff final : (output : Integer)() = {
 
 ### Value polymorphism using `if`
 
-The `if` statement can also be used in a function declaration to indicate that the function supports value polymorphism. The choice of which function to call is based on the pre-condition checks for the `if` statement. The compiler will execute the order of test based on the order of appearance in the code. If no match is found (and if present) then the undecorated version will be executed. The compiler may decide to reorder tests if reordering will have no net resulting impact on the code flow. Care should be taken to not have overlapping pre-conditions if code order cannot be preserved or guaranteed. The `[[likely]]` and `[[unlikely]]` can be used to hint to the compiler which execution path is more likely to be followed.
+An `if` statement can also be used in a function declaration to indicate that a function supports value polymorphism. Which function to call is based on a pre-condition check for a given `if` statement. The compiler will execute each test based on the order of appearance in code if no specific order has a bias. If no match is found (and if present) then a undecorated version of a function will be executed. A compiler may decide to reorder tests if the reordering will have no net resulting impact on the code flow. Care should be taken to not have overlapping pre-conditions if code order cannot be preserved or guaranteed. The `[[likely]]` and `[[unlikely]]` compiler directives can be used as a hint to a compiler which execution path is more likely to be followed (thus tests can be reordered appropriately).
 
-If some value polymorphic functions are declared using the `if` then a single polymorphic version function using the same types can be declared as a catch-all if none of the other conditions succeed (the logical equivalent of a `switch` `default` statement). If no function was found a panic may be issued.
+If some value polymorphic functions are declared using an `if` statement then a single polymorphic version function using the same types can be declared as a catch-all if none of the other conditions succeed (i.e. the logical equivalent of a `switch` `default` statement). If no function was found a panic may be issued.
 
-Only functions marked as `final` support value polymorphism. The reason is the conditional check cannot be replaced and any assignment of a changeable function pointer would be ambiguous to which value polymorphic version would be replaced.
+Only functions marked as `final` support value polymorphism. A conditional check on a function cannot be replaced and any assignment of a changeable functions would be ambiguous to which value polymorphic version should be replaced. However, a function without any value polymorphism `if` condition can be `varies` allowing the function to be reassigned to a new function implementation that will assume to replace only a default non-conditional version (i.e. a version that does not contain value polymorphism).
 
 ````zax
 random final : (value : Integer)() = {
@@ -1201,7 +1320,7 @@ factorial final : (r : Integer)(n : Integer) = {
 assert(120 == factorial(5))
 ````
 
-An example of the children's game of FizzBuzz using value polymorphism:
+An example of a children's game of FizzBuzz using value polymorphism:
 
 ````zax
 print final : ()(...) = {
@@ -1216,7 +1335,7 @@ next final : (s: String)(i : Integer) if [[unlikely]] { return i % 15 == 0 } = {
     return "FizzBuzz"
 }
 
-next final : (s: String)(i : Integer) if { return i % 3 == 0 } = {
+next final : (s: String)(i : Integer) if [[likely]] { return i % 3 == 0 } = {
     return "FizzBuzz"
 }
 
@@ -1224,7 +1343,9 @@ next final : (s: String)(i : Integer) if { return i % 5 == 0 } = {
     return "Buzz"
 }
 
-next final : (s: String)(i : Integer) [[likely]] {
+// next is not marked as `final` and can be replaced with an alternative
+// implementation
+next : (s: String)(i : Integer) [[likely]] = {
     return toString(i)
 }
 
@@ -1237,7 +1358,7 @@ while i := 1 ;; i < 100 ;; ++i {
 
 #### Value polymorphism using `if` on nothing instances
 
-A [nothing instance](nothing.md) can filter between normal function calls and functions that are called via the nothing instance. By checking if the self pointer  (`_`) is valid inside the `if` condition of the value polymorphic function, the code can decide to execute the nothing function or the normal function.
+A [nothing instance](nothing.md) can filter between normal function calls and functions that are called on a nothing instance. By checking if a self pointer  (`_`) is valid inside an `if` condition of a value polymorphic function, code can decide if a nothing version of a function or a normal version function should be called.
 
 ````zax
 MyType :: type {

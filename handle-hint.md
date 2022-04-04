@@ -3,24 +3,23 @@
 
 ## Handle Pointers
 
-Pointers qualified as `handle` will automatically track the lifetime of an allocated type by performing [reference counting](https://en.wikipedia.org/wiki/Reference_counting) so when the last common reference to a type's instance is discarded, the type becomes deallocated.
+Pointers qualified as `handle` will automatically track the lifetime of an allocated type by performing [reference counting](https://en.wikipedia.org/wiki/Reference_counting) so when the last reference to a type's instance is discarded, the type becomes deallocated.
 
-The `handle` pointers are a form of [smart pointer](https://en.wikipedia.org/wiki/Smart_pointer) logic as a tool to ensure the lifetime of an type's instance is destroyed when the last referencing pointer is discarded. A [`hint` reference](https://en.wikipedia.org/wiki/Weak_reference) can be used to prevent circular dependencies by detecting when a type's instance is kept alive by a `handle` pointer or already destroyed. The usage of `hint` references is a common technique to prevent memory leakage issue as `handle` pointers are not automatically [garbage collected](https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)).
+The `handle` pointers are a form of [smart pointer](https://en.wikipedia.org/wiki/Smart_pointer) logic used as a tool to ensure lifetime of type's instances are destroyed when the last referencing pointer is discarded. A [`hint` reference](https://en.wikipedia.org/wiki/Weak_reference) can be used to prevent circular dependencies by detecting when a type's instance is kept alive by a `handle` pointer or when the type was already destroyed. The usage of `hint` references is a common technique to prevent memory leakage issue as `handle` pointers are not automatically [garbage collected](https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)).
 
-
-Thread safety is not addressed with `handle` or `hint` pointers and `handle` pointers should not be used across thread boundaries unless ever time a `handle` pointer is reassigned to another `handle` pointer or transferred to an `own` pointer a thread barrier is place around the assignment. Alternatively a `deep` copy can be performed on a `handle` to ensure the contents are copied and allocated using parallel allocators.
+Thread safety is not addressed with `handle` or `hint` pointers and `handle` pointers should not be used across thread boundaries unless every time a `handle` pointer is fully transferred to another `handle` pointer or the `handle` is transferred to an `own` pointer across a thread barrier. Alternatively a `deep` copy can be performed on a `handle` to ensure contents are fully copied.
 
 
 ### `handle` versus `strong` pointers
 
-Pointers qualified as `handle` operate in the same manner as [`strong` pointers](strong-weak.md) with a few key differences. Whereas `strong` pointers have a `weak` counterpart, `handle` pointers have a `hint` counterpart. Pointers qualified as `strong` have thread safety properties related to the lifetime of the instance whereas `handle` pointers do not.
+Pointers qualified as `handle` operate in the same manner as [`strong` pointers](strong-weak.md) with a few key differences. Whereas `strong` pointers have a `weak` counterpart, `handle` pointers have a `hint` counterpart. Pointers qualified as `strong` have thread safety properties related to a lifetime of an instance whereas `handle` pointers do not.
 
-Due to the overhead because of thread safety guarantees for `strong` pointers, `handle` pointers are more efficient at the cost of thread safety.
+Due to the overhead of thread safety guarantees for `strong` pointers, `handle` pointers are more efficient at the cost of thread safety.
 
 
 ### Allocation of `handle` pointers
 
-Pointers qualified as `handle` are allocated in similar manners to other pointers, such as `own`, `discard`, `strong`, `discard`, and `collect` pointers. The difference is that `handle` pointers can be co-owned by more than one variable. When the last variable holding the `handle` pointer is discarded (or reset to empty) the allocated type is destructed, and deallocated (unless a `hint` pointer still exists to a combined control and allocation block).
+Pointers qualified as `handle` are allocated in similar manners to other pointers, such as `own`, `discard`, `strong`, `discard`, and `collect` pointers. The difference is that `handle` pointers can be co-owned by more than one variable. When the last variable holding the `handle` pointer is discarded (or reset to empty) the allocated type is destructed and deallocated (unless a `hint` pointer still exists to a combined control and allocation block for a type's instance).
 
 ````zax
 print final : ()(...) = {
@@ -74,7 +73,7 @@ func final : (result : String)() = {
 
 ### `handle` pointer value replacement
 
-Pointers qualified as `handle` can only point to a single instance of a type. If the pointer is reset to point to a new instance of a type then the original ownership claim is released and if the value was the last owner of the type's instance then the type is discarded and the memory is deallocated.
+Pointers qualified as `handle` can only point to a single instance of a type. If a pointer is reset to point to a new instance of a type then the original ownership claim is released and if a variable was the last owner of the type's instance then the type instance is discarded and the memory is deallocated.
 
 ````zax
 print final : ()(...) = {
@@ -115,9 +114,9 @@ func final : (result : String)() = {
         // `value1` and `value2` point to different `MyType` instances
         assert(value1 != value2)
 
-        // `value2`'s value is replaced, thus `MyType` instance being `own`
-        // in `value2` is destructed and deallocated and then both
-        // `value1` and `value2` point to the same `MyType` instance
+        // `value2`'s value is replaced, thus `MyType` instance in `value2`
+        // is destructed and deallocated and then both `value1` and `value2`
+        // point to the same `MyType` instance
         value2 = value1
 
         printIfValidPointer(value1) // will print "true"
@@ -190,10 +189,10 @@ func final : (
         // `value2` and `stayingAlive` point to the same `MyType` instance
         assert(stayingAlive == value2)
 
-        // `value2`'s value is replaced, thus `MyType` instance being `own`
-        // in `value2` but the original type's instance in `value2` is not
+        // `value2`'s value is replaced, thus `MyType` instance in `value2`
+        // is replaced but the original type's instance in `value2` is not
         // destructed or deallocated as `stayingAlive` will keep the
-        // type originally allocated in `value2` alive.
+        // original instance allocated in `value2` alive.
         value2 = value1
 
         printIfValidPointer(value1)         // will print "true"
@@ -211,9 +210,9 @@ func final : (
         // destructed and deallocated
     }
 
-    // `stayingAlive` is returned to the caller and thus will not fall out
-    // fall out of scope and the type originally allocated in `value2` is
-    // kept alive beyond the lifetime of this function call
+    // `stayingAlive` is returned to the caller and thus will not fall out of
+    // scope and the type originally allocated in `value2` is kept alive beyond
+    // the lifetime of this function call
     return
 }
 
@@ -235,7 +234,7 @@ func2 final : ()() = {
 
 ### Breaking circular `handle` pointer lifetime
 
-Care must be used when dealing with `handle` pointer lifetimes to ensure a circular dependency is not created where the circular chain is never broken. If a `handle` pointer points to another `handle` pointer that directly or indirectly points back to the same type's instance the lifetime of the `handle` pointers in the chain will never become destructed nor deallocated.
+Care must be used when dealing with `handle` pointer lifetimes to ensure a circular dependency is not created where a circular chain is never broken. If a `handle` pointer points to another `handle` pointer that directly or indirectly points back to the original type's instance then the lifetime of the `handle` pointers in the chain will never become destructed nor deallocated.
 
 The example below creates a circular `handle` pointer chain:
 
@@ -274,13 +273,13 @@ printIfValidPointer final : ()(pointerToValue : MyType *) = {
 func final : (result : String)() = {
 
     scope {
-        // the @ operator allocates `value1` dynamically with the
-        // context's allocator and a `handle` pointer is maintained
+        // the @ operator allocates `value1` dynamically with the context's
+        // allocator and a `handle` pointer is maintained
         value1 : MyType * handle @
 
-        // the @ operator allocates `value2` dynamically with the
-        // context's allocator and a `handle` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value2` dynamically with the context's
+        // allocator and a `handle` pointer is maintained to another `MyType`
+        // instance
         value2 : MyType * handle @
 
         // the @ operator allocates `value3` dynamically with the
@@ -371,18 +370,18 @@ printIfValidPointer final : ()(pointerToValue : MyType *) = {
 func final : (result : String)() = {
 
     scope {
-        // the @ operator allocates `value1` dynamically with the
-        // context's allocator and a `handle` pointer is maintained
+        // the @ operator allocates `value1` dynamically with the context's
+        // allocator and a `handle` pointer is maintained
         value1 : MyType * handle @
 
-        // the @ operator allocates `value2` dynamically with the
-        // context's allocator and a `handle` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value2` dynamically with the context's 
+        // allocator and a `handle` pointer is maintained to another `MyType`
+        // instance
         value2 : MyType * handle @
 
-        // the @ operator allocates `value3` dynamically with the
-        // context's allocator and a `handle` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value3` dynamically with the context's
+        // allocator and a `handle` pointer is maintained to another `MyType`
+        // instance
         value3 : MyType * handle @
 
         // setup pointers to the head of the linked list
@@ -461,18 +460,18 @@ printIfValidPointer final : ()(pointerToValue : MyType *) = {
 func final : (result : String)() = {
 
     scope {
-        // the @ operator allocates `value1` dynamically with the
-        // context's allocator and a `handle` pointer is maintained
+        // the @ operator allocates `value1` dynamically with the context's
+        // allocator and a `handle` pointer is maintained
         value1 : MyType * handle @
 
-        // the @ operator allocates `value2` dynamically with the
-        // context's allocator and a `handle` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value2` dynamically with the context's 
+        // allocator and a `handle` pointer is maintained to another `MyType`
+        // instance
         value2 : MyType * handle @
 
-        // the @ operator allocates `value3` dynamically with the
-        // context's allocator and a `handle` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value3` dynamically with the context's 
+        // allocator and a `handle` pointer is maintained to another `MyType`
+        // instance
         value3 : MyType * handle @
 
         // setup pointers to the head of the linked list
@@ -541,7 +540,7 @@ func final : (result : String)() = {
 
 ### Transferring `own` pointers to `handle` pointers
 
-Pointers qualified as `own` can be transferred to pointers qualified as `handle`. Once the transfer is completed, the original `own` pointer will point to nothing as the `handle` pointer will track the lifetime of the instance. Likewise, pointers qualified as `handle` can be transferred to pointers qualified as `own` on the condition that no other pointers qualified as `handle` point to the same instance of a type otherwise  the resulting `handle` pointer will point to nothing.
+Pointers qualified as `own` can be transferred to pointers qualified as `handle`. Once the transfer is completed, the original `own` pointer will point to nothing as the `handle` pointer will track the lifetime of the instance. Likewise, pointers qualified as `handle` can be transferred to pointers qualified as `own` on the condition that no other pointers qualified as `handle` points to the same instance of the type's instance otherwise the resulting `own` pointer will point to nothing.
 
 ````zax
 print final : ()(...) = {
@@ -575,7 +574,7 @@ func final : (result : String)() = {
         // point to nothing
         value2 : MyType * handle
 
-        // `value1` used to own the instance but the instance ownership is
+        // `value1` used to `own` the instance but the instance ownership is
         // transferred from a `value1` to `value2` which now keeps the
         // `MyType` instance alive
         value2 = value1
@@ -630,11 +629,14 @@ func final : (result : String)() = {
         assert(value1 != value2)
         assert(value2 == value3)
 
-
         // `value1` cannot retake ownership from `value2` as another
-        // pointer to the same instance of `value2` exist thus `value1` cannot
+        // pointer to the same instance of `value2` exists thus `value1` cannot
         // take exclusive ownership and `value1` will point to nothing
         value1 = value2
+
+        printIfValidPointer(value1) // will print "false"
+        printIfValidPointer(value2) // will print "true"
+        printIfValidPointer(value3) // will print "true"
     }
 
     return "I'll be back."
@@ -644,25 +646,25 @@ func final : (result : String)() = {
 
 ### Transferring `handle` pointers to `strong` pointers
 
-Pointers qualified as `handle` cannot be directly transferred to a pointer qualified as `strong`. The only method by which this transfer can happen is if the `handle` pointer is first transferred to an `own` pointer and then transferred to a `strong` pointer. The vice versa limitation is true. Pointers qualified as `strong` cannot be directly transferred to a pointer qualified as `handle`. The only method by which this transfer can happen is if the `strong` pointer is first transferred to an `own` pointer and then transferred to a `handle` pointer.
+Pointers qualified as `handle` cannot be directly transferred to a pointer qualified as `strong`. The only method by which this transfer can happen is if a `handle` pointer is first transferred to an `own` pointer and then transferred to a `strong` pointer. The vice versa limitation is also true. Pointers qualified as `strong` cannot be directly transferred to a pointer qualified as `handle`. The only method by which this transfer can happen is if a `strong` pointer is first transferred to an `own` pointer and then transferred to a `handle` pointer.
 
-Transferring to an `own` pointer has limitations. Only if the pointer qualified as `handle` or `strong` is the exclusive reference to the instance of a type can the transfer to an `own` pointer occur.
+Transferring to an `own` pointer has limitations. Only if a pointer qualified as `handle` or `strong` is the exclusive reference to the instance of a type can a transfer to an `own` pointer occur.
 
 
 #### Transferring `handle` pointers across threads
 
-If a `handle` pointer will be transferred to a different thread, either a `deep` copy of the `handle` pointer should be performed or a thread safe allocator should be used to allocate the pointer. By default, `handle` pointers allocate using the standard allocators (i.e. sequential and thread unsafe). Allocation of a `handle` pointer in one thread and then deallocation of the pointer on a different thread may cause undefined behaviors.
+If a `handle` pointer will be transferred to a different thread, either a `deep` copy of the `handle` pointer should be performed or exclusive ownership of the handle should be performed by first transferring the pointer to an `own` pointer. By default, `handle` pointers allocated using standard allocators (i.e. the sequential allocator). Allocation of a `handle` pointer in one thread and then deallocation of a pointer on a different thread may leave memory dangling until a cleanup is performed on dangling allocations on the original allocation thread.
 
-While the standard allocators can be replaced with thread safe parallel allocators, the optimized thread-unaware allocators would be replaced by less efficient thread aware counterparts universally (which is often unneeded).
+While the standard allocators can be replaced with parallel allocators, the optimized thread-unaware allocators would be replaced by less efficient thread aware counterparts universally (which is often undesirable for efficiency reasons).
 
 
 ### Casting contained variables into `handle` pointers
 
 #### Converting from a container `handle` pointer to a contained `handle` pointer
 
-The `lifetimeof` operators can be used to cast a raw pointer to a variable which has the same lifetime as an original `handle` or `strong` pointer to a `handle` or `strong` pointer respectively.
+The `lifetimeof` operators can be used to cast a raw pointer to a variable which has a lifetime tied to an original `handle` or `strong` pointer.
 
-A `handle` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained type is the same as the container type, only a `handle` pointer to the container type may exist (despite both types being considered as a single instance). The `lifetimeof` operator is especially useful to create a `handle` pointer of a contained type from a `handle` pointer to the container's type.
+A `handle` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained types are the same as the container type, only a `handle` pointer to the container type may exist (despite both types being considered the same single instance). The `lifetimeof` operator is especially useful to create a `handle` pointer of a contained type from a `handle` pointer to a container's type.
 
 Example as follows:
 
@@ -729,12 +731,56 @@ function final : ()() = {
 
 #### `lifetimeof` versus `lifetimecast`
 
-The exclusive difference between these operators is safety. The `lifetimecast` operator will force a conversion of any raw pointer to link to `handle` or `strong` pointer even for unrelated pointers. The `lifetimeof` operator will validate the raw pointer actually points inside the address boundaries of the `handle` or `strong` pointer. If it does not then `lifetimeof` will return a pointer to nothing.
+The exclusive difference between these operators is safety. A `lifetimecast` operator will force a conversion of any raw pointer to link to `handle` or `strong` pointer even for unrelated pointers. A `lifetimeof` operator will validate a raw pointer actually points inside the address boundaries of the `handle` or `strong` pointer. If the pointer to memory is not located in the correct allocation boundary then `lifetimeof` will return a pointer to nothing. Thus a programmer can choose their tradeoff between safety and speed.
+
+
+#### Converting using `lifetimecast`
+
+Any pointer to any type can be linked to a `handle` or `strong` pointer using the `lifetimecast` operator. The memory is not checked to see if the memory address being casted resides within the memory space of the original `handle` or `strong` pointer. The programmer must be careful to use this feature carefully since this function will forcefully adopt the lifetime of a `handle` or `strong` pointer.
+
+An example of a runtime `lifetimecast` being applied onto a `handle` pointer:
+
+````zax
+A :: type managed {
+    foo : Integer
+}
+
+B :: type {
+    bar : Integer
+    a : A
+}
+
+C :: type {
+    weight : Double
+}
+
+doSomething final : (result : Unknown * handle)(a : A * handle, unknown : Unknown *) = {
+    // forcefully convert from the lifetime of one pointer to another type
+    // without conducting any safety checks to ensure the casted pointer lives
+    // within the memory range of the original allocation
+    b := unknown lifetimecast a
+    assert(b)
+
+    // ...
+    return b
+}
+
+function final : ()() = {
+    value : B * handle @
+    value.a.foo = 1
+    value.bar = 2
+
+    // link a `handle` pointer to `a` from `value`
+    a : A * handle = value.a lifetimeof value
+
+    doSomething(a, value)
+}
+````
 
 
 ### `handle` overhead and control blocks
 
-A `handle` pointer contains a pointer to an instance of a type and a pointer to the control block. When a type is allocated for storage in a `handle` pointer, a control block is typically reserved as part of the allocation of the type.
+A `handle` pointer contains a pointer to an instance of a type and a pointer to a control block. When a type is allocated for storage in a `handle` pointer, a control block is typically reserved as part of the allocation of the type.
 
 An example `handle` pointer content and control block:
 

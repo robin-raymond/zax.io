@@ -39,8 +39,8 @@ pushToQueue final : (
 // a compiler error
 pushToQueue(42)
 
-// OKAY: The result is acknowledged as existing, the caller is ignoring the
-// capture the result using the discard operator as a placeholder
+// OKAY: The result is acknowledged as existing; the caller is ignoring the
+// result using the discard operator as a placeholder
 # := pushToQueue(42)
 
 // This is allowed as the value is captured (even if the value is never used)
@@ -184,7 +184,7 @@ valueNeverUsed := func()
 
 ### discard operator on types
 
-Types declared with the  discard operator may be constructed without ever being further referenced. This directive allows a variable of the type to be declared without further referencing the type elsewhere thus suppressing all `variable-declared-but-not-used` warnings for this type.
+Types declared with the discard operator may be constructed without ever being further referenced. This directive allows a variable of the type to be declared without further referencing the type elsewhere thus suppressing all `variable-declared-but-not-used` warnings for this type.
 
 ````zax
 MyMutex :: type {

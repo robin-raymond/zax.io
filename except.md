@@ -3,12 +3,12 @@
 
 ## Except Error Handling
 
-The `except` is not the same as exception handling. All return results are normal output arguments on functions and can be treated as such. However, the `except` keyword can help create quick function exits and exit error chaining and the `catch` keyword can help create quick handlers for error conditions. Otherwise, error results are the same as normal results in every way.
+The `except` is not the same as exception handling. All return results are normal output arguments on functions and can be treated as such. However, the `except` keyword can help create quick function exits and perform exit error chaining and the `catch` keyword can help create quick handlers for error conditions. Otherwise, error results are the same as normal results in every way.
 
 
 ### Error handling using the `except` keyword
 
-The except keyword performs an `as Boolean` cast on a named return output argument from a function being called, and if it evaluates as `true` then the function immediately performs a `return` with the captured value from the function that called the function with the `except` statement (as a kind of short circuit). The name of the return variable from the called function is placed after the `except` keyword, and the compiler will perform a best match of the type evaluated in the `except` to one of the output arguments from the calling function which also has output arguments qualified as `except`. The "best match" rules will allow for automatic implicit conversion if one of the return results accepts the `except` result as an input in a constructor. If a best match cannot be determined, an `except-ambiguous` error is issued by the compiler.
+The except keyword performs an `as Boolean` cast on a named return output argument from a function being called, and if it evaluates as `true` then the function immediately performs a `return` with the captured value from the function that called the function with the `except` statement (as a kind of short circuit). The name of the return variable from the called function is placed after the `except` keyword, and the compiler will perform a best match of the type evaluated in the `except` to one of the output arguments from the calling function (which also has output arguments qualified as `except`). The "best match" rules will allow for automatic implicit conversion if one of the return results accepts the `except` result as an input in its constructor. If a best match cannot be determined, an `except-ambiguous` error is issued by the compiler.
 
 As the `except` captures the results from a called function, those results are no longer viewable as returned values for the calling function. Effectively the `except` results are fully consumed.
 

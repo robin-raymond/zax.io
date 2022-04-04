@@ -7,7 +7,7 @@
 
 Zax does not perform type conversion, promotion or demotion of intrinsic compatible types. Casting operators `as` or `cast` must be used to convert from one intrinsic type to another type.
 
-The `as` operator and the `cast` operator work in similar manners. Both convert an intrinsic value from one type to another. With intrinsic types, the `as` operator should cause a panic situation if the data would overflow if converted from a source type to a destination type. Whereas with intrinsic types, the `cast` operator will not panic ever when converting from one type to another but can cause either loss of information in an overflow, or data corruption / undefined behavior in another extreme. The `as` attempts to do a compatible conversion whereas a `cast` will treat the types as compatible even when they are not compatible.
+The `as` operator and the `cast` operator work in similar manners. Both convert an intrinsic value from one type to another. With intrinsic types, the `as` operator should cause a panic situation if the data would overflow if converted from a source type to a destination type. Whereas with intrinsic types, the `cast` operator will not panic even when converting from one type to another but `cast` can cause either loss of information in an overflow, or data corruption / undefined behavior in another extreme. The `as` attempts to do a compatible conversion whereas a `cast` will treat the types as compatible even when they are not compatible.
 
 ````zax
 i8 := -127 as I8                    // `as` can convert the value into an
@@ -191,6 +191,8 @@ if myTypePointer {
     checkedType := myTypePointerToNothing as MyType &
 }
 
+// may panic as the myTypePointer was not checked if it is valid (although
+// in this context it most certainly is valid)
 myTypeRefA := myTypePointer. as MyType &// allowed - already a reference
 myTypeRefB := myTypePointer. as &       // allowed - already a reference
 
@@ -294,12 +296,12 @@ funcByRef(myTypePointerToNothing.)                  // PANIC AT RUNTIME
 
 ### `type` casting using `as`
 
-A `type` deemed compatible with another `type` be converted from one `type` to another `type` using the `as` operator. Compatibility is determined by ensuring the destination type contains all of the same types in the same order occupying the same space in memory. The variable names for the `type` need not be the same but the types must all be compatible. Likewise important qualifiers must not be lost. A type declared as `final` or `once`.
+A `type` deemed compatible with another `type` be converted from one `type` to another `type` using the `as` operator. Compatibility is determined by ensuring the destination type contains all of the same types in the same order occupying the same space in memory. The variable names for the `type` need not be the same but the types must all be compatible. Likewise important qualifiers must not be lost.
 
 Other considerations:
 * types declared as `once` are ignored
-* functions declared as `final` do not need to match in declaration with an exception about captured data
-    * captured data types must be identical and in the same type order (otherwise capture value copy cannot work)
+* functions declared as `final` do not need to match in declaration with an exception of matching captured data
+    * captured data types must be identical and in the same type order (otherwise value copy of the captured data cannot work)
 * pointers and references must be of equivalent types
 * reference can become pointers of the same `type` but pointers cannot become references (due to the assumption that pointers might point to nothing whereas references always point to a valid instance)
 * values declared which are `constant` or `final` are ignored where no storage inside the `type` is required
@@ -310,14 +312,14 @@ Other considerations:
 * a variable's `private` keyword is ignored and a `private` value can be accessed as non-`private` values in the destination (if the destination does not declare the new variable for the `type` as `private`)
     * `private` is used to hide variables from view and should never be used as a method to keep data secret
 * `constant` qualification cannot be lost during the conversion
-    * in by-reference / by-pointer conversions any contained values must remain `constant` in the destination if the source had the `type` as `constant`
+    * in by-reference / by-pointer conversions, any contained values must remain `constant` in the destination if the source had the `type` as `constant`
     * in by-reference / by-pointer conversions the `type` must remain constant if the source was constant
     * by-value conversions are not required to maintain `constant` qualification for contained types if the `type`'s values are copied and the contained types are not references or pointers
 * using `as` to convert from `mutable` and `immutable` is legal if the underlying types are deemed compatible
 * by-reference / by-pointer converting from an `immutable` to `mutable` is not allowed (even if the types are compatible)
 * by-value converting from an `immutable` to `mutable` is allowed (if the types are compatible)
 * the memory layout and alignment of a `type` up to the final type of the destination must be identical
-* narrowing or broadening of intrinsic types during a conversion is not allowed on contained types as the conversion would not be legal since the types do not share a common memory layout
+* narrowing or broadening of intrinsic types during a conversion is not allowed on contained types as the conversion would not be legal (since the types do not share a common memory layout)
 
 ````zax
 MyType :: type {
@@ -447,12 +449,13 @@ MyType :: type {
         return result
     }
 
-    // explicitly enable the reference conversion
+    // explicitly enable the reference conversion and auto-generate the function
     operator as final : (result : AnotherCompatibleType &)() constant = default
 
     // all `as` operators that are not explicitly defined will match this
     // lower priority casting meta-function where the compiler will
-    // issue an error if this `as` operator is utilized
+    // issue an error if this `as` operator is utilized (as no implementation
+    // is defined, nor possible as the function is final)
     operator as final : (result : )() constant
 }
 
@@ -492,7 +495,7 @@ byRefValue3:= myType as AnotherCompatibleType &  // allowed
 
 ### Casting as `default`
 
-The `deep`, `last`, and `move` qualifiers can be reset to their default qualification state by casting `as default` on a type. These qualifiers become converted to `shallow`, `lease`, or `copy` as appropriate. This allows for qualifications to become easily stripped from an input argument type in a generic fashion. Since `shallow`, `last`, `move`, `shallow`, `lease`, and `copy` are all mutually exclusive, casting using `as default` simplifies the qualification reset process.
+The `deep`, `last`, and `move` qualifiers can be reset to their default qualification state by casting `as default` on a type. These qualifiers become converted to `shallow`, `lease`, or `copy` as appropriate. This allows for qualifications to become easily stripped from an input argument type in a generic fashion. Since `shallow`, `last`, `move`, `deep`, `lease`, and `copy` are all mutually exclusive, casting using `as default` simplifies the qualification reset process.
 
 ````zax
 print final : ()(...) = {
@@ -504,7 +507,7 @@ MyType :: type
     b : String
 }
 
-func final : ()(value : MyType& normalized) = {
+func final : ()(value : MyType& lease) = {
     print("Called after each func")
 }
 

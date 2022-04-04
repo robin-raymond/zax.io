@@ -3,17 +3,18 @@
 
 ## Arrays
 
-Zax arrays are multi dimensional. Arrays can be of a fixed size or they can be a dynamic size. All array dimensions have an implicit `length` mutator to indicate their current size. Arrays are zero based. Once arrays are allocated they cannot be resized but their contents can be replaced.
+Zax arrays are multi dimensional. Arrays can be of a fixed size or they can be of a dynamic size. All array dimensions have an implicit `length` mutator to indicate the length of the array. Arrays are zero based index lookups. Once arrays are allocated they cannot be resized but their contents can be replaced if the array is mutable.
 
 ````zax
 randomNumber final : (result : Integer)() = {
     // ...
 }
 
-// all types are automatically initialized to the default Integer value of 0
+// all types are automatically initialized to the type's default value (unless
+// the ??? is used to fill the values in the).
 myArray : Integer[1000]
 
-each arrayValue : from myArray {
+each arrayValue: in myArray {
     arrayValue =  randomNumber()
 }
 
@@ -25,8 +26,17 @@ anotherArray : Integer[] = myArray
 yetAnotherArray1 : Integer[10] = myArray
 
 // copy the first 1000 array elements into the new array
-// (all other elements will be blank)
-yesAnotherArray2 : Integer[5000] = myArray
+// (all other elements will contain the default value)
+yetAnotherArray2 : Integer[5000] = myArray
+
+// copy the first 1000 array elements into the new array
+// (all other elements will contain uninitialized values)
+yetAnotherArray3 : Integer[5000] = { myArray, ??? }
+
+// copy the first 10 array elements into the new array, followed by 50 elements
+// starting at the 50th element and leave the remaining values uninitialized
+// (all other elements following will contain uninitialized values)
+yetAnotherArray5 : Integer[5000] = { myArray.slice(0, 9), myArray.slice(50, 99), ??? }
 ````
 
 
@@ -49,7 +59,7 @@ myArray : Integer[5][2] = [{
     { 2, -2 },
     { 3, -3 },
     { 4, -4 },
-    { 5, -5}
+    { 5, -5 }
 }]
 ````
 
@@ -57,6 +67,21 @@ Simple array where type and size is assumed:
 
 ````zax
 myArray := [{ 1, 2, 3, 4, 5 }]
+````
+
+
+### Array of types
+
+Arrays can support arbitrary types and need not be limited to simple intrinsic types. 
+
+````zax
+MyType :: type {
+    value1 : String
+    value2 : Integer
+}
+
+// create an array of `MyType` types
+myArray : MyType[1000]
 ````
 
 
@@ -105,9 +130,9 @@ myType2 : MyType[3] = [{
 
 Named initialization of types is supported in array format. The same methodology is used as would be the case if a single named initialization were done. An array imposes an additional requirement where all the initialized named values are each contained within curly braces `{}` per element and all the collective elements are contained within another set of curly braces.
 
-Named initializers cannot be mixed and matched with constructors. Either named initializers are used or constructors are used but not both at the same time for the same array.
+Named initializers cannot be mixed and matched with constructors. Either named initializers are used or constructors are used but not both at the same time within the same array initialization.
 
-In the example below, an array is assigned values by the value name rather than using any constructor. All unnamed values retain their type's default value.
+In the example below, an array is assigned values by named values rather than using any constructor. All unnamed values retain their type's default value.
 
 ````zax
 MyType :: type {
@@ -192,42 +217,27 @@ myOtherArrayCopy : @ = myArray
 ````
 
 
-### Array of types
+### Slicing arrays
 
-Arrays can support arbitrary types and need not be limited to simple intrinsic types. 
-
-````zax
-MyType :: type {
-    value1 : String
-    value2 : Integer
-}
-
-// create an array of `MyType` types
-myArray : MyType[1000]
-````
-
-
-### Splicing arrays
-
-Arrays include a implicit `constant` and `final` function named `splice` that extracts a subset of elements out of the array and return a newly created mutable array. If splice is passed values that exceed the ranges, a reduced size or even completely empty element array is returned. The `length` `mutator` should be checked by the developer if they wish to ensure the values in their range will be satisfied by the splice function.
+Arrays include a implicit `constant` and `final` function named `slice` that extracts a subset of elements out of the array and return a newly created array view. If `slice` is passed values that exceed the available indexed range, a reduced size or even completely empty array view is returned. The `length` `mutator` should be checked by the developer if they wish to ensure the values in a requested range will be satisfied by the `slice` function.
 
 ````zax
 myArray : Integer[1000]
 
-// splice from the start of the array and capture 500 elements
-value1 := myArray.splice(, 500)
+// slice from the start of the array and capture 500 elements
+value1 := myArray.slice(, 500)
 
-// splice from the `myArray[5]` element to the end of the array
-value2 := myArray.splice(5,)
+// slice from the `myArray[5]` element to the end of the array
+value2 := myArray.slice(5,)
 
-// splice from the `myArray[5]` element and extract 50 elements
-value3 := myArray.splice(5, 50)
+// slice from the `myArray[5]` element and extract 50 elements
+value3 := myArray.slice(5, 50)
 ````
 
 
 ### Arrays and data overhead
 
-Arrays not only contain contents, they contain sizing and other attributes. The sizing of each dimension is kept as part of the array data separate from the data matrix. This allows the physical memory layout to be placed in memory as a continuous block of types for all array dimensions. Parallel algorithms can adapted to use the data as SIMD or MIMD input.
+Arrays not only contain contents, they contain sizing and other attributes. The sizing of each dimension is kept as part of an array's data overhead separate from the raw data matrix. This allows the physical memory layout to be placed in memory as a continuous block of types for all array dimensions. Parallel algorithms can adapted to use the data as SIMD or MIMD input.
 
 A raw control block for the array can be obtained with the `overhead` operator.
 
@@ -240,8 +250,9 @@ A pointer or reference can be taken of an array similar to a pointer to any othe
 func1 final : ()(arrayPointer : Integer[][]*) = {
     arrayPointer.[2][1] = -10
 }
+
 func2 final : ()(arrayRef : Integer[][]&) = {
-    arrayPointer[3][0] *= -5
+    arrayRef[3][0] *= -5
 }
 
 myArray : Integer[5][2] = [{

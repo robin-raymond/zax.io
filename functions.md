@@ -6,11 +6,11 @@
 Functions are data types just like other variables and all functions are effectively lambdas. They can be assigned, and potentially reassigned depending on needs. Functions can capture data or be entirely raw functions pointers depending on needs.
 
 ````zax
-// declare a function with no return results and no arguments.
+// declare a function with no return results and no arguments
 func: ()() = {
 }
 
-// call the function with no results and no arguments.
+// call a function with no results and no arguments
 func()
 ````
 
@@ -22,17 +22,17 @@ double : (output : Integer)(input : Integer) = {
 }
 
 // `result` is assigned the result of the function `double` whose type
-// is assumed based on the the function return type.
+// is assumed based on the function return type.
 result := double(5)
 ````
 
 
 ### Multiple returns and arguments
 
-Functions can have multiple return results and multiple arguments. The return results are always declared before the arguments. The comma operator is used to distinguish between results, and arguments.
+Functions can have multiple return results and multiple arguments. Return results are always declared before input arguments. The comma operator (`,`) is used to distinguish between results, and between arguments.
 
 ````zax
-// declare a function with no return results and no arguments.
+// declare a function with two optional return results and one argument
 weigh final : (
     grams # : Float,
     ounces # : Float
@@ -44,13 +44,16 @@ weigh final : (
     return 0.0, 0.0
 }
 
-// Call the function and capture the weight in grams and ounces
+// Call the `weigh` function and capture the weight in grams and ounces. The
+// newly declared values type's are based on the type of the return result.
 grams:, ounces: = weigh("letter")
 
-// Call the function and capture the gram value only
+// Call the function and capture the gram value only. The other value is allowed
+// to be discarded because of the `#` discard operator.
 gramOnly := weigh("letter")
 
-// Call the function and capture the ounces value only
+// Call the function and capture the ounces value only. The first result is
+// ignored because of the discard placeholder used.
 #, ouncesOnly: = weigh("letter")
 ````
 
@@ -72,7 +75,7 @@ accountId:, secretCode: = welcome("Pat", "Jones", "Would you like some water?")
 
 ### Function polymorphism
 
-The language support polymorphism based on strong type matching. Two (or more) functions can share the same name and the compiler will select the function with the best match of the arguments. Types, references, pointers, mutability, `constant` types, return types, and other factors are considered during the function selection process. The full discussion for what is considered a best match is beyond the scope of this section. 
+Zax supports polymorphism based on strong type matching. Two (or more) functions can share the same name and a compiler will select a function with the best match of input arguments. Types, references, pointers, mutability, `constant` types, return types, and other factors are considered during a function selection process. A full discussion for what is considered a best match is beyond the scope of this section. 
 
 [Value polymorphism](flow-control.md) is also supported which is discussed in the [flow control](flow-control.md) section.
 
@@ -85,8 +88,8 @@ func final : ()(value : Integer) = {
     // ...
 }
 
-func("hello")   // the String version of function will be called
-func(42)        // the Integer version of function will be called
+func("hello")   // `String` version of function will be called
+func(42)        // `Integer` version of function will be called
 ````
 
 
@@ -105,13 +108,13 @@ a : Integer = 1
 b : Integer = 2
 
 func : ()() = [a, b] {
-    // The value of a and b are captured by value and 1 and 2 will
+    // The value of `a` and `b` are captured by value and `1` and `2` will
     // always be displayed (unless the captured `a` or `b` is changed
     // locally)
     print(a, b)
 
-    // If the function changeValue() returns true then the captured
-    // a will become 42 but the global a will retain its original value.
+    // If the function `changeValue()` returns `true` then the captured
+    // `a` will become `42` but the global `a` will retain its original value.
     if changeValue()
         a = 42
 }
@@ -129,8 +132,8 @@ print final : ()(...) = {
     // ...
 }
 
-// declare and define a variable and function type with no return results, an
-// `Integer` input argument, and with the ability to capture variables and
+// Declare and define a variable and function type with no return results, an
+// `Integer` input argument, with the ability to capture variables and
 // assign the function to point to nothing.
 magicNumber : ()(value : Integer)
 `
@@ -173,17 +176,16 @@ changeValue : (result : Boolean)() = {
 a : Integer = 1
 b : Integer = 2
 
-// both `a` and `b` both capture a reference, `a` maintains the
-// `a` variable name whereas `b` is captured as a reference into a
-// new value `altB`
+// Both `a` and `b` are captured by reference. The variable `a` maintains the
+// `a` variable name whereas `b` is captured as a reference into a new variable
+// named `altB`.
 func : ()() = [&a, altB : & = b] {
-    // The value of a and b are captured by reference and will
-    // always be display and reference the contents of the global scope
-    // `a` or `altB`
+    // The value of `a` and `b` are captured by reference and will always
+    // display and reference the contents of the global scope `a` or `altB`.
     print(a, altB)
 
-    // If the function changeValue() returns true then the captured
-    // a will become 42 which is a reference of the global value.
+    // If the function `changeValue()` returns `true` then the captured
+    // `a` will become `42` which is a reference of the global value.
     if changeValue()
         a = 42
 }
@@ -202,7 +204,7 @@ assert(a == 5 || a == 42)
 
 #### Functions input / output composition
 
-If a function's output matches the input of another function they can be bound together as a newly created function using the function composition operator (`>>`). Each of the output arguments from the first function must match the input arguments from the second function. Functions can be composed together in chains of two or more functions where each input is chained to another output.
+If a function's output arguments matches the input arguments of another function they can be bound together as a newly created function using the function composition operator (`>>`). Each of the output arguments from the first function must match the input arguments from the second function. Functions can be composed together in chains of two or more functions where each input is chained to another output.
 
 ````zax
 func1 final : (result : Integer)(input : String) = {
@@ -228,28 +230,31 @@ value : Integer = func4("5")
 
 #### Function argument capturing and composition
 
-A function can captured a full invocation of a function as a new function. When captured, the function invocation is not actually called immediately. Instead the capture returns a new function which has all the input arguments captured. The return values of the new function match the original arguments of the captured function. This allows the newly captured and created function to be called later and this new function can be invoked more than once.
+A function can captured values to chain into a new function. When value capturing occurs, the function is not actually called immediately. Instead captured values become input arguments passed into an existing function and the result becomes a new function which input arguments previously captured. This allows a newly captured and created function to be called later.
 
 ````zax
 func final : (result : String)(input1 : Integer, input2 : String) = {
     // ...
 }
 
-// capture a function call invocation for later
+// capture values for a later function invocation
 // (don't actually call the function now)
-funcLater := [] >> func(2, "hello")
+funcLater1 := [2, "hello"] >> func
+
+// the above statement is functionally equivalent to this statement
+funcLater2 := [a := 2, b := "hello"] { func(a, b) }
 
 // call the previously captured function
-result := funcLater()
+result := funcLater1()
 
 // call the previously captured function again
-result := funcLater()
+result := funcLater1()
 ````
 
 
 #### Function input argument capturing and composition
 
-A function's input argument can be captured and automatically becomes an argument input argument to function call creating a new function which has one (or more) less input argument required. If the name of an argument match the name of the function's input argument then the variable can be captured just by-name alone. If the name of an argument does not match any input argument name and no re-assigned name is given, then the argument is attempted to be matched positionally (excluding any positions which already have a match).
+A function's input arguments can be captured and automatically become input arguments to function call resulting in creating a new function which has one less (or many lessor) required input arguments than the original function. If the name of an captured variable matches the name of one of a function's input arguments then the input argument is automatically selected as that argument's input for a function. If a captured name does not match any input argument's variable name and no re-assigned captured name is given then the captured value is attempted to be matched positionally to a functions input arguments (excluding any positions which already have definitive match).
 
 ````zax
 print final : ()(...) = {
@@ -257,7 +262,7 @@ print final : ()(...) = {
 }
 
 func1 final : ()(name : String, age : Integer) = {
-    print("name:", name, "age:", age)
+    print("name: ", name, "age: ", age)
 }
 
 myNameIs final := "Slim"
@@ -273,14 +278,14 @@ func2(48)
 
 name final := "Shady"
 
-// capture the `name` variable which is the functions input variable `name`
+// capture the `name` variable which matches the functions input variable `name`
 func3 final := [name] >> func1
 
 // will print "name: Shady age: 47"
 func3(47)
 
-// capture the `name` variable, and capture by-value positionally
-// (excluding name which is already matched)
+// capture the `name` variable, and positionally assign to the functions input 
+// arguments (excluding name which is already matched)
 func4 final := [name, 48] >> func1
 
 // will print "name: Shady age: 48"
@@ -290,11 +295,11 @@ func4()
 
 #### Function invocation chaining
 
-The invocation chaining operator (`|>`) can be used to feed the result of one function as the input to the next function. Input arguments are attempted to be matched by name first. After any output to matching to output matching are removed, then the renaming input and output arguments are matched positional. Finally the remaining arguments that do not match will be taken from the function's invocation input argument list.
+The invocation chaining operator (`|>`) can be used to feed the result of one function as the input to the next function. Input arguments are attempted to be matched by name first. After any output arguments matching to input arguments are removed then the renaming input and output arguments are matched positional. Finally remaining input arguments that do not match chained arguments will be taken from a function's invocation input argument list.
 
-An initial input value (which is not a function) can be chained as the first input argument to chain into the first link of a function invocation chain.
+An initial input value (which is not a function call) can be chained as the first input argument into a chain of a function invocations.
 
-The invocation chaining operator (`|>`) should not be confused with the pipe operator (`|`) or the shift right operator (`>>`). On many languages those operators would take the output of one function and apply those operators into the output of another function. Often the output of the first (and all subsequent operations) is the very type used to start the chain with those operators. This is how `std::cout` works in C++. The result of `std::cout << value` is the `std::cout&` object itself (i.e. `return *this`). Whereas in Zax, the chaining operator (`|>`) literally takes the output of one function and feeds it as the input to the next function. 
+The invocation chaining operator (`|>`) should not be confused with the pipe operator (`|`) or the shift right operator (`>>`) from other languages. On many languages those operators would take the output of one function and keep track of the result in internal state and then apply the state to the next function invoked. Often on those languages output argument of a chained function call is the type used to start the chain in the first place. This is how `std::cout` works in C++. The result of evaluating `std::cout << value` is the `std::cout&` object itself (i.e. via `return *this` from the `<<` operator). Whereas in Zax, the chaining operator (`|>`) literally takes the output of one function and feeds it as the input to the next function without needing an intermediate state object.
 
 ````zax
 double : (result : Integer)(input : Integer) = {
@@ -339,7 +344,8 @@ func : ()(myValue : Integer) = {
 func(42)
 
 func = {
-    // the variable `myValue` is known by the declared type of `func`
+    // the variable `myValue` is known by the declared type of `func` and thus
+    // `myValue` exists within this code block
     save(myValue)
 }
 
@@ -368,7 +374,7 @@ func = {
 
 ### Function pointers without ability to capture
 
-Functions will allocate space needed to capture values but function pointers do not have the space to capture any value contents. Function pointers are more space efficient when stored inside types with the tradeoff of being the inability to capture values.
+Functions will allocate space needed for capture values but function pointers do not have additional space to capture any values. Function pointers are more space efficient when stored inside types with the tradeoff of being the inability to capture values.
 
 ````zax
 print final : ()(...) = {
@@ -377,8 +383,8 @@ print final : ()(...) = {
 
 // define and declare a function that return no results and takes no input
 // arguments and has no ability to capture data and assign the function to
-// point to nothing since the function is only a function pointer without
-// the storage capacity of captured values
+// point to nothing (since the function is only a function pointer without
+// the storage capacity of captured values)
 funcWithNoCapture : ()() *
 
 // reassign the function to new executable code
@@ -392,7 +398,7 @@ funcWithNoCapture()
 myMessage : String = "Try to capture me!"
 
 // ERROR: The function variable named `funcWithNoCapture` is not capable of
-// capturing data and thus will error if a variable capture was attempted
+// capturing data and thus will error if a capture was attempted
 funcWithNoCapture = [myMessage] {
     // ...
 }
@@ -413,11 +419,12 @@ func : ()()* = [value] {
     print(value)
 }
 
-// will call print(42)
+// ERROR: not possible to call the function since the capture of value was
+// not done
 func()
 
-// ERROR: Even though no values are captured an error will occur as
-// the declared type for `func` cannot capture values.
+// ERROR: Even though no values are captured an error will occur as the declared
+// type for `func` cannot capture values
 func = [] {
     // do something else...
 }
@@ -454,7 +461,7 @@ func2 : (result : Boolean)(value : Integer) = {
 }
 
 // `func11 will now point to `func2` as the definitions of func1 and func2 are
-// equivalent and compatible despite having different argument names.
+// equivalent and compatible despite having differing argument names.
 func1 = func2
 
 // will call `save` with `42`
@@ -463,7 +470,7 @@ result2 := func1(42)
 func1 = {
     // `func1` retains its original argument names' `output` and `input`
     // despite being reassigned later to `func2`
-    // (which uses alternative argument names).
+    // (which uses alternative input argument names).
     sound(input)
     return true
 }
@@ -477,7 +484,7 @@ result3 := func1(42)
 
 #### Functions with default arguments
 
-Unlike results which must be captured, arguments can default their values so long as any placeholder for the argument is acknowledged as existing and can use the discard operator (`#`) or other placeholders.
+Unlike results which must be captured, input arguments can default their values so long as any placeholder for the argument is acknowledged as existing and can use the discard operator (`#`) or other placeholders.
 
 ````zax
 func final : ()(value : Integer) = {
@@ -488,7 +495,7 @@ func final : ()(value : Integer) = {
 func(42)
 
 // Allowed to call the function with the default value
-// (by declaring an empty variable)
+// (by declaring an empty variable the function input argument default is used)
 func(:)
 
 // ERROR: The argument for the function is not acknowledged as existing
@@ -509,7 +516,7 @@ func final : ()(
 
 // Allowed as two arguments are acknowledged of having existed which matches
 // the function's type specification
-func(#,#)
+func(#, #)
 ````
 
 Or a function with multiple arguments defaulted:
@@ -531,7 +538,7 @@ func(#, 42, #)
 
 #### Functions with defaulted argument values
 
-Unlike arguments that can be passed default values, defaulted arguments do not need to be acknowledged and the function can be called without passing in the 
+Unlike input arguments that can be passed default values, defaulted input arguments do not need to be acknowledged and the function can be called without passing in an explicit value.
 
 
 ````zax
@@ -573,10 +580,14 @@ func final : ()(
 }
 
 // Allowed as all arguments are acknowledged of having existed which matches
-// the function's type specification and the middle argument is overridden to
-// contain the value 42 instead of the default value of the Integer type
-// (which is 0)
+// the function's type specification and the middle argument is contain the
+// value `42` instead of the default value of the Integer type (which is `0`)
 func(#, #, #)
+
+// Allowed as all arguments are acknowledged of having existed which matches
+// the function's type specification and the middle argument is overridden to
+// the type's default value (which is `0`)
+func(#, :, #)
 
 // Allowed and the default is overridden for the second argument (i.e. 99)
 func(#, 99, #)
@@ -611,11 +622,11 @@ bucket := myType.bucket()
 
 ### `mutator` functions
 
-Function variables declared with `mutator` become [mutator methods](https://en.wikipedia.org/wiki/Mutator_method). Access the name of the function as a value will call a method which matches a function prototype of returning the type requested with no input arguments. Assigning a value to the function with a value will call a method which matches a function prototype of accepting the assigned type as an input argument and returning no results.
+Function variables declared with `mutator` become [mutator methods](https://en.wikipedia.org/wiki/Mutator_method). Accessing `mutator` variable name as a value will call a method which matches a function prototype returning the type requested with no input arguments. Assigning a value to the `mutator` name with a value will call a method which matches a function prototype of accepting the assigned type as an input argument and optionally returning a result type.
 
-Functions that return a value marked as `mutator` are especially useful when a data variable is calculated rather than being a natural data type. As `mutator` functions add overhead in each function call, care must be done to ensure `mutator` functions are not overly accessed in CPU cycle sensitive code. Likewise, a value change in a seemingly unrelated variable on a type might impact a `mutator` which might not be as obvious given a function is being called under the scenes.
+Functions that return a value marked as `mutator` are especially useful when a data variable is calculated rather than being a natural data type. As `mutator` functions add overhead in each function call, care must be done to ensure `mutator` functions are not overly accessed in CPU cycle sensitive code. Likewise, a value change in a seemingly unrelated variable on a type might impact a `mutator` which might not be as obvious given a function is being called in a hidden way.
 
-Function variables marked as `mutator` can be polymorphic. The compiler will attempt to match the input or output arguments by type to the best matching `mutator` function.
+Function variables marked as `mutator` can be polymorphic. The compiler will attempt to match input or output arguments by type to the best matching `mutator` function.
 
 The example below creates a `mutator` that returns a value:
 
@@ -652,7 +663,7 @@ roomSize := 5 + length
 length = 10
 ````
 
-The example below creates two polymorphic `mutator` that both accept a value:
+The example below creates two polymorphic `mutator` function that both accept a value:
 
 ````zax
 calculateHistoricalAge final : (output : Integer)() = {
@@ -676,7 +687,7 @@ person = "Socrates Johnson"
 
 #### Assign or replace a function `mutator` implementation
 
-If a `mutator` function (not marked as `final`) accepts a value is instead assigned a function pointer to a function that matches its own function prototype, the function will be replaced rather than attempting to match another `mutator` function. Priority of `mutator` functions are always given to matching function prototypes than attempting to find a `mutator` function which accepts a function pointer as its function's input or output argument.
+If a `mutator` function (not marked as `final`) accepts a value is instead assigned a function pointer to a function that matches its own function prototype then that function will be replaced rather than attempting to match another `mutator` function. Priority of `mutator` functions are always given to matching function prototypes rather than attempting to find a `mutator` function which accepts a function pointer as its function's input or output argument.
 
 Likewise `mutator` functions (not marked as `final`) that return a value can instead be assigned a function pointer to a function that matches its own function prototype. This assignment will cause the definition of the `mutator` function to be replaced.
 
@@ -689,14 +700,14 @@ length mutator : ()(input : Integer) = {
 
 // the seemingly complex declaration below does the following:
 // * declare an anonymous value
-// * associate the type of the anonymous value to a function prototype
-//   matching the original `length` `mutator`
+// * associate the type of the anonymous value to a function prototype that
+//   matching the original `length` `mutator` function
 // * assign the function `length` to a new replacement function
-length = : ()(input : Integer) = {
+length = # : ()(input : Integer) = {
     // ... do something else ...
 }
 
-// the second function definition is called and not the first definition
+// the second function definition is called and not the original definition
 length = 10
 ````
 
@@ -710,10 +721,10 @@ length mutator : (output : Integer)() = {
 
 // the seemingly complex declaration below does the following:
 // * declare an anonymous value
-// * associate the type of the anonymous value to a function prototype
+// * associate the type of the anonymous value to a function prototype that
 //   matching the original `length` `mutator`
 // * assign the function `length` to a new replacement function
-length = : (output : Integer)() = {
+length = # : (output : Integer)() = {
     // ... do something else ...
     return output
 }
@@ -725,7 +736,7 @@ value := length
 
 ### Declare and immediately call functions
 
-Anonymous functions can be called immediately upon construction by proceeding the closing curly brace (`}`) with an open bracket (`(`), arguments and a close bracket (`)`). Once the function's declaration completes the function is executed. Anonymous functions using the discard operator (`#`) do not need to use the `final` keyword as the function is implicitly final since no value captures the function pointer.
+Anonymous functions can be called immediately upon construction by proceeding a closing curly brace (`}`) with an open bracket (`(`), arguments and a close bracket (`)`). Once the function's declaration completes the function is executed. Anonymous functions using the discard operator (`#`) do not need to use the `final` keyword as the function is implicitly final since no value captures the function pointer.
 
 Each of the functions below is executed after declaration:
 
@@ -741,7 +752,7 @@ Each of the functions below is executed after declaration:
 }(5)
 
 
-newValue := : (output : Integer)() = {
+newValue := # : (output : Integer)() = {
     // ...
     return output
 }(10)
@@ -749,7 +760,7 @@ newValue := : (output : Integer)() = {
 
 ### Functions marked as `final`
 
-If a function should never have its associated code changed, the function should be declared as `final`. Functions that are not marked `final` require additional storage capacity to accommodate a function pointer and may incur calling overhead to access the function via a function table instead of optimizing the call directly to code. Functions marked as `final` cannot have their code segment reassigned once declared.
+If a function should never have its associated code changed then that function should be declared as `final`. Functions that are not marked `final` require additional storage capacity to accommodate a function pointer and may incur calling overhead to access the function via a function table instead of optimizing the call directly to code. Functions marked as `final` cannot have their code segment reassigned once declared.
 
 ````zax
 MyType :: type {
@@ -757,9 +768,7 @@ MyType :: type {
     value2 := 0
     value3 := 0
 
-    bucket : (output : Integer)() = {
-        // allowed to access variables since the contents of the variables
-        // are not changed
+    bucket final : (output : Integer)() = {
         return (value1 + value2 + value3) % 17
     }
 }
@@ -782,7 +791,7 @@ myType.bucket = {
 
 ### Functions qualified as `constant` in function types
 
-Functions qualified as `constant` inside a type may not change any values or call any the type's functions that are not qualified as `constant`. This advertises the type's function as being safe to call without any risk to the underlying data within the type being changed as a result of calling the function.
+Functions qualified as `constant` inside a type may not change any values or call any of the type's functions that are not qualified as `constant`. This advertises a type's function as being safe to call without any risk that the underlying data will change within the type as a result of calling the function.
 
 ````zax
 saveToDisk final :: ()(value : Integer) = {
@@ -858,7 +867,7 @@ MyType :: type {
 
     save final : ()() constant = {
         // allowed to call non-`constant` functions on the `constant`
-        // mutex value since the value is qualified as `mutable`
+        // mutex value since the variable is qualified as `mutable`
         mutex.lock()
         saveToDisk(value1)
         saveToDisk(value2)
@@ -880,11 +889,11 @@ myType.save()
 
 The `move` qualifier can be applied to by-value input arguments. This changes the calling semantics where the callee receives full ownership of the by-value type and the callee is responsible for destroying the type upon function exit. Once a type is moved, the by-value the caller no longer has visibility to the moved value as the callee will have destroyed the type.
 
-To pass an input argument by-value the `as move` qualification must be added to a defaulted by-value `copy` to signify the ownership transfer.
+To pass an input argument by-value an `as move` qualification must be added to a defaulted by-value `copy` to signify the ownership transfer.
 
 Pointers and references to types cannot be moved as the ownership is being leased by whomever created the pointer or reference.
 
-The `last` keyword is similar to `move` but `last` only applies to pointers and references whereas `move` only applies to by-value arguments. This allows for functions to inherit ownership of the contents within a pointer or reference type but the construction and destruction of the type's instance remains as normal.
+The `last` keyword is similar to `move` but `last` only applies to pointers and references whereas `move` only applies to by-value arguments. The `last` keyword allows the contents of a pointer or reference to transfer ownership whereas `move` implies the entire type's value should move ownership from the caller to the callee and thus the callee will destroy the value not the caller. Whereas `last` allows for functions to inherit ownership of contents within a pointer or reference type but construction and destruction of a type's instance remains as normal.
 
 
 ````zax
@@ -980,7 +989,7 @@ func(b as move)
 
 #### `move` qualification is automatically applied
 
-The `move` qualification is automatically applied to subsequent calls to other called functions when receiving an input `move` qualified by-value type. However, the `copy-or-move` warning will be issued if a called polymorphic function supports both `move` or `copy` semantics. The `as move` or `as copy` must be performed on a type to re-apply the `move` or `copy` semantics to distinguish the two scenarios. This warning is issued by the compiler to prevent surprising automatic moved type destruction when calling other functions.
+The `move` qualification is automatically applied to subsequent calls to other called functions when receiving an input `move` qualified by-value type. However, the `copy-or-move` warning will be issued if a called polymorphic function supports both `move` or `copy` semantics. The `as move` or `as copy` must be performed on a type to re-apply the `move` or `copy` semantics to distinguish the two scenarios. This warning is issued by a compiler to prevent surprising automatic moved type destruction when calling other functions.
 
 ````zax
 print final : ()(...) = {
@@ -1036,7 +1045,7 @@ funcAlwaysMoved2(b as move)
 
 #### `move` versus explicit `copy` qualification
 
-By default all functions that receive by-value arguments have the `copy` qualification applied unless the `move` qualification is explicitly applied. The `copy` and `move` qualifiers are mutually exclusive. The `copy` qualifier is redundant as it is automatically applied by default. One key difference does exist between explicitly and implicit qualifying a by-value argument as `copy`. Arguments that are explicitly qualified as `copy` cannot ever receive a `move` type and any attempt to pass a `move` type into an explicitly `copy` qualified type will cause an `explicit-copy-cannot-receive-move` error.
+By default all functions that receive by-value arguments have a `copy` qualification applied unless a `move` qualification is explicitly applied. The `copy` and `move` qualifiers are mutually exclusive. The `copy` qualifier is redundant as it is automatically applied by default. One key difference does exist between explicitly and implicit qualifying a by-value argument as `copy`. Arguments that are explicitly qualified as `copy` cannot ever receive a `move` type and any attempt to pass a `move` type into an explicitly `copy` qualified type will cause an `explicit-copy-cannot-receive-move` error.
 
 ````zax
 print final : ()(...) = {
@@ -1051,7 +1060,7 @@ MyType :: type {
 }
 
 func final : ()(value : myType copy) = {
-    // this function will receive a copy of `a` (but never an `b`)
+    // this function will receive a copy of `a` (but never a `b`)
 
     // ...
 }
@@ -1061,14 +1070,15 @@ a : MyType
 func(a)
 
 b : MyType
-// ERROR: `explicit-copy-cannot-receive-move` error
+// ERROR: `explicit-copy-cannot-receive-move` as `b` cannot call an explicit
+// `copy` version of the argument
 func(b as move)
 ````
 
 
 #### `move` on output arguments
 
-The `move` qualifier can be applied to output arguments. This causes the return value to not be copied followed by a  destruction by the callee by transferring the responsibility of destruction to the caller. Normally types have return value optimization (i.e. copy elision) enabled where return values are implied `move` out of the called functions. However, the `copy` or `move` qualifier can be applied to ensure the compiler is enforcing the proper semantics on a return value.
+The `move` qualifier can be applied to output arguments. This causes the return value to not be copied followed by a destruction by the callee by transferring the responsibility of destruction to the caller. Normally types have return value optimization (i.e. copy elision) enabled where return values are implied `move` out of the called functions. However, the `copy` or `move` qualifier can be applied to ensure the compiler is enforcing the proper semantics on a particular return value.
 
 ````zax
 print final : ()(...) = {
@@ -1100,32 +1110,9 @@ b := func2()
 
 ### Split and combine argument operators
 
-### Splitting type into a function call
+#### Splitting type into a function call
 
-The argument split (`<-`) operator with named declarations `{}` can be used to fill arguments passed into a function with a newly declared anonymous type. Each argument is matched with an input argument. All arguments those arguments are considered satisfied by the split (`<-`) operator as if those arguments were not present in the argument list and the rules standard rules remain for any arguments unspecified.
-
-
-````zax
-print final : ()(...) = {
-    // ...
-}
-
-func final : ()(
-    age : Integer,
-    name : String,
-    weight : Float,
-    defaultSmiley : Rune
-) = {
-    // ...
-}
-
-func(42, <- := { .name = "Boothby", .age = 61, .weight = 120 }, r'😀')
-````
-
-
-### Splitting type into a function call
-
-The split operator (`<-') can take a type and create an argument list for a function to satisfy the functions argument list. For any matchings type names to the argument names (not already fulfilled arguments) will be automatically filled as arguments to the function. Any additional type values unmatched will be ignored. Any unfulfilled arguments will need to be filled as per standard argument passing rules.
+The split operator (`<-') can take a type and create an argument list for a function to satisfy the functions argument list. For any type variable names matching input argument names (which are not previously matched input arguments) will be automatically filled as arguments to a function. Any additional type values unmatched will be ignored. Any unfulfilled arguments will need to be filled as per standard input argument passing rules.
 
 ````zax
 print final : ()(...) = {
@@ -1161,10 +1148,33 @@ print(myType.age)
 print(myType.weight)
 ````
 
+#### Splitting type into a function call
+
+The argument split (`<-`) operator with named declarations `{}` can be used to fill input arguments passed into a function with a newly declared anonymous type. Each argument is matched with an input argument. All input arguments considered satisfied by the split (`<-`) operator are no longer needing to be passed values and standard rules for remaining input arguments apply.
+
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+func final : ()(
+    age : Integer,
+    name : String,
+    weight : Float,
+    defaultSmiley : Rune
+) = {
+    // ...
+}
+
+func(42, <- # := { .name = "Boothby", .age = 61, .weight = 120 }, r'😀')
+````
+
+
 
 #### Combining argument results into an anonymous type
 
-The argument combine operator (`->`) can be used to define and declare a new anonymous type whose values contain the results of the remaining arguments returned from a function.
+The argument combine operator (`->`) can be used to define and declare a new anonymous type whose values contain results from remaining output arguments returned from a function.
 
 ````zax
 print final : ()(...) = {
@@ -1181,17 +1191,21 @@ func final : (
     return output1, output2, output3, output4
 }
 
-// creates a new anonymous type and fill the results with the remaining
-// arguments in the function return
+// creates a new anonymous type and fills the results with the remaining
+// arguments in the function's return arguments
 value1 :, remaining : -> = func()
 
 // print the first result
-print(value)
+print(value1)
 
 // print the other resulting values
 print(remaining.output2)
 print(remaining.output3)
 print(remaining.output4)
+
+// ERROR: the `output1` was already extracted as an output argument thus will
+// not be present as a result of using the combine operator (`->`)
+print(remaining.output1)
 ````
 
 

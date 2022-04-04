@@ -15,45 +15,50 @@ Since `immutable` types cannot have their values changed once created, the `cons
 
 Quick lookup guide:
 ````
-mutable         // applied to a type, the contents of the type are modifiable
+mutable         // (default) applied to a type, the contents of the type are
+                // modifiable
 mutable         // applied to a variable inside a type, the contents of the
                 // variable can be changed even if the type is `constant` or
-                // `immutable`
+                // `immutable` and selects a mutable version of a type if the
+                // available
 immutable       // applied to a type, declares the type as being immutable
                 // where all the values are `final` once constructed
-                // regardless of the types mutability
-immutable       // applied to a variable, causes the type to respect the
-                // mutability of `constant` or `inconstant` or `mutable` or
-                // `immutable` types
-                // (a variable's default and not typically used)
+                // regardless of a types underlying inherent mutability
+immutable       // (default) applied to a variable inside a type, causes a
+                // variable to respect the mutability of `constant` or
+                // `inconstant`, or `mutable` or `immutable` types (i.e.
+                // opposite behavior of `mutable` declared on a variable
+                // inside a type)
+                // (rarely used unless the default is overridden with a
+                // compiler directive)
 constant        // applied to a type, the contents of a `mutable` type
                 // are disallowed to be modified (has no applicability
                 // for `immutable` types which are effectively always constant)
 constant        // applied to a function, the function promises to
                 // not modify any mutable contents within a type
-inconstant      // applied to a type, the contents of a mutable type
+inconstant      // (default) applied to a type, the contents of a mutable type
                 // are allowed to be modified (has no applicability
                 // for `immutable` types which are effectively always constant)
-inconstant      // applied to a function, the function declares it is
+inconstant      // (default) applied to a function, the function declares it is
                 // allowed to modify any mutable contents within a type
 final           // a variable which receives its final value once constructed
                 // (but makes no promise not to modify the contents of any
-                // contained values within the value)
-varies          // a variable which is allowed to have its value change
-                // over time (and makes no promise about the contents of any
-                // contained values within the value)
-                // (a type's default and not typically used unless the default
-                // is overridden with a compiler directive)
+                // contained values within a type)
+varies          // (default) a variable which is allowed to have its value
+                // change over time (and makes no promise about the contents
+                // of any contained values within the value)
+                // (rarely used unless the default is overridden with a
+                // compiler directive)
 
 Opposites:
 final vs varies         // applies to the ability to change a variable's
-                        // value (or not); makes no promise about a types
-                        // contained contents
+                        // value (or not) but in both cases makes no promise
+                        // about a types contained contents
 immutable vs mutable    // when applied to a type, applies to the ability
-                        // modify the contents a type (or not)
+                        // modify the contents a type post construction (or not)
 immutable vs mutable    // when applied to a variable, applies to the ability
                         // modify the contents of a type regardless if the
-                        // type is constant or not
+                        // type is `constant` or not
 constant vs inconstant  // applied to a type, the allowance of modification
                         // of a types contents (or disallowance)
 constant vs inconstant  // applied to a function, the allowance of a function
@@ -63,10 +68,10 @@ constant vs inconstant  // applied to a function, the allowance of a function
 
 ### By default types are both `mutable` and `immutable`
 
-Declaring a type without the `mutable` or `immutable` qualifiers implies a type is allowed to be both `mutable` and `immutable`. The `default` mutability of a type is `mutable` if the type is both `mutable` and `immutable`. The default mutability for type can be specified, and overbidden with explicit qualifiers on instantiation if the type allows for alternative mutability.
+Declaring a type without the `mutable` or `immutable` qualifiers implies a type supports both `mutable` and `immutable` instances. The `default` mutability of a type is `mutable` if the type is both `mutable` and `immutable`. The default mutability for type can be specified, and overridden with explicit qualifiers on instantiation if the type allows for an alternative mutability.
 
 ````zax
-// type supports both `mutable` and `immutable` form and defaults as `mutable`
+// type supports both `mutable` and `immutable` forms and defaults as `mutable`
 MyType :: type {
     value1 : Integer = 42
     value2 : String = "life"

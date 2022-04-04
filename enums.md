@@ -9,15 +9,15 @@ By default, enums are defined to be Integer numbers that start at 0 and incremen
 
 ````zax
 Fruit :: enum {
-    apple,
-    banana,
-    pear,
-    orange,
-    pineapple
+    Apple,
+    Banana,
+    Pear,
+    Orange,
+    Pineapple
 }
 
 value1 : Fruit            // value1 will be defaulted to `0`
-value2 := Fruit.pineapple // value2 will be set to `4`
+value2 := Fruit.Pineapple // value2 will be set to `4`
 ````
 
 ### Enum defaulting
@@ -26,11 +26,11 @@ The default value for an enum can be changed to any value in the enumeration.
 
 ````zax
 Fruit :: enum {
-    apple,
-    banana,
-    pear,
-    orange default,
-    pineapple
+    Apple,
+    Banana,
+    Pear,
+    Orange default,
+    Pineapple
 }
 
 value : Fruit       // value will be defaulted to `3`
@@ -43,18 +43,18 @@ Each enum value can be assigned a specific value and values do not need to be un
 
 ````zax
 Fruit :: enum {
-    apple = 4,
-    banana = -7,
-    pear = -10,
-    orange default = 42,
-    pineapple,
-    grapefruit = 4
+    Apple = 4,
+    Banana = -7,
+    Pear = -10,
+    Orange default = 42,
+    Pineapple,
+    Grapefruit = 4
 }
 
 value1 : Fruit              // value1 will be defaulted to `42`
-value2 := Fruit.pineapple   // value2 will be assigned `43`
-value3 := Fruit.apple       // value3 will be assigned to `4`
-value4 := Fruit.grapefruit  // value4 will be assigned to `4`
+value2 := Fruit.Pineapple   // value2 will be assigned `43`
+value3 := Fruit.Apple       // value3 will be assigned to `4`
+value4 := Fruit.Grapefruit  // value4 will be assigned to `4`
 ````
 
 
@@ -69,14 +69,14 @@ convertToString final : (result : String)(enumType : $EnumType) = {
 
 ````zax
 Fruit :: enum {
-    apple,
-    banana,
-    pear,
-    orange default,
-    pineapple
+    Apple,
+    Banana,
+    Pear,
+    Orange default,
+    Pineapple
 }
 
-// value will be defaulted to `orange`
+// value will be defaulted to `Orange`
 value : Fruit
 
 // name will use the meta-function to convert from an enum to a string
@@ -86,18 +86,18 @@ name := convertToString(value)
 
 ### Enum underlying type
 
-Enums can be based on any intrinsic numerical types. Enumerations allow math operations to be applied on them so long as all the operands are of the same enumeration type. Enumerations can be cast to the underlying type using the `as` operator from which the resulting casted value loses its enumeration type qualification. The `cast` operator can be used to force an enumeration from the enumeration type into a numerical type (with any overflows being ignored). The `as` operator will cause a compiler error if the enumeration is directly converted from the enumeration type to another non-matching intrinsic numerical type. However, a two step conversion can be performed where the enumeration is first cast to its underlying type using the `as` operator and then converted to a final numerical type using another `as` operation. The `as` operator can perform panics on numerical types in conversions should overflows occur.
+Enums can be based on any intrinsic numerical types. Enumerations allow math operations to be applied on them so long as all the operands are of the same enumeration type. Enumerations can be cast to the underlying type using the `as` operator from which the resulting casted value loses its enumeration type qualification. The `cast` operator can be used to force an enumeration from the enumeration type into a numerical type (with any overflows being ignored). The `as` operator will cause a compiler error if the enumeration is directly converted from the enumeration type to another non-matching intrinsic numerical type. However, a two-step conversion can be performed where the enumeration is first cast to its underlying type using the `as` operator and then converted to a final numerical type using another `as` operation. The `as` operator can perform panics on numerical types in conversions should overflows occur.
 
 ````zax
 Fruit :: enum U8 {
-    apple           = (1 << 0),
-    banana          = (1 << 1),
-    pear            = (1 << 2),
-    orange default  = (1 << 3),
-    pineapple       = (1 << 4)
+    Apple           = (1 << 0),
+    Banana          = (1 << 1),
+    Pear            = (1 << 2),
+    Orange default  = (1 << 3),
+    Pineapple       = (1 << 4)
 }
 
-fruitInBasket := Fruit.apple | Fruit.banana | Fruit.pear
+fruitInBasket := Fruit.Apple | Fruit.Banana | Fruit.Pear
 
 // The `as` operator can be used to convert the enumeration to its
 // underlying type is the same value as its enumeration counterpart

@@ -13,8 +13,8 @@
    C style multiline comments
 */
 
-// The semi-colon `;` is not necessary between statements, but can be used to
-// split statements on a single line
+// The semi-colon `;` is not necessary between statements, but it can be used to
+// split statements placed on a single line
 funcA()
 funcB()
 
@@ -25,14 +25,15 @@ value := 2 + func() \    // continuation of statement to multiple lines
          * 3 \
          / 2
 
-// scope of statements treated as a single statement
+// a scope of statements is treated as a single statement for flow control
+// purposes
 {
     funcA()
     funcB()
 }
 
-// keywords are all lowercase and are reserved
-if condition {
+// keywords are all lowercase and keywords are reserved where they are legal
+if condition() {
 } else {
 }
 
@@ -92,6 +93,7 @@ override
 own
 private
 promise
+raw
 redo
 return
 requires
@@ -116,7 +118,7 @@ yield
 
 #### Keyword disambiguation
 
-Keywords are reserved only within the context of where the keyword is allowed. To disambiguate keywords from variables, variables can be postfixed with an underscore (`_`).
+Keywords are reserved only within the context of where the keyword is allowed and legal. To disambiguate keywords from variables, variables can be postfixed with an underscore (`_`). Usage of keywords as variables is discouraged and usage of postfix underscores are also discouraged.
 
 ````zax
 constant_ : Type constant
@@ -156,14 +158,14 @@ constant_ : Type constant
 *=              // binary multiply and assign operator
 /=              // binary divide and assign operator
 %=              // binary modulus divide and assign operator
-==              // binary is equal operator
-!=              // binary is not equal operator
+==              // binary equal operator
+!=              // binary not equal operator
 <=>             // binary three-way comparison operator
 <<>>            // binary two-way swap
-<               // binary is less than operator
->               // binary is greater than operator
-<=              // binary is less than operator
->=              // binary is greater than operator
+<               // binary less than operator
+>               // binary greater than operator
+<=              // binary less than operator
+>=              // binary greater than operator
 ~=              // binary bitwise one's compliment operator
 ^=              // binary bitwise xor and assign operator
 |=              // binary bitwise or and assign operator
@@ -174,25 +176,24 @@ constant_ : Type constant
 <<<=            // binary bitwise left rotate and assign operator
 >>>=            // binary bitwise right rotate and assign operator
 .               // post-unary dereference operator
-'               // literal start or end operator
-"               // literal start or end operator
-as              // safe type conversion operator
-()              // function argument declaration operator or
-                // function invocation operator
-[]              // array declaration operator or
-                // array access operator
+'               // pre/post-unary literal start/end operator
+"               // pre/post-unary literal start/end operator
+as              // binary safe type conversion operator
+()              // pre/post-unary function invocation operator
+[]              // pre/post-unary array access operator
 countof         // pre-unary count operator
-                // returns the number elements in a type or
+                // (returns the number elements in a type or
                 // the total reference count for a
-                // `handle` / `hint`, or `strong` / `weak` pointer
+                // `handle` / `hint`, or `strong` / `weak` pointer)
 overhead        // pre-unary overhead operator
-                // obtains a pointer to the overhead information for a
+                // (obtains a pointer to the overhead information for a
                 // pointer, `own`, `handle`, `hint`, `strong`, or `weak`
-                // pointer or optional type
+                // pointer or optional type)
 overheadof      // pre-unary overhead sizing operator
-                // return the number of bytes overhead is needed for this type
+                // (return the number of bytes overhead is needed for this type)
                 // i.e. typically the size of a control block
-allocatorof     // returns the allocator used for an allocated instance
+allocatorof     // pre-unary allocator operator
+                // (returns the allocator instance used to allocate an instance)
 ````
 
 
@@ -200,76 +201,81 @@ allocatorof     // returns the allocator used for an allocated instance
 
 ````
 *               // post-unary pointer type declaration
-&               // post-unary reference type declaration or
+&               // post-unary reference type declaration, or
                 // pre-unary capture by reference operator
-@               // post-unary standard allocator operator
-                // allocate using the standard allocator and construct type
-@@              // post-unary parallel allocator operator
-                // allocate using the parallel allocator and construct type
-@!              // post-unary synchronous allocator operator
-                // allocate using the synchronous allocator and construct type
-.               // name resolution operator
-,               // argument operator
-;               // statement separator operator
-;;              // sub-statement separator operator
-:               // variable type declaration operator
-::              // data type or meta data declaration operator
-::.             // data type dereference operator
+@               // unary standard allocator operator
+                // (allocate using the standard allocator and construct type)
+@@              // unary parallel allocator operator
+                // (allocate using the parallel allocator and construct type)
+@!              // unary synchronous allocator operator
+                // (allocate using the synchronous allocator and construct type)
+.               // binary namespace resolution operator
+,               // post-unary argument operator
+;               // binary statement separator and combiner operator
+;;              // binary sub-statement separator operator
+:               // binary variable type declaration operator
+::              // binary data type or meta data declaration operator
 ?               // post-unary optional type operator
-??              // ternary operator
+??              // binary ternary operator
                 // (combined with sub-statement separator operator `;;`)
-???             // uninitialized type operator
->>              // function composition
-|>              // function invocation chaining
+???             // unary uninitialized type operator
+>>              // binary function composition
+|>              // binary function invocation chaining
 ->              // post-unary argument combine operator
-                // combine remaining function result arguments into a
-                // single automatic defined type
+                // (combine remaining function result arguments into a single
+                // automatically defined type)
 <-              // pre-unary argument split operator
-                // split type into multiple function arguments
-\               // statement continuation operator
-cast            // pre-unary unsafe type conversion operator
-outercast       // unsafe outer type cast operator
-                // convert from contained type pointer to container type pointer
-copycast        // pre-unary unsafe `Unknown` copy cast
-                // treat the raw `Unknown` pointer as pointing to an instance of
-                // the casted type and make a copy of the contents
-lifetimecast    // unsafe shared lifetime cast operator
-                // converts a raw pointer to share a lifetime with an existing
-                // `strong` or `handle` pointer
-outerof         // outer type instance of operator
-                // convert from contained type pointer to container type pointer
-                // (safely via a managed type's RTTI)
+                // (split type into multiple function arguments)
+\               // post-unary statement continuation operator
+cast            // binary unsafe type conversion operator
+outercast       // binary unsafe outer type cast operator
+                // (convert from contained type pointer to container type
+                // pointer)
+copycast        // binary unsafe `Unknown` copy cast
+                // (treat the raw `Unknown` pointer as pointing to an instance)
+                // of the casted type and make a copy of the contents)
+lifetimecast    // binary unsafe shared lifetime cast operator
+                // (converts a raw pointer to share a lifetime with an existing
+                // `strong` or `handle` pointer)
+outerof         // binary outer type instance of operator
+                // (convert from contained type pointer to container type
+                // pointer safely via a managed type's RTTI)
 lifetimeof      // shared lifetimeof operator
-                // binds a raw pointer to an existing `strong` or `handle`
-                // pointer (safely checks if the pointer to a type points to
+                // (binds a raw pointer to an existing `strong` or `handle`
+                // pointer and safely checks if the pointer to a type points to
                 // memory within the allocated `strong` or `handle` pointer)
 sizeof          // pre-unary size of operator
                 // returns the size of a type
 alignof         // pre-unary align of operator
                 // return the alignment of a type
-offsetof        // offset of operator
-                // compute the byte offset of a contained variable from a
-                // container type or container variable
-typeof          // obtain the type of a variable or expression
+offsetof        // binary offset of operator
+                // (compute the byte offset of a contained variable from a
+                // container type or container variable)
+typeof          // pre-unary obtain the type information of a variable, 
+                // or expression, or type
 ````
 
-Other expressions:
+Other expressions (cannot be overloaded):
 ````
-#               // discard operator
-$               // templated argument declaration
-...             // variadic values (array of optional variable arguments)
-$...            // variadic types (array of types of variadic values)
-{               // scope begin
-}               // scope end
-[{              // array initialization begin
-}]              // array initialization end
-{               // multiple constructor argument initialization open
+#               // unary discard operator
+$               // pre-unary templated argument declaration
+...             // unary variadic values
+                // (array of optional variable arguments)
+$...            // unary variadic types
+                // (array of types of variadic values)
+()              // pre/post-unary function argument declaration operator
+[]              // pre/post-unary array declaration operator
+{               // pre-unary scope begin
+}               // post-unary scope end
+[{              // pre-unary array initialization begin
+}]              // post-unary array initialization end
+{               // pre-unary multiple constructor argument initialization open
 .               // pre-unary named variable and argument initialization
-[[              // compiler directive or attribute declaration open
-]]              // compiler directive or attribute declaration close
-_               // pointer to self
-                // a type's pointer to itself within type functions
-___             // context; a pointer to the context
+[[              // pre-unary compiler directive or attribute declaration open
+]]              // post-unary compiler directive or attribute declaration close
+_               // unary pointer to self
+                // (a type's pointer to itself within a type's function)
+___             // unary pointer to the current context
 +++             // unary constructor
 ---             // unary destructor
 ````
@@ -283,34 +289,36 @@ asset               // copy asset to built bundle
 asynchronous        // indicates a function not normally considered to
                     // operate asynchronously may perform asynchronously
 compiler            // compiler name as a string literal 
-compiles            // if a code block that follows compiles a `true` is
-                    // replaced otherwise a false is replaced
-concept             // declare a function as a compile time check for a
-                    // input / output argument type within a meta-function
+compiles            // if a code block that follows compiles then a `true` is
+                    // replaced otherwise a `false` is replaced
+concept             // declare a function as a compile time check for
+                    // input / output argument type checks within a
+                    // meta-function
 date                // date of compile as a string literal
 deprecate           // declare API sections as being deprecated
 error               // cause an error in compilation
 execute             // evaluates code blocks at compile time
-export              // make type, variable, etc visible to module importation
+export              // make type, variable, and other declarations visible to
+                    // module importation
 file                // indicates the source for a generated file
 function            // current function as a string literal
-inline              // tells compiler to inline vs call functions
-likely              // indicates which code paths are more likely
-                    // (for optimization)
-line                // indicates the source line for a generated file
+inline              // tells compiler to generate inline code rather than call
+                    // to code as a function
+likely              // indicates a code path is more likely to be executed
+                    // (for compiler and CPU optimization)
+line                // indicates a source line for a generated file
 lock-free           // disable lock generation around `once` values
 panic               // control panic behavior in code generation
 reserve             // reserve non-accessible unused space in a type
-void                // declared contained value occupies
-                    // a location within a type
-                    // without allocating space for the contained value
+void                // declared contained value occupies a location within a
+                    // type without allocating space for the contained value
 resolve             // controls when a declaration should resolve
 return              // controls code generation for the return statement
 source              // loads a related source file
 tab-stop            // sets the tab-stop for the source that follows
 time                // time of compile as a string literal
-unlikely            // indicates which code paths are less likely
-                    // (for optimization)
+unlikely            // indicates a code paths is less likely to execute
+                    // (for compiler and CPU optimization)
 version-compiler    // compiler version as a string literal
 version-import      // module import version as a string literal 
 warning             // display a warning or control compiler warning behaviors
@@ -320,8 +328,13 @@ warning             // display a warning or control compiler warning behaviors
 ### Recommended naming conventions
 
 ````zax
-// variables are recommended lower camelCase as well as type a type names as upper CamelCase
+// variables are recommended lower camelCase and type names as upper CamelCase
 variableName : TypeName
+
+// functions are recommended lower camelCase
+funcName : ()() = {
+    // ...
+}
 
 // function variables as prototypes are recommended using upper CamelCase
 FunctionPrototype final : ()()
@@ -343,19 +356,21 @@ notGood : WrdsNotKnwnAbbr
 ````zax
 :: import Module.System.Types
 
-// Uses pascal style variable declaration where the variable name is
+// Use pascal style variable declaration where the variable name is
 // specified followed by the type
 variableName : TypeName
 
-// Types are declared using 
+// Types are declared using the `type` keyword
 TypeName :: type {
     variableName : Integer
 }
 
-// The type can be assumed based on the value
+// A type can be assumed based on the value rather than requiring explicit
+// declaration
 assumedType := funcReturningType()
 
-// Types can be deduced based on borrowing another variable's type
+// Types can be deduced based on automatic type deduction when a variable is
+// used in place of a type name
 originValue : Integer
 valueBorrowsOriginalValuesType : originalValue
 
@@ -369,15 +384,15 @@ _ReservedTypeName
 as_ // e.g. `as` is a keyword, but `as_` is not a keyword.
 
 MyType :: type {
-    m_no := 0   // NOT recommended as this is a data oriented type and
-                // not an object or classification
+    m_no := 0   // NOT recommended as this Zax is a data oriented and
+                // not an object or classification oriented
 
     _no := 0    // NOT recommended
     no_ := 0    // NOT recommended
 
     // This pointer for a type is reserved as a single underscore `_` and
     // type variables can be distinguished from arguments by using
-    // `_.variable` vs a locally declared `variable`
+    // `_.variable` vs a locally declaration of `variable`
 
     value : Integer
 
@@ -398,7 +413,7 @@ MyType :: type {
 :: import Module.System.Types
 
 unknown : Unknown   // used as a generic pointer type to an unknown type
-nothing : Nothing   // used as a generic type of nothing
+nothing : Nothing   // used as a generic type instance of nothing
 void : Void         // an alias of the Unknown type
 boolean : Boolean   // A value representing true of false
 
@@ -530,50 +545,53 @@ wideString : WString = w'hello'
 
 ### Intrinsic system literals
 
-Literals are any constant literal value that requires compile time conversion from the input value to the underlying type. Normal strings are enclosed with single quotes `'string'`, or double quotes `"string"`. The difference between single and double quote is merely symantec with the single quote being used as preferred convention. Any escape sequencing interpretation performed inside any literal is entirely dependent on the type of the literal where both single and double quotes utilize the same escaping interpretation logic. Literals do not have to support any escape sequences at all. The default `ascii` string type is applied to strings where a literal type is not specified and no previous literal type is being continued.
+Literals are any constant literal value that requires compile time conversion from the input value to the underlying type.
 
-The type of the literal is prefixed before the single (`'`) or double (`"`) quotes. The language has support for some built-in literal types such as `a`, `ascii`, `utf8`, `c`, `w`, `unicode`, `b64`, `b`, `h` and others. The language is flexible and new compile time literals can be added to the language. By convention, all literals surround the value with `prefix'value'`. A single quote (`'`) can be embedded into a literal value by utilizing double quotes (`""`) around the literal and double quotes can be embedded into a literal value by using single quotes, e.g. `c'"'` and `c"'"`.
+Normal strings are enclosed with single quotes `'string'`, or double quotes `"string"`. The difference between single and double quote is merely symantec with the single quote being used as preferred convention. Any escape sequencing interpretation performed inside any literal is entirely dependent on the type of the literal where both single and double quotes utilize the same escaping interpretation logic for a given literal type. Literals need not support any escape sequences at all. The default `ascii` string type is applied to strings when a literal type is not specified, and no previous literal type is being continued.
 
-Literals can be extended across multiple lines and can interchange between using the single quote (`'`) and the double quote (`"`) as needed. The declaration of the prefixed literal type is only required initially when specifying a non-default literal type, or when the literal type's encoding changes (e.g. embedded specific hex wide character by hex value inside a wide character string would require the `w` literal prefix to be redeclared after using the `h` literal prefix when part of the same string literal sequence).
+The type of a literal is prefixed before the value contained in single (`'`) or double (`"`) quotes. The language has support for some built-in literal types such as `a`, `ascii`, `utf8`, `c`, `w`, `unicode`, `b64`, `b`, `h` and others. The language is flexible and new compile time literals can be added to the language. A literal type specification is done by a literal type prefix before a value (`type'value'`). A single quote (`'`) can be embedded into a literal value by utilizing double quotes (`""`) around a literal's value and double quotes can be embedded into a literal value by using single quotes, e.g. `c'"'` and `c"'"`.
+
+Literals can be extended across multiple lines using the continuation operator `\` and can interchange between using the single quote (`'`) and the double quote (`"`) as needed. The declaration of the prefixed literal type is only required initially when specifying a non-default literal type, or when the literal type's encoding changes (e.g. embedded specific wide character by specifying its hex value inside a wide character string would require the `w` literal prefix to be re-declared after using the `h` literal prefix when part of the same string literal sequence).
 
 ````zax
 // import the module system literals into the global namespace
 :: import Module.System.Literals
 
-char := c'\n'                       // c-style escapes supported thus becomes
-                                    // a new line character
-wideChar := r`😀`                   // declare a rune character/wide character
+char1 := c'A'                       // becomes the ASCII letter A
+char2 := c'\n'                      // c-style escapes supported thus becomes
+                                    // an ASCII new line character
+wideChar := r'😀'                   // becomes a rune character/wide character
 charBackslash := c'\\'              // becomes a single backslash
 charDoubleQuote := c'"'             // becomes a double quote
 charSingleQuote := c"'"             // becomes a single quote
-charNulValue := c'\0'               // becomes a NUL character
+charNulValue := c'\0'               // becomes an ASCII NUL character
 binary := b'1011101'                // becomes a base-2 number
 binarySequence := 'm' b'1011101'    // becomes a string sequence with an
                                     // embedded character expressed in base-2
 octal := o'12345670'                // becomes a base-8 number
-octalSequence := 'n' o`76`          // becomes a string sequence with an
+octalSequence := 'n' o'76'          // becomes a string sequence with an
                                     // embedded character expressed in base-8
 duodecimal := d'1234567890AB'       // becomes a base-12 number
 duodecimalSequence := 'y' d'AB'     // becomes a string sequence with an
                                     // embedded character expressed in base-12
 hexadecimal := h'ABC123'            // becomes a base-16 number
-hexadecimalSequence := 'z' h`EF`    // becomes a string sequence with an
+hexadecimalSequence := 'z' h'EF'    // becomes a string sequence with an
                                     // embedded character expressed in base-16
 mixedSequence := c'h' 'e' \         // becomes a string sequence containing the
                  b'01101100' \      // ascii characters "hello"
                  b'01101100' \
                  o'157'
 
-runeString := r'0398' '03A4'        // wide character string consisting of
+runeString : Rune = h'0398' '03A4'  // wide character string consisting of
                                     // the unicode characters Theta and Tau.
 
 namespacedType := Module.System.Literals.ascii"hello there!"
 
-string := 'Default is an ascii string type where c-style escapes are ' \
+string := 'Default is an ASCII string type where c-style escapes are ' \
           'not supported.'
 
-asciiString1 := a'an ascii string with c-style escapes\n'
-asciiString2 := ascii'an ascii string without c-style escapes'
+asciiString1 := a'an ASCII string with c-style escapes\n'
+asciiString2 := ascii'an ASCII string without c-style escapes'
 
 wideString1 := w'a wide string with escapes with c-style escapes\n'
 wideString2 := unicode'a wide string without c-style escapes'
@@ -581,7 +599,7 @@ wideString2 := unicode'a wide string without c-style escapes'
 utf8String := utf8'utf8 string does not have escape sequences ' \
               'as remains "as is".'
 
-// Convert from base-64 directly to an ascii-string
+// Convert from base-64 directly to an ASCII-string
 // (embedded NUL characters can exist within strings)
 base64 := b64'VGhlIHF1aWNrIGJyb3duIGZveC4='
 
@@ -590,7 +608,7 @@ xmlEntity := xml'John&#39;s Fish &amp; Chip Caf&#233;.'
 
 // string literals merging with other literals
 mergedLiterals := "This string has no escape sequences thus C:\file\paths is " \
-                  "preserved as well as 'single quotes' as ascii.'\n'
+                  "preserved as well as 'single quotes' as ASCII.'\n'
 
 anotherWayToEscape := a'This string has escape sequences where backslashes'\
                       'need escaping for paths like C:\\file but "double'\
@@ -600,7 +618,7 @@ beCarefulSingleQuotes := ascii'single quotes cannot exist inside single quotes'\
                          ' thus use "double quotes"' "around 'single quotes'\n"
 
 wideStringLiterals := unicode'Wide string has no escapes but can embed wide ' \
-                      'values such as "' r'16F' w'" fairly easily.\n'
+                      'values such as "' h'16F' w'" fairly easily.\n'
 
 continueExisting := w'encoding inside single quotes is continued ' \
                     'without needing to redeclare the encoding so long ' \
@@ -609,3 +627,7 @@ continueExisting := w'encoding inside single quotes is continued ' \
                     'declaring again when changed, e.g. "' \
                     h'16F' w'" needed the "w" declared once again'
 ````
+
+### Intrinsic Namespaces
+
+The compiler defines a default namespace named `Module`. The namespace is the root namespace for all types relative to any current namespace. See [namespacing](namespacing.md) for more details.
