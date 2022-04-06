@@ -3,23 +3,23 @@
 
 ## Strong and Weak Pointers
 
-Pointers qualified as `strong` will automatically track the lifetime of an allocated type by performing [reference counting](https://en.wikipedia.org/wiki/Reference_counting) so when the last common reference to a type's instance is discarded, the type becomes deallocated.
+Pointers qualified as `strong` will automatically track the lifetime of an allocated `type` instance by performing [reference counting](https://en.wikipedia.org/wiki/Reference_counting) so when the last common reference to a `type`'s instance is discarded, the instance becomes deallocated.
 
-The `strong` pointers are a form of [smart pointer](https://en.wikipedia.org/wiki/Smart_pointer) logic as a tool to ensure the lifetime of an type's instance is destroyed when the last referencing pointer is discarded. A [`weak` reference](https://en.wikipedia.org/wiki/Weak_reference) can be used to prevent circular dependencies by detecting when a type's instance kept is  alive by a `strong` pointer or already destroyed. The usage of `weak` references is a common technique to prevent memory leakage issue as `strong` pointers are not automatically [garbage collected](https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)).
+The `strong` pointers are a form of [smart pointer](https://en.wikipedia.org/wiki/Smart_pointer) logic as a tool to ensure the lifetime of an `type`'s instance is destroyed when the last referencing pointer is discarded. A [`weak` reference](https://en.wikipedia.org/wiki/Weak_reference) can be used to prevent circular dependencies by detecting when a `type`'s instance kept is  alive by a `strong` pointer or when a `type` instance was already destroyed. The usage of `weak` references is a common technique to prevent memory leakage issue as `strong` pointers are not automatically [garbage collected](https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)).
 
-Thread safety for the reference counting mechanism `strong` and `weak` pointer referencing is guaranteed. When a `strong` pointer is assigned to new variables across threads, the reference counting mechanism does not require thread barriers to ensure the count is kept accurate. The lifetime is maintained using atomic operations and concurrency of the lifetime is kept accurate across threads. However, this does not imply accessing the contents of a `strong` pointer has any concurrency protection or safety guarantees. If two threads modify the contents of type's instance pointed to by a `strong` pointer at the same time, the contents can have concurrency issues as well as undefined behaviors.
+Thread safety for the reference counting mechanism for `strong` and `weak` pointers is guaranteed. When a `strong` pointer is assigned to new variables in a concurrency conflicts, the reference counting mechanism does not require thread barriers to ensure a reference count is kept accurate. The lifetime is maintained using atomic operations and concurrency of a lifetime is kept accurate across threads. However, this does not imply accessing contents inside a `strong` pointer has any concurrency protection or safety guarantees. If two threads modify contents inside a `type`'s instance pointed to by a `strong` pointer at the same time, then those contents can have concurrency issues as well as undefined behaviors.
 
 
 ### `strong` versus `handle` pointers
 
-Pointers qualified as `strong` operate in the same manner as [`handle` pointers](handle-hint.md) with a few key differences. Whereas `strong` pointers have a `weak` counterpart, `handle` pointers have `hint` pointer counterparts. Pointers qualified as `strong` have thread safety properties related to the lifetime of the instance whereas `handle` pointers do not.
+Pointers qualified as `strong` operate in the same manner as [`handle` pointers](handle-hint.md) with a few key differences. Whereas `strong` pointers have a `weak` counterpart, `handle` pointers have a `hint` pointer counterpart. Pointers qualified as `strong` have thread safety properties related to reference counting mechanism of a `type`'s instance whereas `handle` pointers do not.
 
-Due to the overhead because of thread safety guarantees for `strong` pointers, `handle` pointers are more efficient at the cost of thread safety.
+Due to additional overhead related to thread safety guarantees for `strong` pointers, `handle` pointers are more efficient at the cost of thread concurrency safety.
 
 
 ### Allocation of `strong` pointers
 
-Pointers qualified as `strong` are allocated in similar manners to other pointers, such as `own`, `discard`, `handle`, and `collect` pointers. The difference is that `strong` pointers can be co-owned by more than one variable. When the last variable holding the `strong` pointer is discarded (or reset to empty) the allocated type is destructed and deallocated.
+Pointers qualified as `strong` are allocated in similar manners to other pointers, such as `own`, `discard`, `handle`, and `collect` pointers. The difference is that `strong` pointers can be co-owned by more than one variable. When the last variable holding a `strong` pointer is discarded (or reset to point to nothing) the allocated `type` instance is destructed and deallocated.
 
 ````zax
 print final : ()(...) = {
@@ -45,8 +45,8 @@ printIfValidPointer final : ()(pointerToValue : MyType *) = {
 func final : (result : String)() = {
 
     scope {
-        // the @ operator allocates `value1` dynamically with the
-        // context's allocator and a `strong` pointer is maintained
+        // the @ operator allocates `value1` dynamically with the context's
+        // allocator and a `strong` pointer is maintained
         value1 : MyType * strong @
 
         // `value2` is is a `strong` pointer but the value is initialized to
@@ -62,8 +62,8 @@ func final : (result : String)() = {
 
         assert(value1 == value2)
 
-        // `value2` and `value1` pointers both fall out of scope but only
-        // the single `MyType` instance is destructed and deallocated
+        // `value2` and `value1` pointers both fall out of scope but only a
+        // single `MyType` instance is destructed and deallocated
     }
 
     return "I'll be back."
@@ -73,7 +73,7 @@ func final : (result : String)() = {
 
 ### `strong` pointer value replacement
 
-Pointers qualified as `strong` can only point to a single instance of a type. If the pointer is reset to point to a new instance of a type then the original ownership claim is released and if the value was the last owner of the type's instance then the type is discarded and the memory is deallocated.
+Pointers qualified as `strong` can only point to a single instance of a `type`. If a pointer is reset to point to a new instance of a `type` then the original ownership claim is released and if the value was the last owner of a `type`'s instance then the `type` instance is discarded and the memory is deallocated.
 
 ````zax
 print final : ()(...) = {
@@ -99,13 +99,13 @@ printIfValidPointer final : ()(pointerToValue : MyType *) = {
 func final : (result : String)() = {
 
     scope {
-        // the @ operator allocates `value1` dynamically with the
-        // context's allocator and a `strong` pointer is maintained
+        // the @ operator allocates `value1` dynamically with the context's
+        // allocator and a `strong` pointer is maintained
         value1 : MyType * strong @
 
-        // the @ operator allocates `value2` dynamically with the
-        // context's allocator and a `strong` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value2` dynamically with the context's
+        // allocator and a `strong` pointer is maintained to another `MyType`
+        // instance
         value2 : MyType * strong @
 
         printIfValidPointer(value1) // will print "true"
@@ -137,7 +137,7 @@ func final : (result : String)() = {
 
 ### `strong` pointers lifetime
 
-The lifetime of `strong` pointers is entirely dependent on all `strong` pointers pointing to the same instance of a type being discarded (or reset to point to empty). Only when the final `strong` pointer is discarded/reset will be pointed instance of a type be released.
+The lifetime of `strong` pointers is entirely dependent on all `strong` pointers pointing to the same instance of a `type` being discarded (or reset to point to nothing). Only when the final `strong` pointer is discarded or reset will a shared instance of a `type` be released.
 
 ````zax
 print final : ()(...) = {
@@ -166,13 +166,13 @@ func final : (
 )() = {
 
     scope {
-        // the @ operator allocates `value1` dynamically with the
-        // context's allocator and a `strong` pointer is maintained
+        // the @ operator allocates `value1` dynamically with the context's
+        // allocator and a `strong` pointer is maintained
         value1 : MyType * strong @
 
-        // the @ operator allocates `value2` dynamically with the
-        // context's allocator and a `strong` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value2` dynamically with the context's
+        // allocator and a `strong` pointer is maintained to another `MyType`
+        // instance
         value2 : MyType * strong @
 
         // `stayingAlive` will point to `value2` thus they will both point to
@@ -234,7 +234,7 @@ func2 final : ()() = {
 
 ### Breaking circular `strong` pointer lifetime
 
-Care must be used when dealing with `strong` pointer lifetimes to ensure a circular dependency is not created where the circular chain is never broken. If a `strong` pointer points to another `strong` pointer that directly or indirectly points back to the same type's instance the lifetime of the `strong` pointers in the chain will never become destructed nor deallocated.
+Care must be used when dealing with `strong` pointer lifetimes to ensure a circular dependency is not created where a circular chain is never broken. If a `strong` pointer points to another `strong` pointer that directly or indirectly points back to the original type's instance then the lifetime of the `strong` pointers in the chain will never become destructed nor deallocated.
 
 The example below creates a circular `strong` pointer chain:
 
@@ -273,13 +273,13 @@ printIfValidPointer final : ()(pointerToValue : MyType *) = {
 func final : (result : String)() = {
 
     scope {
-        // the @ operator allocates `value1` dynamically with the
-        // context's allocator and a `strong` pointer is maintained
+        // the @ operator allocates `value1` dynamically with the context's
+        // allocator and a `strong` pointer is maintained
         value1 : MyType * strong @
 
-        // the @ operator allocates `value2` dynamically with the
-        // context's allocator and a `strong` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value2` dynamically with the context's
+        // allocator and a `strong` pointer is maintained to another `MyType` 
+        // instance
         value2 : MyType * strong @
 
         // the @ operator allocates `value3` dynamically with the
@@ -370,18 +370,18 @@ printIfValidPointer final : ()(pointerToValue : MyType *) = {
 func final : (result : String)() = {
 
     scope {
-        // the @ operator allocates `value1` dynamically with the
-        // context's allocator and a `strong` pointer is maintained
+        // the @ operator allocates `value1` dynamically with the context's
+        // allocator and a `strong` pointer is maintained
         value1 : MyType * strong @
 
-        // the @ operator allocates `value2` dynamically with the
-        // context's allocator and a `strong` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value2` dynamically with the context's
+        // allocator and a `strong` pointer is maintained to another `MyType`
+        // instance
         value2 : MyType * strong @
 
-        // the @ operator allocates `value3` dynamically with the
-        // context's allocator and a `strong` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value3` dynamically with the context's
+        // allocator and a `strong` pointer is maintained to another `MyType`
+        // instance
         value3 : MyType * strong @
 
         // setup pointers to the head of the linked list
@@ -398,16 +398,16 @@ func final : (result : String)() = {
         printIfValidPointer(value3) // will print "true"
 
         // break apart any way the pointer relationships could be circular
-        value1.head = #:
-        value2.head = #:
-        value3.head = #:
+        value1.head = #
+        value2.head = #
+        value3.head = #
 
         // reset all three `strong` pointers to point to nothing
-        value1 = #: // `value1`'s instance will be destructed/deallocated (which
+        value1 = #  // `value1`'s instance will be destructed/deallocated (which
                     // removes the strong pointer to `value2`)
-        value2 = #: // `value2`'s instance will be destructed/deallocated (which
+        value2 = #  // `value2`'s instance will be destructed/deallocated (which
                     // removes the strong pointer to `value3`)
-        value3 = #: // `value3`'s instance will be destructed/deallocated
+        value3 = #  // `value3`'s instance will be destructed/deallocated
 
         // validate the pointers are indeed pointing to nothing
         assert(!value1)
@@ -460,18 +460,18 @@ printIfValidPointer final : ()(pointerToValue : MyType *) = {
 func final : (result : String)() = {
 
     scope {
-        // the @ operator allocates `value1` dynamically with the
-        // context's allocator and a `strong` pointer is maintained
+        // the @ operator allocates `value1` dynamically with the context's
+        // allocator and a `strong` pointer is maintained
         value1 : MyType * strong @
 
-        // the @ operator allocates `value2` dynamically with the
-        // context's allocator and a `strong` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value2` dynamically with the context's
+        // allocator and a `strong` pointer is maintained to another `MyType`
+        // instance
         value2 : MyType * strong @
 
-        // the @ operator allocates `value3` dynamically with the
-        // context's allocator and a `strong` pointer is maintained to
-        // another `MyType` instance
+        // the @ operator allocates `value3` dynamically with the context's
+        // allocator and a `strong` pointer is maintained to another `MyType`
+        // instance
         value3 : MyType * strong @
 
         // setup pointers to the head of the linked list
@@ -540,9 +540,9 @@ func final : (result : String)() = {
 
 ### Transferring `own` pointers to `strong` pointers
 
-Pointers qualified as `own` can be transferred to pointers qualified as `strong`. Once the transfer is completed, the original `own` pointer will point to nothing as the `strong` pointer will track the lifetime of the instance. Likewise, pointers qualified as `strong` can be transferred to pointers qualified as `own` on the condition that no other pointers qualified as `strong` point to the same instance of a type otherwise the resulting `strong` pointer will point to nothing.
+Pointers qualified as `own` can be transferred to pointers qualified as `strong`. Once a transfer is completed, the original `own` pointer will point to nothing as the `strong` pointer will track the lifetime of the instance. Likewise, pointers qualified as `strong` can be transferred to pointers qualified as `own` on the condition that no other pointers qualified as `strong` points to the same `type`'s instance otherwise the resulting `own` pointer will point to nothing.
 
-Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers qualified as `own` are allocated using the standard allocator which is typically set to the sequential allocator by default. If an `own` pointer gets transferred later into a `strong` pointer, the standard allocator should be replaced with the parallel allocator.
+Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers qualified as `own` are allocated using the standard allocator which is typically set to the sequential allocator by default. If an `own` pointer gets transferred later into a `strong` pointer, replacing the standard allocator with the parallel allocator may be desired.
 
 ````zax
 print final : ()(...) = {
@@ -568,15 +568,15 @@ printIfValidPointer final : ()(pointerToValue : MyType *) = {
 func final : (result : String)() = {
 
     scope {
-        // the @ operator allocates `value1` dynamically with the
-        // context's allocator and a `strong` pointer is maintained
+        // the @ operator allocates `value1` dynamically with the context's
+        // allocator and a `strong` pointer is maintained
         value1 : MyType * own @
 
         // `value2` is is a `strong` pointer but the value is initialized to
         // point to nothing
         value2 : MyType * strong
 
-        // `value1` used to own the instance but the instance ownership is
+        // `value1` used to `own` the instance but the instance ownership is
         // transferred from a `value1` to `value2` which now keeps the
         // `MyType` instance alive
         value2 = value1
@@ -588,7 +588,7 @@ func final : (result : String)() = {
 
         // transferring a `strong` pointer to an `own` pointer can be
         // done so long as no other `strong` pointers exist to the same
-        // instance (otherwise `value1` pointer to nothing)
+        // instance (otherwise `value1` would point to nothing)
         value1 = value2
 
         // `value2`'s `strong` pointer was automatically reset when ownership
@@ -631,11 +631,14 @@ func final : (result : String)() = {
         assert(value1 != value2)
         assert(value2 == value3)
 
-
-        // `value1` cannot retake ownership from `value2` as another
-        // pointer to the same instance of `value2` exist thus `value1` cannot
-        // take exclusive ownership and `value1` will point to nothing
+        // `value1` cannot retake ownership from `value2` as another pointer
+        // to the same instance of `value2` exists thus `value1` cannot take
+        // exclusive ownership and `value1` will point to nothing
         value1 = value2
+
+        printIfValidPointer(value1) // will print "false"
+        printIfValidPointer(value2) // will print "true"
+        printIfValidPointer(value3) // will print "true"
     }
 
     return "I'll be back."
@@ -645,18 +648,18 @@ func final : (result : String)() = {
 
 ### Transferring `strong` pointers to `handle` pointers
 
-Pointers qualified as `strong` cannot be directly transferred to a pointer qualified as `handle`. The only method by which this transfer can happen is if the `strong` pointer is first transferred to an `own` pointer and then transferred to a `handle` pointer. The vice versa limitation is true. Pointers qualified as `handle` cannot be directly transferred to a pointer qualified as `strong`. The only method by which this transfer can happen is if the `handle` pointer is first transferred to an `own` pointer and then transferred to a `strong` pointer.
+Pointers qualified as `strong` cannot be directly transferred to a pointer qualified as `handle`. The only method by which this transfer can happen is if a `strong` pointer is first transferred to an `own` pointer and then transferred to a `handle` pointer. The vice versa limitation is also true. Pointers qualified as `handle` cannot be directly transferred to a pointer qualified as `strong`. The only method by which this transfer can happen is if a `handle` pointer is first transferred to an `own` pointer and then transferred to a `strong` pointer.
 
-Transferring to an `own` pointer have limitations. Only if the pointer qualified as `strong` or `handle` is the exclusive reference to the instance of a type can the transfer to an `own` pointer occur.
+Transferring to an `own` pointer have limitations. Only if a pointer qualified as `strong` or `handle` is the exclusive reference to the instance of a type can the transfer to an `own` pointer occur.
 
 
 ### Casting contained variables into `strong` pointers
 
 #### Converting from a container `strong` pointer to a contained `strong` pointer
 
-The `lifetimeof` operators can be used to cast a raw pointer to a variable which has the same lifetime as an original `strong` or `handle` pointer to a `strong` or `handle` pointer respectively.
+The `lifetimeof` operators can be used to cast a raw pointer to a variable which has a lifetime tied to an original `strong` or `handle` pointer.
 
-A `strong` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained type is the same as the container type, only a `strong` pointer to the container type may exist (despite both types being considered as a single instance). The `lifetimeof` operator is especially useful to create a `strong` pointer of a contained type from a `strong` pointer to the container's type.
+A `strong` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained types are the same as the container type, only a `strong` pointer to the container type may exist (despite both types being considered as a single instance). The `lifetimeof` operator is especially useful to create a `strong` pointer of a contained type from a `strong` pointer to a container's type.
 
 Example as follows:
 
@@ -674,7 +677,7 @@ value : Integer * strong = myType.value1 lifetimeof myType
 // resetting the `myType`'s `strong` pointer will not impact the real lifetime
 // of the instance connected to `myType` (as the `value` `strong` pointer will
 // keep it's container instance alive)
-myType = #:
+myType = #
 
 // set the `MyType::value1` to `5` (which is still valid as the
 // lifetime of of the original `strong` pointer is kept alive)
@@ -684,7 +687,7 @@ value. = 5
 
 #### Converting from a container `strong` pointer to a contained `strong` pointer
 
-While any pointer to any type can be linked to a `strong` or `handle` pointer using the `lifetimecast` operator, a `lifetimeof` operator can link a pointer to a contained type back to the original `strong` or `handle` pointer safely by verifying the pointer refers to a memory addresses within the bounds of the allocated `strong` or `handle` pointer.
+While any pointer to any type can be linked to a `strong` or `handle` pointer using an `unsafe lifetimeof` operator, a `lifetimeof` operator can link a pointer to a contained type back to the original `strong` or `handle` pointer safely by verifying a pointer refers to a memory addresses within the bounds of the allocated `strong` or `handle` pointer.
 
 An example of a runtime `lifetimeof` being applied onto a `strong` pointer:
 
@@ -721,16 +724,16 @@ function final : ()() = {
 ````
 
 
-#### `lifetimeof` versus `lifetimecast`
+#### `lifetimeof` versus `unsafe lifetimeof`
 
-The exclusive difference between these operators is safety. A `lifetimecast` operator will force a conversion of any raw pointer to link to `handle` or `strong` pointer even for unrelated pointers. A `lifetimeof` operator will validate a raw pointer actually points inside the address boundaries of the `handle` or `strong` pointer. If the pointer to memory is not located in the correct allocation boundary then `lifetimeof` will return a pointer to nothing. Thus a programmer can choose their tradeoff between safety and speed.
+The exclusive difference between these operators is safety. An `unsafe lifetimeof` operator will force a conversion of any raw pointer to link to `handle` or `strong` pointer even for unrelated pointers. A `lifetimeof` operator will validate a raw pointer actually points inside the address boundaries of the `handle` or `strong` pointer. If a pointer to memory is not located in the correct allocation boundary then `lifetimeof` will return a pointer to nothing. Thus a programmer can choose their tradeoff between safety and speed.
 
 
-#### Converting using `lifetimecast`
+#### Converting using `unsafe lifetimeof`
 
-Any pointer to any type can be linked to a `handle` or `strong` pointer using the `lifetimecast` operator. The memory is not checked to see if the memory address being casted resides within the memory space of the original `handle` or `strong` pointer. The programmer must be careful to use this feature carefully since this function will forcefully adopt the lifetime of a `handle` or `strong` pointer.
+Any pointer to any type can be linked to a `handle` or `strong` pointer using an `unsafe lifetimeof` operator. The memory is not checked to see if the memory address being casted resides within the memory space of the original `handle` or `strong` pointer. The programmer must be careful to use this feature carefully since this function will forcefully adopt the lifetime of a `handle` or `strong` pointer.
 
-An example of a runtime `lifetimecast` being applied onto a `handle` pointer:
+An example of a runtime `unsafe lifetimeof` being applied onto a `handle` pointer:
 
 ````zax
 A :: type managed {
@@ -750,7 +753,7 @@ doSomething final : (result : Unknown * strong)(a : A * strong, unknown : Unknow
     // forcefully convert from the lifetime of one pointer to another type
     // without conducting any safety checks to ensure the casted pointer lives
     // within the memory range of the original allocation
-    b := unknown lifetimecast a
+    b := unknown unsafe lifetimeof a
     assert(b)
 
     // ...
@@ -772,9 +775,9 @@ function final : ()() = {
 
 ### `strong` and `weak` overhead and control blocks
 
-A `strong` and `weak` pointers contain a pointer to an instance of a type and a pointer to the control block. When a type is allocated for storage in a `strong` pointer, a control block is typically reserved as part of the allocation of the type.
+A `strong` and `weak` pointer contains a pointer to an instance of a type and a pointer to the control block. When a type is allocated for storage in a `strong` pointer, a control block is typically reserved with the allocation of a `type`'s instance.
 
-Since `weak` pointers also need control blocks, `weak` pointers can keep the memory for a control block alive and possibly the `type` too if the control block and `type` are allocated within the same memory space. To clean up allocated memory, reset any `weak` pointers to point to nothing after all `strong` pointers are gone.
+Since `weak` pointers also need control blocks, `weak` pointers can keep a memory control block alive and possibly a `type`'s reserved memory too if a control block and `type` are allocated within the same memory block. To clean up allocated memory, reset any `weak` pointers to point to nothing after all `strong` pointers are gone.
 
 An example `strong` / `weak` pointer content and control block:
 

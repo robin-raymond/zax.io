@@ -36,7 +36,7 @@ Zax is a strongly typed compile time language with some key features:
 
 * Low level features
     * Raw memory access
-    * Raw memory `cast`
+    * Raw memory casting
     * Bitwise operations
     * Sized types and alignment
     * Manual / raw memory allocation / deallocation
@@ -56,7 +56,7 @@ Zax is a strongly typed compile time language with some key features:
         * `while` / `until`
         * `redo` `while` / `redo` `until`
         * `each`, `in`
-        * `for`, `in`
+        * `each`, `from`
     * `scope` control and logic grouping with `break` and `continue`
     * Arrays
     * Strongly sized integers, floating points, enums, boolean, strings

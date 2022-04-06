@@ -7,9 +7,9 @@
 
 #### Forcing the compiler to issue an error
 
-An `error` can forcefully be issued by the compiler by using the `[[error="<message>", <optional-registered-error-name>,name=<opt-name>, value=<opt-value>, name, value...]]` compiler directive. If the compiler compiles-in an `error` directive, the compiler will display the error and halt. A compiler error may optionally include one of the built-in error names or declare a custom error name with a `x-` prefix.
+An `error` can forcefully be issued by a programmer by using an `[[error="<message>", <optional-registered-error-name>,name=<opt-name>, value=<opt-value>, name..., value...]]` compiler directive. If a compiler compiles-in an `error` directive, a compiler will display an error and halt. A compiler error may optionally include one of the built-in error names or declare a custom error name with a `x-` prefix.
 
-The optional `name` and `value` are any arguments that are part of the error message to display. The `name` value is looked up in the string and substituted with the `value`. Multiple `name` and `value` pairs may exist.
+An optional `name` and `value` are any arguments that are part of an error message to display. A `name` value is looked up in the string and substituted with the `value`. Multiple `name` and `value` pairs may exist.
 
 ````zax
 if sizeof Integer != 4 {
@@ -56,13 +56,13 @@ The following are registered errors, and their meaning:
 * `as-conversion-not-compatible`
     * a request to convert one type to another using the `as` where no compatible conversion was found
 * `constant-overflow`
-    * a constant value overflows the underlying type
+    * a constant value overflows the underlying `type`
 * `needs-dereferencing`
     * an attempt was made to automatically convert from a pointer to a reference without using the dereference operator (`.`)
 * `incompatible-types`
-    * an attempt was made to use a type where another incompatible type was expected
+    * an attempt was made to use a `type` where another incompatible `type` was expected
 * `no-viable-outer-type-cast`
-    * an attempt was made to cast from an inner contained type to an outer type which does not contain the inner type
+    * an attempt was made to cast from an inner contained `type` to an outer `type` which does not contain the inner `type`
 * `function-not-found`
     * an attempt was made to call to a function that was not found
 * `type-not-found`
@@ -71,24 +71,24 @@ The following are registered errors, and their meaning:
     * an attempt was made to call a function where none of the function candidates available are a viable choice
 * `function-candidate-ambiguous`
     * an attempt was made to call a function where two (or more) matches are equally selectable even with all qualifiers considered
-* `outercast-ambiguous`
-    * an attempt was made to cast from a contained pointer to a container pointer but which from type is ambiguous
+* `unsafe-outerof-ambiguous`
+    * an attempt was made to cast from a contained pointer to a container pointer but which from `type` is ambiguous
 * `except-ambiguous`
-    * an attempt was made to return a value using the `except` statement but the best match for the return type is ambiguous or the defaulted output argument name for the `except` is ambiguous
+    * an attempt was made to return a value using the `except` statement but the best match for the return `type` is ambiguous or the defaulted output argument name for the `except` is ambiguous
 * `enum-to-underlying-needs-as-operator`
-    * an attempt was made to directly convert an enum to its underlying type without first casing to the underlying type
+    * an attempt was made to directly convert an enum to its underlying `type` without first casing to the underlying `type`
 * `enum-to-incompatible-type`
-    * an attempt was made to convert an enum to a type that is not its underlying type
+    * an attempt was made to convert an enum to a `type` that is not its underlying `type`
 * `range-iterator-not-found`
     * the `each` iteration `from` a range did not provided a range iterator
 * `named-scope-not-found`
-    * cannot fine the name referenced in a `break` or `continue` statement
+    * cannot find the name referenced in a `break` or `continue` statement
 * `named-scope-inaccessible`
-    * a `break` or `continue` statement was request to an inaccessible scope
+    * a `break` or `continue` statement was requested to an inaccessible scope
 * `line-directive-without-file`
     * when parsing generated files, a line directive was used without first declaring a file directive
 * `bad-alignment`
-    * the alignment is not supported
+    * the alignment is unsupported
 * `duplicate-case`
     * a `switch` has duplicate `case` values
 * `duplicate-symbol`
@@ -102,7 +102,7 @@ The following are registered errors, and their meaning:
 * `compiles-directive-error`
     * the compiles directive failed to compile code and thus forced an error
 * `requires-directive-error`
-    * the requires directive failed to compile or the evaluated code returned false
+    * the requires directive failed to compile or the evaluated code returned `false`
 * `value-not-captured`
     * an attempt was made to access a variable outside of a function or `scope` capture barrier
 * `unmatched-push`
@@ -118,15 +118,15 @@ The following are registered errors, and their meaning:
 * `output-failure`
     * an attempt to generate output or copy an asset to the output failed
     * name=`$file$` - the file name that could not be created or updated
-* `explicit-lease-cannot-receive-last`
-    * an attempt to call an explicitly by reference or by pointer `lease` qualified value with a `last` qualified value
+* `explicit-last-cannot-receive-lease`
+    * an attempt to call an explicitly by-reference or by-pointer `last` qualified value with a `lease` qualified value
 * `explicit-copy-cannot-receive-move`
     * an attempt to call an explicit by-value `copy` with a `move` qualified value
 
 
 ### Forcing the compiler to issue a warning
 
-A `warning` can forcefully be issued by the compiler by using the `[[warning="<message>", <optional-registered-warning-name>, name=<opt-name>, value=<opt-value>, name, value...]]` compiler directive. If the compiler compiles-in a `warning` directive, the compiler will display the warning and continue to compile. A compiler warning may optionally include one of the built-in warning names or declare a custom warning name with a `x-` prefix.
+A `warning` can forcefully be issued by the compiler by using the `[[warning="<message>", <optional-registered-warning-name>, name=<opt-name>, value=<opt-value>, name..., value...]]` compiler directive. If the compiler compiles-in a `warning` directive, the compiler will display the warning and continue to compile. A compiler warning may optionally include one of the built-in warning names or declare a custom warning name with a `x-` prefix.
 
 The optional `name` and `value` are any arguments that are part of the error message to display. The `name` value is looked up in the string and substituted with the `value`. Multiple `name` and `value` pairs may exist.
 
@@ -147,7 +147,7 @@ if sizeof Integer > 4 {
 
 #### Enabling/disabling a compiler warning
 
-A warning can be enabled or disabled by using the `[[warning=<option>, <optional-registered-warning-name>]]`. If the compiler compiles-in the `warning` directive, the compiler will enable or disable the compiler warning or treat a specific warning as an error or merely as a warning. All compilers must register their warnings meanings into a shared authority registry. Experimental non-standard warnings names must include an `x-` prefix as part of the warning name. Naming a specific warning is optional. If the compiler warning name is not specified, the directive will apply to all warnings.
+A warning can be enabled or disabled by using the `[[warning=<option>, <optional-registered-warning-name>]]`. If the compiler compiles-in the `warning` directive, the compiler will enable or disable the compiler warning or treat a specific warning as an error or merely as a warning. All compilers must register their warnings meanings into a shared authoritative registry. Experimental non-standard warnings names must include an `x-` prefix as part of the warning name. Naming a specific warning is optional. If the compiler warning name is not specified, the directive will apply to all warnings.
 
 The options for warnings are:
 * `yes` - enables the warning for only to the current statement
@@ -158,7 +158,7 @@ The options for warnings are:
 * `error` - forces enabled warnings to be treated as an error for all statements that follow
 * `warning` - forces enabled warnings to be treated as merely a warning for all statements that follow
 * `lock` - disallows any imported module from changing a warning state
-* `unlock` - allows any imported module from changing a warning state
+* `unlock` - allows any imported module to change a warning state
 
 
 ````zax
@@ -170,10 +170,10 @@ randomValue final : (output : S32)() = {
 value := randomValue()
 
 [[warning=no, intrinsic-type-cast-overflow]] \
-castedValue1 := value cast U32
+castedValue1 := value unsafe as U32
 
 [[warning=yes, intrinsic-type-cast-overflow]] \
-castedValue2 := value cast U32
+castedValue2 := value unsafe as U32
 
 
 [[warning=always, intrinsic-type-cast-overflow]]
@@ -200,9 +200,9 @@ castedValue2 := value cast U32
 
 #### Warning push and pop
 
-The state of all warnings can be pushed and popped into a compile stack using the `[[warning=push]]` and `[[warning=pop]]` compiler directives. A push operation will keep a copy of all warning states and push these warnings on the compiler stack. A pop operation will take the last pushed compiler warning states and apply these warning states as the current warning states.
+The state of all warnings can be pushed and popped into a compiler stack using the `[[warning=push]]` and `[[warning=pop]]` compiler directives. A `push` operation will keep a copy of all warning states and push these warnings on a compiler's stack. A `pop` operation will take the last pushed compiler warning states and apply these warning states as the current warning states.
 
-Upon importing a module, all warnings are pushed and all warnings are popped at the end of an `import`. This ensures that imported modules cannot affect the warning state of the importing module.
+Upon importing a module, all warnings are pushed and all warnings are popped at the end of an `import`. This ensures that imported modules cannot affect the warning state of a module performing an import.
 
 ````zax
 [[warning=push]]
@@ -223,11 +223,11 @@ The following are registered warnings, default states, and their meaning:
 * `to-do` (always)
     * a warning directive to indicate code is known to be missing and must be completed at a later point in time
 * `intrinsic-type-cast-overflow` (always)
-    * an intrinsic type may overflow during the `cast` operator to a type with lower bit sizing
+    * an intrinsic type may overflow during the `unsafe as` operator to a type with lower value capacity
 * `switch-enum` (always)
-    * the `switch` statement lacks `case` statements for one or more defined named enumerations
+    * a `switch` statement lacks `case` statements for one or more defined named enumerations
 * `switch-enum-default` (always)
-    * the `switch` statement lacks a `default` statement to an `enum` known to be casted from an underlying type or used with bitwise operators and thus may contain values outside of known defined named enumerations
+    * a `switch` statement lacks a `default` statement to an `enum` known to be casted from an underlying `type` or where bitwise operators wer used and thus may contain values outside of known defined enumerations
 * `condition-not-boolean` (always)
     * the condition passed into an `if`, `while`, `redo` `while` or other conditional statements do not resolve to a `Boolean` type
 * `switch-boolean` (always)
@@ -237,7 +237,7 @@ The following are registered warnings, default states, and their meaning:
 * `shift-negative` (always)
     * a shift operator was given a negative value
 * `dangling-reference-or-pointer` (always)
-    * code has been found to cause a reference or pointer to a known destructed value
+    * code has been found to cause a reference or pointer to a value known to be destructed
 * `deprecate-directive` (always)
     * usage of a deprecated function, variable, or type discovered
 * `directive-not-understood` (error)
@@ -253,7 +253,7 @@ The following are registered warnings, default states, and their meaning:
 * `uninitialized-data` (always)
     * an attempt was made to access data believed to be uninitialized
 * `lifetime-linkage-to-unrelated-pointer` (always)
-    * an attempt was made to link a pointer of an unrelated type to a `strong` or `handle` pointer
+    * an attempt was made to link a pointer of an unrelated `type` to a `strong` or `handle` pointer
 * `naming-convention` (always)
     * a declaration was found to not follow standard naming conventions for the language
 * `result-not-captured` (error)
@@ -265,31 +265,31 @@ The following are registered warnings, default states, and their meaning:
 * `specifier-ignored` (always)
     * a qualifier was specified which is ignored in the context
 * `asynchronous-not-deep` (always)
-    * `task`, `promise` and `[[asynchronous]]` functions having pass by-value arguments should have the `deep` qualifier for parallel processing
+    * `task`, `promise` and `[[asynchronous]]` functions having pass by-value arguments should have a `deep` qualifier for parallel processing
 * `unknown-directive` (error)
     * a directive not prefixed with `x-` was encountered which was not understood
 * `unknown-directive-argument` (error)
     * a directive argument not prefixed with `x-` was encountered which was not understood
 * `forever` (always)
-    * code was detected that appears to run forever
+    * code was detected that appears to run forever without the code that follows including a `[[never]]` directive
 * `divide-by-zero` (error)
     * a numerical type was divided by 0
 * `always-true` (always)
-    * a condition always appears to be true (without using the `[[always]]` directive)
+    * a condition always appears to be `true` (without using the `[[always]]` directive)
 * `always-false` (always)
-    * a condition always appears to be false (without using the `[[never]]` directive))
+    * a condition always appears to be `false` (without using the `[[never]]` directive))
 * `float-equal` (always)
     * a floating point was used in an `==` comparison
 * `sizeof-zero` (always)
-    * a sizeof operator was used on a type whose size is always zero
+    * a `sizeof` operator was used on a `type` whose size is always zero
 * `cpu-alignment-not-supported` (always)
-    * a type is using an alignment for a type which the CPU knowing cannot support or access
+    * a `type` is using an alignment for a `type` which the CPU knowingly cannot support or access
 * `upgrade-directive` (always)
     * usage of an obsolete directive was found and should be upgraded to its replacement (or removed)
 * `statement-separator-operator-redundant` (always)
-    * a statement separator operator (`;`) was found but is not connected to another statement in this context
+    * a statement separator and combine operator (`;`) was found but is not connected to another statement in this context
 * `export-disabled-from-export-never` (always)
-    * an export keyword was encountered on a type that cannot be exported due to the `[[export=never]]` directive
+    * an export keyword was encountered on a `type` that cannot be exported due to the `[[export=never]]` directive
 * `redundant-access-via-self` (always)
     * an attempt to access a value via the self variable (`_`) was made in a non-ambiguous situation
 * `redundant-access-via-own` (always)
@@ -297,7 +297,7 @@ The following are registered warnings, default states, and their meaning:
 * `bad-style` (always)
     * the style of the code is found to be undesirable and language or compiler changes in the future may be breaking
 * `descope-directive-required` (always)
-    * calling an `[[inline-descope]]` function requires the `[[descope]]` declaration to acknowledge the current scope is become polluted with new variables from the inlined function
+    * calling an `[[inline-descope]]` function requires the `[[descope]]` declaration to acknowledge the current scope is polluting with new variables from an inlined function
 * `lease-or-last` (error)
     * the compiler is uncertain if a `lease` or `last` polymorphic version of a function should be used where a function that received a `last` instance is then passing that instance to another function which accepts both a `lease` or a `last` instance
 * `copy-or-move` (error)

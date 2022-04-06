@@ -557,9 +557,9 @@ void function() {
 
 ##### Zax forced downcast
 
-In the Zax language forcefully converting from a contained type to the type's container requires sing the `outercast` operator. Using this operator must be done with caution as the programmer is forcefully telling the compiler that the composition relationship is guaranteed. If the programmer was wrong then undefined behavior will result.
+In the Zax language forcefully converting from a contained type to the type's container requires sing the `unsafe outerof` operator. Using this operator must be done with caution as the programmer is forcefully telling the compiler that the composition relationship is guaranteed. If the programmer was wrong then undefined behavior will result.
 
-An `outercast` can be ambiguous if the container type contains two (or more) of the same type which matches the type being casted. The compiler doesn't have any RTTI information necessary to make the appropriate decision as to which of the multiple instance the type is being casted from and thus would issue a `outercast-ambiguous` error. Using `outerof` on a `managed` type would resole this issue. Alternatively, consider containing one of the duplicate types inside another container to make the route to cast to the outer container type non-ambiguous.
+An `unsafe outerof` can be ambiguous if the container type contains two (or more) of the same type which matches the type being casted. The compiler doesn't have any RTTI information necessary to make the appropriate decision as to which of the multiple instance the type is being casted from and thus would issue a `unsafe-outerof-ambiguous` error. Using `outerof` on a `managed` type would resole this issue. Alternatively, consider containing one of the duplicate types inside another container to make the route to cast to the outer container type non-ambiguous.
 
 ````zax
 A :: type {
@@ -577,11 +577,11 @@ C :: type {
 
 doSomething : ()(a : A*) = {
     // UNSAFE:
-    // using the `outercast` operators can be used to fast convert from a
+    // using the `unsafe outerof` operators can be used to fast convert from a
     // contained type to a container type -- be sure the `a` is an
     // `a` type within the `B` type or this will be unsafe and will
     // result in undefined behavior
-    b1 := a outercast B*
+    b1 := a unsafe outerof B*
 
     // ERROR:
     // `a` cannot be converted to a `B*` since it's not a compatible type
@@ -594,7 +594,7 @@ doSomething : ()(a : A*) = {
     // an `A*` type to a `B*` forcefully. Unless the memory of the contained
     // type and container type happen to be in the same location this
     // will cause undefined behavior (and should always be considered unsafe)
-    b3 := a cast B*
+    b3 := a unsafe outerof B*
 
     // ERROR:
     // `a`'s type `A` must be declared as `managed` and thus currently does not
@@ -638,11 +638,11 @@ C :: type {
 
 doSomething final : ()(a : A*) = {
     // UNSAFE:
-    // using the `outercast` operators can be used to fast convert from a
+    // using the `unsafe outerof` operators can be used to fast convert from a
     // contained type to a container type -- be sure the `a` is an
     // `a` type within the `B` type or this will be unsafe and will
     // result in undefined behavior
-    b1 := a outercast B*
+    b1 := a unsafe outerof B*
 
     // ERROR:
     // while `a` can be converted to a `B*` additional RTTI overhead is required
@@ -656,7 +656,7 @@ doSomething final : ()(a : A*) = {
     // an `A*` type to a `B*` forcefully. Unless the memory of the contained
     // type and container type happen to be in the same location this
     // will cause undefined behavior (and should always be considered unsafe)
-    b3 := a cast B*
+    b3 := a unsafe outerof B*
 
     // SAFEST:
     // probe `a` to see if it is indeed within a `B` type and if so then

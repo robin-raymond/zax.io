@@ -494,9 +494,15 @@ func final : ()(value : Integer) = {
 // Allowed to call the function with a value
 func(42)
 
-// Allowed to call the function with the default value
-// (by declaring an empty variable the function input argument default is used)
+// Allowed to call the function with the default instance value
+// (by declaring an empty variable the default instance value for the input
+// argument type is used)
 func(:)
+
+// Allowed to call the function with the default argument value
+// (by using the discard (`#`) operator, the default input argument is used
+// and as a fall back a default instance for the input argument type is used)
+func(#)
 
 // ERROR: The argument for the function is not acknowledged as existing
 // thus the compiler cannot determine if ignoring the argument was done
@@ -1167,7 +1173,7 @@ func final : ()(
     // ...
 }
 
-func(42, <- # := { .name = "Boothby", .age = 61, .weight = 120 }, r'😀')
+func(42, <- # := [{ .name = "Boothby", .age = 61, .weight = 120 }], r'😀')
 ````
 
 

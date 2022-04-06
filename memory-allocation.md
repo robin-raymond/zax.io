@@ -300,7 +300,7 @@ func final : (result : String)() = {
 
         // the @ operator allocates `value3` dynamically with the
         // custom allocator and is constructed with the value 5 and "hello"
-        value2 : MyType * @ allocator = { 5, "hello" }
+        value2 : MyType * @ allocator = [{ 5, "hello" }]
 
         doSomething(value1)
         doSomething(value2)

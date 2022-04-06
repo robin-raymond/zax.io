@@ -123,7 +123,7 @@ value := randomValue()
 castedValue1 := value as U16
 
 [[panic=yes, intrinsic-type-cast-overflow]] \
-castedValue2 := value cast U8
+castedValue2 := value unsafe as U8
 
 [[panic=always, intrinsic-type-cast-overflow]]
 
@@ -315,7 +315,7 @@ myValue *= 3
 
 ### The `descope` directive
 
-The `descope` directive `[[descope]]` treats an inner scope as part of the outer scope. As such, no destructors will trigger at the end of scope and all variables declared as part of a scope are treated with the same visibility as the outer scope. Variables declared within a `descope` are treated as having been declared as part of the outer scope thus non-polymorphic variables with the same name will cause a `duplicate-symbol` error rather than shadowing the outer variable.
+A `descope` directive `[[descope]]` treats an inner scope as part of an outer scope. As such, no destructors will trigger at an end of scope and all variables declared as part of a scope are treated with the same visibility as an outer scope. Variables declared within a `descope` are treated as having been declared as part of an outer scope thus non-polymorphic variables with the same name will cause a `duplicate-symbol` error rather than shadowing an outer variable.
 
 Example when used with an `if` statement:
 
@@ -363,7 +363,7 @@ myValue1 *= 2 + myValue2
 
 ### The `compiles` directive
 
-The `compiles` directive `[[compiles=<options>, error]]` evaluates the code block that follows into a compile time constant of `true` or `false`. The code block that follows the compiles directive is never executed and declarations and definitions within the code block do not become terms.
+A `compiles` directive `[[compiles=<options>, error]]` evaluates a code block that follows into a compile time constant of `true` or `false`. A code block that follows a `compiles` directive is never executed and declarations and definitions within a code block do not become terms.
 
 If `error` is specified then the failure to compile the code will evaluate to a compile time error should the compiled code not evaluate.
 
@@ -881,15 +881,21 @@ visibleToImports : Boolean = true
 
 ### The literal directives
 
-The `[[file]]`, `[[line]]`, `[[function]]`, `[[date]]`, `[[time=<option>]]`, `[[compiler]]`, `[[version-compiler=<option>]]`, and `[[version-import=<option>]]` representing string or numerical literals for the currently compiling code. If a function is inlined then the represented values become the inline values where the directives were inlined into (and possibly recursively so if inlined functions were inturned inlined). If any of these values are not applicable, an empty string literal is generated in its place.
+The `[[location]]`, `[[git=<option>]]`, `[[file]]`, `[[line]]`, `[[function]]`, `[[date]]`, `[[time=<option>]]`, `[[compiler]]`, `[[version-compiler=<option>]]`, and `[[version-import=<option>]]` representing string or numerical literals for the currently compiling code. If a function is inlined then the represented values become the inline values where the directives were inlined into (and possibly recursively so if inlined functions were inturned inlined). If any of these values are not applicable, an empty string literal is generated in its place.
 
 The following meanings are implied by each directive:
+* `location` - the source code URL where the file can be originally found (as string)
+* `git` - the following option are available for the `git` type:
+    * `default` - (default) becomes the literal value `true` if git was used or `false` otherwise
+    * `tag` - the current git tag for the file (as string)
+    * `branch` - the current git branch for the file (as string)
+    * `commit` - the current git commit hash for the file (as string)
 * `file` - the source code file being compiled (as string)
 * `line` - the line number being compiled (as an integer)
 * `function` - the function being compiled (as string)
 * `date` - the date of compilation (as string)
 * `time` - the time of compilation (as string)
-* `compiler` - the compiler application generating the source code
+* `compiler` - the brand name of the compiler application compiling the source code
 * `version-compiler` - the compiler's version
 * `version-import` - the api version requested for the module being imported
 
@@ -906,7 +912,7 @@ The options for `time` are:
 * `unix` - the compile time number of seconds since the unix epoch (as Integer)
 * `nt` - the compile time expressed as the number of 100 nanoseconds since the NT time epoch (as Integer)
 
-The `[[file]]` and `[[line]]` directives have dual meaning. When used without any arguments (as described in the literals directive section), these directives become string or Integer compile time constants. With arguments, these directives can be overload the current value (as is the case for `file` and `line`).
+The `[[location]]`, `[[file]]` and `[[line]]` directives have dual meanings. When used without any arguments (as described in the literals directive section), these directives become string or Integer compile time constants. With arguments, these directives can be overload the current value (as is the case for `location`, `file` and `line`).
 
 ````zax
 print final : ()(...) = {
@@ -1312,7 +1318,7 @@ MyType2 :: type {
 ````
 
 
-### `file` / `line` generate code directive
+### `location` / `file` / `line` generate code directive
 
 For generated source files, the file/line directives `[[file="<name>"]]` indicates to the compiler the current source was generated by some process using another file as input. The name indicates the path to that original file. The line directive `[[line=<n>, increment=<n>]]` indicates the original source's line number so the generated output's line number can track the original source. The `increment` argument indicates how much to increment the counted line number of the original source file per output line found in the file being compiled (whose default is `1`).
 
@@ -1321,6 +1327,10 @@ The `line` directive will reuse the last `file` directive (which must be present
 Other `source` directives found in a generated file will not presume the referenced source file was also generated. Thus the directives only applies to the file being parsed.
 
 ````zax
+
+[[location="https://exmplae.com/"]]
+// example file generated from the above URL
+
 [[file="inputs.csv"]]
 // example file generated by Acme Generator
 

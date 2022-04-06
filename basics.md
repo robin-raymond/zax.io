@@ -13,17 +13,15 @@
    C style multiline comments
 */
 
-// The semi-colon `;` is not necessary between statements, but it can be used to
-// split statements placed on a single line
+// The semi-colon `;` is not necessary between statements, and has a different
+// role to play in the Zax language and does not mirror the "C" language. The
+// semi-colon `;` operator is used two combine one or more separate statement
+// as if it were a single statement.
 funcA()
 funcB()
 
-// single line with multiple statements
+// single line with multiple statements treated as a single statement
 funcA(); funcB()
-
-value := 2 + func() \    // continuation of statement to multiple lines
-         * 3 \
-         / 2
 
 // a scope of statements is treated as a single statement for flow control
 // purposes
@@ -32,12 +30,31 @@ value := 2 + func() \    // continuation of statement to multiple lines
     funcB()
 }
 
-// keywords are all lowercase and keywords are reserved where they are legal
+// a scope combines multiple statements as if it were a single statement
+if true {
+    funcA()
+    funcB()
+}
+
+// a semi-colon `;` operator combines multiple statements as if it were a single
+// statement
+if true
+    funcA();  // this line is part of the `if` statement as normal
+    funcB()   // this line is also part of the `if` statement as it is combined
+
+// if code needs to span multiple lines then the continuation '\' operator can
+// be used
+value := 2 + func() \    // continuation of statement to multiple lines
+         * 3 \
+         / 2
+
+// keywords are all lowercase and keywords are reserved only where they may be
+// legally used
 if condition() {
 } else {
 }
 
-// Additional nested multiline comments
+// Additional nested multiline comments are supported
 /**
   Nested multi
 /**
@@ -45,6 +62,37 @@ if condition() {
 **/
   comments
 **/
+
+/// <summary>
+/// Triple slashes `///` are treated as a documentation comments and if XML
+/// is detected at the start of the documentation comment then the comment is
+/// assumed to be an XML style documentation comment.
+/// </summary>
+someType :: type SomeType {}
+
+/// Automatic summary documentation about `func`.
+func final : (
+    output : Integer   /// Automatic summary comment about `output`
+)(
+    input : Integer    /// Automatic summary comment about `input`
+) = {
+    // normal code comment
+    // ...
+}
+
+///***
+
+<summary>
+Triple slash with triple stars `///` `***` with closing triple start with triple
+slash `***` `///` comments are treated as documentation comments without the
+need to place `///` on every single line. In fact, putting `///` or `*` or any
+other symbol inside comment would be treated as part of the documentation. If
+XML is detected at the start of the comment then XML style documentation is
+presumed. Otherwise the comment is assumed to be a large-style summary comment
+for a given context.
+</summary>
+
+***///
 ````
 
 
@@ -69,8 +117,8 @@ each
 else
 except
 false
-for
 forever
+from
 handle
 hint
 if
@@ -96,7 +144,6 @@ promise
 raw
 redo
 return
-requires
 scope
 shallow
 suspend
@@ -106,10 +153,10 @@ true
 type
 union
 unique
+unsafe
 until
 using
 varies
-void
 weak
 while
 yield
@@ -118,10 +165,15 @@ yield
 
 #### Keyword disambiguation
 
-Keywords are reserved only within the context of where the keyword is allowed and legal. To disambiguate keywords from variables, variables can be postfixed with an underscore (`_`). Usage of keywords as variables is discouraged and usage of postfix underscores are also discouraged.
+Keywords are reserved only within the context of where the keyword is allowed and legal. To disambiguate keywords from variables, variables can be postfixed with an underscore (`_`) but otherwise the underscore postfix (`_`) should never be used. Usage of keywords as variables is discouraged and usage of postfix underscores are also discouraged.
 
 ````zax
+// legal name because `constant` is a keyword in some contexts
 constant_ : Type constant
+
+// foobar_ is not a legal name because it contains an _ postfix on a name
+// that is not a keyword
+foobar_ : Type constant
 ````
 
 
@@ -135,10 +187,10 @@ constant_ : Type constant
 -               // binary minus operator
 ++              // (pre or post) unary increment operator
 --              // (pre and post) unary decrement operator
-*               // multiply operator
-/               // divide operator
-%               // modulus divide operator
-=               // assign operator
+*               // binary multiply operator
+/               // binary divide operator
+%               // binary modulus divide operator
+=               // binary assign operator
 ^               // binary bitwise xor operator
 &               // binary bitwise and operator
 |               // binary bitwise or operator
@@ -179,16 +231,16 @@ constant_ : Type constant
 '               // pre/post-unary literal start/end operator
 "               // pre/post-unary literal start/end operator
 as              // binary safe type conversion operator
+unsafe as       // binary unsafe type conversion operator
 ()              // pre/post-unary function invocation operator
 []              // pre/post-unary array access operator
 countof         // pre-unary count operator
-                // (returns the number elements in a type or
-                // the total reference count for a
-                // `handle` / `hint`, or `strong` / `weak` pointer)
+                // (returns the number elements in a type or the total reference
+                // count for a `handle` / `hint`, or `strong` / `weak` pointer)
 overhead        // pre-unary overhead operator
-                // (obtains a pointer to the overhead information for a
-                // pointer, `own`, `handle`, `hint`, `strong`, or `weak`
-                // pointer or optional type)
+                // (obtains a pointer to the overhead information for a pointer,
+                // `own`, `handle`, `hint`, `strong`, or `weak` pointer or
+                // optional type)
 overheadof      // pre-unary overhead sizing operator
                 // (return the number of bytes overhead is needed for this type)
                 // i.e. typically the size of a control block
@@ -200,81 +252,77 @@ allocatorof     // pre-unary allocator operator
 #### Non overloadable
 
 ````
-*               // post-unary pointer type declaration
-&               // post-unary reference type declaration, or
-                // pre-unary capture by reference operator
-@               // unary standard allocator operator
-                // (allocate using the standard allocator and construct type)
-@@              // unary parallel allocator operator
-                // (allocate using the parallel allocator and construct type)
-@!              // unary synchronous allocator operator
-                // (allocate using the synchronous allocator and construct type)
-.               // binary namespace resolution operator
-,               // post-unary argument operator
-;               // binary statement separator and combiner operator
-;;              // binary sub-statement separator operator
-:               // binary variable type declaration operator
-::              // binary data type or meta data declaration operator
-?               // post-unary optional type operator
-??              // binary ternary operator
-                // (combined with sub-statement separator operator `;;`)
-???             // unary uninitialized type operator
->>              // binary function composition
-|>              // binary function invocation chaining
-->              // post-unary argument combine operator
-                // (combine remaining function result arguments into a single
-                // automatically defined type)
-<-              // pre-unary argument split operator
-                // (split type into multiple function arguments)
-\               // post-unary statement continuation operator
-cast            // binary unsafe type conversion operator
-outercast       // binary unsafe outer type cast operator
-                // (convert from contained type pointer to container type
-                // pointer)
-copycast        // binary unsafe `Unknown` copy cast
-                // (treat the raw `Unknown` pointer as pointing to an instance)
-                // of the casted type and make a copy of the contents)
-lifetimecast    // binary unsafe shared lifetime cast operator
-                // (converts a raw pointer to share a lifetime with an existing
-                // `strong` or `handle` pointer)
-outerof         // binary outer type instance of operator
-                // (convert from contained type pointer to container type
-                // pointer safely via a managed type's RTTI)
-lifetimeof      // shared lifetimeof operator
-                // (binds a raw pointer to an existing `strong` or `handle`
-                // pointer and safely checks if the pointer to a type points to
-                // memory within the allocated `strong` or `handle` pointer)
-sizeof          // pre-unary size of operator
-                // returns the size of a type
-alignof         // pre-unary align of operator
-                // return the alignment of a type
-offsetof        // binary offset of operator
-                // (compute the byte offset of a contained variable from a
-                // container type or container variable)
-typeof          // pre-unary obtain the type information of a variable, 
-                // or expression, or type
+*                 // post-unary pointer type declaration
+&                 // post-unary reference type declaration, or
+                  // pre-unary capture by reference operator
+@                 // unary/binary standard allocator operator
+                  // (allocate using the standard allocator and construct type)
+@@                // unary/binary parallel allocator operator
+                  // (allocate using the parallel allocator and construct type)
+@!                // unary/binary synchronous allocator operator (allocate using
+                  // the synchronous allocator and construct type)
+.                 // binary namespace resolution operator
+,                 // post-unary argument operator
+;                 // binary statement separator and combiner operator
+;;                // binary sub-statement separator operator
+:                 // binary variable type declaration operator
+::                // binary data type or meta-type declaration operator
+?                 // post-unary optional type operator
+??                // binary ternary operator (combined with sub-statement
+                  // separator operator `;;`)
+???               // unary uninitialized type operator
+>>                // binary function composition
+|>                // binary function invocation chaining
+->                // post-unary argument combine operator (combine remaining
+                  // function result arguments into a single automatically
+                  // defined type)
+<-                // pre-unary argument split operator (split type into
+                  // multiple function arguments)
+\                 // post-unary statement continuation operator
+outerof           // binary outer type instance of operator (convert from
+                  // contained `type` pointer to container `type` pointer safely
+                  // via a managed type's RTTI)
+lifetimeof        // shared lifetime operator (binds a raw pointer to an
+                  // existing `strong` or `handle` pointer and safely checks if
+                  // the pointer to a type points to memory within the allocated
+                  // `strong` or `handle` pointer)
+unsafe outerof    // binary unsafe outer type casting operator (convert from
+                  // contained type pointer to container type pointer)
+unsafe copyas     // binary unsafe `Unknown` copy casting of a function pointer
+                  // (treat an `Unknown` pointer as pointing to an instance of a
+                  // casted function `type` and make a copy of captured
+                  // function contents)
+unsafe lifetimeof // binary unsafe shared lifetime casting operator (converts a
+                  // raw pointer to share a lifetime with an existing `strong`
+                  // or `handle` pointer)
+sizeof            // pre-unary size of operator (returns the size of a type in
+                  // bytes)
+alignof           // pre-unary align of operator (return the alignment of a
+                  // type in modulus bytes)
+offsetof          // binary offset of operator (compute the byte offset of a
+                  // contained variable from a container type or container
+                  // variable)
+typeof            // pre-unary obtain the meta-data information of a variable,
+                  // or expression, or `type`
 ````
 
 Other expressions (cannot be overloaded):
 ````
 #               // unary discard operator
 $               // pre-unary templated argument declaration
-...             // unary variadic values
-                // (array of optional variable arguments)
-$...            // unary variadic types
-                // (array of types of variadic values)
+...             // unary variadic values (array of optional variable arguments)
+$...            // unary variadic types (array of types of variadic values)
 ()              // pre/post-unary function argument declaration operator
-[]              // pre/post-unary array declaration operator
+[]              // pre/post-unary array subscript operator
 {               // pre-unary scope begin
 }               // post-unary scope end
-[{              // pre-unary array initialization begin
-}]              // post-unary array initialization end
-{               // pre-unary multiple constructor argument initialization open
+[{              // pre-unary multiple value declaration begin
+}]              // post-unary multiple value declaration end
 .               // pre-unary named variable and argument initialization
 [[              // pre-unary compiler directive or attribute declaration open
 ]]              // post-unary compiler directive or attribute declaration close
-_               // unary pointer to self
-                // (a type's pointer to itself within a type's function)
+_               // unary pointer to self (a type's pointer to itself within a
+                // type's function)
 ___             // unary pointer to the current context
 +++             // unary constructor
 ---             // unary destructor
@@ -286,39 +334,40 @@ ___             // unary pointer to the current context
 ````
 align               // align contained types to a zero modulus address boundary
 asset               // copy asset to built bundle
-asynchronous        // indicates a function not normally considered to
-                    // operate asynchronously may perform asynchronously
+asynchronous        // indicates a function not normally considered to operate
+                    // asynchronously may be performed asynchronously
 compiler            // compiler name as a string literal 
 compiles            // if a code block that follows compiles then a `true` is
                     // replaced otherwise a `false` is replaced
 concept             // declare a function as a compile time check for
-                    // input / output argument type checks within a
-                    // meta-function
-date                // date of compile as a string literal
+                    // input/output argument type checks within a meta-function
+date                // date of compile as a literal
 deprecate           // declare API sections as being deprecated
 error               // cause an error in compilation
 execute             // evaluates code blocks at compile time
 export              // make type, variable, and other declarations visible to
                     // module importation
 file                // indicates the source for a generated file
+git                 // directives specific to git literals
 function            // current function as a string literal
-inline              // tells compiler to generate inline code rather than call
-                    // to code as a function
-likely              // indicates a code path is more likely to be executed
-                    // (for compiler and CPU optimization)
+inline              // tells compiler to generate a function call as inline code
+                    // rather than as a call to function
+likely              // indicates a code path is more likely to be executed (for
+                    // compiler and CPU optimization)
 line                // indicates a source line for a generated file
+location            // the code URL location as a string literal
 lock-free           // disable lock generation around `once` values
 panic               // control panic behavior in code generation
 reserve             // reserve non-accessible unused space in a type
-void                // declared contained value occupies a location within a
-                    // type without allocating space for the contained value
+void                // declared a contained value occupies a location within a
+                    // `type` without allocating space for the contained value
 resolve             // controls when a declaration should resolve
 return              // controls code generation for the return statement
 source              // loads a related source file
 tab-stop            // sets the tab-stop for the source that follows
 time                // time of compile as a string literal
-unlikely            // indicates a code paths is less likely to execute
-                    // (for compiler and CPU optimization)
+unlikely            // indicates a code paths is less likely to execute (for
+                    // compiler and CPU optimization)
 version-compiler    // compiler version as a string literal
 version-import      // module import version as a string literal 
 warning             // display a warning or control compiler warning behaviors
@@ -328,15 +377,17 @@ warning             // display a warning or control compiler warning behaviors
 ### Recommended naming conventions
 
 ````zax
-// variables are recommended lower camelCase and type names as upper CamelCase
+// variables are recommended in lower camelCase and type names are recommended
+// in upper CamelCase
 variableName : TypeName
 
-// functions are recommended lower camelCase
+// functions are recommended in lower camelCase
 funcName : ()() = {
     // ...
 }
 
-// function variables as prototypes are recommended using upper CamelCase
+// function variables when used as as function prototypes are recommended in
+// upper CamelCase
 FunctionPrototype final : ()()
 
 // scope names are recommended with lower_case_with_underscores
@@ -346,8 +397,15 @@ scope my_scope {
 // namespaces are recommended in upper CamelCase
 variableName : MyModuleName.SubType
 
-// false abbreviations are discouraged
+// enum names and enum values are recommended in upper CamelCase
+Fruit :: enum {
+    Apple,
+    Banana
+}
+
+// false abbreviations are highly discouraged
 notGood : WrdsNotKnwnAbbr
+vecList : VecIsShortForVector
 ````
 
 
@@ -356,7 +414,7 @@ notGood : WrdsNotKnwnAbbr
 ````zax
 :: import Module.System.Types
 
-// Use pascal style variable declaration where the variable name is
+// Use Pascal style variable declaration where the variable name is
 // specified followed by the type
 variableName : TypeName
 
@@ -375,7 +433,8 @@ originValue : Integer
 valueBorrowsOriginalValuesType : originalValue
 
 // Symbols that start with _ are reserved for compiler and toolchain generated
-// symbols and may contain additional underscores where needed.
+// symbols and may contain additional underscores where needed thus are
+// entirely reserved and must not be used by a programmer as a prefix.
 _reservedVariableName
 _ReservedTypeName
 
@@ -384,15 +443,15 @@ _ReservedTypeName
 as_ // e.g. `as` is a keyword, but `as_` is not a keyword.
 
 MyType :: type {
-    m_no := 0   // NOT recommended as this Zax is a data oriented and
-                // not an object or classification oriented
+    m_no := 0   // NOT recommended as this Zax is a data oriented and not an
+                // object or classification oriented language
 
-    _no := 0    // NOT recommended
-    no_ := 0    // NOT recommended
+    _no := 0    // NOT recommended (Zax has built in disambiguation)
+    no_ := 0    // NOT recommended (Zax has built in disambiguation)
 
-    // This pointer for a type is reserved as a single underscore `_` and
-    // type variables can be distinguished from arguments by using
-    // `_.variable` vs a locally declaration of `variable`
+    // This pointer for the current type's instance is reserved as a single
+    // underscore `_` and type variables can be distinguished from arguments by
+    // using `_.value` vs a locally declaration of `value`.
 
     value : Integer
 
@@ -412,25 +471,25 @@ MyType :: type {
 // import the module system types into the global namespace
 :: import Module.System.Types
 
-unknown : Unknown   // used as a generic pointer type to an unknown type
-nothing : Nothing   // used as a generic type instance of nothing
-void : Void         // an alias of the Unknown type
-boolean : Boolean   // A value representing true of false
+unknown : Unknown   // used as a generic pointer type to an `Unknown` type
+nothing : Nothing   // used as a generic type instance of `Nothing`
+void : Void         // an alias of the `Unknown` type
+boolean : Boolean   // A value representing `true` or `false` literals
 
 // aliased or templated signed integers to the appropriate fixed size equivalent
-char : Char         // Signed value representing the size of a
-                    // single string character (minimum 8 bits)
-wchar : WChar       // Signed value representing the size of a
-                    // wide string character (minimum 32 bits)
+char : Char         // Signed value representing the size of a single string
+                    // character (minimum 8 bits)
+wchar : WChar       // Signed value representing the size of a wide string
+                    // character (minimum 32 bits)
 small : Small       // Small is a signed value of the smallest cpu type
                     // (minimum 8 bits)
 short : Short       // Short is a signed value of a smaller cpu type
                     // (minimum 16 bits)
 integer : Integer   // Integer is a signed value of the fastest cpu type
                     // (minimum 16 bits, 32/64 is typical)
-long : Long         // Integer is a signed value of the natural longest cpu type
+long : Long         // Long is a signed value of the natural longest cpu type
                     // (minimum 32 bits)
-longest : Longest   // Integer is a signed value of the largest cpu type
+longest : Longest   // Longest is a signed value of the largest cpu type
                     // (minimum 64 bits)
 
 // unsigned versions of the signed integers
@@ -494,8 +553,8 @@ rune : Rune             // alias of UWChar
 uptr : UPointer         // unsigned integer large enough to hold the
                         // value of pointer
 
-sptr : SPointer         // signed integer large enough to hold the
-                        // pointer difference between two pointer values using
+sptr : SPointer         // signed integer large enough to hold the pointer
+                        // difference between two pointer values using
                         // the same memory arena and must be the same bit size
                         // as a UPointer (although this type can overflow if
                         // the distances between the smallest pointer and the
@@ -528,12 +587,12 @@ f128 : F128
 
 // advanced note: Integer/Float types are actually a templated type which
 // contains a bit size and/or a sign, e.g.
-Integer $(BitCount = Cpu.Integer.optimal, UseSign = Sign.signed) :: type {
+Integer $(BitCount = Cpu.Integer.Optimal, UseSign = Sign.Signed) :: type {
     // ...
 }
-Float $(BitCount = Cpu.Integer.optimal) :: type { /*... */ }
+Float $(BitCount = Cpu.Integer.Optimal) :: type { /*... */ }
 
-// strings have a built-in `length` `mutator` and are extended ascii by default
+// strings have a built-in `length` `mutator` and are extended ASCII by default
 stringA : String = "hello"
 stringB := "type is implied"
 
@@ -545,22 +604,22 @@ wideString : WString = w'hello'
 
 ### Intrinsic system literals
 
-Literals are any constant literal value that requires compile time conversion from the input value to the underlying type.
+Literals are any constant literal value that requires compile time conversion from the input value to the underlying `type`.
 
-Normal strings are enclosed with single quotes `'string'`, or double quotes `"string"`. The difference between single and double quote is merely symantec with the single quote being used as preferred convention. Any escape sequencing interpretation performed inside any literal is entirely dependent on the type of the literal where both single and double quotes utilize the same escaping interpretation logic for a given literal type. Literals need not support any escape sequences at all. The default `ascii` string type is applied to strings when a literal type is not specified, and no previous literal type is being continued.
+Normal strings are enclosed with single quotes `'string'`, or double quotes `"string"`. The difference between single and double quote is merely symantec with the single quote being used as the preferred convention. Any escape sequencing interpretation performed inside any literal is entirely dependent on the type of a literal used where both single and double quotes utilize the same escaping interpretation logic for a given literal `type`. Literals are not required to support any escape sequences at all. The default `ascii` string type is applied to strings when a literal type is not specified, and no previous literal type declaration is being continued.
 
 The type of a literal is prefixed before the value contained in single (`'`) or double (`"`) quotes. The language has support for some built-in literal types such as `a`, `ascii`, `utf8`, `c`, `w`, `unicode`, `b64`, `b`, `h` and others. The language is flexible and new compile time literals can be added to the language. A literal type specification is done by a literal type prefix before a value (`type'value'`). A single quote (`'`) can be embedded into a literal value by utilizing double quotes (`""`) around a literal's value and double quotes can be embedded into a literal value by using single quotes, e.g. `c'"'` and `c"'"`.
 
-Literals can be extended across multiple lines using the continuation operator `\` and can interchange between using the single quote (`'`) and the double quote (`"`) as needed. The declaration of the prefixed literal type is only required initially when specifying a non-default literal type, or when the literal type's encoding changes (e.g. embedded specific wide character by specifying its hex value inside a wide character string would require the `w` literal prefix to be re-declared after using the `h` literal prefix when part of the same string literal sequence).
+Literals can be extended across multiple lines using the continuation operator `\` and can interchange between using the single quote (`'`) and the double quote (`"`) as needed. The declaration of a prefixed literal type is only required initially when specifying a non-default literal type, or when the literal type's encoding changes (e.g. embedded specific wide character by specifying its hex value inside a wide character string would require a `w` literal prefix to be re-declared after using a `h` literal prefix when part of the same string literal sequence).
 
 ````zax
 // import the module system literals into the global namespace
 :: import Module.System.Literals
 
-char1 := c'A'                       // becomes the ASCII letter A
-char2 := c'\n'                      // c-style escapes supported thus becomes
+char1 := c'A'                       // becomes the ASCII letter `A`
+char2 := c'\n'                      // C-style escapes supported thus becomes
                                     // an ASCII new line character
-wideChar := r'😀'                   // becomes a rune character/wide character
+wideChar := r'😀'                    // becomes a rune character/wide character
 charBackslash := c'\\'              // becomes a single backslash
 charDoubleQuote := c'"'             // becomes a double quote
 charSingleQuote := c"'"             // becomes a single quote
@@ -578,7 +637,7 @@ hexadecimal := h'ABC123'            // becomes a base-16 number
 hexadecimalSequence := 'z' h'EF'    // becomes a string sequence with an
                                     // embedded character expressed in base-16
 mixedSequence := c'h' 'e' \         // becomes a string sequence containing the
-                 b'01101100' \      // ascii characters "hello"
+                 b'01101100' \      // ASCII characters "hello"
                  b'01101100' \
                  o'157'
 
@@ -630,4 +689,4 @@ continueExisting := w'encoding inside single quotes is continued ' \
 
 ### Intrinsic Namespaces
 
-The compiler defines a default namespace named `Module`. The namespace is the root namespace for all types relative to any current namespace. See [namespacing](namespacing.md) for more details.
+The language defines a default namespace named `Module`. The namespace is the root namespace for all types relative to any current namespace. See [namespacing](namespacing.md) for more details.

@@ -86,7 +86,7 @@ name := convertToString(value)
 
 ### Enum underlying type
 
-Enums can be based on any intrinsic numerical types. Enumerations allow math operations to be applied on them so long as all the operands are of the same enumeration type. Enumerations can be cast to the underlying type using the `as` operator from which the resulting casted value loses its enumeration type qualification. The `cast` operator can be used to force an enumeration from the enumeration type into a numerical type (with any overflows being ignored). The `as` operator will cause a compiler error if the enumeration is directly converted from the enumeration type to another non-matching intrinsic numerical type. However, a two-step conversion can be performed where the enumeration is first cast to its underlying type using the `as` operator and then converted to a final numerical type using another `as` operation. The `as` operator can perform panics on numerical types in conversions should overflows occur.
+Enums can be based on any intrinsic numerical types. Enumerations allow math operations to be applied on them so long as all the operands are of the same enumeration type. Enumerations can be cast to the underlying type using the `as` operator from which the resulting casted value loses its enumeration type qualification. The `unsafe as` operator can be used to force an enumeration from the enumeration type into a numerical type (with any overflows being ignored). The `as` operator will cause a compiler error if the enumeration is directly converted from the enumeration type to another non-matching intrinsic numerical type. However, a two-step conversion can be performed where the enumeration is first cast to its underlying type using the `as` operator and then converted to a final numerical type using another `as` operation. The `as` operator can perform panics on numerical types in conversions should overflows occur.
 
 ````zax
 Fruit :: enum U8 {
@@ -103,10 +103,10 @@ fruitInBasket := Fruit.Apple | Fruit.Banana | Fruit.Pear
 // underlying type is the same value as its enumeration counterpart
 bitValue := fruitInBasket as U8
 
-// The `cast` operator must be used to convert the enumeration to
+// The `unsafe as` operator must be used to convert the enumeration to
 // other intrinsic numerical type other than a than the type matching
 // underlying enumeration type
-bitValueInInt := fruitInBasket cast Integer
+bitValueInInt := fruitInBasket unsafe as Integer
 
 // ERROR: Direct conversion from the enumeration to a non-underlying intrinsic
 // type is not allowed even if the destination numerical type conversion would

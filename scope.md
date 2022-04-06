@@ -144,7 +144,7 @@ messedUpFunc final : ()() = {
 }
 ````
 
-However, transferring from an outer to an inner scope is not legal. Transferring from an inner scope to an outer relative scope is not legal where the compiler detects bypassing of data initialization (which can cause the runtime will be in an undetermined state).
+However, transferring from an outer to an inner scope is not legal. Transferring from an inner scope to an outer relative scope is not legal where a compiler detects bypassing of data initialization (which can cause the runtime will be in an undetermined state).
 
 ````zax
 print final : ()(...) = {
@@ -168,13 +168,13 @@ func final : ()() = {
 
         weatherCenter := lookupWeatherCenter()
         print("The sun will come out tomorrow.")
-        break check_weather
+        break check_forecast    // ERROR: not in check_forecast scope
 
         scope check_forecast {
 
             if rainIsForecastToday() {
                 print("Here comes the rain again.")
-                break my_outer_scope
+                break check_weather
             }
 
             print("Get some fresh air outside.")
@@ -186,7 +186,7 @@ func final : ()() = {
 
 ### Anonymous scopes with `break` and `continue`
 
-Anonymous scopes that are not defined with a scope name are considered insignificant and will not influence a `break` or `continue` in the code. When a `break` or `continue` is encounter which does not name a scope, the nearest outer `scope`, `while`, `for`, `forever`, `each`, `redo` `while` are used as the code flow points. The `if` and `using` statements are not affected by `break` or `continue`.
+Anonymous scopes that are not defined with a scope name are considered insignificant and will not influence a `break` or `continue` statements in code. When a `break` or `continue` is encounter which does not name a scope, the nearest outer `scope`, `while`, `for`, `forever`, `each`, `redo` `until` are used as the code flow points. The `if` and `using` statements are not affected by `break` or `continue`.
 
 ````zax
 print final : ()(...) = {
@@ -215,10 +215,10 @@ func final : ()() = {
         // position, neither the `break` nor `continue` will be affected
         {
             if sunny()
-                break       // will exit the while loop if true
+                break       // will exit the `forever` loop if true
 
             if snowing()
-                continue    // will restart the while loop
+                continue    // will restart the `forever` loop
         }
 
         print("Hello, nice to meet you outside today.")
@@ -226,7 +226,7 @@ func final : ()() = {
         if stormIsComing() {
             print("Goodbye. I have to run!")
 
-            // break out of the while loop
+            // break out of the `forever` loop
             break
         }
     }
@@ -263,11 +263,11 @@ func final : ()() = {
         scope {
             if sunny()
                 break       // will exit the anonymous scope but remain inside
-                            // the while loop
+                            // the `forever` loop
 
             if snowing()
-                continue    // will restart the check if it's sunny
-                            // without restarting at the top of the while loop
+                continue    // will restart the check if it's sunny without
+                            // restarting at the top of the `forever` loop
         }
 
         print("Hello, nice to meet you outside today.")
@@ -275,7 +275,7 @@ func final : ()() = {
         if stormIsComing() {
             print("Goodbye. I have to run!")
 
-            // break out of the while loop
+            // break out of the `forever` loop
             break
         }
     }
@@ -313,7 +313,7 @@ func final : ()() = {
 
 A `scope` is not a function, but it can be treated as a lightweight function that can both accept inputs and return outputs. Return results can be declared and captured and inputs can be captured by value (or by reference).
 
-The example below demonstrates a scope being treated as a function that accepts `myValue1` as input passed by value and `output` is treated as a return result by being declared outside the `scope` and captured by reference.
+The example below demonstrates a `scope` being treated as a function that accepts `myValue1` as input passed by-value and `output` is treated as a return result by being declared outside the `scope` and captured by reference.
 
 ````zax
 func final : ()() = {

@@ -3,12 +3,12 @@
 
 ## Optional Types
 
-Optional types are builtin to the language. An optional `type` either contains a value or contains uninitialized memory. An optional `type` can be checked if it contains valid data or not and dereferenced when the data is known to be contained inside the optional `type`.
+Optional values are builtin to the language. An optional value either contains a value or contains uninitialized memory. An optional value can be checked if it contains valid data or not and dereferenced when valid data is confirmed to be present inside an optional value.
 
 
 ### Declaring an optional type
 
-A single question mark (`?`) following a type indicates the type may or may not valid. Unlike a pointer, the memory for the type is reserved for optional types but the data remains uninitialized until the object is constructed.
+A single question mark (`?`) following a type indicates a type's value may or may not contain valid data. Unlike a pointer, memory for a type's value is reserved for optional types but the data remains uninitialized until an optional instance is constructed.
 
 ````zax
 MyType :: type {
@@ -16,13 +16,14 @@ MyType :: type {
     value2 : String
 }
 
-// the value is declared as optional and defaults to not being initialized
+// `value` is declared as optional and defaults to contain uninitialized
+// memory
 value : MyType?
 ````
 
 ### Assigning a value is construction
 
-By assigning an optional to a value accepted by a constructor of the underlying optional type, a new version of the type is instantiated and constructed with the argument.
+By assigning an optional value to a value accepted by a constructor of the underlying optional value's type, a new instance of the type is constructed with that value as in input argument.
 
 ````zax
 MyType :: type {
@@ -30,21 +31,20 @@ MyType :: type {
     value2 : String
 }
 
-// the `valueOptional` is declared as optional and
-// defaults to not being initialized
+// `valueOptional` is declared as optional and defaults to uninitialized memory
 valueOptional : MyType?
 
 value : MyType
 
-// `value` is copy constructed into `valueOptional` reserved space and the
-// optional now contains valid data
+// `value` is copy constructed into `valueOptional`'s reserved space and the
+// optional value now contains valid data
 valueOptional = value
 ````
 
 
 #### Constructing an optional with no arguments construction
 
-By assigning an optional to an empty constructed type, the optional will become constructed with the empty default constructor. The compiler will optimize the construction into a single construction of the type rather than an empty construction follow by a `last` copy construction of the type.
+By assigning an optional to an empty constructed type using the multi-value operator `[{` `}]`, an optional instance will become constructed with the underlying type's default constructor in-place. A compiler will optimize the construction into a single construction of a type rather than a default construction follow by another `last` copy construction for that type.
 
 ````zax
 MyType :: type {
@@ -52,23 +52,35 @@ MyType :: type {
     value2 : String
 }
 
-// the `valueOptional` is declared as optional and
-// defaults to not being initialized
+// `valueOptional` is declared as optional and defaults to contain uninitialized
+// memory
 valueOptional : MyType?
 
-// `valueOptional` is constructed using the empty constructor into the
-// optional value's reserved space and the optional now contains valid data
+// Using a multi-value declaration (except without any values specified) will
+// force the empty constructor of the underlying `type` to be called and
+// the underlying type will be constructed in-place.
+valueOptional = [{ }]
+
+// Not as optimal: A temporary `MyType` instance is created and `valueOptional`
+// is `last` copy constructed into the optional value's reserved space and the
+// optional value now contains valid data
 valueOptional = # : MyType
 
-// alternative: a special shorthand is reserved to default the optional type to
-// a constructed empty value (thus not requiring the type be specified)
-valueOptional = {}
+// Using a default value type as an assigned value would cause the optional
+// value to be reset to its default uninitialized memory state and the
+// underlying `type` would not be constructed (and any value currently in the
+// optional `type` would be destructed if applicable)
+valueOptional = :
+
+// `valueOptional` is reset to contain uninitialized memory (and any value
+// currently in the optional `type` would be destructed if applicable)
+valueOptional = #
 ````
 
 
 ### Resetting the optional to uninitialized data
 
-By assigning the he optional to it's default (using `= #:`), any contained value is first destructed if previously constructed and the option is reset to contain uninitialized data. If the optional did not contain any valid data then the reset does nothing.
+By assigning the optional value to it's default value (using `= #`), any contained value contained in the optional value is first destructed (if previously constructed) and then the optional value is reset to contain uninitialized memory. If an optional value did not contain any valid data then a reset of the optional value does nothing.
 
 ````zax
 MyType :: type {
@@ -76,8 +88,8 @@ MyType :: type {
     value2 : String
 }
 
-// the `valueOptional` is declared as optional and
-// defaults to not being initialized
+// `valueOptional` is declared as optional and defaults to contain uninitialized
+// memory
 valueOptional : MyType?
 
 // `value` is copy constructed into `valueOptional` reserved space and the
@@ -85,13 +97,13 @@ valueOptional : MyType?
 valueOptional = value
 
 // `valueOptional` contents are destructed and reset to uninitialized data 
-valueOptional = #:
+valueOptional = #
 ````
 
 
-### Checking if the optional contains data
+### Checking if optional contains data
 
-An `if` statement can be used to check if an optional type contains data in the same manner a pointer can be checked if it points to valid data.
+An `if` statement can be used to check if an optional value contains data in the same manner a pointer can be checked if it points to valid data.
 
 ````zax
 print final : ()(...) = {
@@ -103,8 +115,8 @@ MyType :: type {
     value2 : String
 }
 
-// the `valueOptional` is declared as optional and
-// defaults to not being initialized
+// `valueOptional` is declared as optional and defaults to contain uninitialized
+// memory
 valueOptional : MyType?
 
 if valueOptional        // "false" will print
@@ -127,9 +139,9 @@ else
 
 ### Dereferencing the optional
 
-The dot (`.`) operator can be used to dereference an optional and access the value's contents. Care must be taken to first validate the optional contains valid contents otherwise the dereference operation may cause a panic or undefined behavior.
+The dot (`.`) operator can be used to dereference an optional and access the optional value's contents. Care must be taken to first validate if an optional value contains valid contents otherwise a dereference operation may cause a panic or undefined behavior.
 
-Just like pointers, optional types cannot be implicitly converted to a reference of the underlying `type`. The programmer must explicitly dereference the `type` so the programmer acknowledges the optional must contain a valid data valid constructed `type` within this context. The compiler will not enforce a valid `type` must exist but runtime issues will occur if the programmer dereferences an uninitialized optional `type`.
+Just like pointers, optional types cannot be implicitly converted to a reference of an underlying `type`. A programmer must explicitly dereference an optional value so the programmer acknowledges the optional must contain a valid data. A compiler will not enforce a valid value must exist but runtime issues will occur if a programmer dereferences an uninitialized optional value.
 
 ````zax
 MyType :: type {
@@ -141,34 +153,35 @@ func final : ()(input : MyType) = {
     // ...
 }
 
-// the `valueOptional` is declared as optional and
-// defaults to not being initialized
+// `valueOptional` is declared as optional and defaults to contain
+// uninitialized memory
 valueOptional : MyType?
 
-// `value` is copy constructed into `valueOptional` reserved space and the
+// `value` is copy constructed into `valueOptional`'s reserved space and the
 // optional now contains valid data
 valueOptional = value
 
-// `valueOptional` is dereference, which converts the optional to a
+// `valueOptional` is dereference, which converts the optional value to a
 // reference to the underlying type
 func(valueOptional.)
 
-// ERROR: an optional cannot be implicitly converted to its underlying type
+// ERROR: an optional value cannot be implicitly converted to its underlying
+// type
 func(valueOptional)
 
-// the `valueOptional` is declared as optional and
-// defaults to not being initialized
+// `valueOptional` is declared as optional and defaults to contain uninitialized
+// memory
 anotherOptional : MyType?
 
-// PANIC: a dereferenced optional type which does not contain valid data
-// can cause a panic
+// PANIC: a dereferenced optional type which does not contain valid data can
+// cause a panic
 func(valueOptional.)
 ````
 
 
-### Defaulting the optional to a constructed state
+### Defaulting an optional value to a constructed state
 
-By assigning an optional to a new value the underlying type accept at construction, any previous valid contents inside the optional are destroyed and the optional is reset to a new value.
+By assigning an optional value a new value which the underlying type accepts at construction, any previous valid contents inside an optional value are destroyed and then the optional value is reset to a constructed instance using that new value.
 
 ````zax
 MyType :: type {
@@ -176,26 +189,35 @@ MyType :: type {
     value2 : String
 }
 
-// the `valueOptional` is declared as optional and
-// defaults to not being initialized
+// `valueOptional` is declared as optional and defaults to contain
+// uninitialized memory
 valueOptional : MyType?
+value : MyType
 
-// `value` is copy constructed into `valueOptional` reserved space and
+value.value1 = 5
+value.value2 = "beans"
+
+// `value` is copy constructed into `valueOptional`'s reserved space and
 // the optional `valueOptional` now contains valid data
 valueOptional = value
 
 // ...
 
+value.value1 = 6
+value.value2 = "bananas"
+
+// ...
+
 // the previous data within `valueOptional` is automatically destructed;
-// `value` is copy constructed again into `valueOptional` reserved space;
+// `value` is copy constructed again into `valueOptional`'s reserved space;
 // the optional `valueOptional` now contains valid data
 valueOptional = value
 ````
 
 
-### Resetting the optional to a new empty value
+### Resetting an optional to a new empty value
 
-By assigning an optional to an empty construction of the type, any previous valid contents inside the optional are destroyed and the optional is reset to a new empty value.
+By assigning an optional value to empty construction of a type, any previous valid contents inside an optional instance are destroyed and the optional value is reset to a newly constructed instance using the default constructor.
 
 ````zax
 MyType :: type {
@@ -203,9 +225,13 @@ MyType :: type {
     value2 : String
 }
 
-// the `valueOptional` is declared as optional and
-// defaults to not being initialized
+// `valueOptional` is declared as optional and defaults to contain uninitialized
+// memory
 valueOptional : MyType?
+value : MyType
+
+value.value1 = 5
+value.value2 = "beans"
 
 // `value` is copy constructed into `valueOptional` reserved space and
 // the optional `valueOptional` now contains valid data
@@ -213,8 +239,8 @@ valueOptional = value
 
 // ...
 
-// the previous data within `valueOptional` is automatically destructed;
-// the optional `valueOptional` constructs the underlying type with the 
+// previous data within `valueOptional` is automatically destructed;
+// optional `valueOptional` constructs the underlying type with the 
 // empty constructor using named value construction shorthand with
 // no values specified
 valueOptional = {}
@@ -223,7 +249,7 @@ valueOptional = {}
 
 ### Resetting to a new value versus dereferencing assignment
 
-Resetting an option is not the same as dereferencing wih the dot (`.`) operator and then assigning the value to another value. In the former, any underlying `type` is destructed and a new `type` is constructed. In the latter, a reference to the underlying `type` is obtained and the `type` uses its assignment operator to assign new contents to the existing value's reference.
+Resetting an optional value is not identical to dereferencing an optional value with a dot (`.`) operator and then assigning the optional value to another value. In the former, any underlying `type` instance is destructed and a new `type` instance is constructed. In the latter, a reference to the underlying `type` instance is obtained and the underlying `type`'s instance uses its assignment operator to assign new contents to the existing value's reference.
 
 ````zax
 MyType :: type {
@@ -231,9 +257,13 @@ MyType :: type {
     value2 : String
 }
 
-// the `valueOptional` is declared as optional and
-// defaults to not being initialized
+// `valueOptional` is declared as optional and defaults to contain
+// uninitialized memory
 valueOptional : MyType?
+value : MyType
+
+value.value1 = 5
+value.value2 = "beans"
 
 // `value` is copy constructed into `valueOptional` reserved space and
 // the optional `valueOptional` now contains valid data
@@ -241,14 +271,19 @@ valueOptional = value
 
 // ...
 
-// the previous data within `valueOptional` is automatically destructed;
+value.value1 = 6
+value.value2 = "bananas"
+
+// ...
+
+// previous data within `valueOptional` is automatically destructed;
 // `value` is copy constructed again into `valueOptional` reserved space;
 // the optional `valueOptional` now contains valid data
 valueOptional = value
 
 // the contents of `valueOptional` are dereferenced and a reference to the
 // underlying type is obtained; the underlying type uses its assignment
-// operator to copy the contents from value
+// operator to copy the contents from `value`
 valueOptional. = value
 ````
 
@@ -270,7 +305,7 @@ func final : ()(input : MyType?) = {
     // ...
 
     if input {
-        print("found value")
+        print("found value: ", input.value1, input.value2)
         // ...
     } else {
         print("no value")
@@ -279,20 +314,25 @@ func final : ()(input : MyType?) = {
     // ...
 }
 
-// the `valueOptional` is declared as optional and
-// defaults to not being initialized
+// `valueOptional` is declared as optional and defaults to contain
+// uninitialized memory
 valueOptional : MyType?
+value : MyType
+
+value.value1 = 5
+value.value2 = "beans"
 
 // pass in a optional containing uninitialized data
 func(valueOptional)     // will print "no value"
 
 // `value` is copy constructed into `valueOptional` reserved space and the
-// optional now contains valid data
+// optional value now contains valid data
 valueOptional = value
 
 // pass in a optional containing valid data
-func(valueOptional)     // will print "found value"
+func(valueOptional)     // will print "found value: 5beans"
 
-// pass a default value for the argument
+// pass a default instance value for the argument (which is an optional value
+// containing uninitialized memory)
 func(:)                 // will print "no value"
 ````

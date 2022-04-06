@@ -711,7 +711,7 @@ listFruitAlt2 final : ()() = {
 ````
 
 
-#### Using `each` to iterate over a type's values
+#### Using `each` / `in` to iterate over a type's values
 
 The `each` keyword can be used to iterate over all variables contained in a type. A repeatable code block that follows an `each` keyword will be re-compiled per subtype to ensure that different subtypes remain compile time strict.
 
@@ -735,7 +735,7 @@ each value: in MyType
 ````
 
 
-#### `each` initializer statement and condition
+#### `each` / `in` initializer statement and condition
 
 An `each` statement can contain an initialization statement with a condition followed by repeatable code block which must be separated by a sub-statement separator (`;;`) except for the repeatable code block. If a value is declared in an initialization statement then that value's scope only exists within the context of the `each` control flow.
 
@@ -765,7 +765,7 @@ each myType := returnAMyType() ;; value : in myType {
 ````
 
 
-#### Using `each` to iterate over a type's value's metadata
+#### Using `each` / `in` to iterate over a type's value's metadata
 
 The `each` keyword can be used to iterate over all variables contained in a type and a variable's metadata. A repeatable code block that follows an `each` keyword will be re-compiled per subtype to ensure that different subtypes remain compile time strict.
 
@@ -792,9 +792,30 @@ each value:, metadata: in MyType {
 ````
 
 
-### Using `for` to iterate a range
+### Using `each` / `in` to iterate an array
 
-The `for` will use range iteration to iterate through the entries in arrays or other values in other types that support range operations.
+The `each` will use an array iteration to iterate through all entries in arrays.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+values : String[3]
+values[0] = "bird"
+values[1] = "plane"
+values[2] = "superman"
+
+// the iterated type is treated as a range type and the values are iterated
+// based on the range's evaluation
+each value: in values
+    print(value)    // will print values in order
+````
+
+
+### Using `each` / `from` to iterate a range
+
+The `each` will use range iterator to iterate through the entries in a range.
 
 ````zax
 print final : ()(...) = {
@@ -812,19 +833,19 @@ values[2] = "superman"
 
 // the iterated type is treated as a range type and the values are iterated
 // based on the range's evaluation
-for value : in values)
-    print(value)    // will print values in reversed order
+each value: in values
+    print(value)    // will print values in order
 
 // a range type is returned and the values are iterated based on the range's
 // evaluation
-for value : in reverseView(values)
+each value : from reverseView(values)
     print(value)    // will print values in reversed order
 ````
 
 
-#### `for` initializer statement and range iteration
+#### `each` / `from` initializer statement and range iteration
 
-A `for` statement can contain a initialization statement with a condition followed by a repeatable code block which must be separated by a sub-statement separator (`;;`) except for the repeatable code block. If a value is declared in an initialization statement then that value's scope only exists within the context of the `for` control flow.
+A `each` statement can contain a initialization statement with a condition followed by a repeatable code block which must be separated by a sub-statement separator (`;;`) except for the repeatable code block. If a value is declared in an initialization statement then that value's scope only exists within the context of the `for` control flow.
 
 ````zax
 print final : ()(...) = {
@@ -845,7 +866,7 @@ returnAnArray final : (result : )() = {
 
 // an initialization statement is present; a range type is returned and the
 // values are iterated based on the range's evaluation
-for array := returnAnArray() ;; value : in reverseView(array)
+each array := returnAnArray() ;; value : from reverseView(array)
     print(value, array[0])    // will print values in reversed order,
                               // and "bird" each time
 ````

@@ -5,11 +5,11 @@
 
 ### Keyword aliasing
 
-Zax supports keyword aliasing using the declaration `alias keyword`. The verbose nature of the default keywords are made to ensure the language is natural rather than using shortened keywords that are inconsistently applied to the language. However, the keywords can be aliased to friendly names to type. As with reserved keywords, aliased keywords become newly reserved keywords only within the context where the source keywords can be utilized. Creating an alias of a keyword does not remove the original reserved keyword.
+Zax supports keyword aliasing using an `alias keyword` declaration. The verbose nature of the default keywords are made to ensure the language is natural rather than using shortened keywords abbreviations that are inconsistently applied to within the language. However, a keyword can be aliased to friendlier names. As with reserved keywords, aliased keywords become newly reserved keywords only within a context where the original non-aliased keywords would apply. Creating an alias of a keyword does not remove the original reserved keyword.
 
-Aliased keywords must be declared prior to their usage and they are scoped to the module (unless explicitly exported). Attempting to use an aliased keywords prior to the alias declaration will cause the compiler to treat the symbolic name as any normal symbolic declaration instead of an alias.
+Aliased keywords must be declared prior to their usage and they are scoped to a module (unless explicitly exported). Attempting to use an aliased keywords prior to an alias keyword declaration will cause a compiler to treat an aliased keyword as a symbolic name instead of an alias.
 
-A word of caution: Using very short abbreviations might be tempting to save on typing but reading a language should be natural and not lead to too many variable name conflicts. Besides, modern editors typically have common word completion. Names should also be consistent and non-confusing. For projects shared publicly, abbreviations and keyword aliasing can be a source of confusion if different projects use different keywords and keyword aliasing may be difficult for newcomers to learn new keyword standards.
+A word of caution: Using very short abbreviations might be tempting to save on typing but readability of the language is important. Aliased names should not lead to too many variable name conflicts either. Besides, modern editors typically have common word completion to save on typing. Names should also be consistent and non-confusing. For projects shared publicly, abbreviations and keyword aliasing can be a source of confusion if different projects use different aliased keywords and keyword aliasing may be difficult for newcomers to learn new keyword standards.
 
 Common aliases are placed in `Module.System.Keywords`:
 
@@ -18,7 +18,7 @@ Common aliases are placed in `Module.System.Keywords`:
 [[resolve=now]] :: import Module.System.Keywords
 ````
 
-From the `Module.System.Keywords`
+From the `Module.System.Keywords`:
 ````
 // some example keywords that are aliased in the keywords module
 [[export=always]]
@@ -26,7 +26,7 @@ From the `Module.System.Keywords`
 const :: alias keyword constant
 property :: alias keyword mutator
 static :: alias keyword once
-downcast :: alias keyword outercast
+downcast :: alias keyword unsafe outerof
 
 // ...
 
@@ -40,16 +40,18 @@ Zax supports keyword removal using `alias keyword`. Some language keywords might
 
 
 ````zax
-// some example keywords that are aliased in the keywords module
+// example keyword aliasing and keyword removal
 adjourn :: alias keyword suspend
 :: alias keyword suspend
 
-// the suspend keyword is removed and thus it is usable in any context without
-// any conflict (although this scenario would never have conflicted)
-suspend : ()() = {
+// The `suspend` keyword is removed and thus it is treated as if that keyword
+// never existed. Thus in this context, `suspend` becomes a function name
+// and cannot conflict with the `suspend` keyword (although it would not have
+// conflicted anyway in this particular context).
+suspend final : ()() = {
 }
 
-// the `suspend` keyword is replaced with a new keyword adjourn
+// the original `suspend` keyword is replaced with a new keyword `adjourn`
 someTask : ()() task = {
     // ...
     yield adjourn
@@ -60,11 +62,11 @@ someTask : ()() task = {
 
 ### Operator and expression aliasing
 
-Zax allows operators and expressions to become aliased into keywords using the declaration `alias operator keyword`. This allows natural language keywords to be applied to operators should a natural language alternative to the operator be desirable. Whenever the aliased keyword is seen in the context where an operator is legal, the operator is automatically substituted.
+Zax allows operators and expressions to become aliased into keywords using an `alias operator keyword` declaration. This allows natural language keywords to be applied to operators should a natural language alternative to an operator be desirable. Whenever an aliased operator keyword is seen in a context where an operator is legal, the underlying operator is automatically substituted.
 
-Aliased operators and expressions must be declared prior to usage and they are scoped to the module (unless exported). Attempting to use an aliased operator prior to declaration will cause the compiler to treat the operator as a symbolic name instead of an alias.
+Aliased operators and expressions must be declared prior to their usage and they are scoped to a module (unless exported). Attempting to use an aliased operator prior to its declaration will cause a compiler to treat an natural language operator as a symbolic name instead of an alias.
 
-A small caveat: comments are not operators and cannot be aliased. The compiler treats comments as a first pass filtering of text meant for humans and thus they are not treated as part of the language (even where a compiler might capture the comments for documentation purposes).
+A small caveat: comments are not operators and cannot be aliased. A compiler performs a first pass filtering of text meant for humans and thus comments are stripped and not treated as part of the language (even where a compiler might capture the comments for documentation purposes later).
 
 ````zax
 add :: alias operator keyword +
@@ -96,7 +98,7 @@ MyType :: type {
 
 ### Type aliasing
 
-Types can be aliased from their original name to a new name. The `alias` of the original type is equivalent to the original type and can be used anywhere the original type is legal.
+Types can be aliased from their original name to declare a new name. An `alias` of an original `type` is equivalent to the original `type` and can be used anywhere the original `type` is legal.
 
 ````zax
 MyType :: type {
@@ -120,7 +122,7 @@ type2 = type1
 
 ### Type aliasing adding or changing qualifications
 
-When a type is aliased, the alias can add or change qualifiers of the original type. This includes specifying the type is a reference, a pointer, an array, a type of pointer, changes to mutability, as well as other options. The underlying alias type remains the same but qualifiers become part of the qualifiers around the aliased type whenever the type is used.
+When a `type` is aliased, the alias can add or change qualifiers for the original `type`. This includes specifying if a `type` is a reference, a pointer, an array, a pointer qualifier, changes to mutability, as well as other options. The underlying alias `type` remains the same but qualifiers become part of the qualifiers around an aliased `type` whenever the alias is used.
 
 ````zax
 MyType :: type {
@@ -130,7 +132,7 @@ MyType :: type {
 
 DeepMyType :: alias MyType constant & deep
 
-// the `shallow` qualifier will override the previous deep qualifier 
+// the `shallow` qualifier will override the previous `deep` qualifier 
 ShallowMyType :: alias DeepMyType shallow
 
 func final : ()(input : DeepMyType) = {
@@ -150,36 +152,33 @@ func(value as deep)     // will call the deep version
 ````
 
 
-### Type aliasing for meta types
+### Type aliasing for meta-types
 
-Aliases can not only refer to specific types but they can be aliases to meta-types and even include meta-type arguments that become arguments to the underlying aliased meta-type.
+Aliases can not only refer to specific types but they can be aliases to meta-types and even include meta-type arguments as part of an underlying aliased meta-type.
 
 ````zax
-MyType $(TypeA, TypeB) :: type {
-    a : $TypeA
-    b : $TypeB
+MyType $(A, B) :: type {
+    a : $A
+    b : $B
 }
 
-// creates a concrete alias definition of `MyType` where
-// `a` is an `Integer` and `b` is a `String`
+// creates a concrete alias definition of `MyType` where `A` is an `Integer` and
+// `B` is a `String`
 MyTypeIntegerString :: alias MyType$(Integer, String)
 
-
-// creates a meta type alias definition of `MyType` where
-// `a` is an `Integer` and `b` is defined by `$PickType`
+// creates a meta-type alias definition of `MyType` where `A` is an `Integer`
+// and `B` is defined by `$PickType`
 MyTypeWithInteger $(PickType) :: alias MyType$(Integer, $PickType)
 
-
-// creates a meta type alias definition of `MyType` where
-// `a` and `b` are arguments to the type in the same way `MyType` has
-// meta-type arguments
+// creates a meta-type alias definition of `MyType` where `A` and `B` are
+// arguments to the `type` similar to how `MyType` has meta-type arguments
 AliasOfMyType $(UseTypeA, UseTypeB) :: alias MyType$($UseTypeA, $UseTypeB)
 ````
 
 
 ### Type aliasing of a function
 
-A type of a function can be converted to an alias by creating an alias to a definition of a function variable. The function variable will automatically become converted to its type in this context and the alias becomes the underlying function's type.
+A `type` of a function can be converted to an alias by creating an alias to a definition of a function `type` by using a function's variable name. A function's variable will automatically become converted to its `type` in a `type` context causing the alias to become the underlying function's `type`.
 
 ````zax
 print final : ()(...) = {
@@ -194,9 +193,10 @@ func : (output : String)(input : Integer) = {
     // ...
 }
 
-// Creates an alias to the type of `func` as an alias of a variable's type.
-// Automatically creates an alias of the variable's type since variables can not
-// be aliased directly (i.e. references are used to create variable aliases).
+// Creates an alias to a type of `func` based on a function's variable `type`.
+// Automatically creates an alias of the variable's `type` since variables
+// cannot be aliased by name directly (i.e. variable are needed to create
+// aliases of a function's `type`).
 FuncType :: alias func
 
 // create anotherFunc using the FuncType alias

@@ -641,10 +641,10 @@ Animal :: type {
     slimy : Boolean
 }
 
-animal1 : Animal = { .animal = "bear", .legs = 2 }
-animal2 : Animal = { .animal = "spider", .legs = 8 }
-animal3 : Animal = { .animal = "bird", .canFly = true, .legs = 2 }
-animal4 : Animal = { .animal = "worm", .slimy = true }
+animal1 : Animal = [{ .animal = "bear", .legs = 2 }]
+animal2 : Animal = [{ .animal = "spider", .legs = 8 }]
+animal3 : Animal = [{ .animal = "bird", .canFly = true, .legs = 2 }]
+animal4 : Animal = [{ .animal = "worm", .slimy = true }]
 ````
 
 
@@ -666,20 +666,20 @@ Animal :: type {
 
 // the `animal` and `kind` argument names match the constructor and the
 // other values are name initialized
-animal1 : Animal = { .animal = "bear", .legs = 2, .kind = "grizzly" }
+animal1 : Animal = [{ .animal = "bear", .legs = 2, .kind = "grizzly" }]
 
 // the `animal` argument name matches the constructor and the
 // "recluse" value matches the missing second argument
-animal2 : Animal = { .animal = "spider", .legs = 8, "recluse" }
+animal2 : Animal = [{ .animal = "spider", .legs = 8, "recluse" }]
 
 // the `animal` argument name matches the constructor and the
 // "chickadee" matches the missing second argument and the other values
 // are named initialized
-animal3 : Animal = { "chickadee", .animal = "bird", .canFly = true, .legs = 2 }
+animal3 : Animal = [{ "chickadee", .animal = "bird", .canFly = true, .legs = 2 }]
 
 // the constructor is not matched as the `kind` argument is unmatched thus
 // the type is name initialized
-animal4 : Animal = { .animal = "worm", .slimy = true }
+animal4 : Animal = [{ .animal = "worm", .slimy = true }]
 ````
 
 

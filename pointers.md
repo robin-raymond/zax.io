@@ -7,7 +7,7 @@
 
 #### Pointer basics
 
-Pointers do not contain data directly. Instead pointers contain an address in memory where the real data is located. Pointers are defaulted to point to nothing and can be reset to point to nothing. Pointers can also point to garbage data or invalid memory if the value being pointed to is discarded.
+Pointers do not contain data directly. Instead pointers contain an address in memory where real data is located. Pointers are defaulted to point to nothing and can be reset to point to nothing. Pointers can also point to garbage data or invalid memory if a value being pointed to has been previously discarded.
 
 ````zax
 A :: type {
@@ -20,16 +20,16 @@ func final : ()() = {
     value.myInteger = 42
 
     // `pointer` is pointer to a type of `A` which points to `value`
-    // (taking the address of `value` is not required)
+    // (taking the address of `value` is not required as it is implied)
     pointer : A * = value
 
     // the value of `myInteger` in `value` is now `40` instead of `42`
-    pointer.myInteger. -= 2
+    pointer.myInteger -= 2
     
     value2 : A
     value2.myInteger = 101
 
-    // reassign `pointer` to point 
+    // reassign `pointer` to point to `value2`
     pointer = value2
 
     // the value of `myInteger` in value is now `103` instead of `101`
@@ -38,7 +38,7 @@ func final : ()() = {
 
     // pointer is reset to the default value of it's own type
     // (which effectively points to nothing)
-    pointer = #:
+    pointer = #
 
     // RUNTIME PANIC: a runtime panic would occur since `pointer` is no
     // longer pointing to a valid instance of type `A`
@@ -49,32 +49,32 @@ func final : ()() = {
 
 #### Reference basics
 
-Pointers and references are almost interchangeable but a few key differences exist between their types. Pointers can point to nothing but references must always point to valid data by convention (although the compiler will not enforce the data is still valid). Pointers can be changed to point to another data location but references are stuck pointing to their original data for the lifetime of the reference.
+Pointers and references are almost interchangeable but a few key differences exist between their usages. Pointers can point to nothing but references must always point to valid data by convention (although a compiler will not enforce that data is still valid). Pointers can be changed to point to another data location but references are stuck pointing to their original data for the lifetime of a reference.
 
-References are typically used where the value needs to be guaranteed to exist by convention and but a value should not be copied when passed as an argument to a function.
+References are typically used where a value needs to be guaranteed to exist by convention and a value should not be copied when passed as an argument to a function.
 
 ````zax
 A :: type {
     myInteger : Integer
 }
 
-// as `a` is passed by reference, a copy of `a` is not created as `a`
-// references (i.e. points to) the original `A` type passed in
+// as `a` is passed by reference, a copy of `a` is not created and `a`'s
+// reference points to the original `A` type instance passed in
 funcUsingAReference final : ()(a : A &) = {
-    // no need to check if `a` points to nothing, it always has to point
-    // to a valid value of type `A` by convention
+    // no need to check if `a` points to nothing, as `a` always must point
+    // to a valid instance of type `A` by convention
     a.myInteger *= 2
 }
 
 funcUsingAPointer final : ()(a : A *) = {
     // functions that take an `a` pointer may be sent a pointer to nothing
-    // and depending on the assumptions of the function a pointer check
-    // of nothing might be desired/required
+    // and depending on the assumptions of a function, a pointer check
+    // against nothing might be desired or required
     if !a
         return
 
-    // just like the reference, pointers can manipulate the original
-    // value passed into the function
+    // just like a reference, pointers can manipulate the original value
+    // passed into a function
     a.myInteger *= 2
 }
 
@@ -87,18 +87,30 @@ func final : ()() = {
     // valid pointer to a type of `A` 
     reference : A & = value
 
-    // the value of `myInteger` in `value` is now `80` instead of `40`
+    // value of `myInteger` in `value` is now `80` instead of `40`
     reference.myInteger *= 2
 
-    // the value of `myInteger` in `value` will become `160` instead of `80`
+    // value of `myInteger` in `value` will become `160` instead of `80`
     funcUsingAReference(value)
 
-    // the value of `myInteger` in `value` will become `320` instead of `160`
-    funcUsingAPointer(value)
+    // reference is a pointer to type `A` which must always contain a
+    // valid pointer to a type of `A` 
+    pointer : A * = value
 
-    // resetting a reference actually resets the value in the reference thus
-    // the value of `myInteger` in `value` will become 0
-    reference = #:
+    // value of `myInteger` in `value` will become `320` instead of `160`
+    funcUsingAPointer(pointer)
+
+    // the pointer is reset to point to nothing
+    pointer = #
+
+    // value of `myInteger` will not change as the pointer was already reset
+    funcUsingAPointer(pointer)
+
+    // Resetting a reference actually does not affect the reference at all but
+    // the value pointed to by the reference is changed. The value of
+    // `myInteger` will be copy constructed using an empty temporarily
+    // constructed instance of type `A` and `myInteger` will become 0.
+    reference = #
 }
 ````
 
@@ -109,8 +121,7 @@ Pointers and references do not have to point to custom declared types. They can 
 
 ````zax
 // as `myInteger` is passed by reference, a copy of `myInteger` is not created
-// as `myInteger` references (i.e. points to) the original `Integer` type
-// passed in
+// as `myInteger`'s reference points to the original `Integer` type passed in
 funcUsingReference final : ()(myInteger : Integer &) = {
     // no need to check if `myInteger` points to nothing, it always has to point
     // to a valid value of type `Integer` by convention
@@ -120,7 +131,7 @@ funcUsingReference final : ()(myInteger : Integer &) = {
 funcUsingPointer final : ()(myInteger : Integer *) = {
     // functions that take a `myInteger` pointer may be sent a
     // pointer to nothing and depending on the assumptions of the function
-    // a pointer check of nothing might be desired/required
+    // a pointer check of nothing might be desired or required
     if !myInteger
         return
 
@@ -134,31 +145,33 @@ func final : ()() = {
     // `value` is a type of `A`
     value : Integer
 
-    // reference is a pointer to type `Integer` which must always contain a
-    // valid pointer to a type of `Integer` 
+    // reference is a pointer to an instance of type `Integer` which must always
+    // contain a valid pointer to a type of `Integer` 
     reference : Integer & = value
 
-    // the value of `value` is now `80` instead of `40`
+    // value of `value` is now `80` instead of `40`
     reference *= 2
 
-    // the value of `value` will become `160` instead of `80`
+    // value of `value` will become `160` instead of `80`
     funcUsingReference(value)
 
-    // the value of `value` will become `320` instead of `160`
+    // value of `value` will become `320` instead of `160`
     funcUsingPointer(value)
 
-    // resetting a reference actually resets the value in the reference thus
-    // the value of `value` will become 0
-    reference = #:
+    // Resetting a reference actually does not affect the reference at all but
+    // the value pointed to by the reference is changed. The value of
+    // `value` will be copy constructed using an empty temporarily
+    // constructed instance of type `Integer` and `value` will become 0.
+    reference = #
 }
 ````
 
 
 ### Pointer property overhead
 
-Pointers can have additional properties associated with them and may contain additional overhead data more than a `raw` pointer would typically. Additional keywords such as `own` when applied to a pointer will indicate additional functionality is associated with the pointer. See [Memory Allocation](memory-allocation.html) for additional keywords that can add functionality to pointers.
+Pointers can have additional properties associated with them and may contain additional overhead data more than a `raw` pointer typically would contain. For example, additional keywords such as `own` when applied to a pointer will indicate additional functionality is associated with a pointer. See [Memory Allocation](memory-allocation.html) for additional keywords that can add functionality to pointers.
 
-In the example below, pointers aren't just `raw` pointers but can contain ownership properties (which allows the pointer type to deallocate the memory associated with the pointer automatically when a variable owning a pointer to a value is discarded). The programmer acknowledges the the property overhead they wish to include on their pointers as desired/needed. 
+In the example below, pointers aren't just `raw` pointers but can contain ownership properties (which allows the pointer type to deallocate the memory associated with the pointer automatically when a variable owning a pointer to a value is discarded). A programmer must acknowledge any property overhead they wish to include on their pointers as desired/needed. 
 
 ````zax
 A :: type {
@@ -175,21 +188,19 @@ B :: type {
 
 C :: type {
     a : A           // `a` of type `A` is contained within type `C`
-    b1 : B * own @  // `b1` of type `B` is initialized after default
-                    // `own` allocation
+    b1 : B * own @  // `b1` of type `B` is initialized after default `own`
+                    // allocation
     b2 : B *        // `b2` is an `raw` pointer to a `B` type but the pointer is
-                    // defaulted to point to nothing
-                    // (and no type is allocated)
+                    // defaulted to point to nothing (and no type is allocated)
     b3 : B * own    // `b3` is an `own` pointer to a `B` type but the pointer is
-                    // defaulted to point to nothing
-                    // (and no type is allocated)
+                    // defaulted to point to nothing (and no type is allocated)
     value1 := 0
     value2 := 0
 }
 
 func final : ()() = {
-    c : C                       // initialize a type of `C`
-                                // into a variable named `c`
+    c : C                       // initialize a type of `C` into a variable
+                                // named `c`
 
     c.b1.value1 = 5             // set the value of `c.b1.value1` to `5`
     c.b1.value2 = b1.value1     // copy the value of `c.b1.value1` to
@@ -200,13 +211,13 @@ func final : ()() = {
     c.b2 = c.b1
     c.b2.value3 = 6             // set the value of `c.b1.value6` to `6`
 
-    // make `c.b3` point and take over ownership of
-    // `c.b1` and `c.b1` points to nothing
+    // make `c.b3` point and take over ownership of  `c.b1` and `c.b1` points
+    // to nothing
     c.b3 = c.b1
 
-    // `c.b2` and `c.b3` both point to the same underlying type's contents
-    // thus `c.value1` will contain the value `16` despite the values
-    // originating from `c.b2` or `c.b3`
+    // `c.b2` and `c.b3` both point to the same underlying type's contents thus
+    // `c.value1` will contain the value `16` despite the values originating
+    // from `c.b2` or `c.b3`
     c.value1 = c.b2.value1 + c.b3.value2 + c.b2.value3
 
     // attempting to access `c.b1` should cause a panic since `c.b1` is now
@@ -218,16 +229,16 @@ func final : ()() = {
 ### Pointer casting
 
 Pointers can be casted by way of three casting methods:
-* raw conversion of the pointer type using the `cast` operator
-* compatible [composition](composition.md) conversion of the pointer type using the `outercast` operator
-* runtime conversation of compatible [composition](composition.md) pointer types using the `outerof` operator
+* raw conversion of a pointer type using a `unsafe as` operator
+* compatible [composition](composition.md) conversion of a pointer type using an `unsafe outerof` operator
+* runtime conversation of compatible [composition](composition.md) pointer types using an `outerof` operator
 
-The `as` operator can only be used to convert a pointer to/from an intrinsic number type of equal or greater capacity than the pointer.
+An `as` operator can only be used to convert a pointer to/from an intrinsic numeric type of equal or greater capacity than an original pointer.
 
 
 #### Pointer raw conversion
 
-Pointers can use the `cast` operator to treat a pointer of one type as a pointer of a different type. The language will perform no validation that the pointers are indeed compatible and will allow any conversion from one pointer type to another type to occur. Programmers are expected to understand if the pointer types are indeed compatible and they must take responsibility of the risk of creating undefined behavior. Pointers of any type can be converted to any other type using the `cast` operator regardless of how ridiculous and unsafe this cast operation might be.
+Pointers can use a `unsafe as` operator to treat a pointer of one type as a pointer of a different type. The language will perform no pointers validation for compatibility and it will allow any conversion from one pointer type to another type to occur. Programmers are expected to understand if a pointer type is indeed compatible and they must take responsibility of creating undefined behavior. Pointers of any type can be converted to any other type using the `unsafe as` operator regardless of how ridiculously `unsafe` this cast operation might be.
 
 ````zax
 print final : ()(...) = {
@@ -260,7 +271,7 @@ func(value)
 
 #### Function pointer casting
 
-Functions can be cast to a raw pointers using the `cast` operator and from a raw pointer using the `copycast` operator. The `copycast` operator is necessary to create a copy of captured values.
+Functions can be cast to and from a Unknown types using the `unsafe copyas` operator. The `unsafe copyas` operator is necessary to create a copy of captured values otherwise captured values referenced in a function might become lost.
 
 ````zax
 print final : ()(...) = {
@@ -278,17 +289,17 @@ func2 final : simpleFunc = {
         print(value, "> 3")
 }
 
-// declare a raw Unknown pointer
-pointer1 : Unknown *
-pointer2 : Unknown *
+// declare an Unknown type (which can hold function pointers with captured data)
+pointer1 : Unknown
+pointer2 : Unknown
 
-// cast the func1
-pointer1 = func1 cast Unknown *
-pointer2 = func2 cast Unknown *
+// cast into an `Unknown` type (a copy of the captured variable is created)
+pointer1 = func1 unsafe copyas Unknown
+pointer2 = func2 unsafe copyas Unknown
 
-// cast back from a raw pointer using the type of the variables definition
-func3 = pointer1 copycast :simpleFunc
-func4 = pointer2 copycast :func2
+// cast back from an `Unknown` using the type of the function definition
+func3 := pointer1 unsafe copyas :simpleFunc
+func4 := pointer2 unsafe copyas :func2
 
 func3() // will execute the code defined in func1
 func4() // will execute the code defined in func2
@@ -297,7 +308,7 @@ func4() // will execute the code defined in func2
 
 ##### Function pointer casting with capture
 
-Functions can be cast to a raw pointers using the `cast` operator and from a raw pointer using the `copycast` operator. The `copycast` operator is necessary to acknowledge the overhead involved with the copying of captured values. When converting from a raw pointer, the function is casted and treated as the expected function type and the captured variables are copied as part of the operation. Using the `cast` operator or `as` operator is disallowed when converting from raw pointers to functions that can capture values.
+Functions can be cast to a raw pointers using the `unsafe as` operator and from a raw pointer using the `unsafe copyas` operator. The `unsafe copyas` operator is necessary to acknowledge the overhead involved with the copying of captured values. When converting from a raw pointer, the function is casted and treated as the expected function type and the captured variables are copied as part of the operation. Using the `usnafe as` operator or `as` operator is disallowed when converting from raw pointers to functions that can capture values.
 
 ````zax
 print final : ()(...) = {
@@ -324,16 +335,19 @@ pointer1 : Unknown *
 pointer2 : Unknown *
 
 // cast the func1
-pointer1 = func1 cast Unknown *
-pointer2 = func2 cast Unknown *
+pointer1 = func1 unsafe as Unknown *
+pointer2 = func2 unsafe as Unknown *
 
-// cast back from a raw pointer using the type of the variables definition
-func3 = pointer1 copycast :simpleFunc
-func4 = pointer2 copycast :func2
+// cast back from a raw `Unknown *` using the type of the function definition
+// (even though captured values were not copied into the Unknown * the
+// `Unknown *` is treated as the original function type so a copy of captured
+// values is created)
+func3 := pointer1 unsafe copyas :simpleFunc
+func4 := pointer2 unsafe copyas :func2
 
 // reset the original `func1` and `func2`
-func1 = #:
-func2 = #:
+func1 = #
+func2 = #
 
 func3() // will execute the code defined in func1 and still displays
         // the message "Is this good?"
@@ -344,7 +358,7 @@ func4() // will execute the code defined in func2 and still displays
 
 ##### Function pointer casting without capture ability
 
-Pointers to functions without the ability to capture can be casted from a raw pointer using the `cast` operator and not the `copycast` operator since the functions have no ability to capture values and thus do not need the programmer to acknowledge any additional value copying overhead in the pointer conversion. Using the `copycast` operator is disallowed when converting from raw pointers to pointers to function types.
+Pointers to functions without the ability to capture can be casted from a raw pointer using the `unsafe as` operator and not the `unsafe copyas` operator since the functions have no ability to capture values and thus do not need the programmer to acknowledge any additional value copying overhead in the pointer conversion.
 
 ````zax
 print final : ()(...) = {
@@ -370,16 +384,16 @@ pointer1 : Unknown *
 pointer2 : Unknown *
 
 // cast the func1
-pointer1 = func1 cast Unknown *
-pointer2 = func2 cast Unknown *
+pointer1 = func1 unsafe as Unknown *
+pointer2 = func2 unsafe as Unknown *
 
 // cast back from a raw pointer using the type of the variables definition
-func3 = pointer1 cast :simpleFunc
-func4 = pointer2 cast :func2
+func3 := pointer1 unsafe as :simpleFunc
+func4 := pointer2 unsafe as :func2
 
 // reset the original `func1` and `func2`
-func1 = #:
-func2 = #:
+func1 = #
+func2 = #
 
 func3() // will execute the code defined in func1
 func4() // will execute the code defined in func2
@@ -388,20 +402,20 @@ func4() // will execute the code defined in func2
 
 ### Using the `last` type qualifier to optimize content transfer
 
-Normally references and pointers `lease` their ownership to other functions for a period of time. The true owner of the reference or pointer is not relevant but the owner must keep the lifetime of the underlying type alive while the reference or pointer is in use. The `lease` reference and pointer qualifier indicates that the reference is leasing it's lifetime from somewhere else. Be default, all references and pointers are pre-qualified with `lease` and thus this qualifier is redundant and need not to be specified.
+Normally references and pointers `lease` their ownership to other functions for a period of time. The true owner of a reference or pointer is not relevant but an owner must keep the lifetime of an underlying type alive while a reference or pointer is in use. A `lease` reference and pointer qualifier indicates that a reference is leasing it's lifetime from somewhere else. Be default, all references and pointers are pre-qualified with `lease` and thus this qualifier is redundant and need not to be specified.
 
-Alternatively, references and pointers can have a qualifier of `last` appended to their type. The `last` qualifier on a reference or pointer indicates the receiver of this type will inherit the contents of the type as this reference or pointer is the very `last` owner to the underlying type's contents. The contents contained in the type will be discarded if not claimed. By knowing the `last` qualifier is specified on a type's instance, the ownership of the contents can be claimed by a receiving function. This helps optimization by transferring the contents out of one type's instance into another prior to an instance's disposal rather than making content copies. Later when the instance is disposed, the claimed contents will have already been transferred out of the referred or pointer. This saves contents from having to be cloned only to have the original contents disposed moments later. 
+Alternatively, references and pointers can have a `last` qualifier. A `last` qualifier on a reference or pointer indicates a receiver of this type will inherit all contents of a type as this reference or pointer is the very `last` owner to an underlying type's contents. Contents contained in a `type` will be discarded if not claimed. When a `last` qualifier is specified on a `type`'s instance, ownership of any contents can be claimed by a receiving function. This helps optimization by transferring contents out of one `type`'s instance into another prior to an instance's disposal rather than making content copies. Later when an instance is disposed, any claimed contents will have already been transferred out of a reference or pointer. This saves contents from having to be cloned first only to have any original contents disposed moments later. 
 
-Types qualified as `last` cannot be `constant` or `immutable` types as these types cannot have their contents transferred out due to the the contents being effectively `immutable`. The `lease` option is required (and defaulted) for any `constant` and `immutable` references or pointers.
+Types qualified as `last` cannot be `constant` or `immutable` types as these types cannot have their contents transferred out due to internal contents being effectively `immutable`. A `lease` option is required (and defaulted) for any `constant` and `immutable` references or pointers and a `last` qualifier is incompatible.
 
-Types passed by-value do not require the `last` qualifier as value passed types can always have their contents transferred out already. Passing by-value always causes a fresh copy of the type's instance's contents rather than providing any `lease` reference or pointer to an existing type's contents (except `strong` or `handle` pointers which are designed specifically to have shared ownership to a common pointed to instance).
+Types passed by-value do not require a `last` qualifier as arguments passed by-value can always have their contents transferred out already. Passing by-value always causes a fresh copy of a `type`'s instance's contents rather than providing any `lease` reference or pointer to an existing type's contents (except `strong` or `handle` pointers which are designed implicitly to have shared ownership of a common instance).
 
-The `as` operator can be used to change the `last` or `lease` qualifier on a type. The `last` and `lease` qualifiers are mutually exclusive and a `last` cannot be applied to a type that is currently qualified as `constant` or `immutable`.
+An `as` operator can be used to change a `last` or `lease` qualifier on a type. The `last` and `lease` qualifiers are mutually exclusive and a `last` cannot be applied to a `type`'s value that is currently qualified as `constant` or `immutable`.
 
 
 #### Temporary variables
 
-When the compiler detects that a type's instance is about to be disposed, and the instance does not need to be leased, the compiler can automatically apply the `last` qualifier rather than defaulting to the `lease` qualifier. This optimization is applied to temporary type instane whose instance is never captured into a named variable. Temporary variables passed by-value to a function can be converted automatically, or the programmer can manually convert an instance into a `last` pointer or reference.
+When a compiler detects that a type's instance is about to be disposed, and an instance does not need to be leased, a compiler can automatically apply a `last` qualifier rather than defaulting to a `lease` qualifier. This optimization is applied to temporary `type` instances where a value never captured into a named variable. Temporary variables passed by-value to a function may be converted automatically to a `last` reference, or a programmer can manually convert an instance into a `last` pointer or reference.
 
 ````zax
 print final : ()(...) = {
@@ -433,7 +447,7 @@ augmentFunc final : (result : MyType)(input : MyType constant &) = {
     // lifted and transferred into the return value and thus a new copy
     // of the value must be made
     result.subvalue = #: @ // allocate a new instance of the subtype
-    result.subalue.animal = input.subvalue.animal
+    result.subvalue.animal = input.subvalue.animal
 
     return result
 }
@@ -504,9 +518,9 @@ print(myTemporary7.name) // prints "Happy Happy Sally"
 
 #### `lease` a `last` reference or pointer
 
-A function that receives a `last` reference may wish to call other functions that will operate on the `last` instance prior to disposal. Caution must be used or subsequent calls to other functions may also assume the `last` qualifier and transfer the contents out of the function.
+A function that receives a `last` reference may wish to call other functions that will operate on the `last` instance prior to disposal. Caution must be used or subsequent calls to other functions may also assume a `last` qualifier and transfer contents out of the instance.
 
-The `lease` or `last` qualifier should be reapplied when sending the reference for use into other functions. The compiler will issue a `lease-or-last` warning where ambiguity exists. The compiler will assume `lease` qualification where the ambiguity exists.
+A `lease` or `last` qualifier should be reapplied when sending the reference for use into other functions. The compiler will issue a `lease-or-last` warning where ambiguity exists. A compiler will assume `lease` qualification where ambiguity exists.
 
 ````zax
 MyType ::type {
@@ -556,7 +570,7 @@ doSomething(myType as last)
 
 #### `last` versus explicit `lease` qualification
 
-By default all functions that receive references or pointers have `lease` qualification applied unless the `last` qualification is explicitly applied. The `lease` and `last` qualifiers are mutually exclusive. The `lease` qualifier is redundant as it is automatically applied by default. One key difference does exist between explicitly and implicit qualifying a reference or pointer argument as `lease`. Arguments that are explicitly qualified as `lease` cannot ever receive a `last` type and any attempt to pass a `last` type into an explicitly `lease` qualified type will cause an `explicit-lease-cannot-receive-last` error.
+By default all functions that receive references or pointers have `lease` qualification applied unless a `last` qualification is explicitly applied. The `lease` and `last` qualifiers are mutually exclusive. A `lease` qualifier is redundant as it is automatically applied by default. One key difference does exist between explicitly and implicit qualifying a reference or pointer argument as `lease`. Arguments that are explicitly qualified as `lease` cannot ever receive a `last` type and any attempt to pass a `last` type into an explicitly `lease` qualified type will cause an `explicit-last-cannot-receive-least` error.
 
 ````zax
 MyType ::type {
@@ -570,16 +584,16 @@ MyType ::type {
     subvalue : SubType * own @
 }
 
-display final : ()(value : MyType & lease) = {
+display final : ()(value : MyType & last) = {
     // ...
 }
 
 doSomething final : ()(value : MyType & last) = {
     // ...
 
-    // ERROR: `explicit-lease-cannot-receive-last` error as the explicit
-    // `lease` qualifier is not allowed to receive a `last` qualified type
-    display(value)
+    // ERROR: `explicit-last-cannot-receive-lease` error as an explicit
+    // `lease` qualifier is not allowed to receive a `lease` qualified type
+    display(value as lease)
 
     //...
 }

@@ -187,14 +187,14 @@ func final : ()() = {
     pointer = allocate(sizeof MyType, alignof MyType)
     
     // convert the raw pointer
-    myType : MyType * = pointer cast MyType *
+    myType : MyType * = pointer unsafe as MyType *
     
     // construct the type (if required)
     myType.+++()
 
     // ... insert code here ...
 
-    // destruct the the type (if require)
+    // destruct the type (if require)
     myType.---()
 
     deallocate(pointer)

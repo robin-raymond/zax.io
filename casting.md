@@ -5,9 +5,9 @@
 
 ### Intrinsic system literal conversion
 
-Zax does not perform type conversion, promotion or demotion of intrinsic compatible types. Casting operators `as` or `cast` must be used to convert from one intrinsic type to another type.
+Zax does not perform type conversion, promotion or demotion of intrinsic compatible types. Casting operators `as` or `unsafe as` must be used to convert from one intrinsic type to another type.
 
-The `as` operator and the `cast` operator work in similar manners. Both convert an intrinsic value from one type to another. With intrinsic types, the `as` operator should cause a panic situation if the data would overflow if converted from a source type to a destination type. Whereas with intrinsic types, the `cast` operator will not panic even when converting from one type to another but `cast` can cause either loss of information in an overflow, or data corruption / undefined behavior in another extreme. The `as` attempts to do a compatible conversion whereas a `cast` will treat the types as compatible even when they are not compatible.
+The `as` operator and the `unsafe as` operator work in similar manners. Both convert an intrinsic value from one type to another. With intrinsic types, the `as` operator should cause a panic situation if the data would overflow if converted from a source type to a destination type. Whereas with intrinsic types, the `unsafe as` operator will not panic even when converting from one type to another but `unsafe as` can cause either loss of information in an overflow, or data corruption / undefined behavior in another extreme. The `as` attempts to do a compatible conversion whereas a `unsafe as` will treat the types as compatible even when they are not compatible.
 
 ````zax
 i8 := -127 as I8                    // `as` can convert the value into an
@@ -17,14 +17,14 @@ u8 := 255 as U8                     // `as` can convert the value into a
 
 u8Error := 256 as U8                // `as` will cause compile time
                                     // error as value is overflow
-u8CastError := 256 cast U8          // `cast` will succeed despite the overflow
-                                    // and the overflow is truncated
+u8CastError := 256 unsafe as U8     // `unsafe as` will succeed despite any
+                                    // value overflow is truncated
 
 value : Integer = 256
-u8Panic := value as U8              // `as` will cause runtime panic as
-                                    // value is overflow
-u8CastIgnorePanic := value cast U8  // `cast` will ignore overflow and the
-                                    // overflow value is truncated
+u8Panic := value as U8                  // `as` will cause runtime panic as
+                                        // value is overflow
+u8CastIgnorePanic := value unsafe as U8 // `unsafe as` will ignore overflow and
+                                        // any value overflow is truncated
 
 // Converting from a `WString`to a `String` is not always safe
 // (but this case is safe)
@@ -48,7 +48,7 @@ wString := utf8String as WString
 
 // Any overflows will be ignored and will not cause panic for an
 // illegal sequences
-wString := utf8String cast WString
+wString := utf8String unsafe as WString
 
 
 wideString := w'Runtime value with a non-ascii value "' h'16f' w'" is not ' \
@@ -60,7 +60,7 @@ stringIsRuntimePanic := wideString as String
 
 // The overflow will be ignored during the conversion and the
 // overflow value is truncated
-StringOverflowIsIgnored := wideString cast String
+StringOverflowIsIgnored := wideString unsafe as String
 
 // The wide string is convertible safely into a utf8 string as an no overflow
 // is possible
@@ -68,18 +68,18 @@ stringIsRuntimeSafe := wideString as Utf8String
 ````
 
 
-### Pointer casting using `cast`
+### Pointer casting using `unsafe as`
 
-Any type can be converted from one pointer type to another pointer type using the `cast` operator. The compiler will not perform any type checking on the types to check if they are compatible. If a pointer is cast to an incompatible type and accessed then the undefined behaviors can result.
+Any type can be converted from one pointer type to another pointer type using the `unsafe as` operator. A compiler will not perform any type checking on type conversions to check if they are compatible. If a pointer is cast to an incompatible type and accessed then undefined behaviors can result.
 
-A `Unknown*` can be used to hold a generic pointer to anything.
+An `Unknown *` can be used to hold a generic pointer to anything.
 
 
 ### Casting a by-value type into a pointer
 
 When a value is cast as a pointer, the address of the pointer is taken. However, in many cases manual casing to a pointer type is unnecessary. In Zax, a value type will automatically convert to a pointer `type` implicitly for the same `type` without any conversion being required. For greater explicitness, the `as` operator can convert from a value to a pointer to the same type safely without introducing undefined behaviors.
 
-The `cast` operator will forcefully convert any value type into a pointer of any other type. This type of conversion is not recommended as it can lead to undefined behaviors.
+The `unsafe as` operator will forcefully convert any value type into a pointer of any other type. This type of conversion is not recommended as it can lead to undefined behaviors.
 
 Examples of pointer casting:
 
@@ -113,17 +113,17 @@ myOtherTypePointer := myType as AnotherType *
 
 // UNDEFINED BEHAVIOR: casting a pointer to one type into a pointer of another
 // can lead to undefined behaviors if the pointers are accessed
-myOtherTypePointer := myType cast AnotherType *
+myOtherTypePointer := myType unsafe as AnotherType *
 
 // ERROR: cannot convert from `AnotherType` to `MyType *`
 func(anotherType)
 
 // ERROR: cannot convert from `AnotherType *` to `MyType *`
-func(anotherType cast AnotherType *)
+func(anotherType unsafe as AnotherType *)
 
 // UNDEFINED BEHAVIOR: casting a pointer to one type into a pointer of another
 // can lead to undefined behaviors if the pointers are accessed
-func(anotherType cast MyType *)
+func(anotherType unsafe as MyType *)
 ````
 
 
@@ -134,7 +134,7 @@ A pointer cannot be implicitly converted back to a by-reference type (or to a by
 
 The `as` operator can be used as one method to convert the pointer to a by-value or by-reference type, or alternatively the dot (`.`) operator can convert a pointer to a by-reference type.
 
-The `cast` operator will forcefully convert any pointer type into a value reference of any other type but this is not recommended as it can lead to undefined behaviors.
+The `unsafe as` operator will forcefully convert any pointer type into a value reference of any other type but this is not recommended as it can lead to undefined behaviors.
 
 Examples of pointer casting:
 
@@ -307,7 +307,7 @@ Other considerations:
 * values declared which are `constant` or `final` are ignored where no storage inside the `type` is required
 * the source `type` can have more contained values than the `destination` type and still match
 * type [slicing](https://en.wikipedia.org/wiki/Object_slicing) can occur if a by-value copy casting is done (which may be desirable in some circumstances to extract the data out of a container safely)
-* casting `as` a by-value type will treat the source `type` as a `type` of `destination` and will use the copy constructor of the destination type to fulfill `cast` request
+* casting `as` a by-value type will treat the source `type` as a `type` of `destination` and will use the copy constructor of the destination type to fulfill `unsafe as` request
 * casting `as` a by-value `type` will not be allowed if the destination `type` has disabled copy construction
 * a variable's `private` keyword is ignored and a `private` value can be accessed as non-`private` values in the destination (if the destination does not declare the new variable for the `type` as `private`)
     * `private` is used to hide variables from view and should never be used as a method to keep data secret
@@ -354,15 +354,15 @@ byRefValue2 := compatibleType as MyType &
 ````
 
 
-### `type` casting using `cast`
+### `type` casting using `unsafe as`
 
-A type can be force casted from one type to another using the `cast` operator. The compiler will not make any validation that the source and destination types are compatible and using the `cast` operator to convert one type to another can lead to undetermined behavior.
+A type can be force casted from one type to another using the `unsafe as` operator. The compiler will not make any validation that the source and destination types are compatible and using the `unsafe as` operator to convert one type to another can lead to undetermined behavior.
 
-If a `cast` operator is performing a by-value cast, the source type will be treated as a destination reference type and given as an argument to the copy constructor of the destination type.
+If an `unsafe as` operator is performing a by-value cast, the source type will be treated as a destination reference type and given as an argument to the copy constructor of the destination type.
 
-Warning: extreme caution must be used with the `cast` operator as it is considered unsafe; the `cast` operator is provided as a tool for programmers who understand the implications of treating raw memory of one type as raw memory of an entirely different type;
+Warning: extreme caution must be used with the `usnafe as` operator as it is considered unsafe; the `unsafe as` operator is provided as a tool for programmers who understand the implications of treating raw memory of one type as raw memory of an entirely different type;
 
-The example below performs unsafe `cast` conversions which will likely result in undefined behaviors.
+The example below performs unsafe `unsafe as` conversions which will likely result in undefined behaviors.
 
 ````zax
 MyType :: type {
@@ -385,15 +385,15 @@ IncompatibleType :: type {
 
 myType : MyType
 
-compatibleType := myType cast CompatibleType        // safe but discouraged
+compatibleType := myType unsafe as CompatibleType        // safe but discouraged
 
 // WARNING: undefined behaviors will occur during copy construction
-incompatibleType := myType cast IncompatibleType    // unsafe
+incompatibleType := myType unsafe as IncompatibleType    // unsafe
 
-byRefValue1 := myType cast CompatibleType &          // safe but discouraged
+byRefValue1 := myType unsafe as CompatibleType &         // safe but discouraged
 
 // WARNING: undefined behaviors will occur if `byRefValue2` is accessed
-byRefValue2 := compatibleType cast MyType &          // unsafe
+byRefValue2 := compatibleType usnafe as MyType &         // unsafe
 ````
 
 
@@ -479,7 +479,7 @@ myType : MyType
 myType : MyType
 
 // ERROR: this `as` operator is explicitly disabled
-compatibleType := myType cast CompatibleType
+compatibleType := myType unsafe as CompatibleType
 
 incompatibleType := myType as IncompatibleType  // allowed
 

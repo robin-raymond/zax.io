@@ -22,15 +22,15 @@ result2 := add(3.5, 4.6)
 result3 := add("hello ", "world")
 
 // ERROR: the code will not compile as the resulting function will attempt to
-// add an Integer type to a Float type (which cannot succeed without
-// and the compiled version will error inside the function)
+// add an Integer type to a Float type (which cannot succeed and the
+// compiled version will error inside the function)
 result4 := add(3, 4.5)
 ````
 
 
 ### Meta-functions with labelled meta-argument types
 
-As an alternative to a concrete type, or an omitted type, a variable representing the type can be used when a type is prefixed with a dollar sign `$` operator. This causes a type to be defined as if the type represented the type of the function arguments. If any types share a variable type they must be called with the same matching variable types.
+As an alternative to a concrete type, or an omitted type, a variable representing a type can be used when a type is prefixed with a dollar sign `$` operator. This causes a type to be defined as if were representing a type in a function arguments. If any types share a variable type they must be called with the same matching variable types.
 
 ````zax
 addThenMultiply final : (
@@ -71,7 +71,7 @@ result4 := addThenMultiply(3, 4.5)
 
 #### Meta-function selection using the `compiles` directive
 
-For meta-functions, the `[[compiles]]` directive can be used as a compile type mechanism to check if the function can be selected as a candidate given the input, or output arguments specified. If the the code in the `[[compiles]]` block fails to compile then the meta-function cannot be selected as a legal candidate by the caller. The compiled code is never executed and any values, types or variables declared in the block are discarded and ignored outside of the `[[compiles]]` block.
+For meta-functions, a `[[compiles]]` directive can be used as a compile type mechanism to check if a function can be selected as a candidate given input or output arguments specified. If code in a `[[compiles]]` block fails to compile then a meta-function cannot be selected as a legal candidate by a caller. Compiled code is never executed and any values, types or variables declared in a `[[compiles]]` block are discarded and ignored outside of a `[[compiles]]` block.
 
 ````zax
 next final : (
@@ -89,11 +89,13 @@ next final : (
 ````
 
 
-#### Meta-function selection using the `requires` directive
+#### Meta-function selection using a `requires` directive
 
-For meta-functions, the `[[requires]]` directive can be used as a compile type mechanism to check if the function can be selected as a candidate given the input, or output arguments specified. If the the code in the `[[requires]]` block fails to compile or returns false then the meta-function cannot be selected as a legal candidate by the caller. The executed code must evaluate to a `true` or `false` statement.
+For meta-functions, a `[[requires]]` directive can be used as a compile type mechanism to check if a function can be selected as a candidate given input or output arguments specified. If code in a `[[requires]]` block fails to compile or returns false then a meta-function cannot be selected as a legal candidate by a caller. Executed code must evaluate to a `true` or `false` statement.
 
-As a side note, replacing the `[[requires]]` and the code block that follows with the literal `true` or `false` will have the same effect if `requires` has returned `true` or `false`. All functions accept the optional `true` or `false` declarative to indicate if they can be selected as a candidate or not. Placing a hard coded `false` on a function will ensure the function can never be used as a candidate. By default all functions are `true` indicating the functions are selectable as a candidate. However, meta-functions are one of the most useful case scenario for this boolean function candidate selection condition. Other use cases can include intentionally disabling functions based on compile time decisions.
+As a side note, replacing a `[[requires]]` and a code block that follows with a literal `true` or `false` will have the same effect if `requires` has returned `true` or `false`. All functions accept an optional `true` or `false` declarative to indicate if they can be selected as a candidate or not. Placing a hard coded `false` on a function will ensure a function can never be used as a candidate. By default all functions are `true` indicating a functions is selectable as a candidate. However, meta-functions use this boolean criteria in candidate selection condition. Other use cases can include intentionally disabling functions based on compile time decisions.
+
+All inputs and outputs are considered captured in the context allowing for compile time reflection of the types. Memory backing argument values are invalid as the actual value is only evaluated at runtime and `requires` is a compile time evaluation directive. Access to the values is undefined behavior.
 
 ````zax
 isSelectable final : (result : Boolean)(...) = {
@@ -111,9 +113,9 @@ next final : (
 ````
 
 
-#### Meta-function selection using the `concept` directive
+#### Meta-function selection using a `concept` directive
 
-For meta-functions, the `[[concept]]` directive can be used as a compile type mechanism to check if the function can be selected as a candidate for a given input, or output argument specified. If the the code in the `[[concept]]` block fails to compile or returns false then the meta-function cannot be selected as a legal candidate by the caller. The executed code must evaluate to a `true` or `false` statement.
+For meta-functions, a `[[concept]]` directive can be used as a compile type mechanism to check if a function can be selected as a candidate for a given input or output argument specified. If code in a `[[concept]]` block fails to compile or returns false then a meta-function cannot be selected as a legal candidate by a caller. Executed code must evaluate to a `true` or `false` statement and follow a `( : Boolean)()` calling convention. Meta argument types are available in a concept function and will mirror arguments passed into a decorated function.
 
 ````zax
 IsSelectable final : (result : Boolean)(ignored : ) [[concept]] = {
@@ -134,30 +136,9 @@ next final : (
 ````
 
 
-#### Meta-function using the `requires` clause
-
-The `requires` clause can be used as a compile and runtime type mechanism to check if the function can be selected as a candidate given the input, or output arguments specified. If the the code in the `requires` block compiles and returns true then the meta-function can be selected as a legal candidate by the caller. This mode causes both compile time and compiler evaluation time code to be checked including the ability to check defined known values passed in a compile time.
-
-````zax
-next final : (
-    result :
-)(
-    value1 :
-    value2 :
-) requires {
-    if !valueIsConstantAndValid(value1)
-        return false
-    if isIterable(value2)
-        return true
-    return false
-} = {
-}
-````
-
-
 ### Use of `final` with regards to meta-functions
 
-The `final` keyword is encouraged when declaring meta-functions but not required. The `final` keyword will ensure additional variables space to be needed per usage of a function. Without the `final` keyword, each invoked variation of a function will cause a new instance of the function's variable to be instantiated per usage.
+Using a `final` keyword is encouraged when declaring meta-functions but not required. A `final` keyword will ensure additional variables space is not needed per unique usage of a function. Without a `final` keyword, each invoked variation of a function will cause a new instance of a function's variable to be instantiated per unique usage.
 
 Consider the following example:
 
@@ -211,7 +192,7 @@ result6 := add("goodbye ", "Sally")
 
 #### Use of `final` with regards to meta-functions inside declared types
 
-The usage of `final` is recommended with meta-functions declarations to ensure that each variation of the function does not create a new instance of the variable containing the function. Without `final` every unique invocation of a function will cause another variable to be required to hold the unique instance of a functions definition. The `final` keyword causes the compiler to know each unique instance of a function without needing a variable at runtime to hold a pointer to the function.
+Usage of a `final` keyword is recommended with meta-functions declarations to ensure that each variation of a function does not create a new instance of a variable containing a function. Without a `final` keyword every unique invocation of a function will cause another variable to be required to hold a unique instance of a functions definition. A `final` keyword causes a compiler to know each unique instance of a function without needing a variable at runtime to hold a pointer to each function definition.
 
 ````zax
 assert final : ()(check : Boolean) = {
@@ -221,12 +202,12 @@ assert final : ()(check : Boolean) = {
 MyType :: type {
     total := 0
 
-    // WARNING: By not declaring this function as final and by virtue of the
+    // WARNING: By not declaring this function as `final` and by virtue of the
     // function being a meta-function, each invocation of the function
     // with different types will create a new `add` variable inside `MyType`
     // per unique type usage! This most likely was not desired and will cause
     // size bloat inside of MyType
-    add final : ()(value :) = {
+    add : ()(value :) = {
         total += value as Integer
     }
 }
@@ -234,7 +215,7 @@ MyType :: type {
 MyOtherType :: type {
     total := 0
 
-    // This function is final thus no space is needing to be allocated inside
+    // This function is `final` thus no space is needing to be allocated inside
     // the `MyOtherType` per unique type usage of the function. This is likely
     // desired.
     add final : ()(value:) = {
@@ -270,7 +251,7 @@ assert(sizeof MyType > sizeof MyOtherType)
 
 ### Meta-typed functions with meta-arguments
 
-Function definitions can be prefixed with a meta list of variables which are type or constant inputs into functions. The meta-arguments can be explicitly defined or implied if the value of the meta-argument can be deduced base on usage.
+Function definitions can be prefixed with a meta list of variables which are type or constant inputs into functions. Meta-arguments can be explicitly defined or implied if a value of a meta-argument can be deduced base on usage.
 
 ````zax
 add final : $(
@@ -284,7 +265,7 @@ add final : $(
     return (value1 + value2) as $ResultType
 }
 
-// invoke a very specific instance of add with very specific type specified
+// invoke a very specific instance of add with a very specific type specified
 result1 := add$(U8)(100, 50)
 
 // invoke an implied version of add which presumes the result type based on
@@ -295,13 +276,14 @@ result2 : Short = add(100, 50)
 
 #### Reassigning meta-typed functions with meta-arguments to a new function
 
-Meta-typed functions with meta-arguments can be reassigned to a new function instance if the variable was not declared as `final`.
+Meta-typed functions with meta-arguments can be reassigned to a new function instance if a function variable was not declared as `final`.
 
 In the example below, a meta-function is declared which is not `final` and thus specific versions of the function can be reassigned to point to a new function definition at runtime.
 
 ````zax
 add : $(
-    ResultType = Integer
+    ResultType = Integer,
+    Type = Integer
 )(
     result : $ResultType
 )(
@@ -314,7 +296,7 @@ add : $(
 // invoke a very specific instance of add with very specific type specified
 result1 := add$(U8)(100, 50)
 
-// invoke an implied version of add which presumes the result type based on
+// invoke an implied version of add which presumes a result type based on
 // the destination value's type
 result2 : Short = add(100, 50)
 
@@ -342,7 +324,7 @@ result3 := add$(U8)(100, 50)
 
 Meta-arguments on meta-functions can be values and not just type specifiers and these values can be defaulted if not specified.
 
-In the example below, `fillArray` has two meta-arguments and both have default values. This allows a caller the option of specifying no meta-arguments, either meta-argument, or both meta-arguments.
+In the example below, `fillArray` has two meta-arguments and both have default values. This allows a caller an option of specifying no meta-arguments, either meta-argument, or both meta-arguments.
 
 ````zax
 fillArray final : $(
@@ -370,13 +352,13 @@ result2 := fillArray$(5)(10)
 result3 := fillArray$(3)(17)
 
 // returned an array of `10` `U8` elements filled with `128`
-result4 := fillArray$(, U8)(128)
+result4 := fillArray$(#, U8)(128)
 ````
 
 
 #### Meta-functions with forced meta-arguments
 
-If a meta-argument is not defaulted, the met-argument will be required. This will ensure that an invocation of a meta-function with meta-arguments has intentionally defined arguments without any ambiguity with inferred values.
+If a meta-argument is not defaulted, a meta-argument will be required if it cannot be deduced. This will ensure that an invocation of a meta-function with meta-arguments has intentionally defined arguments without any ambiguity with inferred values.
 
 ````zax
 add final : $(
@@ -397,6 +379,7 @@ result2 := add$(Float)(3.5, 4.6)
 result3 := add$(String)("hello ", "world")
 
 // ERROR: the code cannot compile as the `$Type` specifier was not defaulted
-// and must be specified for the meta-function
-result4 := add(3, 4)
+// and must be specified for the meta-function since ambiguity exists in the
+// specified types
+result4 := add(3, 4.5)
 ````

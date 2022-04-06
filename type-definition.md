@@ -5,7 +5,7 @@
 
 ### Trivial type definitions
 
-Trivial types contain basic types such as booleans, integers, and floats, raw pointers and other trivial types. Trivial types can be cloned with a memory copy of the member contents.
+Trivial types contain basic types such as booleans, integers, and floats, raw pointers and other trivial types. Trivial types can be cloned with a memory copy of a `type`'s instance.
 
 ````zax
 :: import Module.System.Types
@@ -54,7 +54,7 @@ Error :: type {
 
 ### Uninitialized values
 
-Types by default will automatically initialize to a known default value. However, for optimization (or other) reasons, types can be left uninitialized using a triple question mark (`???`). Whatever random bits happen to be in memory when the type is instantiated will become embedded into the type's values.
+Types by default will automatically initialize to a known default value. However, for optimization (or other) reasons, types can be left uninitialized using a triple question mark (`???`). Whatever random bits happen to be in memory when a type is instantiated will become embedded into a `type`'s instance value.
 
 ````zax
 :: import Module.System.Types
@@ -69,7 +69,7 @@ A :: type {
 
 ### Type instantiation
 
-Instances of types can be created by declaring a variable name for the type and utilizing the type inside functions and scopes, contained within other types, or as part of dynamic allocation and construction.
+Instances of types can be created by declaring a variable name for a `type` and utilizing a `type` inside functions and scopes, contained within other `type`s, or as part of dynamic allocation and construction.
 
 ````zax
 A :: type {
@@ -119,7 +119,7 @@ func final : ()() = {
 
 ### Local variable type declarations and definition
 
-Types can be declared globally, inside other types, inside functions and inside locally defined types within functions. The type system is flexible to allow types as needed where needed.
+Types can be declared globally, inside other types, inside functions, inside locally defined types within functions, or even as part of a temporary anonymous value. The type system is flexible to allow types to exist where needed.
 
 ````zax
 func final : ()() = {
@@ -149,11 +149,11 @@ func final : ()() = {
 
 ### Union type definition
 
-Unions are data types where all of the types within share the same memory space. Typically unions are used for two main reasons:
+Unions are data types where all types within a `type` share the same memory space. Typically unions are used for two main reasons:
 * only one of the types can exist at a time and using a union incurs less overhead than declaring multiple optional data types
-* the underlying data aligns to the same memory layout in such a way that the type of input value can be remapped to another type of output value and the data type still functions in properly definable behavior
+* the underlying data aligns to the same memory layout in such a way that all a `type`'s values can be remapped to another `type`'s values and the data type can be treated as one type or another
 
-None fo the union variables can have default values and the programmer is to assume all of the memory backing the union contains garbage data until a particular variable becomes initialized. Setting a value in a union of one variable and reading the data back as a different variable can have undefined behaviors if the underlying types are not memory layout compatible. Unions do not account for little or bid endian memory differences, nor alignment concerns (except that a union will have an alignment of the common alignment factor of all contained data types).
+None of a union's variables can have default values and a programmer is to assume all of the memory backing a union contains garbage data until a particular variable becomes initialized. Setting a value in a union and reading the data back as a different variable can have undefined behaviors if the underlying `type`s are not memory layout compatible. Unions do not account for little or big endian memory differences, nor alignment concerns (except that a union will have an alignment of all contained data types).
 
 ````zax
 A :: type {
@@ -190,23 +190,25 @@ myUnion.b.planet = "Mars"
 myUnion.b.---()
 
 // simple types can be set without needing construction but the language
-// does provide a constructor for universality of type construction
+// does provide a constructor for universality of `type` construction
 myUnion.myFloat.+++()
 
-// clearer just to initialize the float using the standard type reset method
+// clearer just to initialize a float using a standard type reset method
 // since it's a simple type but effectively `+++` construction of a simple
-// type causes identical behavior
-myUnion.myFloat = #:
+// type which ends up being identical behavior
+myUnion.myFloat = #
 
-// UNDEFINED BEHAVIOR: resetting a non simple type will cause any destructor
-// to get called but the `b` variable was not in a constructed state
-myUnion.b = #:
+// UNDEFINED BEHAVIOR: resetting a non simple type will cause undefined behavior
+// as a `b` variable is not considered to been constructed even if it
+// was previous constructed thus a destructor will not be called (but the
+// `b` value will become constructed with a default constructor value)
+myUnion.b = #
 ````
 
 
 ### Function type definition
 
-Functions are a type just as any other type except they do not have a formal type declaration. Instead the type is always inlined in a lambda style definition as part of a declared function. Functions can be declared and defined at global space, inside other types, and inside other functions.
+Functions are a `type` just as any other `type` except they do not have a formal type declaration. Instead a `type` is always inlined in a lambda style definition as part of a declared function. Functions can be declared and defined at the global namespace, inside other types, and inside other functions.
 
 More information about functions can be found in the [functions](functions.md) section.
 
@@ -221,7 +223,7 @@ myFunc1 : ()()
 
 // declare and define the same function type as above but prevent the function
 // from ever having a value (other than to point to nothing); used to define
-// a type of function without having actual code definition
+// a type of function without having an actual code definition
 myFunc2 final : ()()
 ````
 
@@ -257,11 +259,12 @@ print final : ()(...) = {
 }
 
 // declare and define a function that returns nothing and takes a single
-// `String` argument and has the ability to capture values 
+// `String` argument and has the ability to capture values (while not
+// capturing any values in this instance)
 compareToKnownAnimals final : ()(value : String) = {
 
     // declare and define a function that returns nothing and takes a single
-    // `String` argument and captures the `value` variable value
+    // `String` argument and captures the `value` variable
     printIfEqual : ()(compare : String) = [value] {
         if value == compare
             print("they are the same", value, compare)

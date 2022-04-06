@@ -167,7 +167,7 @@ myType.value[10000] = false
 
 #### Meta-function selection using the `concept` directive
 
-For meta-functions, the `[[concept]]` directive can be used as a compile type mechanism to check if the function can be selected as a candidate for a given input, or output argument specified. If the the code in the `[[concept]]` block fails to compile or returns false then the meta-function cannot be selected as a legal candidate by the caller. The executed code must evaluate to a `true` or `false` statement.
+For meta-functions, the `[[concept]]` directive can be used as a compile type mechanism to check if the function can be selected as a candidate for a given input, or output argument specified. If the code in the `[[concept]]` block fails to compile or returns false then the meta-function cannot be selected as a legal candidate by the caller. The executed code must evaluate to a `true` or `false` statement.
 
 ````zax
 IsSelectable final : (result : Boolean)(ignored : ) [[concept]] = {
