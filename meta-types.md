@@ -149,7 +149,7 @@ myType.value[5] = 101
 A meta-type can can have arguments that are compile time constants as an input to the definition of the meta-type and these constants can be defaulted if not specified.
 
 ````zax
-MyType$(Bits : Integer = sizeof Integer) :: type {
+MyType$(Bits : Integer = size of Integer) :: type {
     bits : Boolean[$Bits]
 }
 
@@ -171,7 +171,7 @@ For meta-functions, the `[[concept]]` directive can be used as a compile type me
 
 ````zax
 IsSelectable final : (result : Boolean)(ignored : ) [[concept]] = {
-    if sizeof ignored > sizeof Integer
+    if size of ignored > size of Integer
         return false
     // ...
     return true

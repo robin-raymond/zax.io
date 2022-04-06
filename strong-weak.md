@@ -657,9 +657,9 @@ Transferring to an `own` pointer have limitations. Only if a pointer qualified a
 
 #### Converting from a container `strong` pointer to a contained `strong` pointer
 
-The `lifetimeof` operators can be used to cast a raw pointer to a variable which has a lifetime tied to an original `strong` or `handle` pointer.
+The `lifetime of` operators can be used to cast a raw pointer to a variable which has a lifetime tied to an original `strong` or `handle` pointer.
 
-A `strong` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained types are the same as the container type, only a `strong` pointer to the container type may exist (despite both types being considered as a single instance). The `lifetimeof` operator is especially useful to create a `strong` pointer of a contained type from a `strong` pointer to a container's type.
+A `strong` pointer to a type's instance may contain other types within the instance that share a common lifetime. While the lifetime of these contained types are the same as the container type, only a `strong` pointer to the container type may exist (despite both types being considered as a single instance). The `lifetime of` operator is especially useful to create a `strong` pointer of a contained type from a `strong` pointer to a container's type.
 
 Example as follows:
 
@@ -672,7 +672,7 @@ MyType :: type {
 myType : MyType * strong @
 
 // create a pointer to `value` and link the lifetime of `myType` to the pointer
-value : Integer * strong = myType.value1 lifetimeof myType
+value : Integer * strong = myType.value1 lifetime of myType
 
 // resetting the `myType`'s `strong` pointer will not impact the real lifetime
 // of the instance connected to `myType` (as the `value` `strong` pointer will
@@ -687,9 +687,9 @@ value. = 5
 
 #### Converting from a container `strong` pointer to a contained `strong` pointer
 
-While any pointer to any type can be linked to a `strong` or `handle` pointer using an `unsafe lifetimeof` operator, a `lifetimeof` operator can link a pointer to a contained type back to the original `strong` or `handle` pointer safely by verifying a pointer refers to a memory addresses within the bounds of the allocated `strong` or `handle` pointer.
+While any pointer to any type can be linked to a `strong` or `handle` pointer using an `unsafe lifetime of` operator, a `lifetime of` operator can link a pointer to a contained type back to the original `strong` or `handle` pointer safely by verifying a pointer refers to a memory addresses within the bounds of the allocated `strong` or `handle` pointer.
 
-An example of a runtime `lifetimeof` being applied onto a `strong` pointer:
+An example of a runtime `lifetime of` being applied onto a `strong` pointer:
 
 ````zax
 A :: type managed {
@@ -708,7 +708,7 @@ C :: type {
 doSomething final : ()(a : A * strong) = {
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type and create a `strong` pointer from `a`
-    b := (a outerof B *) lifetimeof a
+    b := (a outer of B *) lifetime of a
 }
 
 function final : ()() = {
@@ -717,23 +717,23 @@ function final : ()() = {
     value.bar = 2
 
     // link a `strong` pointer to `a` from `value`
-    a : A * strong = value.a lifetimeof value
+    a : A * strong = value.a lifetime of value
 
     doSomething(a)
 }
 ````
 
 
-#### `lifetimeof` versus `unsafe lifetimeof`
+#### `lifetime of` versus `unsafe lifetime of`
 
-The exclusive difference between these operators is safety. An `unsafe lifetimeof` operator will force a conversion of any raw pointer to link to `handle` or `strong` pointer even for unrelated pointers. A `lifetimeof` operator will validate a raw pointer actually points inside the address boundaries of the `handle` or `strong` pointer. If a pointer to memory is not located in the correct allocation boundary then `lifetimeof` will return a pointer to nothing. Thus a programmer can choose their tradeoff between safety and speed.
+The exclusive difference between these operators is safety. An `unsafe lifetime of` operator will force a conversion of any raw pointer to link to `handle` or `strong` pointer even for unrelated pointers. A `lifetime of` operator will validate a raw pointer actually points inside the address boundaries of the `handle` or `strong` pointer. If a pointer to memory is not located in the correct allocation boundary then `lifetime of` will return a pointer to nothing. Thus a programmer can choose their tradeoff between safety and speed.
 
 
-#### Converting using `unsafe lifetimeof`
+#### Converting using `unsafe lifetime of`
 
-Any pointer to any type can be linked to a `handle` or `strong` pointer using an `unsafe lifetimeof` operator. The memory is not checked to see if the memory address being casted resides within the memory space of the original `handle` or `strong` pointer. The programmer must be careful to use this feature carefully since this function will forcefully adopt the lifetime of a `handle` or `strong` pointer.
+Any pointer to any type can be linked to a `handle` or `strong` pointer using an `unsafe lifetime of` operator. The memory is not checked to see if the memory address being casted resides within the memory space of the original `handle` or `strong` pointer. The programmer must be careful to use this feature carefully since this function will forcefully adopt the lifetime of a `handle` or `strong` pointer.
 
-An example of a runtime `unsafe lifetimeof` being applied onto a `handle` pointer:
+An example of a runtime `unsafe lifetime of` being applied onto a `handle` pointer:
 
 ````zax
 A :: type managed {
@@ -753,7 +753,7 @@ doSomething final : (result : Unknown * strong)(a : A * strong, unknown : Unknow
     // forcefully convert from the lifetime of one pointer to another type
     // without conducting any safety checks to ensure the casted pointer lives
     // within the memory range of the original allocation
-    b := unknown unsafe lifetimeof a
+    b := unknown unsafe lifetime of a
     assert(b)
 
     // ...
@@ -766,7 +766,7 @@ function final : ()() = {
     value.bar = 2
 
     // link a `strong` pointer to `a` from `value`
-    a : A * strong = value.a lifetimeof value
+    a : A * strong = value.a lifetime of value
 
     doSomething(a, value)
 }

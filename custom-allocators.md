@@ -184,8 +184,8 @@ deallocate final : ()(pointer : Unknown *) = {
 }
 
 func final : ()() = {
-    pointer = allocate(sizeof MyType, alignof MyType)
-    
+    pointer = allocate(size of MyType, alignment of MyType)
+
     // convert the raw pointer
     myType : MyType * = pointer unsafe as MyType *
     

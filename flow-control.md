@@ -36,7 +36,7 @@ isNegative final : (output: Boolean) (input : Integer) = {
     // ERROR: the condition and statement following have no separation
     if input < 0 return true
 
-    // ERROR: the condition and statement are still now separated and this is
+    // ERROR: the condition and statement are still not separated and this is
     // not a legal form of the `if` statement
     if input < 0; return true
 
@@ -134,7 +134,7 @@ print("my disposition is", whatsForLunch("veal"))
 
 #### `if` initialization statements and condition
 
-An `if` statement can contain an initialization statement with a condition (which must be separated by a sub-statement separator `;;`)followed by a code block. If a value is declared in an initialization statement then that value's scope only exists within the context of an `if` or `else` control flow.
+An `if` statement can contain an initialization statement with a condition (which must be separated by a sub-statement separator `;;`) followed by a code block. If a value is declared in an initialization statement then that value's scope only exists within the context of an `if` or `else` control flow.
 
 ````zax
 // a happy number is less than -5 and even, or less than -10, or divisible by 3

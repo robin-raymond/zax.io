@@ -433,7 +433,7 @@ if [[requires]] { return ++value > 2 } {
 }
 
 metaFunction : ()(input :) [[requires]] {
-    if (sizeof :input) < (sizeof Integer)
+    if (size of :input) < (size of Integer)
         return false
     return true
 } = {
@@ -480,7 +480,7 @@ UseSimpleType final : (result : Boolean)(ignored : $Type) [[concept]] = {
         ignored += 5
         ignored -= 5
     } return false
-    if sizeof $Type > sizeof U32
+    if size of $Type > size of U32
         return false
     return true
 }
@@ -642,7 +642,7 @@ MyPacket :: type {
 }
 
 // this assert should be `true`
-assert(sizeof MyType == sizeof Integer + sizeof Uuid)
+assert(size of MyType == size of Integer + size of Uuid)
 ````
 
 

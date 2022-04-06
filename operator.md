@@ -9,18 +9,32 @@ Overloadable operators (e.g. greater than (`>`), less than (`<`>), equal to (`=`
 
 The resulting type for an operator is entirely arbitrary but the recommendation is to follow the normal expectations of a consumer of the programming interface. For example, comparison operators are expected to return `Boolean` values and thus returning a String from these operations would be unexpected.
 
-Adding three new operators for mixing `String` types and `Integer` types:
+Adding three new operators for mixing `String` types and `Integer` types and a pre/post unary operator for `String` types:
 
 ````zax
-operator < final : (result : Boolean)(lhs : Integer, rhs : String) = {
+operator binary '<' final : (result : Boolean)(lhs : Integer, rhs : String) = {
     // ...
 }
 
-operator < final : (result : Boolean)(lhs : String, rhs : Integer) = {
+operator binary '<' final : (result : Boolean)(lhs : String, rhs : Integer) = {
     // ...
 }
 
-operator += final : (result : String &)(lhs : String &, rhs : Integer) = {
+operator binary '+=' final : (
+    result : String &
+)(
+    lhs : String &, rhs : Integer
+) = {
+    // ...
+    return lhs
+}
+
+operator pre unary `~` final : (result : String&)(rhs : String &) = {
+    // ...
+    return rhs
+}
+
+operator post unary `++` final : (result : String&)(lhs : String &) = {
     // ...
     return lhs
 }
@@ -44,6 +58,12 @@ myValue2 += myValue1
 
 // ERROR: the operator `+=` that takes an integer and a string is not found
 myValue1 += myValue2
+
+// OKAY: a pre operator was defined that takes a string (and returns a string) 
+~myValue2
+
+// OKAY: a post operator was defined that takes a string (and returns a string) 
+myValue2++
 ````
 
 
@@ -62,31 +82,31 @@ MyType :: type {
     value1 : Integer
     value2 : String
 
-    operator += final : (result : MyType &)(rhs : Integer) = {
+    operator binary '+=' final : (result : MyType &)(rhs : Integer) = {
         value1 += rhs
         return _
     }
 
-    operator += final : (result : MyType &)(rhs : String) = {
+    operator binary '+=' final : (result : MyType &)(rhs : String) = {
         value2 += rhs
         return _
     }
 
-    operator ~ final : (result : MyType)() = {
+    operator pre unary '~' final : (result : MyType)() = {
         result.value1 = ~value1
         return result
     }
 
-    operator > final : (result : Boolean)(rhs : Integer) constant = {
+    operator binary '>' final : (result : Boolean)(rhs : Integer) constant = {
         return value1 > rhs
     }
 
-    operator < final : (result : Boolean)(rhs : Integer) constant = {
+    operator binary '<' final : (result : Boolean)(rhs : Integer) constant = {
         return value1 < rhs
     }
 }
 
-operator > final : (result : Boolean)(lhs : Integer, rhs : MyType constant &) = {
+operator binary '>' final : (result : Boolean)(lhs : Integer, rhs : MyType constant &) = {
     return lhs > rhs.value1
 }
 
@@ -123,29 +143,29 @@ if 5 < myType {
 
 Operators overloading of string literals can be created. These kinds of operators create type instances from string literals. As an example, h'9842ABFD' can be used to create a constant integer given a hexadecimal value. As string literals are constants, they should utilize compile type string literal overloading.
 
-An `[[execute]]` directive will cause a literal operator to be run at compile time and a constant result will be used in-place of a run time calculated value. Literals can not be invoked with runtime arguments as the strings quoted in single (`'`) or double (`"`) quotes are always resolved at compile time.
+An `[[execute]]` directive will cause a literal operator to be run at compile time and a constant result will be used in-place of a run time calculated value. Literals cannot be invoked with runtime arguments as the strings quoted in single (`'`) or double (`"`) quotes are always resolved at compile time.
 
 An input to literal operators is always a `String` type.
 
 Adding a roman numeral literal operators:
 
 ````zax
-operator roman'' : (value : )(input : String) [[execute]] = {
+operator literal 'roman' : (value : )(input : String) [[execute]] = {
     // `value`'s type will be assumed based on the return value type
     // (e.g. a roman number being assigned to a `UShort` rather than an integer)
     
     // ...
 }
 
-operator roman'' : (value : Integer)(input : String) [[execute]] = {
+operator literal 'roman' : (value : Integer)(input : String) [[execute]] = {
     // `value`'s type will return an integer type where the type is
     // not discoverable based on the caller
     
     // ...
 }
 
-// `value1` will use the `Integer` version of the roman operator
-// with a value of `8`
+// `value1` will use the `Integer` version of the roman operator with a value
+// of `8`
 value1 := roman'VIII'
 
 // `value2` will use the version of the roman operator where the
@@ -155,4 +175,49 @@ value2 : Byte = roman'IX'
 // `value3` will use the version of the roman operator where the
 // result's type is omitted and becomes a `Byte` type with a value of 3724
 value3 : Word = roman"MMMDCCXXIV"
+````
+
+
+### Word operators and compound word operators
+
+Word operators can be used to create new operators from language words. These operators can be singular words such as `run` or compound words such as `run fast`.
+
+Word operators can overload existing operators that are not technically overloadable such as `unsafe as`. In these cases word operators are of lower priority than the built-in word operators and only apply when the default operation is not available (such as casting from a `String` to a `WideString`).
+
+Selection rules will cause the longest compound word to be matched first and lessor length compounded words to be matched later.
+
+````zax
+operator pre unary 'run' final : (result : String &)(rhs : String &) = {
+    // ...
+    return rhs
+}
+
+operator pre unary 'run fast' final : (result : String &)(rhs : String &) = {
+    // ...
+    return rhs
+}
+
+operator binary 'run fast from' final : (result : String &)(lhs : String &, rhs : Integer) = {
+    // ...
+    return lhs
+}
+
+value : String
+
+// OKAY: pre `run` operator is selected
+run value
+
+// OKAY: pre `run fast` operator is selected, not `run` operator because
+// `run fast` is the longer match
+run fast value
+
+// ERROR: `run` is not a post-unary operator
+value run
+
+// OKAY: the binary operator `run fast from` is selected
+value run fast from 5
+
+// ERROR: no binary or post operator `run fast` exists and thus an error is
+// issued
+value run fast 5
 ````

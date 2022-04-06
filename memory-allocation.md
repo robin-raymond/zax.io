@@ -562,8 +562,8 @@ An example `own` pointer content and control block:
 ````zax
 /*
 OwnPointerControlBlock$(Type) :: type {
-    [[reserve=sizeof Atomic$(Integer)]]
-    [[reserve=sizeof Atomic$(Integer)]]
+    [[reserve=size of Atomic$(Integer)]]
+    [[reserve=size of Atomic$(Integer)]]
     allocator : Allocator *
     destructor : ()() *
     deallocateType : Unknown *

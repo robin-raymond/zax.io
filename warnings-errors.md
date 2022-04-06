@@ -12,7 +12,7 @@ An `error` can forcefully be issued by a programmer by using an `[[error="<messa
 An optional `name` and `value` are any arguments that are part of an error message to display. A `name` value is looked up in the string and substituted with the `value`. Multiple `name` and `value` pairs may exist.
 
 ````zax
-if sizeof Integer != 4 {
+if size of Integer != 4 {
     [[error="this poorly written code assumes an Integer is 4 bytes"]]
 }
 
@@ -71,7 +71,7 @@ The following are registered errors, and their meaning:
     * an attempt was made to call a function where none of the function candidates available are a viable choice
 * `function-candidate-ambiguous`
     * an attempt was made to call a function where two (or more) matches are equally selectable even with all qualifiers considered
-* `unsafe-outerof-ambiguous`
+* `unsafe-outer-of-ambiguous`
     * an attempt was made to cast from a contained pointer to a container pointer but which from `type` is ambiguous
 * `except-ambiguous`
     * an attempt was made to return a value using the `except` statement but the best match for the return `type` is ambiguous or the defaulted output argument name for the `except` is ambiguous
@@ -131,7 +131,7 @@ A `warning` can forcefully be issued by the compiler by using the `[[warning="<m
 The optional `name` and `value` are any arguments that are part of the error message to display. The `name` value is looked up in the string and substituted with the `value`. Multiple `name` and `value` pairs may exist.
 
 ````zax
-if sizeof Integer > 4 {
+if size of Integer > 4 {
     [[warning="this poorly written code hasn't been testing on Integers larger than 4 bytes"]]
 }
 
@@ -280,8 +280,8 @@ The following are registered warnings, default states, and their meaning:
     * a condition always appears to be `false` (without using the `[[never]]` directive))
 * `float-equal` (always)
     * a floating point was used in an `==` comparison
-* `sizeof-zero` (always)
-    * a `sizeof` operator was used on a `type` whose size is always zero
+* `size-of-zero` (always)
+    * a `size-of` operator was used on a `type` whose size is always zero
 * `cpu-alignment-not-supported` (always)
     * a `type` is using an alignment for a `type` which the CPU knowingly cannot support or access
 * `upgrade-directive` (always)

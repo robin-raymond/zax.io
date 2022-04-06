@@ -100,6 +100,8 @@ for a given context.
 
 ````zax
 alias
+alias keyword
+alias operator
 await
 break
 case
@@ -113,21 +115,18 @@ deep
 default
 defer
 discard
-each
-else
+each / from
+each / in
 except
 false
 forever
-from
 handle
 hint
 if
-in
-is
+if / else
 immutable
 import
 inconstant
-keyword
 last
 lazy
 lease
@@ -136,30 +135,33 @@ move
 mutable
 mutator
 once
-operator
+operator binary
+operator literal
+operator pre unary
+operator post unary
 override
 own
 private
 promise
 raw
-redo
+redo until
+redo while
 return
 scope
 shallow
-suspend
 switch
 task
 true
 type
 union
 unique
-unsafe
 until
 using
 varies
 weak
 while
 yield
+yield suspend
 ````
 
 
@@ -180,130 +182,132 @@ foobar_ : Type constant
 ### Operators
 
 #### Overloadable
+
 ````
-+               // pre-unary plus operator
--               // pre-unary minus operator
-+               // binary plus operator
--               // binary minus operator
-++              // (pre or post) unary increment operator
---              // (pre and post) unary decrement operator
-*               // binary multiply operator
-/               // binary divide operator
-%               // binary modulus divide operator
-=               // binary assign operator
-^               // binary bitwise xor operator
-&               // binary bitwise and operator
-|               // binary bitwise or operator
-<<              // binary bitwise left shift operator
->>              // binary bitwise right shift operator
-<<<             // binary bitwise left rotate operator
->>>             // binary bitwise right rotate operator
-~               // pre-unary bitwise one's compliment operator
-~|              // pre-unary bitwise parity operator
-~&              // binary bitwise clear operator
-!               // pre-unary logical not operator
-&&              // binary logical and operator
-||              // binary logical or operator
-^^              // binary logical exclusive or operator
-+=              // binary add and assign operator
--=              // binary subtract and assign operator
-*=              // binary multiply and assign operator
-/=              // binary divide and assign operator
-%=              // binary modulus divide and assign operator
-==              // binary equal operator
-!=              // binary not equal operator
-<=>             // binary three-way comparison operator
-<<>>            // binary two-way swap
-<               // binary less than operator
->               // binary greater than operator
-<=              // binary less than operator
->=              // binary greater than operator
-~=              // binary bitwise one's compliment operator
-^=              // binary bitwise xor and assign operator
-|=              // binary bitwise or and assign operator
-~|=             // binary bitwise parity operator
-~&=             // binary bitwise clear and assign operator
-<<=             // binary bitwise left shift and assign operator
->>=             // binary bitwise right shift and assign operator
-<<<=            // binary bitwise left rotate and assign operator
->>>=            // binary bitwise right rotate and assign operator
-.               // post-unary dereference operator
-'               // pre/post-unary literal start/end operator
-"               // pre/post-unary literal start/end operator
-as              // binary safe type conversion operator
-unsafe as       // binary unsafe type conversion operator
-()              // pre/post-unary function invocation operator
-[]              // pre/post-unary array access operator
-countof         // pre-unary count operator
-                // (returns the number elements in a type or the total reference
-                // count for a `handle` / `hint`, or `strong` / `weak` pointer)
-overhead        // pre-unary overhead operator
-                // (obtains a pointer to the overhead information for a pointer,
-                // `own`, `handle`, `hint`, `strong`, or `weak` pointer or
-                // optional type)
-overheadof      // pre-unary overhead sizing operator
-                // (return the number of bytes overhead is needed for this type)
-                // i.e. typically the size of a control block
-allocatorof     // pre-unary allocator operator
-                // (returns the allocator instance used to allocate an instance)
++                  // pre-unary plus operator
+-                  // pre-unary minus operator
++                  // binary plus operator
+-                  // binary minus operator
+++                 // (pre or post) unary increment operator
+--                 // (pre and post) unary decrement operator
+*                  // binary multiply operator
+/                  // binary divide operator
+%                  // binary modulus divide operator
+=                  // binary assign operator
+^                  // binary bitwise xor operator
+&                  // binary bitwise and operator
+|                  // binary bitwise or operator
+<<                 // binary bitwise left shift operator
+>>                 // binary bitwise right shift operator
+<<<                // binary bitwise left rotate operator
+>>>                // binary bitwise right rotate operator
+~                  // pre-unary bitwise one's compliment operator
+~|                 // pre-unary bitwise parity operator
+~&                 // binary bitwise clear operator
+!                  // pre-unary logical not operator
+&&                 // binary logical and operator
+||                 // binary logical or operator
+^^                 // binary logical exclusive or operator
++=                 // binary add and assign operator
+-=                 // binary subtract and assign operator
+*=                 // binary multiply and assign operator
+/=                 // binary divide and assign operator
+%=                 // binary modulus divide and assign operator
+==                 // binary equal operator
+!=                 // binary not equal operator
+<=>                // binary three-way comparison operator
+<<>>               // binary two-way swap
+<                  // binary less than operator
+>                  // binary greater than operator
+<=                 // binary less than operator
+>=                 // binary greater than operator
+~=                 // binary bitwise one's compliment operator
+^=                 // binary bitwise xor and assign operator
+|=                 // binary bitwise or and assign operator
+~|=                // binary bitwise parity operator
+~&=                // binary bitwise clear and assign operator
+<<=                // binary bitwise left shift and assign operator
+>>=                // binary bitwise right shift and assign operator
+<<<=               // binary bitwise left rotate and assign operator
+>>>=               // binary bitwise right rotate and assign operator
+.                  // post-unary dereference operator
+'                  // pre/post-unary literal start/end operator
+"                  // pre/post-unary literal start/end operator
+()                 // pre/post-unary function invocation operator
+[]                 // pre/post-unary array access operator
 ````
 
 
 #### Non overloadable
 
 ````
-*                 // post-unary pointer type declaration
-&                 // post-unary reference type declaration, or
-                  // pre-unary capture by reference operator
-@                 // unary/binary standard allocator operator
-                  // (allocate using the standard allocator and construct type)
-@@                // unary/binary parallel allocator operator
-                  // (allocate using the parallel allocator and construct type)
-@!                // unary/binary synchronous allocator operator (allocate using
-                  // the synchronous allocator and construct type)
-.                 // binary namespace resolution operator
-,                 // post-unary argument operator
-;                 // binary statement separator and combiner operator
-;;                // binary sub-statement separator operator
-:                 // binary variable type declaration operator
-::                // binary data type or meta-type declaration operator
-?                 // post-unary optional type operator
-??                // binary ternary operator (combined with sub-statement
-                  // separator operator `;;`)
-???               // unary uninitialized type operator
->>                // binary function composition
-|>                // binary function invocation chaining
-->                // post-unary argument combine operator (combine remaining
-                  // function result arguments into a single automatically
-                  // defined type)
-<-                // pre-unary argument split operator (split type into
-                  // multiple function arguments)
-\                 // post-unary statement continuation operator
-outerof           // binary outer type instance of operator (convert from
-                  // contained `type` pointer to container `type` pointer safely
-                  // via a managed type's RTTI)
-lifetimeof        // shared lifetime operator (binds a raw pointer to an
-                  // existing `strong` or `handle` pointer and safely checks if
-                  // the pointer to a type points to memory within the allocated
-                  // `strong` or `handle` pointer)
-unsafe outerof    // binary unsafe outer type casting operator (convert from
-                  // contained type pointer to container type pointer)
-unsafe copyas     // binary unsafe `Unknown` copy casting of a function pointer
-                  // (treat an `Unknown` pointer as pointing to an instance of a
-                  // casted function `type` and make a copy of captured
-                  // function contents)
-unsafe lifetimeof // binary unsafe shared lifetime casting operator (converts a
-                  // raw pointer to share a lifetime with an existing `strong`
-                  // or `handle` pointer)
-sizeof            // pre-unary size of operator (returns the size of a type in
-                  // bytes)
-alignof           // pre-unary align of operator (return the alignment of a
-                  // type in modulus bytes)
-offsetof          // binary offset of operator (compute the byte offset of a
-                  // contained variable from a container type or container
-                  // variable)
-typeof            // pre-unary obtain the meta-data information of a variable,
-                  // or expression, or `type`
+*                   // post-unary pointer type declaration
+&                   // post-unary reference type declaration, or
+                    // pre-unary capture by reference operator
+@                   // unary/binary standard allocator operator (allocate using
+                    // the standard allocator and construct type)
+@@                  // unary/binary parallel allocator operator (allocate using
+                    // the parallel allocator and construct type)
+@!                  // unary/binary synchronous allocator operator (allocate
+                    // using the synchronous allocator and construct type)
+.                   // binary namespace resolution operator
+,                   // post-unary argument operator
+;                   // binary statement separator and combiner operator
+;;                  // binary sub-statement separator operator
+:                   // binary variable type declaration operator
+::                  // binary data type or meta-type declaration operator
+?                   // post-unary optional type operator
+??                  // binary ternary operator (combined with sub-statement
+                    // separator operator `;;`)
+???                 // unary uninitialized type operator
+>>                  // binary function composition
+|>                  // binary function invocation chaining
+->                  // post-unary argument combine operator (combine remaining
+                    // function result arguments into a single automatically
+                    // defined type)
+<-                  // pre-unary argument split operator (split type into
+                    // multiple function arguments)
+\                   // post-unary statement continuation operator
+as                  // binary safe type conversion operator    
+unsafe as           // binary unsafe type conversion operator
+outer of            // binary outer type instance of operator (convert from
+                    // contained `type` pointer to container `type` pointer
+                    // safely via a managed type's RTTI)
+lifetime of         // shared lifetime operator (binds a raw pointer to an
+                    // existing `strong` or `handle` pointer and safely checks
+                    // if the pointer to a type points to memory within the
+                    // allocated `strong` or `handle` pointer)
+unsafe outer of     // binary unsafe outer type casting operator (convert from
+                    // contained type pointer to container type pointer)
+unsafe copy as      // binary unsafe `Unknown` copy casting of a function
+                    // pointer (treat an `Unknown` pointer as pointing to an
+                    // instance of a casted function `type` and make a copy of
+                    // captured function contents)
+unsafe lifetime of  // binary unsafe shared lifetime casting operator (converts
+                    // a raw pointer to share a lifetime with an existing
+                    // `strong` or `handle` pointer)
+count of            // pre-unary count of a variadic expression
+size of             // pre-unary size of operator (returns the size of a type in
+                    // bytes)
+alignment of        // pre-unary align of operator (return the alignment of a
+                    // type in modulus bytes)
+offset of           // binary offset of operator (compute the byte offset of a
+                    // contained variable from a container type or container
+                    // variable)
+type of             // pre-unary obtain the meta-data information of a variable,
+                    // or expression, or `type`
+count of            // pre-unary count of a type
+overhead count of   // pre-unary overhead count operator (returns the total
+                    // reference count for a `handle` / `hint`, or
+                    // `strong` / `weak` pointer)
+overhead as         // pre-unary overhead operator (obtains a pointer to the
+                    // overhead information for a pointer, `own`, `handle`,
+                    // `hint`, `strong`, or `weak` pointer or optional type)
+overhead size of    // pre-unary overhead sizing operator (return the number of
+                    // bytes overhead is needed for this type i.e. typically the
+                    // size of a control block)
+allocator of        // pre-unary allocator operator (returns the allocator
+                    // instance used to allocate an instance)
 ````
 
 Other expressions (cannot be overloaded):
@@ -387,10 +391,11 @@ funcName : ()() = {
 }
 
 // function variables when used as as function prototypes are recommended in
-// upper CamelCase
+// upper CamelCase (and should be declared as `final` with no assigned function
+// implementation and containing no value capturing)
 FunctionPrototype final : ()()
 
-// scope names are recommended with lower_case_with_underscores
+// scope names are recommended in lower_case_with_underscores
 scope my_scope {
 }
 
@@ -423,23 +428,24 @@ TypeName :: type {
     variableName : Integer
 }
 
-// A type can be assumed based on the value rather than requiring explicit
-// declaration
+// A `type` can be assumed based on a value rather than requiring explicit
+// declaration (note that two unique operators are below, the `:` and the `=`
+// operator)
 assumedType := funcReturningType()
 
-// Types can be deduced based on automatic type deduction when a variable is
-// used in place of a type name
+// Types can be deduced based on automatic type deduction from a variable
+// instead of an explicit `type` name
 originValue : Integer
 valueBorrowsOriginalValuesType : originalValue
 
 // Symbols that start with _ are reserved for compiler and toolchain generated
-// symbols and may contain additional underscores where needed thus are
-// entirely reserved and must not be used by a programmer as a prefix.
+// symbols and may contain additional underscores where needed (thus are
+// entirely reserved and must not be used by a programmer as a prefix).
 _reservedVariableName
 _ReservedTypeName
 
 // Symbols ending with _ are discouraged except in the case of disambiguating
-// keywords from symbols.
+// keywords from symbols (and a compiler may lint these names).
 as_ // e.g. `as` is a keyword, but `as_` is not a keyword.
 
 MyType :: type {
@@ -449,17 +455,17 @@ MyType :: type {
     _no := 0    // NOT recommended (Zax has built in disambiguation)
     no_ := 0    // NOT recommended (Zax has built in disambiguation)
 
-    // This pointer for the current type's instance is reserved as a single
-    // underscore `_` and type variables can be distinguished from arguments by
-    // using `_.value` vs a locally declaration of `value`.
+    // This pointer for the current `type`'s instance is reserved as a single
+    // underscore `_` and `type` variables can be distinguished from arguments
+    // by using `_.value` versus a locally declaration of `value`.
 
     value : Integer
 
     function final : ()() = {
         value : Integer
 
-        _.value = 1    // MyType's value is set to 1
-        value = 1      // local value is set to 1
+        _.value = 1    // `MyType`'s `value` is set to `1`
+        value = 1      // local `value` is set to `1`
     }
 }
 ````
@@ -472,7 +478,7 @@ MyType :: type {
 :: import Module.System.Types
 
 unknown : Unknown   // used as a generic pointer type to an `Unknown` type
-nothing : Nothing   // used as a generic type instance of `Nothing`
+nothing : Nothing   // used as a generic type of `Nothing`
 void : Void         // an alias of the `Unknown` type
 boolean : Boolean   // A value representing `true` or `false` literals
 
@@ -598,7 +604,7 @@ stringB := "type is implied"
 
 // other string encodings are supported
 utf8String : Utf8String = utf8'© Snowman Industries (☃)'
-wideString : WString = w'hello'
+wideString : WideString = w'hello'
 ````
 
 

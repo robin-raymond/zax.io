@@ -63,9 +63,9 @@ list("random items", 6, "marbles", "fudge", "glasses", "bar", "staples", "wine")
 ````
 
 
-### Using `countof` with variadic functions
+### Using `count of` with variadic functions
 
-The `countof` operator can be used to count the number of items passed into a variadic function.
+The `count of` operator can be used to count the number of items passed into a variadic function.
 
 ````zax
 print final : ()(...) = {
@@ -77,7 +77,7 @@ list final : ()(value : String) = {
 }
 
 list final : ()(listName : String, ...) = {
-    print("list type:", listName, "total items:", countof ...)
+    print("list type:", listName, "total items:", count of ...)
 
     each value: in ... {
         list(value)

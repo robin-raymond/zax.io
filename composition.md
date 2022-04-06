@@ -557,9 +557,9 @@ void function() {
 
 ##### Zax forced downcast
 
-In the Zax language forcefully converting from a contained type to the type's container requires sing the `unsafe outerof` operator. Using this operator must be done with caution as the programmer is forcefully telling the compiler that the composition relationship is guaranteed. If the programmer was wrong then undefined behavior will result.
+In the Zax language forcefully converting from a contained type to the type's container requires sing the `unsafe outer of` operator. Using this operator must be done with caution as the programmer is forcefully telling the compiler that the composition relationship is guaranteed. If the programmer was wrong then undefined behavior will result.
 
-An `unsafe outerof` can be ambiguous if the container type contains two (or more) of the same type which matches the type being casted. The compiler doesn't have any RTTI information necessary to make the appropriate decision as to which of the multiple instance the type is being casted from and thus would issue a `unsafe-outerof-ambiguous` error. Using `outerof` on a `managed` type would resole this issue. Alternatively, consider containing one of the duplicate types inside another container to make the route to cast to the outer container type non-ambiguous.
+An `unsafe outer of` can be ambiguous if the container type contains two (or more) of the same type which matches the type being casted. The compiler doesn't have any RTTI information necessary to make the appropriate decision as to which of the multiple instance the type is being casted from and thus would issue a `unsafe-outer-of-ambiguous` error. Using `outer of` on a `managed` type would resole this issue. Alternatively, consider containing one of the duplicate types inside another container to make the route to cast to the outer container type non-ambiguous.
 
 ````zax
 A :: type {
@@ -577,11 +577,11 @@ C :: type {
 
 doSomething : ()(a : A*) = {
     // UNSAFE:
-    // using the `unsafe outerof` operators can be used to fast convert from a
+    // using the `unsafe outer of` operators can be used to fast convert from a
     // contained type to a container type -- be sure the `a` is an
     // `a` type within the `B` type or this will be unsafe and will
     // result in undefined behavior
-    b1 := a unsafe outerof B*
+    b1 := a unsafe outer of B*
 
     // ERROR:
     // `a` cannot be converted to a `B*` since it's not a compatible type
@@ -594,13 +594,13 @@ doSomething : ()(a : A*) = {
     // an `A*` type to a `B*` forcefully. Unless the memory of the contained
     // type and container type happen to be in the same location this
     // will cause undefined behavior (and should always be considered unsafe)
-    b3 := a unsafe outerof B*
+    b3 := a unsafe outer of B*
 
     // ERROR:
     // `a`'s type `A` must be declared as `managed` and thus currently does not
     // include the runtime type information overhead on the type to know if
     // converting from an `A*` to a `B*` is possible
-    b4 := a outerof B*
+    b4 := a outer of B*
 }
 
 function final : ()() = {
@@ -617,7 +617,7 @@ function final : ()() = {
 
 ##### Zax runtime downcast
 
-In the Zax language, the keyword `managed` must be included on the type declaration where a type might be used as a source of conversion using the `outerof` operator. The `outerof` keyword will use this overhead RTTI properties to perform a conversion if it is allowed. As runtime type information requires additional resource overhead for a given type, the `managed` keyword signals the type needs to include the overhead whenever the type is instantiated.
+In the Zax language, the keyword `managed` must be included on the type declaration where a type might be used as a source of conversion using the `outer of` operator. The `outer of` keyword will use this overhead RTTI properties to perform a conversion if it is allowed. As runtime type information requires additional resource overhead for a given type, the `managed` keyword signals the type needs to include the overhead whenever the type is instantiated.
 
 ````zax
 // additional overhead is required on the A type to convert from the base
@@ -638,15 +638,15 @@ C :: type {
 
 doSomething final : ()(a : A*) = {
     // UNSAFE:
-    // using the `unsafe outerof` operators can be used to fast convert from a
+    // using the `unsafe outer of` operators can be used to fast convert from a
     // contained type to a container type -- be sure the `a` is an
     // `a` type within the `B` type or this will be unsafe and will
     // result in undefined behavior
-    b1 := a unsafe outerof B*
+    b1 := a unsafe outer of B*
 
     // ERROR:
     // while `a` can be converted to a `B*` additional RTTI overhead is required
-    // to perform the conversion thus the compiler forces the `outerof`
+    // to perform the conversion thus the compiler forces the `outer of`
     // operator to be used to acknowledge the overhead requirements (which are
     // normally not present for simple pointer math offset conversions)
     b2 := a as B*
@@ -656,12 +656,12 @@ doSomething final : ()(a : A*) = {
     // an `A*` type to a `B*` forcefully. Unless the memory of the contained
     // type and container type happen to be in the same location this
     // will cause undefined behavior (and should always be considered unsafe)
-    b3 := a unsafe outerof B*
+    b3 := a unsafe outer of B*
 
     // SAFEST:
     // probe `a` to see if it is indeed within a `B` type and if so then
     // return a pointer to a B type
-    b4 := a outerof B*
+    b4 := a outer of B*
 
     if b4 {
         // ...

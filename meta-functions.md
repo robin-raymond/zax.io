@@ -119,7 +119,7 @@ For meta-functions, a `[[concept]]` directive can be used as a compile type mech
 
 ````zax
 IsSelectable final : (result : Boolean)(ignored : ) [[concept]] = {
-    if sizeof ignored > sizeof Integer
+    if size of ignored > size of Integer
         return false
     // ...
     return true
@@ -241,11 +241,11 @@ myOtherType.add(value1)
 myOtherType.add(value2)
 myOtherType.add(value3)
 
-// the sizeof `MyType` will be larger than the sizeof `MyOtherType` as
+// the size of `MyType` will be larger than the size of `MyOtherType` as
 // `MyType` will contain three versions of `add` and `MyOtherType` contains
 // a definition that is known at compile type and thus does not require any
 // allocation space occupied inside `MyOtherType` for the three definitions
-assert(sizeof MyType > sizeof MyOtherType)
+assert(size of MyType > size of MyOtherType)
 ````
 
 

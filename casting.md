@@ -26,29 +26,29 @@ u8Panic := value as U8                  // `as` will cause runtime panic as
 u8CastIgnorePanic := value unsafe as U8 // `unsafe as` will ignore overflow and
                                         // any value overflow is truncated
 
-// Converting from a `WString`to a `String` is not always safe
+// Converting from a `WideString`to a `String` is not always safe
 // (but this case is safe)
 string := w'hello' as String
 
 // An unsafe conversion will cause a compilation error
 stringError := w'this embedded literal "' h'16f' \
-               w'" is not convertible' as WString
+               w'" is not convertible' as WideString
 
-// converting from a `String` to a `WString` is always safe
+// converting from a `String` to a `WideString` is always safe
 string := 'always safe no matter what value'
-wString := string as WString
+wideString := string as WideString
 
-// Converting from a `Utf8String` to a `WString` can cause runtime
+// Converting from a `Utf8String` to a `WideString` can cause runtime
 // panic errors if the value contains an illegal sequence
 utf8String := utf8'© Snowman Industries (☃)'
 
 // This can overflow and cause panic if the utf8 contains
 // illegal sequences (but won't in this case)
-wString := utf8String as WString
+wideString := utf8String as WideString
 
 // Any overflows will be ignored and will not cause panic for an
 // illegal sequences
-wString := utf8String unsafe as WString
+wideString := utf8String unsafe as WideString
 
 
 wideString := w'Runtime value with a non-ascii value "' h'16f' w'" is not ' \
@@ -91,7 +91,7 @@ MyType :: type {
 
 AnotherType :: type {
     value1 : Float
-    value2 : WString
+    value2 : WideString
 }
 
 func final : ()(input : MyType *) = {
@@ -146,7 +146,7 @@ MyType :: type {
 
 AnotherType :: type {
     value1 : Float
-    value2 : WString
+    value2 : WideString
 }
 
 funcByValue final : ()(input : MyType) = {

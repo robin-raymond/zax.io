@@ -230,8 +230,8 @@ func final : ()() = {
 
 Pointers can be casted by way of three casting methods:
 * raw conversion of a pointer type using a `unsafe as` operator
-* compatible [composition](composition.md) conversion of a pointer type using an `unsafe outerof` operator
-* runtime conversation of compatible [composition](composition.md) pointer types using an `outerof` operator
+* compatible [composition](composition.md) conversion of a pointer type using an `unsafe outer of` operator
+* runtime conversation of compatible [composition](composition.md) pointer types using an `outer of` operator
 
 An `as` operator can only be used to convert a pointer to/from an intrinsic numeric type of equal or greater capacity than an original pointer.
 
@@ -271,7 +271,7 @@ func(value)
 
 #### Function pointer casting
 
-Functions can be cast to and from a Unknown types using the `unsafe copyas` operator. The `unsafe copyas` operator is necessary to create a copy of captured values otherwise captured values referenced in a function might become lost.
+Functions can be cast to and from a Unknown types using the `unsafe copy as` operator. The `unsafe copy as` operator is necessary to create a copy of captured values otherwise captured values referenced in a function might become lost.
 
 ````zax
 print final : ()(...) = {
@@ -294,12 +294,12 @@ pointer1 : Unknown
 pointer2 : Unknown
 
 // cast into an `Unknown` type (a copy of the captured variable is created)
-pointer1 = func1 unsafe copyas Unknown
-pointer2 = func2 unsafe copyas Unknown
+pointer1 = func1 unsafe copy as Unknown
+pointer2 = func2 unsafe copy as Unknown
 
 // cast back from an `Unknown` using the type of the function definition
-func3 := pointer1 unsafe copyas :simpleFunc
-func4 := pointer2 unsafe copyas :func2
+func3 := pointer1 unsafe copy as :simpleFunc
+func4 := pointer2 unsafe copy as :func2
 
 func3() // will execute the code defined in func1
 func4() // will execute the code defined in func2
@@ -308,7 +308,7 @@ func4() // will execute the code defined in func2
 
 ##### Function pointer casting with capture
 
-Functions can be cast to a raw pointers using the `unsafe as` operator and from a raw pointer using the `unsafe copyas` operator. The `unsafe copyas` operator is necessary to acknowledge the overhead involved with the copying of captured values. When converting from a raw pointer, the function is casted and treated as the expected function type and the captured variables are copied as part of the operation. Using the `usnafe as` operator or `as` operator is disallowed when converting from raw pointers to functions that can capture values.
+Functions can be cast to a raw pointers using the `unsafe as` operator and from a raw pointer using the `unsafe copy as` operator. The `unsafe copy as` operator is necessary to acknowledge the overhead involved with the copying of captured values. When converting from a raw pointer, the function is casted and treated as the expected function type and the captured variables are copied as part of the operation. Using the `unsafe as` operator or `as` operator is disallowed when converting from raw pointers to functions that can capture values.
 
 ````zax
 print final : ()(...) = {
@@ -342,8 +342,8 @@ pointer2 = func2 unsafe as Unknown *
 // (even though captured values were not copied into the Unknown * the
 // `Unknown *` is treated as the original function type so a copy of captured
 // values is created)
-func3 := pointer1 unsafe copyas :simpleFunc
-func4 := pointer2 unsafe copyas :func2
+func3 := pointer1 unsafe copy as :simpleFunc
+func4 := pointer2 unsafe copy as :func2
 
 // reset the original `func1` and `func2`
 func1 = #
@@ -358,7 +358,7 @@ func4() // will execute the code defined in func2 and still displays
 
 ##### Function pointer casting without capture ability
 
-Pointers to functions without the ability to capture can be casted from a raw pointer using the `unsafe as` operator and not the `unsafe copyas` operator since the functions have no ability to capture values and thus do not need the programmer to acknowledge any additional value copying overhead in the pointer conversion.
+Pointers to functions without the ability to capture can be casted from a raw pointer using the `unsafe as` operator and not the `unsafe copy as` operator since the functions have no ability to capture values and thus do not need the programmer to acknowledge any additional value copying overhead in the pointer conversion.
 
 ````zax
 print final : ()(...) = {
