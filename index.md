@@ -18,17 +18,19 @@ Zax is a data oriented modern refresh of a compile time language which offers hi
 * Build control within the language
 * Full compile time code execution
 
+
 ## Non Goals
 
 * Preprocessor
 * Enforced memory management
-* Enforced safety
+* Enforced safety (although compiler rules help safety)
 * Enforced language feature usage (containing costly runtime overhead)
 * Enforced system library usage
 * Exceptions
 * Garbage collection
-* Package manager (source importation is favoured)
+* Package manager (source repository importation is favoured)
 * Object oriented modeling
+
 
 ## Key Features
 
@@ -175,6 +177,8 @@ Zax was inspired by [C++](https://en.wikipedia.org/wiki/C%2B%2B), [C](https://en
 ## [Context Type](context.md)
 
 ## [Namespacing and Importing Modules](namespacing.md)
+
+## [Forward](forward.md)
 
 ## [Mutability](mutable.md)
 

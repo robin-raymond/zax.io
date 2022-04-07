@@ -122,6 +122,8 @@ The following are registered errors, and their meaning:
     * an attempt to call an explicitly by-reference or by-pointer `last` qualified value with a `lease` qualified value
 * `explicit-copy-cannot-receive-move`
     * an attempt to call an explicit by-value `copy` with a `move` qualified value
+* `forward-symbol-type-mismatch`
+    * an `forward` of a symbol was performed but the defined symbol type does not match the `forward`
 
 
 ### Forcing the compiler to issue a warning

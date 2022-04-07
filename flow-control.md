@@ -175,6 +175,73 @@ loadStringFromUrl final : (
 ````
 
 
+### ternary operator
+
+A ternary operator is a lightweight `if` statement. A ternary operator performs a conditional test and then chooses one value or another based on a conditional test being `true` or `false`. The ternary operator is split into sections: a conditional test, followed by `??` operator, followed by result if `true`, followed by a sub-statement separator `;;`, followed by a result if `false`.
+
+````zax
+a := 5
+b := 10
+c := 20
+d := 30
+
+// `e` is assigned to `c` if `a` is greater than `b` otherwise `e` is assigned
+// to `d` all selected using the ternary `??` operator
+e := a > b ?? c ;; d
+
+// the above ternary operation is equivalent to the following:
+e : Integer = ???
+if a > b
+    e = c
+else
+    e = d
+````
+
+The ternary operator can be surrounded by `()` to ensure the sub-statement separator is not confused with other code that relies upon sub-statement separators.
+
+````zax
+coinFlip final : (result : Boolean)() = {
+    // ...
+}
+
+random final : (result : Integer)() = {
+    // ...
+}
+
+// the sub-statement separator for the ternary operator is distinct from the
+// sub-statement separator for the `if` with an initialization statement
+if i := (coinFlip() ?? random() ;; 10) ;; i > 0 {
+    // do something ...
+} else {
+    // do something else ...
+}
+````
+
+The `true` or `false` result for a ternary operator must be of exactly the same type (although they may be casted to the same type).
+
+````zax
+coinFlip final : (result : Boolean)() = {
+    // ...
+}
+
+randomU32 final : (result : U32)() = {
+    // ...
+}
+
+randomU16 final : (result : U16)() = {
+    // ...
+}
+
+// ERROR: the ternary options are not of the same type for the `true` and
+// `false` path
+i := coinFlip() ? randomU32() ;; randomU16()
+
+// OKAY: the types are the same and thus fully compatible for both the `true`
+// and `false` path
+j := coinFlip() ? randomU32() ;; randomU16() as U32
+````
+
+
 ### `while`
 
 A `while` statement will repeat over a code block `while` a condition is `true`.

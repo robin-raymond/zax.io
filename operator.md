@@ -59,10 +59,10 @@ myValue2 += myValue1
 // ERROR: the operator `+=` that takes an integer and a string is not found
 myValue1 += myValue2
 
-// OKAY: a pre operator was defined that takes a string (and returns a string) 
+// OKAY: a pre-unary operator defined taking a string (and returns a string) 
 ~myValue2
 
-// OKAY: a post operator was defined that takes a string (and returns a string) 
+// OKAY: a post-unary operator defined taking a string (and returns a string) 
 myValue2++
 ````
 
@@ -187,6 +187,18 @@ Word operators can overload existing operators that are not technically overload
 Selection rules will cause the longest compound word to be matched first and lessor length compounded words to be matched later.
 
 ````zax
+// forward definitions are required for named operators that are not already
+// system defined so they can be recognized by the compiler as operators in the
+// current context; however, they are only required to be forwarded if the
+// operator is not already defined in the global namespace
+
+// technically these forward declares are not required as a definition for
+// these operators are defined immediately below prior to usage
+run :: forward operator pre unary
+run fast :: forward operator pre unary
+run fast from  :: forward operator binary
+
+
 operator pre unary 'run' final : (result : String &)(rhs : String &) = {
     // ...
     return rhs

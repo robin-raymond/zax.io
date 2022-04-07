@@ -120,6 +120,15 @@ each / in
 except
 false
 forever
+forward enum
+forward enum value
+forward operator binary
+forward operator post unary
+forward operator pre unary
+forward namespace
+forward type
+forward union
+forward variable
 handle
 hint
 if
@@ -373,7 +382,9 @@ time                // time of compile as a string literal
 unlikely            // indicates a code paths is less likely to execute (for
                     // compiler and CPU optimization)
 version-compiler    // compiler version as a string literal
-version-import      // module import version as a string literal 
+version-import      // module import version as a string literal
+virtual             // forces a function on a type to be inserted into a
+                    // virtual table for the type
 warning             // display a warning or control compiler warning behaviors
 ````
 

@@ -503,11 +503,11 @@ myFunc(5 as U64)    // last `myFunc` used as the first is not a candidate
 The `execute` directive `[[execute=<type>]]` evaluates and runs a code block at compile time.
 
 Types are as follows:
-* `generate` - the functional code block will generate new code as a substitute for the code block (i.e. the generator emits code tokens)
+* `generate` - the functional code block will evaluate the input arguments at compile time and generate new code as a substitute for the code block (i.e. code emits tokens as a string)
+* `delegate` - the functional code block will not evaluate any input arguments but rather the code will generate new code as a substitute for the code block at compile time (i.e. code emits tokens as a string)
 * `compile` - the code block will evaluate to constant data of compatible type to the context required and expects compile type constants to be passed into the function
 * `runtime` (default) - the code block will execute if the values passed in are compile time constants, or will evaluate to runtime code if the values passed in are not compile time compatible.
 
-If `generate` is compiled with the `[[inline=always]]`, the output generated code will emit tokens directly into the scope where the executed function is called.
 
 ````zax
 random final : ()() = {
@@ -522,12 +522,32 @@ compileItDouble final [[execute=compile]] : (result : Integer)(value : Integer) 
     return value * 2
 }
 
-generateItDouble final [[execute=generate]] : (result : Integer)(...) = {
-    // ... code here generated token which replaces the generator code ...
+generateItDouble final [[execute=generate]] : (result : String)(value : Integer) = {
+    // code here generates a string result which becomes parsed into tokens
+    // which replaces the function call ...
+    return result
 }
 
 doubleNow final [[execute]] [[resolve=now]] : (result : Integer)(value : Integer) = {
     return value * 2
+}
+
+generateSomething1 final [[execute=generate]] : (result : String)(...) = {
+    // code here generates a string result based on examining the compile time
+    // evaluated inputs and the output string result is parsed into tokens which
+    // replaces the function call ...
+    return result
+}
+
+generateSomething2 final [[execute=delegate]] : (
+    result : String
+)(
+    inputs : String[]
+) = {
+    // this specific form of `delegate` causes each value passed into the string
+    // to not be resolved and the output string result is parsed into tokens
+    // which replaces the function call ...
+    return result
 }
 
 // invoking `double` in this context causes it to execute at compile time
@@ -543,12 +563,24 @@ value1 := compileItDouble(random())
 // code tokens for each combination of the types specified
 value2 := generateItDouble(random())
 
-// ERROR: not all of the terms are able to evaluate at this time
-// `[[resolve=now]]` is forcing order to matter where normally order of
-// resolution is okay to be resolved later
+// forward declare the `seven` symbol
+seven :: forward variable
+
+// ERROR: not all of the terms are able to evaluate at this time;
+// `[[resolve=now]]` is forcing order to matter where normally order
+// resolution of `seven` would be okay to resolved later;
 sevenDouble := doubleNow(seven)
 
+// the seven symbol declared later
 seven := 7
+
+value2 = generateSomething1(value2)     // `generateSomething1(value2)` will
+                                        // be replaced with alternative tokens
+
+// the entire line below will be replaced with generated tokens and the inputs
+// will not be be evaluated; each input will be converted to a string in
+// an array representing each argument as a single string in the array
+generateSomething2(value2 * 5, "hello")
 ````
 
 
@@ -1313,6 +1345,21 @@ MyType2 :: type {
     func3 : ()() constant = {
         value1 = 6              // ERROR: value1 is `constant`
                                 // (as function is constant)
+    }
+}
+````
+
+
+### `virtual`
+
+For compatibility purposes with C++, a function within a type can declare `final` and `virtual` using the compiler directive `[[virtual]]`. This causes a function to be inserted into a virtual table for a `type` where the `virtual` table for a `type` will be auto-created and auto-maintained.
+
+````zax
+MyType :: type {
+    func1 final [[virtual]] : ()() * = {
+    }
+
+    func2 final [[virtual]] : ()() * = {
     }
 }
 ````
