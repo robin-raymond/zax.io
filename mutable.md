@@ -459,7 +459,7 @@ Important caveat: even though adding an `as` operator to convert from `immutable
 MyType :: type mutable {
     // ...
 
-    operator as final : (result : MyType immutable)() constant = {
+    operator binary 'as' final : (result : MyType immutable)(# : MyType immutable) constant = {
         // ...
     }
 }
@@ -467,7 +467,7 @@ MyType :: type mutable {
 MyType :: type immutable {
     // ...
 
-    operator as final : (result : MyType mutable)() constant = {
+    operator binary 'as' final : (result : MyType mutable)(# : MyType mutable) constant = {
         // ...
     }
 }

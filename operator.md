@@ -143,7 +143,7 @@ if 5 < myType {
 
 Operators overloading of string literals can be created. These kinds of operators create type instances from string literals. As an example, h'9842ABFD' can be used to create a constant integer given a hexadecimal value. As string literals are constants, they should utilize compile type string literal overloading.
 
-An `[[execute]]` directive will cause a literal operator to be run at compile time and a constant result will be used in-place of a run time calculated value. Literals cannot be invoked with runtime arguments as the strings quoted in single (`'`) or double (`"`) quotes are always resolved at compile time.
+An `[[execute]]` directive will cause a literal operator to be run at compile-time and a constant result will be used in-place of a run time calculated value. Literals cannot be invoked with runtime arguments as the strings quoted in single (`'`) or double (`"`) quotes are always resolved at compile-time.
 
 An input to literal operators is always a `String` type.
 

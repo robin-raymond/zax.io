@@ -388,8 +388,8 @@ pointer1 = func1 unsafe as Unknown *
 pointer2 = func2 unsafe as Unknown *
 
 // cast back from a raw pointer using the type of the variables definition
-func3 := pointer1 unsafe as :simpleFunc
-func4 := pointer2 unsafe as :func2
+func3 := pointer1 unsafe as simpleFunc
+func4 := pointer2 unsafe as func2
 
 // reset the original `func1` and `func2`
 func1 = #

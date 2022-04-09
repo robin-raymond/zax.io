@@ -4,7 +4,7 @@
 
 ### Meta-types with omitted meta argument types
 
-Meta-types are normal types except one or more types used within the meta-type is selected at compile time. This allows a type to be variable.
+Meta-types are normal types except one or more types used within the meta-type is selected at compile-time. This allows a type to be variable.
 
 ````zax
 MyType$(Type) :: type {
@@ -31,7 +31,7 @@ myType1 = myType2
 
 ### Meta-types with multiple omitted meta argument types
 
-More than one argument can be specified to a meta-type allowing for multiple types to be defined at compile time.
+More than one argument can be specified to a meta-type allowing for multiple types to be defined at compile-time.
 
 ````zax
 MyType$(TypeA, TypeB) :: type {
@@ -62,7 +62,7 @@ myType1 = myType2
 
 ### Meta-types with assumed meta argument types
 
-Meta-types can be compile time determined if the input argument passed into a constructor can be automatically determined based on called function's signature. This can be done for both constructors and `once` declarations.
+Meta-types can be compile-time determined if the input argument passed into a constructor can be automatically determined based on called function's signature. This can be done for both constructors and `once` declarations.
 
 ````zax
 MyType$(Type) :: type {
@@ -72,7 +72,7 @@ MyType$(Type) :: type {
         value = input
     }
 
-    func once : ()(whatever : Integer, input : $Type) = {
+    func final once : ()(whatever : Integer, input : $Type) = {
         // ...
     }
 }
@@ -121,19 +121,19 @@ myType2.value = "not going to work"
 ````
 
 
-### Meta-types with compile time constant values
+### Meta-types with compile-time constant values
 
-A meta-type can can have arguments that are compile time constants as an input to the definition of the meta-type.
+A meta-type can can have arguments that are compile-time constants as an input to the definition of the meta-type.
 
 ````zax
-MyType$(Value : Integer) :: type {
+MyType$(Value [[compile]] : Integer) :: type {
     value : Integer[$Value]
 }
 
-// the `$Value` is specified at compile time 
+// the `$Value` is specified at compile-time 
 myType : MyType$(5)
 
-// OKAY: based on the compile time definition this code will compile
+// OKAY: based on the compile-time definition this code will compile
 myType.value[0] = 55
 myType.value[1] = -43
 myType.value[2] = 42
@@ -144,19 +144,19 @@ myType.value[5] = 101
 ````
 
 
-### Meta-types with defaulted compile time constant values
+### Meta-types with defaulted compile-time constant values
 
-A meta-type can can have arguments that are compile time constants as an input to the definition of the meta-type and these constants can be defaulted if not specified.
+A meta-type can can have arguments that are compile-time constants as an input to the definition of the meta-type and these constants can be defaulted if not specified.
 
 ````zax
-MyType$(Bits : Integer = size of Integer) :: type {
+MyType$(Bits [[compile]] : Integer = size of Integer) :: type {
     bits : Boolean[$Bits]
 }
 
 // the `$Bits` is automatically assumed based on the default argument
 myType : MyType
 
-// OKAY: based on the compile time definition this code will compile
+// OKAY: based on the compile-time definition this code will compile
 myType.value[0] = true
 myType.value[1] = false
 myType.value[2] = true
@@ -177,7 +177,7 @@ IsSelectable final : (result : Boolean)(ignored : ) [[concept]] = {
     return true
 }
 
-MyType$(UseType = IsSelectable) :: type {
+MyType$(UseType [[concept=IsSelectable]] = Integer) :: type {
     valueA : $UseType
 }
 

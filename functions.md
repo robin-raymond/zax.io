@@ -794,6 +794,43 @@ myType.bucket = {
 }
 ````
 
+### Functions marked as `once`
+
+Functions marked as `once` will only have a single function definition for all instances of a type and allow a function on a type to be called without specifying a type instance. A `once` function can be called by calling a function directly off a type instead of an instance of a type. Marking the function as `final` will ensure that a function cannot be reassigned to a new function definition.
+
+````zax
+MyType :: type {
+    value : Integer
+
+    func1 final once : ()(value : Integer) constant = {
+        // do something...
+    }
+
+    func2 final once : ()(value : Integer) = {
+        // check if called from type instance or from a type by checking if `_`
+        // points to nothing
+        if _
+            _.value = value   // only set value if called with a type instance
+    }
+
+}
+
+myType : MyType
+
+// OKAY: all instances share the same definition of `func1` so calling the
+// instance with the `type` name and not an instance of a `type` is legal
+MyType.func1(42)
+
+// OKAY: all instances share the same definition of `func2` so calling the
+// instance with the `type` name and not an instance of a `type` is legal
+MyType.func2(42)
+
+// OKAY: all instances share the same definition of `func2`, but calling
+// the function from an instance will pass in the instance pointer to the
+// shared `func2` implementation
+myType.func2(42)
+````
+
 
 ### Functions qualified as `constant` in function types
 
@@ -1156,7 +1193,7 @@ print(myType.weight)
 
 #### Splitting type into a function call
 
-The argument split (`<-`) operator with named declarations `{}` can be used to fill input arguments passed into a function with a newly declared anonymous type. Each argument is matched with an input argument. All input arguments considered satisfied by the split (`<-`) operator are no longer needing to be passed values and standard rules for remaining input arguments apply.
+The argument split (`<-`) operator with multi-value operator and named declarations `[{` `}]` can be used to fill input arguments passed into a function with a newly declared anonymous type. Each argument is matched with an input argument. All input arguments considered satisfied by the split (`<-`) operator are no longer needing to be passed values and standard rules for remaining input arguments apply.
 
 
 ````zax
@@ -1173,9 +1210,34 @@ func final : ()(
     // ...
 }
 
-func(42, <- # := [{ .name = "Boothby", .age = 61, .weight = 120 }], r'😀')
+func(42, <- [{ .name = "Boothby", .age = 61, .weight = 120 }], r'😀')
 ````
 
+
+#### Multiple argument operator combining into an argument type
+
+Using the multiple argument operator `[{` `}]` with named declaration can cause multiple arguments to become initialized into a type's values without using the split (`->`) or combined (`<-`) operators.
+
+````zax
+print final : ()(...) = {
+    // ...
+}
+
+MyType : type {
+    age : Integer,
+    name : String,
+    weight : Float,
+    defaultSmiley : Rune
+}
+
+func final : ()(
+    value : MyType
+) = {
+    // ...
+}
+
+func([{ .name = "Boothby", .age = 61, .weight = 120 }])
+````
 
 
 #### Combining argument results into an anonymous type

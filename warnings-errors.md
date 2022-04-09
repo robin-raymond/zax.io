@@ -85,8 +85,6 @@ The following are registered errors, and their meaning:
     * cannot find the name referenced in a `break` or `continue` statement
 * `named-scope-inaccessible`
     * a `break` or `continue` statement was requested to an inaccessible scope
-* `line-directive-without-file`
-    * when parsing generated files, a line directive was used without first declaring a file directive
 * `bad-alignment`
     * the alignment is unsupported
 * `duplicate-case`
@@ -99,6 +97,8 @@ The following are registered errors, and their meaning:
     * a quote `'` or`"` was started but the matching end quote `'` or `"` is missing
 * `missing-end-of-comment`
     * a comment `/*` or `/**` was started but the matching end comment `*/` or `**/` is missing
+* `compile-directive-error`
+    * a compile directive was issued but the value specified does not evaluate to a compile time constant
 * `compiles-directive-error`
     * the compiles directive failed to compile code and thus forced an error
 * `requires-directive-error`
@@ -308,3 +308,5 @@ The following are registered warnings, default states, and their meaning:
     * expecting new line after continuation operator
 * `allocation-into-raw-pointer` (always)
     * the compiler detected an attempt to allocate into a raw pointer rather than using a `unique` or other managed pointer type
+* `generated-file-not-touched` (error)
+    * the compiler attempted to load a source file that was not touched by a generator routine

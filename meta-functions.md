@@ -4,7 +4,7 @@
 
 ### Meta-functions with omitted meta argument types
 
-The compile time language requires that types are known as the compiler doesn't not support runtime variable typed parameters. However, function types can be omitted and caller usage can be determined. Functions will only be considered as valid callee choice if their function signature is compatible with the caller's signature. If the signature of the function is compatible with the caller then the function is considered a candidate so long as a better candidate was not found. Better is subjective, but in Zax it means the function with the best exact match to the input and return types expected.
+The compile-time language requires that types are known as the compiler doesn't not support runtime variable typed parameters. However, function types can be omitted and caller usage can be determined. Functions will only be considered as valid callee choice if their function signature is compatible with the caller's signature. If the signature of the function is compatible with the caller then the function is considered a candidate so long as a better candidate was not found. Better is subjective, but in Zax it means the function with the best exact match to the input and return types expected.
 
 ````zax
 add final : (
@@ -93,9 +93,9 @@ next final : (
 
 For meta-functions, a `[[requires]]` directive can be used as a compile type mechanism to check if a function can be selected as a candidate given input or output arguments specified. If code in a `[[requires]]` block fails to compile or returns false then a meta-function cannot be selected as a legal candidate by a caller. Executed code must evaluate to a `true` or `false` statement.
 
-As a side note, replacing a `[[requires]]` and a code block that follows with a literal `true` or `false` will have the same effect if `requires` has returned `true` or `false`. All functions accept an optional `true` or `false` declarative to indicate if they can be selected as a candidate or not. Placing a hard coded `false` on a function will ensure a function can never be used as a candidate. By default all functions are `true` indicating a functions is selectable as a candidate. However, meta-functions use this boolean criteria in candidate selection condition. Other use cases can include intentionally disabling functions based on compile time decisions.
+As a side note, replacing a `[[requires]]` and a code block that follows with a literal `true` or `false` will have the same effect if `requires` has returned `true` or `false`. All functions accept an optional `true` or `false` declarative to indicate if they can be selected as a candidate or not. Placing a hard coded `false` on a function will ensure a function can never be used as a candidate. By default all functions are `true` indicating a functions is selectable as a candidate. However, meta-functions use this boolean criteria in candidate selection condition. Other use cases can include intentionally disabling functions based on compile-time decisions.
 
-All inputs and outputs are considered captured in the context allowing for compile time reflection of the types. Memory backing argument values are invalid as the actual value is only evaluated at runtime and `requires` is a compile time evaluation directive. Access to the values is undefined behavior.
+All inputs and outputs are considered captured in the context allowing for compile-time reflection of the types. Memory backing argument values are invalid as the actual value is only evaluated at runtime and `requires` is a compile-time evaluation directive. Access to the values is undefined behavior.
 
 ````zax
 isSelectable final : (result : Boolean)(...) = {
@@ -115,7 +115,7 @@ next final : (
 
 #### Meta-function selection using a `concept` directive
 
-For meta-functions, a `[[concept]]` directive can be used as a compile type mechanism to check if a function can be selected as a candidate for a given input or output argument specified. If code in a `[[concept]]` block fails to compile or returns false then a meta-function cannot be selected as a legal candidate by a caller. Executed code must evaluate to a `true` or `false` statement and follow a `( : Boolean)()` calling convention. Meta argument types are available in a concept function and will mirror arguments passed into a decorated function.
+For meta-functions, a `[[concept]]` directive can be used as a compile type mechanism to check if a function can be selected as a candidate for a given input or output argument specified. If code in a `[[concept]]` block fails to compile or returns false then a meta-function cannot be selected as a legal candidate by a caller. Executed code must evaluate to a `true` or `false` statement and follow a `(:Boolean)(#:)` calling convention. Meta argument types are available in a concept function and will mirror arguments passed into a decorated function.
 
 ````zax
 IsSelectable final : (result : Boolean)(ignored : ) [[concept]] = {
@@ -125,11 +125,11 @@ IsSelectable final : (result : Boolean)(ignored : ) [[concept]] = {
     return true
 }
 
-next final : (
+next$(UseType [[concept=IsSelectable]]) final : (
     result :
 )(
-    value1 : IsSelectable,
-    value2 : IsSelectable
+    value1 : $UseType,
+    value2 : $UseType
 ) = {
     // ...
 }

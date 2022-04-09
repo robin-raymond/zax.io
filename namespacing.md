@@ -66,7 +66,7 @@ MyNamespace.doSomething()
 
 ### Importing symbols into the global namespace
 
-By not specifying an importation declaration name, all symbols are imported into a global namespace (which can also be accessed through the `Module` implicit namespace).
+By not specifying an importation declaration name, all symbols are imported into a global namespace (which can also be accessed through the `Module` implicit namespace). The language defines a default namespace named `Module`. The namespace is the root namespace for all types relative to any current namespace.
 
 ````zax
 // import all types and variables found in a module described by
@@ -143,7 +143,7 @@ Cos1Tan2Arc4Sin :: type {
 
 // export `Cos1Tan2Arc4Sin` type under an alias of `FriendlyName`
 [[export]] \
-FriendlyName :: alias Cos1Tan2Arc4Sin
+FriendlyName :: alias type Cos1Tan2Arc4Sin
 
 // all exported symbols found when importing `Module.Useful.FileUtilities` are
 // re-exported to any module importing this code.
@@ -317,7 +317,7 @@ ThirdParty :: import Module.ThirdPartyModule {
 
     // as `ThirdPartyModule` imports the `FastFooMathModule`, export our
     // definition of this imported module into the imported `ThirdPartyModule`
-    FastFooMathModule :: alias Module.FastFooMathModule
+    FastFooMathModule :: alias type Module.FastFooMathModule
 
     // export other compilation options for ThirdPartyModule
     Options :: type {
@@ -377,7 +377,7 @@ importantNumber final : (result : Integer)() = {
 
 } else {
     // In this example, this definition from the importer would be used
-    // Options :: alias Module.Options
+    // Options :: alias type Module.Options
 }
 
 
@@ -389,7 +389,7 @@ FastFoo :: import Module.FastFooMathModule
 
 [[export]] \
 lifesMeaning final : (result : Integer)() = {
-    // a compile time test to see if compiling in debug mode
+    // a compile-time test to see if compiling in debug mode
     if Options.debug {
         print("The meaning of life is ", FastFoo.whatIsTheMeaningOfLife(), ".")
     }
@@ -422,7 +422,7 @@ MyType :: type {
     value2 : String
 }
 
-NonShadowedName :: alias MyType
+NonShadowedName :: alias type MyType
 
 func final : ()() = {
     MyType :: type {

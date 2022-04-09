@@ -124,10 +124,10 @@ The `except` statement allows a single `!` prior to the return name from the cal
 ````zax
 Good :: type {
     // ...
-    operator as final : (result : Boolean)() = {
+    operator binary 'as' final : (result : Boolean)(# : Boolean) constant = {
         // ... returns `true` if the type is in a good state ...
     }
-    operator as final : (result : Error)() = {
+    operator binary 'as' final : (result : Error)(# : Error) constant = {
         // ... converts to an Error type ...
     }
 }
@@ -158,10 +158,10 @@ The `except` statement allows a single `!` prior to the returned name from the c
 ````zax
 Good :: type {
     // ...
-    operator as final : (result : Boolean)() = {
+    operator binary 'as' final : (result : Boolean)(# : Boolean) constant = {
         // ... returns `true` if the type is in a good state ...
     }
-    operator as final : (result : Error)() = {
+    operator binary 'as' final : (result : Error)(# : Error) constant = {
         // ... converts to an Error type ...
     }
 }
@@ -292,7 +292,7 @@ MyType :: type {
 
 Good :: type {
     // ...
-    operator as final : (error : Error)() = {
+    operator binary 'as' final : (error : Error)(# : Error) constant = {
         // ...
     }
 }

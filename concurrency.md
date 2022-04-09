@@ -193,7 +193,7 @@ myFunc final : ()(value1 : Integer) promise = {
 
 /*
 TemplatedPromiseResult :: type {
-    ThenCallbackPrototype final : ()()
+    ThenCallbackPrototype :: alias type ()()
 
     then mutator : (callable : ()())(callback : ThenCallbackPrototype) 
 }
@@ -230,7 +230,7 @@ myFunc final : ()(value1 : Integer, value2 : String deep) promise = {
 
 /*
 TemplatedPromiseResult :: type {
-    ThenCallbackPrototype final : ()()
+    ThenCallbackPrototype :: alias type ()()
 
     then mutator : (callable : ()())(callback : ThenCallbackPrototype) 
 }
@@ -253,9 +253,9 @@ callable2 := later2.then = {
 }
 
 // create an empty function to be used as a type declaration
-EmptyFunctionType final : ()()
+EmptyFunctionPrototype :: alias type ()()
 
-executeCallableOnAnotherThread final : ()(callable : EmptyFunctionType) = {
+executeCallableOnAnotherThread final : ()(callable : EmptyFunctionPrototype) = {
     // ...
     callable()
     // ...
@@ -278,7 +278,7 @@ myFunc final : ()(value1 : Integer, value2 : String) deep promise = {
 
 /*
 TemplatedPromiseResult :: type {
-    ThenCallbackPrototype final : ()()
+    ThenCallbackPrototype :: alias type ()()
 
     then : (callable : ()())(callback : ThenCallbackPrototype) 
 }
@@ -301,9 +301,9 @@ callable2 := later2.then = {
 }
 
 // create an empty function to be used as a type declaration
-EmptyFunctionType final : ()()
+EmptyFunctionPrototype :: alias type ()()
 
-executeCallableOnAnotherThread final : ()(callable : EmptyFunctionType) = {
+executeCallableOnAnotherThread final : ()(callable : EmptyFunctionPrototype) = {
     // ...
     callable()
     // ...
@@ -320,9 +320,6 @@ executeCallableOnAnotherThread(callable2)
 A `promise` function can return arguments. The returned arguments are returned by the `promise` function and passed into a `then` function attached to the resulting structure of a `promise`. A promises result will only ever occur once. As a `then` function is set before the execution of a `promise` function, a function's results can never complete prior to a `then` function being attached to the returned `promise` type.
 
 ````zax
-// create an empty function to be used as a type declaration
-EmptyFunctionType final : ()()
-
 executeCallableOnMainThread final : ()(callable : ()()) = {
     // ...
     callable()
@@ -341,7 +338,7 @@ myFunc final : (result : String)(value1 : Integer) deep promise = {
 
 /*
 TemplatedPromiseResult :: type {
-    ThenCallbackPrototype final : ()(result : String)
+    ThenCallbackPrototype :: alias type ()(result : String)
 
     then mutator : (callable : ()())(thenFunc : ThenCallbackPrototype)
 }
@@ -413,10 +410,10 @@ countForever final : (result : Integer)() task = {
 /*
 
 TemplatedTaskResult :: type {
-    ThenCallbackPrototype final : ()(result : Integer)
+    ThenCallbackPrototype :: alias type ()(result : Integer)
 
     Producer :: type {
-        CallablePrototype final : (status : Coroutine.Status)()
+        CallablePrototype :: alias type (status : Coroutine.Status)()
 
         // Once a resume function is installed by the scheduler, the callable
         // function will be returned. The callable function is invoked by
@@ -739,10 +736,10 @@ countForever final : (result : Integer)(input : Integer) channel = {
 /*
 
 TemplatedChannelResult :: type {
-    ThenCallbackPrototype final : ()(result : Integer)
+    ThenCallbackPrototype :: alias type ()(result : Integer)
 
     Producer :: type {
-        CallablePrototype final : (status : Coroutine.Status)()
+        CallablePrototype :: alias type (status : Coroutine.Status)()
 
         // Once a resume function is installed by the scheduler, the callable
         // function will be returned. The callable function is invoked by

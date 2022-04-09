@@ -54,7 +54,6 @@ yetAnotherArray6 : Integer[100] = [{ [1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ],
 // is used there's no requirement that multiple values are actually declared;
 // but using a multi-value operator in this context is unnecessary;
 yetAnotherArray7 : Integer[5000] = [{ myArray }]
-
 ````
 
 

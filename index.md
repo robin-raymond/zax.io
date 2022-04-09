@@ -2,7 +2,7 @@
 
 ## Description
 
-Zax is a data oriented modern refresh of a compile time language which offers high level language capabilities including low level memory access. The language does not enforce type or memory safety but can be used in a type safe manner if desired.
+Zax is a data oriented modern refresh of a compile-time language which offers high level language capabilities including low level memory access. The language does not enforce type or memory safety but can be used in a type safe manner if desired.
 
 ## Goals
 
@@ -16,7 +16,7 @@ Zax is a data oriented modern refresh of a compile time language which offers hi
 * Long term source compilation stability
 * Pay (in terms of cost/efficiency) for what you use
 * Build control within the language
-* Full compile time code execution
+* Full compile-time code execution
 
 
 ## Non Goals
@@ -34,7 +34,7 @@ Zax is a data oriented modern refresh of a compile time language which offers hi
 
 ## Key Features
 
-Zax is a strongly typed compile time language with some key features:
+Zax is a strongly typed compile-time language with some key features:
 
 * Low level features
     * Raw memory access
@@ -102,14 +102,14 @@ Zax is a strongly typed compile time language with some key features:
     * Coroutines
 * Meta programming
     * `enum` meta data
-    * Automatic compile time `if` / `else`
-    * Custom compile time literals
+    * Automatic compile-time `if` / `else`
+    * Custom compile-time literals
     * Variadic functions
     * Easily defined meta-function parameters
-    * Compile time code reflection
-    * Compile time code execution
-    * Compile time code generation
-    * Compile time code checking
+    * compile-time code reflection
+    * compile-time code execution
+    * compile-time code generation
+    * compile-time code checking
     * Full compile type meta-data and traits
     * Built-in build control (tooling chain/ide not required to build)
 * Other

@@ -60,7 +60,7 @@ value4 := Fruit.Grapefruit  // value4 will be assigned to `4`
 
 ### Enum metadata
 
-Each enum have compile time available metadata to extract information about the enum to allow for easy associations such as to/from a `String`.
+Each enum have compile-time available metadata to extract information about the enum to allow for easy associations such as to/from a `String`.
 
 convertToString final : (result : String)(enumType : $EnumType) = {
     // ... lookup metadata and convert value to a string ...

@@ -64,7 +64,7 @@ Every popular language started as a thought in someone's mind at some point. Thi
 
 ### What is special about Zax?
 
-Zax was inspired by [Jai](https://en.wikipedia.org/?title=JAI_(programming_language)) which is heavily focused on solving the gaming industry's woes with C++ and other languages. Some of the important concepts include the idea that the language self includes integrated build processes with full code execution and reflection at compile time. However, Zax is designed to contain many of the interesting concepts but targeted at a more general purpose language usage. Some ideas differ in design and implementation (or perhaps they don't given not everything about the language is documented for outside usage at the time). Jai being targeted at a specific industry might enjoy more success but experimentation and knowledge sharing is a good thing. The goals for Zax are not contingent on its popularity.
+Zax was inspired by [Jai](https://en.wikipedia.org/?title=JAI_(programming_language)) which is heavily focused on solving the gaming industry's woes with C++ and other languages. Some of the important concepts include the idea that the language self includes integrated build processes with full code execution and reflection at compile-time. However, Zax is designed to contain many of the interesting concepts but targeted at a more general purpose language usage. Some ideas differ in design and implementation (or perhaps they don't given not everything about the language is documented for outside usage at the time). Jai being targeted at a specific industry might enjoy more success but experimentation and knowledge sharing is a good thing. The goals for Zax are not contingent on its popularity.
 
 
 ### Why are variables declared before types unlike C, C++, or Java?
@@ -117,7 +117,7 @@ Data Oriented design puts the focus around the data whereas Object Orientated at
 
 ### Isn't Zax just syntax sugar?
 
-That could be said for every language. Isn't C just syntax sugar for assembly? Isn't C++ syntax sugar for C (plus plus a few features)? Zax attempts to marry some of the best concepts from multiple languages. Zax is not aiming to be the most powerful language but it does aim to be a pleasing language to work within for a compile time language.
+That could be said for every language. Isn't C just syntax sugar for assembly? Isn't C++ syntax sugar for C (plus plus a few features)? Zax attempts to marry some of the best concepts from multiple languages. Zax is not aiming to be the most powerful language but it does aim to be a pleasing language to work within for a compile-time language.
 
 
 ### Are virtual functions supported?

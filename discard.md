@@ -119,19 +119,33 @@ func final : ()(input : Integer) = {
 }
 
 funcVersion2 final : ()(input # : Integer) = {
-    // This is allowed since the input variable is discarded intentionally
+    // this allows the input argument to be optional and when the input argument
+    // is not specified then the value is defaulted to the default value of the
+    // type 
 }
 
 funcVersion3 final : ()(ignoredButRequired : Integer) = {
-    // This is allowed as the argument is knowingly not important but still
-    // required to be passed but discarded after
+    // the argument is requires as an argument but the value is discarded
+    // internally within the function
     # ignoredButRequired
 }
 
 funcVersion4 final : ()(# : Integer, # : Integer) = {
-    // This is allowed as the argument is knowingly declared with an unnamed
-    // variable and thus may be discarded with the need to
-    // mark with `#`
+    // the arguments are not important and any values passed in are entirely
+    // discarded; alternatively the argument can be specified by a type and
+    // not a value
+}
+
+funcVersion5 final : ()(# : Integer) = {
+    // the argument is not important and any values passed in are entirely
+    // discarded; alternatively the argument can be specified by a type and
+    // not a value
+}
+
+funcVersion5 final : ()(# : String) = {
+    // the argument is not important and any values passed in are entirely
+    // discarded; alternatively the argument can be specified by a type and
+    // not a value
 }
 
 func(42)
@@ -147,6 +161,13 @@ funcVersion3()  // ERROR
 
 // OKAY: both arguments are discarded
 funcVersion4()
+
+// this version selects the function based on a type being specified but no
+// value is actually sent into the function
+funcVersion5(42)         // Integer version called and value is discarded
+funcVersion5("hello")    // String version called and value is discarded
+funcVersion5(Integer)    // Integer version is called with no value to discard
+funcVersion5(String)     // String version is called with no value to discard
 ````
 
 

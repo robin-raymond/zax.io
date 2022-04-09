@@ -189,7 +189,7 @@ d := 30
 // to `d` all selected using the ternary `??` operator
 e := a > b ?? c ;; d
 
-// the above ternary operation is equivalent to the following:
+// the above ternary operation is approximately equivalent to the following:
 e : Integer = ???
 if a > b
     e = c
@@ -234,11 +234,11 @@ randomU16 final : (result : U16)() = {
 
 // ERROR: the ternary options are not of the same type for the `true` and
 // `false` path
-i := coinFlip() ? randomU32() ;; randomU16()
+i := coinFlip() ?? randomU32() ;; randomU16()
 
 // OKAY: the types are the same and thus fully compatible for both the `true`
 // and `false` path
-j := coinFlip() ? randomU32() ;; randomU16() as U32
+j := coinFlip() ?? randomU32() ;; randomU16() as U32
 ````
 
 
@@ -780,7 +780,7 @@ listFruitAlt2 final : ()() = {
 
 #### Using `each` / `in` to iterate over a type's values
 
-The `each` keyword can be used to iterate over all variables contained in a type. A repeatable code block that follows an `each` keyword will be re-compiled per subtype to ensure that different subtypes remain compile time strict.
+The `each` keyword can be used to iterate over all variables contained in a type. A repeatable code block that follows an `each` keyword will be re-compiled per subtype to ensure that different subtypes remain compile-time strict.
 
 ````zax
 print final : ()(...) = {
@@ -834,7 +834,7 @@ each myType := returnAMyType() ;; value : in myType {
 
 #### Using `each` / `in` to iterate over a type's value's metadata
 
-The `each` keyword can be used to iterate over all variables contained in a type and a variable's metadata. A repeatable code block that follows an `each` keyword will be re-compiled per subtype to ensure that different subtypes remain compile time strict.
+The `each` keyword can be used to iterate over all variables contained in a type and a variable's metadata. A repeatable code block that follows an `each` keyword will be re-compiled per subtype to ensure that different subtypes remain compile-time strict.
 
 ````zax
 print final : ()(...) = {
