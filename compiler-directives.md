@@ -25,7 +25,7 @@ func final [[x-bytecode=lacrosse]] : ()()
 ````
 
 
-### The `source` directive
+### `source` directive
 
 A `source` compiler directive `[[source="<path/file.zax>", required=<yes|no|warn>, generated=<yes|no>]]` instructs a compiler to pause compiling the current file and continue compiling tokens from a referenced file until that file is completely parsed then resume compiling the current file. A `source` directive always locates files relative to the current file. If a path is not found, then the parent of the current path is attempted (recursively to the root of a module) until a `source` is located or the file is not found (whereupon a compiler will issue an error). Paths are always separated with unix forward slashes ('/') regardless of the platform. File names are recommended to be always lowercase and words should be separated with a dash (`-`) sign.
 
@@ -55,7 +55,7 @@ sub-path/sub-file.zax
 ````
 
 
-### The `asset` directive
+### `asset` directive
 
 An `asset` compiler directive `[[asset="<path/file.ext>", required=<yes|no|warn>, rename="<new-path/new-name.ext>", generated=<yes|no>]]` instructs a compiler copy a file into an output target's asset folder. An `asset` directive always locates files relative to the current file. If a path is not found, then a parent of the current path is attempted (recursively to the root of a module) until an `asset` is located or the file is not found (where a compiler will issue an error). Paths are always separated with unix forward slashes ('/').
 
@@ -85,34 +85,34 @@ sub-path/sub-file.zax
 ````
 
 
-### The `panic` directive
+### `panic` directive
 
-#### The `panic` function
+#### `panic` function
 
-When a panic occurs, the context's panic function is called (`___.panic(...)`). Normally an error message is displayed for the programmer to understand the panic and then a program terminates due to the unexpected and unhandled condition. A default `panic` function can be replaced with an alternative function.
+When a panic occurs, the context's panic function is called (`___.panic(...)`). Normally an error message is displayed for a programmer to understand a panic and then a program terminates due to an unexpected and unhandled condition. A default `panic` function can be replaced with an alternative function.
 
 A panic function is called with an enumeration representing the current error code and a code location is passed containing the source location of where a panic condition was triggered.
 
 
-#### The pre-panic check function
+#### pre-panic check function
 
-When a panic occurs in code that is always compiled in (and cannot be removed by direct compiler directive), the context's pre-panic check function is called (`___.prePanicCheck(...)`). This function accepts an enumeration representing the error where a lookup table can be searched to see if the panic is enabled for the panic code. If a panic is enabled then a context's panic function is called. If a panic is suppressed then the panic function is never called.
+When a panic occurs in code that is always compiled in (and cannot be removed by direct compiler directive), a context's pre-panic check function is called (`___.prePanicCheck(...)`). This function accepts an enumeration representing an error where a lookup table can be searched to see if a panic is enabled for a panic code. If a panic is enabled then a context's panic function is called. If a panic is suppressed then a panic function is never called.
 
-A pointer to the lookup table is maintained within the context object. A programmer can swap in/out the lookup table pointer to other states if a code section has different run-time only panic criteria for a given context.
+A pointer to a panic lookup table is maintained within the context object. A programmer can swap in/out a lookup table pointer to other states if a code section has different runtime only panic criteria for a given context.
 
 
 #### Enabling/disabling a compiler panics
 
-Code generation for panic conditions can be enabled or disabled by using a `[[panic=<option>, registered-<panic-name>]]` directive. If a compiler compiles-in the `panic` directive, a compiler will enable or disable the compiler panic code generation. All compilers must register their panic options and meanings into a shared authority registry. Experimental non-standard panic names must include an `x-` prefix as part of the panic name. Naming a specific panic is optional. If the compiler panic name is not specified, the directive will apply to all panic conditions.
+Code generation for panic conditions can be enabled or disabled by using a `[[panic=<option>, <registered-panic-name>]]` directive. If a compiler compiles-in a `panic` directive, a compiler will enable or disable a compiler's panic code generation. All compilers must register their panic options and meanings into a shared authority registry. Experimental non-standard panic names must include an `x-` prefix as part of a panic name. Naming a specific panic is optional. If a `registered-panic-name` is not specified that directive will apply to all panic conditions.
 
-Caution: disabling panics does not prevent the panic scenario; disabling merely removes additional compiler generated protective code that would call a panic function. Without compiling in panic detection, the code may silently fail with undefined behaviors.
+Caution: disabling panics does not prevent a panic scenario; disabling merely removes additional compiler generated protective code that would call a panic function. Without compiling-in panic detection, code may silently fail with undefined behaviors.
 
 The options for panic conditions are:
-* `yes` - enables the panic for only to the current statement
-* `no` - disables the panic for only to the current statement
-* `always` - enables the panic for all statements that follow
-* `never` - disables the panic for all statements that follow
-* `default` - enables or disables the panic for all statements that follow according to the compiler's defaults
+* `yes` - enables a panic for only to the current statement
+* `no` - disables a panic for only to the current statement
+* `always` - enables a panic for all statements that follow
+* `never` - disables a panic for all statements that follow
+* `default` - enables or disables a panic for all statements that follow according to a compiler's defaults
 * `lock` - disallows any imported module from changing a panic state
 * `unlock` - allows any imported module from changing a panic state
 
@@ -124,9 +124,21 @@ randomValue final : (output : S32)() = {
 
 value := randomValue()
 
+// code will generate a panic condition for this statement if an overflow occurs
+// assuming the `intrinsic-type-cast-overflow` panic was not disabled at runtime
+// or elsewhere in a compilation process
+castedValue1 := value as U16
+
+// code will generate a panic condition for this statement if an overflow occurs
+[[panic=yes, intrinsic-type-cast-overflow]] \
+castedValue1 := value as U16
+
+// code will silently perform a casting without an overflow panic
 [[panic=no, intrinsic-type-cast-overflow]] \
 castedValue1 := value as U16
 
+// code will not generate a panic as `unsafe as` was used to cast which does
+// not cause a panic condition even though a panic is enabled
 [[panic=yes, intrinsic-type-cast-overflow]] \
 castedValue2 := value unsafe as U8
 
@@ -148,18 +160,21 @@ castedValue2 := value unsafe as U8
 
 #### Panic `push` and `pop`
 
-The state of all panics can be pushed and popped into a compile stack using the `[[panic=push]]` and `[[panic=pop]]` compiler directives. A push operation will keep a copy of all panic states and push these panic states on the compiler stack. A `pop` operation will take the last pushed compiler panic states and apply these panic states as the current panic states.
+The state of all panics can be pushed and popped into a compile stack using a `[[panic=push]]` and `[[panic=pop]]` compiler directives. A push operation will keep a copy of all compiler panic states and push those panic states on a compiler's panic state stack. A `pop` operation will pop the last pushed compiler panic states and apply these panic states as the current compilation's panic states.
 
-Upon importing a module, all panic states are pushed and all panic states are popped at the end of an `import`. This ensures that imported modules cannot affect the panic state of the importing module.
+Upon importing a module, all panic states are pushed and all panic states are popped at the end of an `import` statement. This ensures that imported modules cannot affect the panic states of an importing module.
 
 ````zax
+// preserve a compiler's panic states
 [[panic=push]]
 
 [[panic=never, intrinsic-type-cast-overflow]]
 
-// ... code with the panic checks disabled
+// ... code with the `intrinsic-type-cast-overflow` panic check disabled ...
 
 [[panic=pop]]
+
+// ... code with restored panic state checks ...
 ````
 
 
@@ -167,49 +182,49 @@ Upon importing a module, all panic states are pushed and all panic states are po
 
 The following are registered panic scenarios, default states, and their meaning:
 * `out-of-memory` (always)
-    * memory was requested to be allocated but insufficient memory exists to fill the request
+    * memory was requested to be allocated but insufficient memory exists to fill the request (allocation failures normally panic rather than return a pointer to `Nothing`)
 * `intrinsic-type-cast-overflow` (always)
-    * an intrinsic type may overflow during the `as` operator to a type with lower bit sizing
+    * an intrinsic type may overflow during an `as` operator to a type with lower bit sizing if a value is beyond the capacity of a given intrinsic type
 * `string-conversion-contains-illegal-sequence` (always)
-    * a string literal conversion was found to contain an illegal character sequence during the conversion process
+    * a string literal conversion was found to contain an illegal character sequence during a conversion process
 * `reference-from-pointer-to-nothing` (always)
-    * a pointer was converted to a reference but the pointer points to nothing
+    * a pointer was converted to a reference but a pointer points to `Nothing`
 * `pointer-to-nothing-accessed` (always)
-    * a value (or function) was accessed but the pointer points to nothing
-* `not-all-pointers-deallocated-during-allocator-cleanup`
-    * memory cleanup is being performed but not all the allocated memory from the allocator was deallocated
+    * a value (or function) was accessed but a pointer points to `Nothing`
+* `not-all-pointers-destructed-during-allocator-cleanup`
+    * memory cleanup is being performed but not all allocated instances in memory from an allocator were destructed
 * `impossible-switch-value` (always)
-    * a `switch` statement encounter a value which can never happen (because of the `[[never]]` directive or the `[[always]]` directive)
+    * a `switch` statement encounter a value which can never happen (because of a `[[never]]` directive or an `[[always]]` directive)
 * `impossible-if-value` (always)
-    * an `if` statement encounter a value which can never happen (because of the `[[never]]` directive or the `[[always]]` directive)
+    * an `if` statement encounter a value which can never happen (because of a `[[never]]` directive or an `[[always]]` directive)
 * `impossible-code-flow` (always)
-    * a code path was followed what was marked as impossible (because of the `[[never]]` directive or the `[[always]]` directive)
+    * a code path was followed what was marked as impossible to reach (because of a `[[never]]` directive or an `[[always]]` directive)
 * `lazy-already-complete` (always)
-    * an attempt was made to call a `lazy` function that has already returned from the function
+    * an attempt was made to call a `lazy` function that has already cause a final `return` from that `lazy` function
 * `value-polymorphic-function-not-found` (always)
     * a function supporting value polymorphism was called but none of the pre-condition checks succeeded
 
 
-### The `deprecate` directive
+### `deprecate` directive
 
-A `[[deprecate=<option>, context=<context>, error, min="<x.x>", max="<x.x>"]]` directive can be used to cause API usages to be considered deprecated. Any usages found to be deprecated will issue a `deprecate-directive` warning or error. This directive is useful for allow grace periods to exist when upgrading to access older obsoleted APIs as well as an upgrade path to newer APIs while still maintaining compatibility with an older required API.
+A `[[deprecate=<option>, context=<context>, error, min="<x.x>", max="<x.x>"]]` directive can be used to cause API usages to be considered deprecated. Any usages found to be deprecated will issue a `deprecate-directive` warning or error. This directive is useful for allow grace periods to exist when upgrading or obsoleting older APIs and offering an upgrade path to newer APIs (while still maintaining compatibility with an older API set).
 
 The options for a `deprecate` directive are:
-* `yes` (default) - enables the deprecation for only to the current statement
-* `no` - disables the deprecation for only to the current statement
-* `always` - enables the deprecation for all statements that follow
-* `never` - disables deprecation for all statements that follow (`context`, `error`, `min`, `max`, are disallowed)
+* `yes` (default) - enables deprecation for only to the current statement
+* `no` - disables deprecation for only to the current statement
+* `always` - enables deprecation for all statements that follow
+* `never` - disables deprecation for all statements that follow (`context`, `error`, `min`, `max`, are disallowed with this option)
 
-An `error` argument is optional and if specified a warning is forced into an error without a possibility to ignore a deprecation as a mere warning.
+An `error` argument is optional and if specified then a warning is forced into an error without a possibility to ignore a deprecation as a mere warning.
 
 Context for a deprecate warning:
-* `import` (default) - only warn on usages from module performing the import
-* `all` - any usage of this item is to be treated as deprecated
-* `local` - any usage of this item in the local context is deprecated
+* `import` (default) - only warn on usages from a module performing an import
+* `all` - any usage cause a deprecation warning
+* `local` - any usage within the current module cause a deprecation warning but not usages from an importing module (`min` and `max` option are disallowed)
 
-A `min` option requires an importing module must declare an import of at least this version to use an API. A `max` option requires an importing module must not declare an import version greater than this version to use an API. A compiler will treat versions as [point release](https://en.wikipedia.org/wiki/Point_release) notations. A version can be specified using a `version` `String` declaration in an import statement. The `min` and `max` keywords are generally not used together but they can be.
+A `min` option requires an importing module must declare an import of at least this version to use an API. A `max` option requires an importing module must not declare an import version greater than this version to use an API. A compiler will treat versions as [point release](https://en.wikipedia.org/wiki/Point_release) notations. A version can be specified using a `version` `String` declaration in an import statement. A `min` and `max` keyword are generally mutually exclusive but they can be used together should a need arise.
 
-Only one `always` deprecation can be active at a time. A `never` directive will disable any active `always`. Usage of `never` cannot be declared with `error`, `min`, `max` or `context` as they have no applicability and will issue an `incompatible-directive` error. Individual `yes` or `no` temporarily override any `always` deprecations directives for a current statement. Any current deprecation state will not apply to imported modules. There's no way to `push` or `pop` deprecations unlike `panic`, `warning`, or `error` directives.
+Only one `always` deprecation can be active at a time. A `never` directive will disable any active `always` deprecation. Usage of `never` cannot be declared with `error`, `min`, `max` or `context` as they have no applicability and a compiler will issue an `incompatible-directive` error. Usage of `local` cannot be declared with `min` or `max` as those values are only applicable to an importing module and thus a compiler will issue an `incompatible-directive` error. Individual `yes` or `no` temporarily override any `always` deprecations directives for a current statement. Any current deprecation state will not apply to an subsequently imported modules. No `push` or `pop` deprecation declarations exist unlike with `panic`, `warning`, or `error` directives as a deprecation relationship's definition is limited between an importing module and an imported module exclusively.
 
 ````zax
 [[deprecate]] \
@@ -217,8 +232,8 @@ MyOldBadlyDesignedType :: type {
     // ...
 }
 
-// usage of this type should only be performed when
-// requesting this version number at minimum
+// usage of this type should only be allowed when an importer declares version
+// `2.3` or higher
 [[deprecate, min="2.3"]] \
 MyShinyNewType :: type {
     // ...
@@ -226,8 +241,8 @@ MyShinyNewType :: type {
 
 ValidType :: type {
 
-    // all of the functions and variables below are now obsoleted and
-    // cannot be used beyond version 1.1
+    // all functions and variables below are now obsoleted and cannot be
+    // referenced by an importer declaring version `1.1` or higher
     [[deprecate=always, error, max="1.1"]]
 
     mrT80sFunc : ()() = {
@@ -240,17 +255,18 @@ ValidType :: type {
 
     eightTrack : MyOldBadlyDesignedType
 
-    // disable the last `always` deprecation directive
+    // disable the last declared `always` deprecation directive
     [[deprecate=never]]
 
 
-    // this function is deprecated if used accessed in the local context
+    // a deprecation warning is issued if this function is referenced within
+    // the current module but a warning is not issued for an importing module
     [[deprecate, context=local]] \
     needsRedesignFunc : ()() = {
         // ...
     }
 
-    // this function is always warned as being deprecated
+    // usage of this function always causes a deprecation warning
     [[deprecate, context=all]] \
     mightNeedThisSoNotReadyToRemoveFunc : ()() = {
         // ...
@@ -263,35 +279,39 @@ ValidType :: type {
 ````
 
 
-### The `inline` function directives
+### `inline` function directives
 
-An `inline` directive ``[[inline=option]]`` can be used to signal to a compiler when to inline a `final` function directly into code or when to call a function as an explicit function call. By default a compiler will decide if inlining a function is desirable.
+An `inline` directive ``[[inline=option]]`` can be used to signal to a compiler when to inline a `final` function directly into a caller's code block or when to call a function as an explicit function call. By default a compiler will decide if inlining a function is desirable based on a tradeoff of speed versus compilation size.
 
 The following options are available for an inline directive:
-* `maybe` (default) - a compiler decides if it is best to `inline` a function or not
-* `always` - a compiler is forced to `inline` a function but all variables declared are not visible to a caller's scope
-* `descope` - a compiler is forced to `inline` a function and all variables declared are visible to a caller's scope
+* `maybe` (default if inline directive is not specified) - a compiler decides if it is best to `inline` a function or not
+* `likely` (default if no option is specified) - a compiler should prefer to `inline` a function but a compiler may ultimately decide
+* `unlikely` - a compiler should prefer calling a function rather than inlining but a compiler may ultimately decide
+* `always` - a compiler is forced to `inline` a function but all variables declared inside a called function are not visible to a caller's scope
+* `descope` - a compiler is forced to `inline` a function and all variables within the immediate scope of an inlined function are declared as if they were declared inside a caller's scope
 * `never` - a compiler may never `inline` this function
 
 ````zax
-// prefer the function to inline
+// prefer a function to be inlined
 func1 final [[inline]] : ()() = {
     // ...
 }
 
-// let the compiler decide if inlining is preferred or not
+// let a compiler decide if inlining is preferred or not
 func2 final [[inline=maybe]] : ()() = {
     // ...
 }
 
-// only allow the function to be created inline
+// only allow the function to be called inline
 func2 final [[inline=always]] : ()() = {
     // ...
     myValue : Integer
     // ...
 }
 
-// only allow the function to be created inline
+// only allow the function to be called inline and expose all variables
+// in the immediate scope of the function to be declared externally within the
+// context of a calling function
 func3 final [[inline=descope]] : ()() = {
     // ...
     myValue : Integer
@@ -307,26 +327,32 @@ func1()
 func2()
 
 [[descope]] \
-func3() // calling a function with an `[[inline=descope]]` requires a
-        // declaration of `[[descope]]` on a function or a warning
-        // `descope-directive-required` will be issued
+func3() // calling a function marked with an `[[inline=descope]]` requires a
+        // declaration of `[[descope]]` prior to calling that function or a
+        // warning `descope-directive-required` will be issued
 func4()
 
-// OKAY: a definition for `myValue` comes from the `[[inline=descope]]`
+// OKAY: a definition for `myValue` comes from the `[[inline=descope]]` `func3`
 myValue *= 3
 
 // ...
 ````
 
 
-### The `descope` directive
+### `descope` directive
 
-A `[[descope]]` directive treats an inner scope as belonging to a scope of an outer scope. As such, no destructors will trigger at the end of scope and all variables declared as part of a scope are treated with the same visibility as an outer scope. Variables declared within a `descope` are treated as having been declared as part of an outer scope thus non-polymorphic variables with the same name will cause a `duplicate-symbol` error rather than shadowing an outer variable.
+A `[[descope]]` directive treats an inner scope as belonging to a scope of an outer scope. As such, no destructors will trigger at the end of scope and all variables declared as part of an immediate inner scope are treated with the same visibility as an outer scope. Variables declared within a `descope` are treated as having been declared as part of an outer scope thus non-polymorphic variables with the same symbolic name will cause a `duplicate-symbol` error rather than cause shadowing of an outer variable.
 
 Example when used with a compile-time `if` statement:
 
 ````zax
-[[descope]] if true {
+coinFlip : (result : Boolean)() = {
+    // ...
+}
+
+// cause a compile-time random decision if one definition or another should
+// be used
+[[descope]] if [[requires=compiles]] { return coinFlip() } {
     myValue : U32 = 5
     // ...
 } else {
@@ -334,6 +360,8 @@ Example when used with a compile-time `if` statement:
     // ...
 }
 
+// in some scenarios `myValue` will be a `U32` type and in others scenarios
+// `myValue` will be a `U16` type
 myValue *= 2
 ````
 
@@ -344,18 +372,33 @@ Example when used with a normal scope:
     myValue1 : Integer = 6
     myValue2 : Integer = 7
     // ...
+    {
+        // these values are not visible to the outer scope
+        nonVisibleValue1 : String = "hello1"
+        nonVisibleValue2 : String = "hello2"
+    }
 }
 
+// OKAY: `myValue` is now visible to this scope
 myValue1 *= 2 + myValue2
+
+// ERROR: both `nonVisibleValue1` and `nonVisibleValue2` are not visible to
+// this scope
+nonVisibleValue2 = "goodbye 2 " + nonVisibleValue1
 ````
+
 
 Example of possible flow control error condition when used with a normal scope:
 
 ````zax
+coinFlip : (result : Boolean)() = {
+    // ...
+}
+
 [[descope]] scope my_scope {
     myValue1 : Integer = 6
 
-    if true
+    if coinFlip()
         break   // ERROR: will issue `scope-flow-control-skips-declaration`
                 // as `myValue2` declaration would be skipped
 
@@ -367,50 +410,123 @@ myValue1 *= 2 + myValue2
 ````
 
 
-### The `compile` directive
+### `compile` directive
 
-A `compile` directive can be used on input arguments to indicate a value must be pre-evaluated at compile time or an error will be issued. Any input argument declared with a `compile` directive must also be declared as either `constant` or `immutable`. Any variadic types are treated as `constant` or `immutable`.
+A `compile` directive can be used on input arguments to indicate a value must be pre-evaluated at compile-time or an error will be issued. Any input argument declared with a `compile` directive must also be declared as either `constant` or `immutable`. Any variadic types are treated as `constant` or `immutable`.
 
 ````zax
 func print : ()([[compile]] ...) = {
-    // ... all arguments must resolve at compile time ...
+    // ... all input arguments must resolve at compile-time ...
 }
 
 func final : ()(input [[compile]] : Integer constant) = {
+    // ... `input` argument must resolve at compile-time ...
 }
 
 random1 final [[execute=dual]] : ()() = {
-    // ...
+    // ... this random function can execute at compile-time or runtime ...
 }
 
-random2 final [[execute=runtime]] : ()() = {
-    // ...
+random2 final [[execute=target]] : ()() = {
+    // ... this random function can only execute at runtime ...
 }
 
 // capture a runtime only value
 value := random2()
 
-func(5)            // OKAY: the value is constant
-func(random1())    // OKAY: the function is allowed to resolves as a compile
-                   // time constant
+func(5)            // OKAY: `5` value is constant
+func(random1())    // OKAY: `random1` function is allowed to resolves as a
+                   // compile-time constant
 
-func(random2())    // ERROR: the function cannot resolve at compile time
-func(value)        // ERROR: the value is run-time only and not constant
+func(random2())    // ERROR: `random2` function cannot resolve at compile-time
+func(value)        // ERROR: `value` is runtime only and it is not constant
 
-print(5, "hello", random1())   // OKAY: the value is compile time constant
+print(5, "hello", random1())   // OKAY: all values are compile-time constants
 print(random2(), value)        // ERROR: runtime only values cannot become
-                               // compile time constants
+                               // compile-time constants
 ````
 
 
-### The `compiles` directive
+### `compilation` directive
 
-A `compiles` directive `[[compiles, error]]` evaluates a code block that converts into a compile-time constant of `true` or `false`. A code block that follows a `compiles` directive is never executed and declarations and any definitions within a code block do not become visible symbols and a `compiles` code block will not resolve into code instructions.
+A `[[compilation=<option>]]` directive operates on a scope and causes all code within the remainder of a scope to evaluate as if it were in the context of a `host` or `target` scenario.
 
-If `error` is specified then a failure to compile a code block will evaluate to a real compile-time error should a code block fail to evaluate.
+The options are as follows:
+* `default` - if specified the target was whatever the default would have been for a given context (i.e. either `target` or `host`)
+* `target` - force all code to generate as if it were evaluating in the target's context
+* `host` - force all code to generate as if it were evaluating in the host's context
 
-Meta-functions can be selected as a candidate or unselected depending on a `true` or `false` statement being present at the end of a functions declaration. The `[[compiles]]` directive can be used in-place of this boolean placeholder to enable or disable a meta-function as a candidate based on a `compiles` code block compiling or not. The code block will evaluate per instantiation of a meta function. All inputs and outputs are considered captured in a `compile` code block's context allowing for compile-time reflection of all types. However, variables captured will never evaluate to values given the code block is never run and is never executed either at runtime nor at compile time. 
+As the language supports both compile-time and runtime compilation, some intrinsic types sizing and endian encoding are entirely relative to a host system or a target system. As such, a compilation's context will influence if these operators will result in sizing and encodings relative to a `target` or relative to a `host`. A compiler will automatically determine the appropriate context and evaluate these operators accordingly. However, a programmer can override a compiler's defaults for a compiled scope.
 
+Example scenario where a host is a 64-bit system and the target is a 32-bit system:
+
+````zax
+print final [[execute=dual]] : ()(...) = {
+    // ...
+}
+
+func final [[execute=dual]] : ()() = {
+    print("CHECKING...")
+
+    [[compilation=host]]
+    if size of Integer > size of U32 {
+        print("HOST: YES")
+    }
+
+    [[compilation=target]]
+    if size of Integer > size of U32 {
+        print("TARGET: YES")
+    }
+
+    [[compilation=default]]
+    if size of Integer > size of U32 {
+        print("DEFAULT: YES")
+    }
+}
+
+funcCompileTime final [[execute=host]] : ()() = {
+    // ... this scope is definitely a compile-time context ...
+
+    // `func` in this context will be compile-time 
+    func()
+}
+
+funcRunTime final [[execute=target]] : ()() = {
+    // ... this scope is definitely executing at runtime ...
+
+    // `func` in this context will be runtime
+    func()
+}
+
+funcCompileTime()
+funcRunTime()
+````
+
+When compiling the output will be:
+````
+CHECKING...
+HOST: YES
+DEFAULT: YES
+````
+
+During runtime the output will be:
+````
+CHECKING...
+HOST: YES
+````
+
+
+### `compiles` directive
+
+A `[[compiles=<option>]]` directive evaluates a code block and converts the code block into a compile-time constant of `true` or `false`. A code block that follows a `compiles` directive is never executed and declarations and any statements within a code block do not become visible symbols. A code block that follows a `compiles` directive will not resolve into code instructions.
+
+The options for `compiles` are as follows:
+* `default` (default) - if `default` is specified that a failure to compile a code block resolves to a `false` literal constant
+* `error` - if `error` is specified then a failure to compile a code block will evaluate to a real compile-time error
+
+Meta-functions can be selected as a candidate or unselected depending on a `true` or `false` statement being present at the end of a functions declaration. A `compiles` directive can be used to enable or disable a meta-function as a candidate based on a `compiles` code block compiling or not. A code block will evaluate per instantiation of a meta function. All inputs and outputs arguments are considered captured within a `compile` code block's function context allowing for compile-time reflection of all argument types. However, any captured variables will never evaluate to any value given a code block is never executed either at runtime or at compile-time. 
+
+Intrinsic types sizing and endian encoding are entirely relative to a host system or a target system. Operators exist to specifically query a host system or a target system's sizing and endian encoding. However, a `compiles` directive works for a dual mode. A `compiles` may be used to evaluate candidate suitability or compile-time evaluation for a target system or it may be used to evaluate code suitability for a host system (and not a target system). As such, system context dependant operators (such as `size of` but not `host size of` nor `target size of`) will evaluate as if they are operating on a target context by default.
 
 ````zax
 if [[compiles]] { ++value } {
@@ -424,9 +540,9 @@ metaFunction : ()(input :) [[compiles]] {
     // check if a type is defined
     testedFeature : TestedFeature
 
-    // check if the input argument is compatible and convertible to a simple
+    // check if an `input` argument is compatible and convertible to a simple
     // `Integer` type
-    check := input as Integer
+    check : Integer = input as Integer
 
 } = {
     // ...
@@ -434,13 +550,14 @@ metaFunction : ()(input :) [[compiles]] {
 
 /*
 
-// metaFunction will evaluate to a `true` indicating the function is
-// selectable as a candidate:
+// metaFunction's code block will evaluate to a `true` indicating the function
+// is selectable as a candidate:
 metaFunction : ()(input :) true = {
     // ...
 }
 
-// or to a `false` indicating the function cannot be selected as a candidate:
+// ... or to a `false` indicating the function cannot be selected as a
+// candidate:
 metaFunction : ()(input :) false = {
     // ...
 }
@@ -449,13 +566,20 @@ metaFunction : ()(input :) false = {
 ````
 
 
-### The `requires` directive
+### `requires` directive
 
-A `requires` directive `[[requires, error]]` evaluates a code block that follows into a compile-time constant of `true` or `false`. A code block that follows a `requires` directive is executed if the code compiles. Failure to compile a code block will result in a code block resolving to `false`. A code block must be capable of running at compile-time.
+A `[[requires=<option>]]` directive evaluates a code block that follows into a compile-time constant of `true` or `false`. A code block that follows a `requires` directive is executed if it compiles. Failure to compile a code block will result in a code block resolving to `false`. A code block must be capable of running at compile-time.
 
-If `error` is specified then a failure to compile or a `requires` code block returning `false` will cause a compiler error.
 
-Meta-functions can be selected as a candidate or unselected depending on a `true` or `false` statement being present at the end of a functions declaration. A `[[requires]]` directive can be used in place of this boolean placeholder to enable or disable a meta-function as a candidate based on a function's arguments. All inputs and outputs are considered captured in the context allowing for compile-time reflection of the types but the values of any arguments are undefined as any values are typically only available at runtime.
+The options for `requires` are as follows:
+* `default` (default) - if `default` is specified that a failure to compile a code block resolves to a `false` literal constant
+* `compiles` - if `compiles` is specified then a failure to compile a code block will evaluate to a real compile-time error
+* `error` - if `error` is specified then a failure to compile a code block or a `requires` directive code block returning `false` will evaluate to a real compile-time error
+
+Meta-functions can be selected as a candidate or unselected depending on a `true` or `false` statement being present at the end of a functions declaration. A `[[requires]]` directive can be used in-place of a function's enable or disable boolean to enable or disable a meta-function as a candidate based on a function's arguments. All inputs and outputs are considered captured in a function's context allowing for compile-time reflection of argument types. Any values of input arguments that are not compile-time constants will not be constructed nor destructed and any access to input argument values may cause undefined behaviors. Output arguments are never constructed nor destructed and any access to an output argument may result in undefined behaviors. Any input argument can be checked if it contains a compile-time constant by using a `is host constant` operator.
+
+Intrinsic types sizing and endian encoding are entirely relative to a host system or a target system. Operators exist to specifically query a host system or a target system's sizing and endian encoding. However, a `requires` directive works in a dual mode. A `requires` may be used to evaluate candidate suitability or compile-time evaluation for a target system but a code block actually runs within the context of a host system (and not a target system). As such, system context dependant operators (such as `size of` but not `host size of` nor `target size of`) will evaluate as if they are operating on a target context by default.
+
 
 ````zax
 if [[requires]] { return ++value > 2 } {
@@ -465,10 +589,16 @@ if [[requires]] { return ++value > 2 } {
 }
 
 metaFunction : ()(input :) [[requires]] {
+    // if the size of `input`'s type is smaller than an `Integer` then do
+    // not select this function as a candidate
     if (size of :input) < (size of Integer)
         return false
-    if input is compiled constant {
-        // cannot examine the value of `input` if not a compile time constant
+
+    // check if `input` is a compile-time constant
+    if input is host constant {
+        // safe to examine `input`'s value if it is a compile-time constant but
+        // the `< 0` operation may fail to compile if `input`'s type does
+        // not define an appropriate less-than operator
         if input < 0
             return false
         return true
@@ -480,13 +610,16 @@ metaFunction : ()(input :) [[requires]] {
 
 /*
 
-// metaFunction will evaluate to a `true` indicating the function is selectable
-// as a candidate:
+// if `metaFunction`'s `requires` block evaluates to `true` the function
+// becomes selectable as a candidate as the `requires` code block becomes
+// a `true` literal:
 metaFunction : ()(input :) true = {
     // ...
 }
 
-// or to a `false` indicating the function cannot be selected as a candidate:
+// if `metaFunction`'s `requires` block evaluates to `false` the function
+// is not selectable as a candidate as the `requires` code block becomes
+// a `false` literal:
 metaFunction : ()(input :) false = {
     // ...
 }
@@ -495,29 +628,33 @@ metaFunction : ()(input :) false = {
 ````
 
 
-### The `concept` directive
+### `concept` directive
 
-A `concept` directive has two forms: `[[concept, error]]` and `[[concept=<function>, error]]`. A `concept` is similar to a `requires` directive but instead causes a `final` function to be treated as a type check for the sake of meta-programming. A `concept` directive will evaluate whenever a `concept` function name is used as a meta-type declared with `[[concept]]` on a meta-function. Inside a `concept` function, code is executed at compile-time to evaluate if a meta-type is compatible with an input or output argument at compile type. A `concept` function must return `true` or `false` to indicate if a meta-type is compatible with a `concept`.
+A `concept` directive has two forms: `[[concept]]` and `[[concept=<function>]]`. A `concept` is similar to a `requires` directive but instead causes a `final` function to be treated as selection criteria for a meta-function or meta-type when used in meta-programming. A `concept` directive will evaluate a `concept` function whenever a `concept` function is declared in conjunction with a meta-function or meta-type. Inside a `concept` function, code is executed at compile-time to evaluate if a meta-type is compatible with an input or output argument. A `concept` function must return `true` or `false` to indicate if a meta-type is compatible with a `concept`. If a `concept` function fails to compile then a `concept` function will be treated as if it returned a `false`. A `[[compiles=error]]` or `[[requires=error]]` can be used inside a `concept` function to intentionally cause an error condition. 
 
-The form `[[concept, error]]` is declared on the final function indicating the current function is a concept. The second form `[[concept=<function>, error]]` is declared on a meta-type on a meta-function to indicate if a type should be selected.
+The form `[[concept]]` is declared on a `final` function indicating a function is to be treated as a concept. The second form `[[concept=<function>]]` is declared on a meta-type or a meta-function to indicate a type should use a `concept` function to determine if a type meets the selection criteria necessary (for a given meta-type or meta-function).
 
-A `concept` directive can use `if` clauses with a `compiles` clauses to further evaluate compile-time without execution of any statements.
+Functions using a `concept` have a single input argument representing a type to be evaluated and must return `true` (or a meta-type or meta-function will not be selected). A variable passed into a meta-function is not initialized, never constructed, and never destructed. An input argument is a placeholder to evaluate a type's properties inside a `concept` function. A `concept` directive can use `if` clauses with a `compiles` directive to further evaluate compile-time checks without executing of any statements.
 
-Functions using a `concept` have a single input argument representing the type to be evaluated and must evaluate to `true` or a meta-function cannot be selected. A variable passed into a meta-function is not initialized, never constructed, and never destructed and is a placeholder to contain the evaluated type. This value can further evaluated in a `compiles` directive to test if various operations would succeed if the value was real.
-
-If `error` is specified then the failure to compile or returning false will cause a compiler error.
+Intrinsic types sizing and endian encoding are entirely relative to a host system or a target system. Operators exist to specifically query a host system or a target system's sizing and endian encoding. However, a `concept` directive works in a dual mode. A `concept` may be used to evaluate candidate suitability or compile-time evaluation for a target system but a code block actually runs within the context of a host system (and not a target system). As such, system context dependant operators (such as `size of` but not `host size of` nor `target size of`) will evaluate as if they are operating on a target context by default.
 
 
 ````zax
 IsSelectable$(Type) final : (result : Boolean)(ignored : $Type) [[concept]] = {
+    // the type must support these operators or the type will not be selected
     if ![[compiles]] {
+        // code must not execute as accessing `ignored` as a value may
+        // cause undefined behaviors
         ++ignored
         --ignored
         ignored += 5
         ignored -= 5
     } return false
+
+    // the type must be larger than the size of a `U32` or it is not selectable
     if size of $Type > size of U32
         return false
+
     return true
 }
 
@@ -529,21 +666,38 @@ myFunc final : ()(bar : ) = {
     // ...
 }
 
-myFunc(5 as U8)     // first `myFunc` used as it's the most specific evaluation
-myFunc(5 as U64)    // last `myFunc` used as the first is not a candidate
+myFunc(5 as U8)     // first `myFunc` is used as it meets the most specific
+                    // selection criteria
+myFunc(5 as U64)    // last `myFunc` used as the first `myFunc` is not a
+                    // a selectable candidate
 ````
 
 
-### The `execute` directive
+### `execute` directive
 
-The `execute` directive `[[execute=<type>]]` evaluates and runs a code block at compile-time.
+An `execute` directive `[[execute=<option>]]` allows for a function's code block to immediately evaluate at compile-time on a host system, or restrict a code block from evaluating at compile-time where a function can only be run on a target system.
 
-Types are as follows:
-* `generate` - the functional code block will evaluate the input arguments at compile-time and generate new code as a substitute for the code block (i.e. code emits tokens as a string)
-* `delegate` - the functional code block will not evaluate any input arguments but rather the code will generate new code as a substitute for the code block at compile-time (i.e. code emits tokens as a string)
-* `compile` - the code block will evaluate to constant data of compatible type to the context required and expects compile type constants to be passed into the function
-* `dual` (default) - the code block will execute if the values passed in are compile-time constants, or will evaluate to runtime code if the values passed in are not compile-time compatible
-* `runtime` - the code block will evaluate to runtime code only
+The options are as follows:
+* `generate` - a code block will evaluate on a host system and resolve any input arguments at compile-time and generate new code as a substitute for the code block (i.e. the code block emits replacement tokens as a string)
+* `delegate` - a code block will evaluate on a host system but no input arguments will be resolved; instead all input arguments will be treated as a constant array of string literal values; the code block will generate new code as a substitute for the code block at compile-time (i.e. the code block emits replacement tokens as a string);
+* `dual` (default) - a code block will execute immediately on a host system if all values referenced are compile-time constants, or a code block will evaluate at runtime on a target system if any values referenced are not compile-time compatible on a host
+* `host` - a code block will evaluate at compile-time on a host system and all referenced values must evaluate to compile-time values
+* `target` - a code block will evaluate on a target system at runtime only
+
+An `execute` directive with `target` must be used to create a `main` entry point function for a standard application running on a target system otherwise a called `main` function would immediately execute at compile-time rather than generating a compile-time target function:
+
+````zax
+// without an `execute` directive being present with a `target` option, the
+// code will run immediately on a host system
+main final [[execute=target]] : ()() = {
+    // ...
+}
+
+main()
+````
+
+
+Detailed control of execution is possible for indicating compile-time versus runtime code on a host or target system:
 
 ````zax
 random final : ()() = {
@@ -569,7 +723,7 @@ doubleNow final [[execute]] [[resolve=now]] : (result : Integer)(value : Integer
 }
 
 generateSomething1 final [[execute=generate]] : (result : String)(...) = {
-    // code here generates a string result based on examining the compile-time
+    // code here generates a string result based on examining compile-time
     // evaluated inputs and the output string result is parsed into tokens which
     // replaces the function call ...
     return result
@@ -591,23 +745,23 @@ generateSomething2 final [[execute=delegate]] : (
 four := double(2)
 
 // invoking `compileItDouble` in this context causes it to execute at
-// compile-time as the compiler will generate complete code for all the
-// execution required to run the function
+// compile-time as a compiler can generate complete code for all the
+// execution functions required
 value1 := compileItDouble(random())
 
 // invoking `generateItDouble` in this context causes it to generate replacement
-// code tokens for each combination of the types specified
+// code tokens for each execution
 value2 := generateItDouble(random())
 
 // forward declare the `seven` symbol
 seven :: forward variable
 
 // ERROR: not all of the terms are able to evaluate at this time;
-// `[[resolve=now]]` is forcing order to matter where normally order
-// resolution of `seven` would be okay to resolved later;
+// `[[resolve=now]]` on the `doubleNow` function is forcing order to matter
+// where normally order resolution of `seven` would be okay to resolve later;
 sevenDouble := doubleNow(seven)
 
-// the seven symbol declared later
+// the `seven` symbol declared later
 seven := 7
 
 value2 = generateSomething1(value2)     // `generateSomething1(value2)` will
@@ -615,39 +769,44 @@ value2 = generateSomething1(value2)     // `generateSomething1(value2)` will
 
 // the entire line below will be replaced with generated tokens and the inputs
 // will not be be evaluated; each input will be converted to a string in
-// an array representing each argument as a single string in the array
+// an array representing each argument as a single string value in the array
 generateSomething2(value2 * 5, "hello")
 ````
 
 
-### The `resolve` directive
+### `resolve` directive
 
-The `resolve` directive `[[resolve=<option>, retry=<true/false>]]` indicates to the compiler when the specific `import`, `type` statements and `execute`, `compile`, `requires`, and `concept` directives must be resolved.
+A `resolve` directive `[[resolve=<option>, retry=<true/false>]]` indicates to a compiler when a specific `import`, `type` statements and `execute`, `compile`, `requires`, and `concept` directives must be resolved.
 
 Options are:
-* `trial` (default) - attempt to resolve the declaration now
-* `lazy` - only attempt to resolve the declaration if it is referenced
-* `last` - only attempt to resolve the declaration at the last instance possible (all `last` directives are done in sequence they are found unless they are found to not resolve and then they are pushed to the back of the resolve queue)
-* `now` - immediately resolve the declaration and assume all terms required to evaluate must already be defined at this point
+* `trial` (default) - attempt to resolve a declaration now
+* `lazy` - only attempt to resolve a declaration if it is referenced
+* `last` - only attempt to resolve a declaration at the last moment possible (all `last` directives are done in sequence they are found unless they are found to not resolve and then they are pushed to the back of a resolve queue)
+* `now` - immediately resolve a declaration and assume all terms required to evaluate must already be defined at this point
 
 Retry options are:
-* `true` - (default for all but `now`) if the resolution fails, retry the resolve at a later time
-* `false` - (default for only `now`) if the resolution fails, consider the declaration unresolvable
+* `true` - (default for all but `now`) if a resolution fails, retry a resolve at a later time
+* `false` - (default for only `now`) if a resolution fails, consider a declaration unresolvable
 
 
-### The `align` directive
+### `align` directive
 
-The `align` directive `[[align=<n>, reorder=<option>]]` forces contained types within a type to be aligned at specific memory byte addresses where the memory address modulus the alignment must be 0. By default, the alignment is decided by the compiler. Non-power of 2 addresses are not supported and will cause a `bad-alignment` error.
+An `[[align=<n>, reorder=<option>, compilation=<compilation-option>]]` directive forces contained types within another type to be aligned at specific memory byte addresses where a memory address offset of a contained type modulus an alignment value must equal `0`. By default, all alignments are decided by a compiler. Non-power of `2` alignment values are not supported and will cause a `bad-alignment` error.
 
-A `reorder` option is available to indicate the values in the type that follow can be any order chosen by the compiler with the order priority given to the chosen `reorder` option.
+A `reorder` option is available to indicate contained types that follow the directive can be any order chosen by a compiler using an order priority preference given as a `reorder` option.
 
 The alignment accepts:
-* `<n>` - values of 2^N where N >= 0 (default is the CPU's alignment)
+* `<n>` - values of 2^N where N >= 0 (default is a compilation context's CPU's alignment)
 
 Reorder options are:
-* `none` (default) - disable reordering for values that follow
-* `compact` - reordering the types for compactness
-* `speed` - reorder the types for maximum speed
+* `none` (default) - disable reordering for contained types that follow
+* `compact` - reorder types for compactness
+* `speed` - reorder types for maximum speed
+
+The `compilation-option` is as follows:
+* `default` (default) - the directive applies to any compilation context
+* `target` - the directive applies only to a compilation target
+* `host` - the directive applies only a a compilation host
 
 ````zax
 MyType :: type {
@@ -673,9 +832,14 @@ MyOtherType :: type {
 ````
 
 
-### The `reserve` directive
+### `reserve` directive
 
-The `reserve` directive `[[reserve=<n>, initialize=<n>]]` forces bytes to be reserved into a type which have no value associated with the space. The `initialize` option allows a value to be pre-filled into the reserved memory.
+A `reserve` directive `[[reserve=<n>, initialize=<n>, compilation=<compilation-option>]]` forces bytes to be reserved into a type which have no value associated with the space. The `initialize` option allows a specific byte value or literal string pattern to be pre-filled into the reserved memory.
+
+The `compilation-option` is as follows:
+* `default` (default) - the directive applies to any compilation context
+* `target` - the directive applies only to a compilation target
+* `host` - the directive applies only a a compilation host
 
 ````zax
 MyPacket :: type {
@@ -691,9 +855,9 @@ MyPing :: type {
 ````
 
 
-### The `void` directive
+### `void` directive
 
-The `void` directive `[[void]]` declares a type that has a memory offset into a type as if the contained value existed but the size of the container type does not reserve any bytes for the type with the `void` directive declared.
+A `[[void]]` directive declares a type that has a memory offset into a type as if a contained value existed but the size of a contained type does not reserve any bytes for the contained type.
 
 ````zax
 assert final : ()(condition : Boolean) = {
@@ -714,13 +878,13 @@ assert(size of MyType == size of Integer + size of Uuid)
 ````
 
 
-### The `likely` / `unlikely` directive
+### `likely` / `unlikely` directive
 
-The `likely` and `unlikely` directive indicates which `if` path or `switch` statements are `likely` or `unlikely` to occur to help with compiler optimizations and CPU branching. Attempting to specify both `if` paths are `likely` or `unlikely` will result in an `incompatible-directive` error.
+A `likely` and `unlikely` directive indicates which `if` path or `switch` statements are `likely` or `unlikely` to occur as a hint to a compiler for optimizations and CPU branch prediction. Attempting to specify both `if` paths as `likely` or `unlikely` will result in an `incompatible-directive` error.
 
-The `switch` statement can have one or more case statements marked as `likely` or `unlikely` but not all with the same marking. This will tell the compiler to arrange checks in the most optimal way for these scenarios. If a `switch` is done with alternative operators, the order of the tests is fixed and but the `likely` or `unlikely` may offer hints to the compiler to optimize for some scenarios so long as the test order is not compromised.
+A `switch` statement can have one or more `case` statements marked as `likely` or `unlikely` but not all `case` statements may have the same marking. This will tell a compiler to arrange comparison checks in the most optimal way for these scenarios. If a `switch` is done with alternative operators, the order of the tests is fixed and but a `likely` or `unlikely` directive may offer hints to a compiler to optimize for some scenarios before others so long as a testing order would not result in a different outcome than the one a programmer specified.
 
-On a `switch`, the directive applies to the `case` statement not the `case` statement's code. This is done because the optimization is for each individual case test and not on the destination code path. Because of `case` fallthrough, one `case` may be `likely` and another `unlikely` for the same executed code path.
+On a `switch`, this directive applies to a `case` statement and not a `case` statement's code block. This is done because a compiler optimizes each individual test case and not on a destination code path. Because of `case` fallthrough, one `case` may be `likely` and another `case` may be `unlikely` yet they both execute the same code path.
 
 Using the directive with the `if` statement:
 
@@ -788,15 +952,15 @@ func final : ()(value : Integer) = {
 ````
 
 
-### The `always` and `never` directives
+### `always` and `never` directives
 
-The `[[always]]` and `[[never]]` directives indicate to the compiler a code path will always be followed or never be followed. This allows references to code to exist but the paths will be optimized to always follow a code path or to never follow a code path. The compiler may issue an `impossible-if-value` panic if an explicit or implicit `[[never]]` code path was followed.
+An `[[always]]` and `[[never]]` directive indicate to a compiler that a code path will always be followed or never be followed. This allows for references to code to exist but for those paths to be optimized to always follow a code path or to never follow a code path. The compiler may issue an `impossible-if-value` panic if an explicit or implicit `[[never]]` code path was followed.
 
-When `[[never]]` is applied to a `case` statement in a `switch`, the `case` will be treated as an impossible value and the case will be eliminated. This feature can be useful to ensure all enumerators are explicitly handled but to also indicate to the compiler that certain cases can never happen. The compiler may issue an `impossible-switch-value` panic if the value is found.
+When `[[never]]` is applied to a `case` statement in a `switch`, the `case` will be treated as an impossible value and the case will be eliminated. This feature can be useful to ensure all enumerator values are explicitly handled but to also indicate to a compiler that certain cases can never happen. A compiler may issue an `impossible-switch-value` panic if the value is executed.
 
-When `[[always]]` is applied to a `case` statement in a `switch`, the `case` will be treated as the only possible value that could occur. The compiler will issue an `impossible-switch-value` panic if any other `case` is ever found.
+When `[[always]]` is applied to a `case` statement in a `switch`, the `case` will be treated as the only possible value that can occur. A compiler will issue an `impossible-switch-value` panic if any other `case` is ever found.
 
-Using the directive with the `if` statement:
+Using an `always` and `never` directive with an `if` statement:
 
 ````zax
 doSomething final : ()() = {
@@ -811,15 +975,15 @@ func final : ()() = {
     condition final : (result : Boolean)() = { return true }
     failure final : (result : Boolean)() = { return false }
 
-    // placing the `always` directive prior to the execution block after the
-    // `if` treats the `true` condition as if the result would `always` be true
+    // placing an `always` directive prior to an execution block after an
+    // `if` treats a `true` condition as if a result would `always` be `true`
     if condition() [[always]]
         doSomething()
     else
         doSomethingElse()
 
-    // placing the `always` directive after the `else` statement treats the
-    // `false` condition as as `always` the path to follow
+    // placing an `always` directive after an `else` statement treats a
+    // `false` condition as if a result would `always` be `false`
     if condition()
         doSomething()
     else [[always]]
@@ -832,7 +996,7 @@ func final : ()() = {
 }
 ````
 
-Using the directive with the `switch` statement:
+Using a `never` directive with a `switch` statement:
 
 ````zax
 doSomething final : ()() = {
@@ -862,9 +1026,9 @@ func final : ()(value : Integer) = {
 ````
 
 
-#### The `never` directive in code flow
+#### `never` directive in code flow
 
-The `[[never]]` directive can be used to mark code flows which are impossible to reach. This will allow the compiler to not generate output for code paths that cannot happen. A panic `impossible-code-flow` may be issues if the code flow was followed even though it's not possible to reach (if not explicitly disabled).
+A `[[never]]` directive can be used to mark code flows which are impossible to reach. This will allow a compiler to not generate output for code paths that cannot happen. A panic of `impossible-code-flow` may be issues if an impossible code flow was followed (if that panic is not explicitly disabled).
 
 Example of an impossible code path:
 
@@ -896,13 +1060,13 @@ forever {
 ````
 
 
-### The `return` directive
+### `return` directive
 
-The `return` directive `[[return=<option>]]` indicates to the compiler how the compiler should code generation regarding the `return` statement.
+A `return` directive `[[return=<option>]]` indicates to a compiler how a compiler should treat code generation regarding a `return` statement.
 
 Options are as follows:
-* `never` - the function never returns and the compiler can generate jump assembly instructions without instruction pointer stack frame pushes or return instructions
-* `interrupt` - the function will be called directly from an interrupt and the compiler should generate interrupt return instructions instead of standard return instructions
+* `never` - a function never returns and a compiler can generate jump assembly instructions without instruction pointer stack frame pushes or return instructions
+* `interrupt` - a function will be called directly from an interrupt and a compiler should generate interrupt return instructions instead of standard return instructions
 
 ````zax
 doForever final : ()() [[return=never]] = {
@@ -915,20 +1079,21 @@ doForever()
 ````
 
 
-### The `export` directive
+### `export` directive
 
-The `export` directive `[[export=<option>]]` tells the compiler to apply the export keyword to all exportable types found, or disable a previous `export` directive.
+An `export` directive `[[export=<option>]]` instructs a compiler to export symbols, or disable exporting of symbols.
 
 The options are:
-* `always` - all exportable types are automatically exported after this directive
-* `never` (default option) - disable the exporting of all exportable types after this directive
-* `yes` - (default if no `export` option specified) the next type or declared variable is exported
-* `no` -  the next type or declared variable is not exported
-* `push` - push the current `export` state onto the stack
-* `pop` - pop the previous `export` state from the stack
+* `always` - all exportable symbols are automatically exported after this directive
+* `never` (default option) - disable exporting of all exportable symbols after this directive
+* `yes` - (default if no `export` option specified) cause the next symbol declared as exported
+* `no` -  cause the next symbols to not be exported
+* `push` - push the current `export` state onto a compiler's export stack
+* `pop` - pop the previous `export` state from a compiler's export stack
 
 ````zax
 [[export=always]]
+
 foo : Integer
 
 MyType :: type {
@@ -936,6 +1101,7 @@ MyType :: type {
 }
 
 [[export=never]]
+
 myPrivateData : Integer
 
 MyPrivateType :: type {
@@ -949,52 +1115,74 @@ visibleToImports : Boolean = true
 
 ### Literal directives
 
-The `[[compiler,<sub-value>,<option>]]`, `[[module,<sub-value>,<option>]]`, `[[file,<sub-value>,<option>]]` represent string or numerical literals related to the compilation, module, or compiled file. Short forms of `[[file]]`, `[[line,increment=<n>]]`, `[[function]]` exist for `[[file,default]]`, `[[file,line,increment=<n>]]`, and `[[file,function]]` relatively.
+A `[[compiler,<sub-value> | ,<option> | | ,<sub-option> |]]`, `[[module,<sub-value> | ,<option> |]]`, and `[[file,<sub-value> | ,<option> |]]` represent string, numerical or boolean literals related to a compilation, module, or a compiled file. Short forms of common usages of literals exist, such as `[[file]]`, `[[line | ,increment=<n> |]]`, `[[function]]` exist for `[[file,default]]`, `[[file,line |, increment=<n> |]]`, and `[[file,function]]` relatively.
 
-If a function is inlined then the represented values become the inline values from where the directives were inlined into and not the inlined values of the function being inlined (and possibly recursively if inlined functions were inturned inlined). If any of these values are not applicable, an empty string literal or default numerical value of 0 is used in its place.
+If a function is inlined then the literal values become inlined to the context where the directives were inlined into and not the inlined values of the function being inlined (and possibly recursively if inlined functions were inturned inlined). If any of these values are not applicable, an empty string literal or default numerical value of 0 is used in its place.
 
-The following literals are relative to the compilation using the `compiler` directive:
-* `time` - the time of compilation (as string or as an integer value)
-* `date` - the date of compilation (as string)
-* `compiler` - the brand name of the compiler application compiling the source code
-* `version` - the compiler's version
+Each file currently being compiled will have its own literals for properties relative to the current compiling file. Other literals are relative to a current module and do not change per compiled file (but do change per compiled module). Finally other literals are entirely global to the compilation process.
 
-The following literals are relative to the current module using the `module` directive:
-* `location` - URL for the current module (as string)
-* `git` - the following option are available for the `git` type:
-    * `default` - (default) becomes the literal value `true` if the current module uses git, otherwise `false`
-    * `tag` - the current module git tag (as string)
-    * `branch` - the current module git branch (as string)
-    * `commit` - the current module last git commit hash (as string)
-* `path` - the full path to the current module as located on the host file system
-* `import-version` - the api version requested for the module being imported
-* `hash` - the current hash used to define the current importation definitions
+The following literals are relative to a compiler using a `compiler` directive:
+* `time` - the time of compilation (as a string or as an `Integer`, see `time` options)
+* `date` - the date of compilation (as a string)
+* `compiler` - the brand name of the compiler application compiling the source code (as a string)
+* `version` - a compiler's version (as a string)
+* `compilation` - values relative to the current compilation context (i.e. either `target` or `host` depending which is compiling) with these options:
+    * `big-endian` - if the compilation context is big endian (as a `true` or `false` literal)
+    * `little-endian` - if the compilation context is little endian (as a `true` or `false` literal)
+    * `feature` - if a specific feature is enabled for a the compilation context where the `sub-option` is a feature name (e.g. CPU extensions) (as a `true` or `false` literal)
+    * `env` - contains an environment value specific to the compilation context (as a string)
+* `target` - values relative to the target compilation context with options:
+    * `big-endian` - if the target compilation context is big endian (as a `true` or `false` literal)
+    * `little-endian` - if the target compilation context is little endian (as a `true` or `false` literal)
+    * `active` - if the current compilation context is set to the target (as a `true` or `false` literal)
+    * `feature` - if a specific feature is enabled for the target compilation where the `sub-option` is a feature name (e.g. CPU extensions) (as a `true` or `false` literal)
+    * `env` - contains an environment value specific to a target compilation (as a string)
+* `host` - values relative to the host compilation context with options:
+    * `big-endian` - if the host compilation context is big endian (as a `true` or `false` literal)
+    * `little-endian` - if the host compilation context is little endian (as a `true` or `false` literal)
+    * `active` - if the current compilation context is set to the host (as a `true` or `false` literal)
+    * `feature` - if a specific feature is enabled for the host system compilation where the `sub-option` is a feature name (e.g. CPU extensions) (as a `true` or `false` literal)
+    * `env` - contains an environment value specific to a host compilation (as a string)
 
-The following literals are relative to the current compiling file using the `file` directive:
-* `default` - (default) the source code file being compiled (as string)
-* `path` - the source path for the current file (relative to the module root)
-* `line` - the line number being compiled (as an integer)
+The following literals are relative to the current module using a `module` directive:
+* `location` - URL of the current module (as a string)
+* `git` - the following option are available:
+    * `default` (default) - if the current module uses git (as a `true` or `false` literal)
+    * `tag` - the current module git tag (as a string)
+    * `branch` - the current module git branch (as a string)
+    * `commit` - the current module last git commit hash (as a string)
+* `path` - the full path to the current module as located on the host file system (as a string)
+* `import-version` - the API version requested for the module being imported (as a string)
+* `hash` - the current hash calculated for the current importation definitions (as a string)
+* `env` - contains an environment value specific to a module (as a string)
+
+The following literals are relative to the current compiling file using a `file` directive:
+* `default` (default) - the path and source file name being compiled (as a string)
+* `path` - the source path for the current file relative to the module root (as a string)
+* `filename` - the source filename of the file being compiled (without the path) (as a string)
+* `line` - the line number being compiled (as an `Integer`)
     * an additional `increment=n` option is available on the line literal
-* `function` - the function being compiled (as string)
-* `date` - the file date of the file being compiled (as string)
-* `time` - the file time of the file being compiled (as string or as an integer value)
-* `generator` - the name of the generator of the current file, otherwise an empty string (as string)
-* `hash` - the current hash of the source file (as string)
+* `function` - the function being compiled (as a string)
+* `date` - the file date of the file being compiled (as a string)
+* `time` - the file time of the file being compiled (as a string or as an `Integer`, see `time` options)
+* `generator` - the name of the generator of the current file, otherwise an empty string (as a string)
+* `hash` - the current hash of the source file (as a string)
+* `env` - contains an environment value specific to a file (as a string)
 
 The options for `compiler.version` and `module,import-version` are:
-* `default` - (default if not specified) the full semantic version as a string
-* `major` - the major version number (as Integer)
-* `minor` - the minor version number (as Integer)
-* `patch` - the patch version number (as Integer)
-* `pre-release` - the pre-release (as string)
-* `build` - the build identifiers (as string)
+* `default` (default) - the full semantic version (as a string)
+* `major` - the major version number (as an `Integer`)
+* `minor` - the minor version number (as an `Integer`)
+* `patch` - the patch version number (as an `Integer`)
+* `pre-release` - the pre-release (as a string)
+* `build` - the build identifiers (as a string)
 
 The options for `[[compiler,time,<option>]]` and `[[file,time,<option>]]` are:
-* `default` - (default if not specified) the full time as a string
-* `unix` - the compile-time number of seconds since the unix epoch (as I64)
-* `nt` - the compile-time expressed as the number of 100 nanoseconds since the NT time epoch (as I64)
+* `default` (default) - the full time (as a string)
+* `unix` - the compile-time number of seconds since the time since the unix epoch (as an `I64`)
+* `nt` - the compile-time expressed as the number of 100 nanoseconds since the time since the NT epoch (as an `I64`)
 
-The line directive `[[line=<n>, increment=<n>]]` indicates the current's source's line number. The `increment` argument indicates how much to `increment` the counted line number of for per line of the currently compiled source file (default for `increment` is `1`).
+A line directive `[[line=<n>, increment=<n>]]` sets the current's source's line number being compiled. An `increment` argument indicates how much to `increment` a counted line number per line of the currently compiled source file (default for `increment` is `1`).
 
 ````zax
 print final : ()(...) = {
@@ -1015,13 +1203,9 @@ trace()
 
 ### Override literal directives
 
-All the literal directives can be overridden for a given module, compilation file, or compilation. This allows literals to be changed for generated files, or for the purpose of tweaking some of the values related to the compilation process.
+All literal directives can be overridden for a given module, compilation file, or compilation. This allows literals to be changed for generated files, or for the purpose of tweaking some of the values related to the compilation process.
 
-For example, generated source files can use a file/line directives `[[file="<name>"]]` indicates to a compiler the current source was generated by some process using another file as input. The name indicates the path to that original file. The line directive `[[line=<n>, increment=<n>]]` can be used to track an original source's line number so the generated output's line number match an original source file's line numbering rather than a generated output's line number. The `increment` argument indicates how much to increment the counted line number of the original source file per output line found in the file being compiled (whose default is `1`).
-
-The `line` directive will reuse the last `file` directive (which must be present at least once within the same source file being compiled).
-
-Each file currently being compiled will have its own literals for properties relative to the current compiling file. Other literals are relative to a current module and do not change per compiled file (but do change per compiled module). Finally other literals are entirely global to the compilation process.
+For example, generated source files can use a file/line directives `[[file="<name>"]]` indicates to a compiler if the current source was generated by some process using another file as input. The `name` indicates the path to that original file. A line directive `[[line=<n>, increment=<n>]]` can be used to track an original source's line number so  a generated output's line number matches an original source file's line numbering rather than a connecting with a generated output's line number. The `increment` argument indicates how much to increment a counted line number of the original source file per output line found in the file being compiled (whose default is `1`).
 
 ````zax
 // override URL location for a generated module
@@ -1044,12 +1228,21 @@ egglessChocolateMousse : String
 [[line=401, increment=0]]
 fudge : Integer
 gulabJamun : String
+
+isRelease := [[compiler,target,feature,release=true]]
+usingSseInstruction := [[compiler,target,feature,sse=true]]
+
+[[compiler,host,env,custom-value="free"]]
+
+[[compiler,target,env,special="professional"]]
 ````
+
+A compiler will expose a module with compile-time functions to read and write literals in a programmatic methodology rather than through directives. Directives are included for convenience for quick access to literal values.
 
 
 ### `lock-free` directive
 
-The `once` keyword will automatically generate thread safe barriers around a singleton's instance construction to ensure only a single instance will ever be constructed regardless of the threads accessing. However, this is additional overhead that might not always be necessary. The `[[lock-free]]` directive disables the creation of this protective code around a singleton instance creation and assumes that construction of a type will happen entirely single threaded without any possibility of multiple threads competing for an instance creation.
+A `once` keyword will automatically generate thread safe barriers around a singleton's instance construction to ensure only a single instance will ever be constructed regardless of the threads accessing. However, this is additional overhead that might not always be necessary. The `[[lock-free]]` directive disables the creation of this protective code around a singleton instance creation and assumes that construction of a type will happen entirely single threaded without any possibility of multiple threads competing for an instance creation.
 
 ````zax
 MyType :: type {

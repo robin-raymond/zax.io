@@ -108,6 +108,7 @@ alias type
 await
 break
 case
+case continue
 catch
 channel
 continue
@@ -293,6 +294,18 @@ The (compound) word operators have built-in meanings. These word operators are n
 ````
 as                   // binary safe type conversion operator    
 unsafe as            // binary unsafe type conversion operator
+as big endian        // post-unary converting a value into a big endian encoding
+                     // (and assumes the value was in the runtime's context
+                     // encoding)
+as little endian     // post-unary converting a value into a little endian
+                     // encoding (and assumes the value was in the runtime's
+                     // context encoding)
+from big endian      // post-unary convert a value from big endian format (and
+                     // assumes the value was in the runtime's context
+                     // encoding)
+from little endian   // post-unary convert a value from little endian format
+                     // (and assumes the value was in the runtime's context
+                     // encoding)
 outer of             // binary outer type instance of operator (convert from
                      // contained `type` pointer to container `type` pointer
                      // safely via a managed type's RTTI)
@@ -331,8 +344,40 @@ overhead size of     // pre-unary overhead sizing operator (return the number of
                      // the size of a control block)
 allocator of         // pre-unary allocator operator (returns the allocator
                      // instance used to allocate an instance)
-is compiled constant // post-unary check if a value is a compile-time constant
-                     // (used in meta-programming)
+is constant          // post-unary check if a value is constant (used often in
+                     // meta-programming)
+````
+
+A compiler has both a host and a target for compilation. Any compile-time code that evaluates on a compiler's host system may have different value sizing and alignments than that of a compiler's target system. For example, a host may operate on a 64-bit system but target may compile for a 32-bit compilation.
+
+A context sensitive version of sizing exist as follows (where the sizing and alignment is determined by code evaluating at compile-time or runtime context):
+
+````
+size of
+alignment of
+offset of
+overhead size of
+is constant
+````
+
+A `host` version of byte sizing operators exist as follows (whose meaning mirrors the version with a `host` prefix):
+
+````
+host size of
+host alignment of
+host offset of
+host overhead size of
+is host constant
+````
+
+A `target` version of byte sizing operators exist as follows (whose meaning mirrors the version with a `target` prefix):
+
+````
+target size of
+target alignment of
+target offset of
+target overhead size of
+is target constant
 ````
 
 
@@ -369,7 +414,10 @@ align               // align contained types to a zero modulus address boundary
 asset               // copy asset to built bundle
 asynchronous        // indicates a function not normally considered to operate
                     // asynchronously may be performed asynchronously
-compile             // a value must be defined as a compile time constant
+compilation         // controls if the compilation context is the host or the
+                    // target for system specific intrinsic sizing and endian
+                    // encoding
+compile             // a value must be defined as a compile-time constant
 compiles            // if a code block that follows compiles then a `true` is
                     // replaced otherwise a `false` is replaced
 concept             // declare a function as a compile-time check for
@@ -731,3 +779,52 @@ continueExisting := w'encoding inside single quotes is continued ' \
 ### Intrinsic Namespaces
 
 The language defines a default namespace named `Module`. The namespace is the root namespace for all types relative to any current namespace. See [namespacing](namespacing.md) for more details.
+
+
+### Hello World
+
+A simple hello world example is illustrated below:
+
+````zax
+:: import Module.System.Io
+
+main final [[execute=target]] : ()() = {
+    out.writeLine("Hello world!")
+}
+
+main()
+````
+
+An explanation of each step of the code:
+
+````zax
+// import a module named `Io` defined under namespace `Module.System.Standard`
+// and define all types as being directly injected into the current namespace
+:: import Module.System.Standard.Io
+
+// define a function which accepts no input arguments and returns no results
+// but only allow this function to be executed on the target system at
+// runtime; without a `[[execute=target]]` the `main` function would execute
+// immediately during the compilation process rather than on the compilation
+// target system;
+main final [[execute=target]] : ()() = {
+    // using the `out` variable defined in `Module.System.Standard.Io` call a
+    // function named `writeLine` that outputs the value to the standard out
+    out.writeLine("Hello world!")
+}
+
+// call the function at global scope to cause the function to execute (although
+// the code will only execute on a target system since the function can only
+// execute on the compilation target system)
+main()
+````
+
+A few key differences about `main` compared to other languages:
+1. A main entry point need not be named `main` but can be called anything desired
+1. Calling a `main` function is required as a linker will not automatically presume a `main` function must exist
+1. Defining a `main` function using the `[[execute=target]]` is necessary otherwise the `main` function will execute at compile-time
+1. Multiple `main` entry points are legal and they will be executed in the order found (unless they cannot be resolved immediately for host compile-time execution)
+1. No entry point is required at all if a module is a library or code is exported in another fashion
+1. Imported modules with their own entry points to perform compile-time code testing during a compilation process on a host system is normal and to be expected
+1. Reading command line arguments are specific concept of a `Standard` application (as the concept of command line arguments are not a universal concept to all systems)
+1. Returning a result to a command line executable is done via a `mutator` as part of a `Standard` application (as the concept of a single integer return result is not universal to all systems)

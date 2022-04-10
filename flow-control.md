@@ -950,14 +950,14 @@ doSomething final : ()() = {
     // ...
 }
 
-randomBoolean final : (result : Boolean)() = {
+coinFlip final : (result : Boolean)() = {
     // ... return `true` or `false` randomly ...
 }
 
 func final : ()(value : Integer) = {
     switch value {
         case 1 {
-            if randomBoolean()
+            if coinFlip()
                 break
             doSomething()
 
@@ -1008,7 +1008,7 @@ doSomething final : ()() = {
     // ...
 }
 
-randomBoolean final : (result : Boolean)() = {
+coinFlip final : (result : Boolean)() = {
     // ... return `true` or `false` randomly ...
 }
 
@@ -1025,7 +1025,7 @@ func final : ()(value : Integer) = {
 
     switch value {
         case a {
-            if randomBoolean()
+            if coinFlip()
                 break
             doSomething()
 
@@ -1059,7 +1059,7 @@ doSomething final : ()() = {
     // ...
 }
 
-randomBoolean final : (result : Boolean)() = {
+coinFlip final : (result : Boolean)() = {
     // ... return `true` or `false` randomly ...
 }
 
@@ -1079,7 +1079,7 @@ func final : ()(fruit : String) = {
 
     switch fruit {
         case a {
-            if randomBoolean()
+            if coinFlip()
                 break
             doSomething()
         }
@@ -1100,14 +1100,14 @@ func final : ()(fruit : String) = {
 
 #### Using `switch` with alternative operators
 
-A `switch` statement can be used with other boolean binary operators. When binary operators are used, evaluation ordering of binary conditions occur in the same order as `case` conditions.
+A `switch` statement can be used with other binary operators that return a `Boolean` value. When binary operators are used, evaluation ordering of binary conditions occur in the same order as `case` conditions.
 
 ````zax
 doSomething final : ()() = {
     // ...
 }
 
-randomBoolean final : (result : Boolean)() = {
+coinFlip final : (result : Boolean)() = {
     // ... return `true` or `false` randomly ...
 }
 
@@ -1118,7 +1118,7 @@ uniqueRandomNumber final : (result : Integer)() = {
 func final : ()(value : Integer) = {
     switch value {
         case < a {
-            if randomBoolean()
+            if coinFlip()
                 break
             doSomething()
 
@@ -1150,7 +1150,7 @@ doSomething final : ()() = {
     // ...
 }
 
-randomBoolean final : (result : Boolean)() = {
+coinFlip final : (result : Boolean)() = {
     // ... return `true` or `false` randomly ...
 }
 
@@ -1168,7 +1168,7 @@ func final : ()(value : Integer) = {
     switch value := uniqueRandomNumber() ;; value {
         case a {
             // use captured value
-            if value < 0 && randomBoolean()
+            if value < 0 && coinFlip()
                 break
             doSomething()
 
@@ -1185,6 +1185,67 @@ func final : ()(value : Integer) = {
             // the `switch` exits
             doSomething()
             doSomething()
+        }
+    }
+}
+````
+
+#### `switch` statement and `case continue`
+
+A `case continue` statement will cause the next case clause to be processed as if the following `case` (or `default`) condition were true. Effectively this allows for one `case`'s statement to fallthrough to another `case`'s statement.
+
+````zax
+doSomething final : ()(value : Integer) = {
+    // ...
+}
+
+coinFlip final : (result : Boolean)() = {
+    // ... return `true` or `false` randomly ...
+}
+
+func final : ()(value : Integer) = {
+    switch value {
+        case 1 {
+            if coinFlip()        // `if coinFlip()` is `true`
+                case continue    // will cause the next `case 2` to `continue`
+                                 // processing as if it were a true thus causing
+                                 // `doSomething(2)` to execute but not
+                                 // `doSomething(1)`
+
+            doSomething(1)
+
+            // unlike other languages, a `break` is not required between
+            // `case` statements as the code logic will not flow through from
+            // one case to another automatically
+        }
+        case 2
+            // single statement is executed then the `switch` exits
+            doSomething(2)
+        case 3
+        case 4 {
+            // if `value` is `3` or `4` two statements are executed and then
+            // the `switch` exits
+            doSomething(3)
+            doSomething(4)
+        }
+        case 5
+        case 6
+            doSomething(5)
+            // ERROR: this code will not compile as multiple statements are
+            // present thus requiring using a `{}` scope or the `;` operator
+            doSomething(6)
+        case 7
+        case 8
+            // the `;` operator causes both statements to be joined as a
+            // single statement at the same scope
+            doSomething(7);
+            doSomething(8)
+        case 9
+        case 10
+        default {
+            // values not `1` through `8` will execute this default scenario
+            doSomething(9)
+            doSomething(10)
         }
     }
 }

@@ -98,7 +98,7 @@ The following are registered errors, and their meaning:
 * `missing-end-of-comment`
     * a comment `/*` or `/**` was started but the matching end comment `*/` or `**/` is missing
 * `compile-directive-error`
-    * a compile directive was issued but the value specified does not evaluate to a compile time constant
+    * a compile directive was issued but the value specified does not evaluate to a compile-time constant
 * `compiles-directive-error`
     * the compiles directive failed to compile code and thus forced an error
 * `requires-directive-error`
