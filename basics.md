@@ -155,6 +155,7 @@ operator pre unary
 operator post unary
 override
 own
+pliable
 private
 promise
 raw
@@ -169,6 +170,7 @@ true
 type
 union
 unique
+unpliable
 until
 using
 varies
@@ -410,6 +412,8 @@ ___             // unary pointer to the current context
 ### Compiler directives
 
 ````
+abi                 // forces a function on a `type` to use a specific ABI
+                    // calling convention
 align               // align contained types to a zero modulus address boundary
 asset               // copy asset to built bundle
 asynchronous        // indicates a function not normally considered to operate
@@ -439,13 +443,10 @@ source              // loads a related source file
 void                // declared a contained value occupies a location within a
                     // `type` without allocating space for the contained value
 resolve             // controls when a declaration should resolve
-return              // controls code generation for the return statement
 tab-stop            // sets the tab-stop for the source that follows
 time                // time of compile as a string literal
 unlikely            // indicates a code paths is less likely to execute (for
                     // compiler and CPU optimization)
-virtual             // forces a function on a `type` to be inserted into a
-                    // virtual table for C++ ABI compatibility
 warning             // display a warning or control compiler warning behaviors
 ````
 

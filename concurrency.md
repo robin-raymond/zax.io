@@ -3,9 +3,9 @@
 
 ## Concurrency
 
-### Using the `deep` type qualifier as a method to ensure type data separation across threads
+### Using a `deep` type qualifier as a method to ensure data safety across threads
 
-For speed and efficiency reasons, types may utilize a `shallow` copy methodology and data sharing across type instances when a variable is copied from one type instance to another. A true copy of a type may never actually be performed in such a scenario as copying the data may be expensive and not desirable, especially for types that require heap allocations (e.g. variable length strings).
+For speed and efficiency reasons, types may utilize a `shallow` copy methodology and data sharing across `type` instances when a variable is copied from one instance to another instance. A true copy of a `type` may never actually be performed in such a scenario as copying data may be expensive and not desirable, especially for types that require heap allocations (e.g. variable length strings).
 
 
 #### Efficient `immutable` type data sharing and concurrency
@@ -51,7 +51,7 @@ MyType :: type {
 }
 
 returnAsTemporary final : (result : MyType)(input : MyType) = {
-    // `input` was passed by value and a shallow copy of `input` was made
+    // `input` was passed by-value and a shallow copy of `input` was made
     // and the returned MyType automatically has the `last` qualifier applied
     temp : MyType = input
     return temp
@@ -236,7 +236,7 @@ TemplatedPromiseResult :: type {
 }
 */
 
-// as `String` types are not normally thread safe, all `String` types must
+// as `String` types are not normally thread-safe, all `String` types must
 // be constructed as `deep` when crossing the thread boundary
 someString := "apple"
 
@@ -284,7 +284,7 @@ TemplatedPromiseResult :: type {
 }
 */
 
-// as `String` types are not normally thread safe, all String types must
+// as `String` types are not normally thread-safe, all String types must
 // be constructed as `deep` when crossing the thread boundary
 someString := "apple"
 
@@ -793,11 +793,11 @@ defer producer.cancel()
 
 When allocation is performed on the context using the standard allocator operator (`@`), the allocator will use the standard allocator (`___.allocator`) which is usually set to the sequential allocator (`___.sequential.allocator`). The sequential allocator is typically faster than the parallel allocator (`___.parallel.allocator`) as the sequential allocator only needs to allocate memory using thread unaware allocation algorithms and frees using the thread unaware algorithms.
 
-The downside to a sequential allocator is that allocation and deallocation assume thread local heaps which can have unintended consequences. The sequential allocators do not use any thread locking mechanisms as they assume only the current thread can manipulate a thread's heap at any given time without locks. However, if one thread performs a thread heap allocation and another thread performs the deallocation then that memory needs to be reinserted into the original thread's heap (which cannot be done by another thread). In this specific case, the freed memory is inserted into a thread safe dangling list for the original thread that performed the allocation. When the original thread wakes up and decides to examine the dangling points for that thread then the dangling memory blocks can be reinserted back into the original thread heap (which usually happens during parallel allocation of if more space is needed for the thread heap). If the originating thread has quit prior to freeing a thread heap allocation then that dangling memory should be recycled into another thread's heap when freed.
+The downside to a sequential allocator is that allocation and deallocation assume thread local heaps which can have unintended consequences. The sequential allocators do not use any thread locking mechanisms as they assume only the current thread can manipulate a thread's heap at any given time without locks. However, if one thread performs a thread heap allocation and another thread performs the deallocation then that memory needs to be reinserted into the original thread's heap (which cannot be done by another thread). In this specific case, the freed memory is inserted into a thread-safe dangling list for the original thread that performed the allocation. When the original thread wakes up and decides to examine the dangling points for that thread then the dangling memory blocks can be reinserted back into the original thread heap (which usually happens during parallel allocation of if more space is needed for the thread heap). If the originating thread has quit prior to freeing a thread heap allocation then that dangling memory should be recycled into another thread's heap when freed.
 
-A double "at" symbol, known as the parallel allocator operator (`@@`), is a compiler shortcut to force allocation using parallel/thread safe allocators for the types (and its contained types). When the parallel allocator operator is encountered the standard allocator is replaced by the parallel allocator temporarily for the current allocation (and reset back to the original allocation completes). An "at" symbol with a "bang", known as the sequential allocator operator (`@!`), forces the sequential allocator to be used for the type (and its contained types) by replacing the standard allocator (`___.allocator`) temporarily.
+A double "at" symbol, known as the parallel allocator operator (`@@`), is a compiler shortcut to force allocation using parallel/thread-safe allocators for the types (and its contained types). When the parallel allocator operator is encountered the standard allocator is replaced by the parallel allocator temporarily for the current allocation (and reset back to the original allocation completes). An "at" symbol with a "bang", known as the sequential allocator operator (`@!`), forces the sequential allocator to be used for the type (and its contained types) by replacing the standard allocator (`___.allocator`) temporarily.
 
-Whenever a `strong` pointer type is allocated, the standard allocator (`___.allocator`) in the context is replaced by the parallel allocator temporarily (i.e. assigned to `___.parallel.allocator`). This is done to ensure that any allocated data is entirely allocated in a thread safe manner (and deallocated later in a thread safe manner). Once the allocation is complete, the original standard allocator is restored allowing any future constructor and allocations of other types to use the potentially faster sequential (`___.sequential.allocator`) allocator if that allocator was previously in use.
+Whenever a `strong` pointer type is allocated, the standard allocator (`___.allocator`) in the context is replaced by the parallel allocator temporarily (i.e. assigned to `___.parallel.allocator`). This is done to ensure that any allocated data is entirely allocated in a thread-safe manner (and deallocated later in a thread-safe manner). Once the allocation is complete, the original standard allocator is restored allowing any future constructor and allocations of other types to use the potentially faster sequential (`___.sequential.allocator`) allocator if that allocator was previously in use.
 
 Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers qualified as `unique` or `own` are allocated using the standard allocator which is typically set to the sequential allocator by default. If an `own` pointer gets transferred later into a `strong` pointer or across thread boundaries, then consider using parallel allocators.
 

@@ -210,7 +210,7 @@ func final : ()() = {
 
 If an `own` pointer will be transferred to a different thread, either a deep copy of the `own` pointer should be performed, or a parallel allocator should be considered. By default, `own` pointers allocate using the standard allocators (i.e. typically the sequential allocator). Allocation of an `own` pointer in one thread and then deallocation of the pointer on a different thread may cause dangling allocations that will only become cleaned during dangling allocation cleanup happens on the originating thread.
 
-While the standard allocators can be replaced with thread safe allocators, the optimized thread-unaware allocators would be replaced by less efficient thread aware counterparts universally (which is often unneeded).
+While the standard allocators can be replaced with thread-safe allocators, the optimized thread-unaware allocators would be replaced by less efficient thread aware counterparts universally (which is often unneeded).
 
 
 ### Allocating with custom allocators

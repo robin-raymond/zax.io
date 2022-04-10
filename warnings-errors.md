@@ -75,6 +75,8 @@ The following are registered errors, and their meaning:
     * an attempt was made to cast from a contained pointer to a container pointer but which from `type` is ambiguous
 * `except-ambiguous`
     * an attempt was made to return a value using the `except` statement but the best match for the return `type` is ambiguous or the defaulted output argument name for the `except` is ambiguous
+* `own-relationship-access-ambiguous`
+    * which `own` variable is correct is ambiguous in this scenario
 * `enum-to-underlying-needs-as-operator`
     * an attempt was made to directly convert an enum to its underlying `type` without first casing to the underlying `type`
 * `enum-to-incompatible-type`
@@ -264,6 +266,8 @@ The following are registered warnings, default states, and their meaning:
     * every declared variable must be used (unless marked with `#`)
 * `duplicate-specifier` (always)
     * a duplicate qualifier was specified, e.g. `constant`, `immutable`, `mutable`, `deep`, etc.
+* `type-mutability-qualifier-not-supported`
+    * a specific `type` mutability qualifier was selected which is not supported
 * `specifier-ignored` (always)
     * a qualifier was specified which is ignored in the context
 * `asynchronous-not-deep` (always)

@@ -3,7 +3,7 @@
 
 ## Arrays
 
-Zax arrays are multi dimensional. Arrays can be of a fixed size or they can be of a dynamic size. All array dimensions have an implicit `length` `mutator` to indicate the length of an array. Arrays are zero based indexes for their lookup. Once arrays are allocated they cannot be resized but their contents can be replaced if an array is `mutable`.
+Zax arrays are multi dimensional. Arrays can be of a fixed size or they can be of a dynamic size. All array dimensions have an implicit `length` `mutator` to indicate the length of an array. Arrays are zero based indexes for their lookup. Once arrays are allocated they cannot be resized but their contents can be replaced if an array is `mutable` and `inconstant`.
 
 ````zax
 randomNumber final : (result : Integer)() = {

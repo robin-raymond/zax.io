@@ -108,7 +108,7 @@ a : Integer = 1
 b : Integer = 2
 
 func : ()() = [a, b] {
-    // The value of `a` and `b` are captured by value and `1` and `2` will
+    // The value of `a` and `b` are captured by-value and `1` and `2` will
     // always be displayed (unless the captured `a` or `b` is changed
     // locally)
     print(a, b)
@@ -885,7 +885,7 @@ bucket := myType.bucket()
 ````
 
 
-#### Variables qualified as `mutable` in relation to `constant` function types
+#### Variables qualified as `pliable` in relation to `constant` function types
 
 ````zax
 saveToDisk final :: ()(value : Integer) = {
@@ -903,14 +903,14 @@ Mutex :: type {
 
 MyType :: type {
 
-    mutex mutable : Mutex
+    mutex pliable : Mutex
     value1 := 0
     value2 := 0
     value3 := 0
 
     save final : ()() constant = {
         // allowed to call non-`constant` functions on the `constant`
-        // mutex value since the variable is qualified as `mutable`
+        // mutex value since the variable is qualified as `pliable`
         mutex.lock()
         saveToDisk(value1)
         saveToDisk(value2)

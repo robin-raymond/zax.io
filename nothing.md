@@ -28,17 +28,18 @@ MyType :: type {
     // instance is being constructed allowing the instance to set itself up to
     // be the `Nothing` instance
     +++ final : (result : MyType *)(# : Nothing) = {
-        // reset function pointers to nothing
+        // reset function pointers to nothing (which can be modified during
+        // construction despite being `final`)
         doSomething = {}
         doSomethingElse = { # value }
         return _
     }
 
-    doSomething immutable : ()() = {
+    doSomething final : ()() = {
         // ...
     }
 
-    doSomethingElse immutable : ()(value : Integer) = {
+    doSomethingElse final : ()(value : Integer) = {
         // ...
     }
 
@@ -90,13 +91,13 @@ myType.print("hello")
 
 ### Setting values in nothing types
 
-`Nothing` instances are real instance of a type. Thus `Nothing` type instances have values that map to real memory in an underlying type's `Nothing` instance. Thus values in `Nothing` instances should not be set, or if values are allowed to be set then data contained in a `Nothing` instance must be treated as garbage. `Nothing` instances are not thread safe and they are not designed to be acted upon. Nothing types should be treated as `immutable` especially for concurrency reasons. If a `Nothing` instance is not concurrency safe and modifying its contents would cause issues then undefined behaviors can occur. Accessing `immutable` functions should be designed to be safe for types that support having a `Nothing` instance.
+`Nothing` instances are real instance of a type. Thus `Nothing` type instances have values that map to real memory in an underlying type's `Nothing` instance. Thus values in `Nothing` instances should not be set, or if values are allowed to be set then data contained in a `Nothing` instance must be treated as garbage. `Nothing` instances are not thread-safe and they are not designed to be acted upon. Nothing types should be treated as `immutable` especially for concurrency reasons. If a `Nothing` instance is not concurrency safe and modifying its contents would cause issues then undefined behaviors can occur. Accessing functions on a `Nothing` instance should be designed to be thread-safe for types that support having a `Nothing` instance.
 
-When values are accessed within a type not supporting a `Nothing` instance, the `pointer-to-nothing-accessed` may be issued (i.e. if that panic was not explicitly disabled). For type declared with a `Nothing` constructor, a panic will not be issued when calling functions on a `Nothing` instance. Function on a `Nothing` instance can self protect themselves from access (by validating a `_` is not pointing to the `Nothing` instance). Whereas values accessed when an instance is pointing to nothing without a `Nothing` constructor being defined have no method to self protect themselves.
+When values are accessed within a `type` not supporting a `Nothing` instance, the `pointer-to-nothing-accessed` panic may be issued (i.e. if that panic was not explicitly disabled). For a `type` declared with a `Nothing` constructor, a panic will not be issued when calling functions on a `Nothing` instance. Function on a `Nothing` instance can self protect themselves from access (by validating a `_` is not pointing to the `Nothing` instance). Whereas values accessed when an instance is pointing to nothing without a `Nothing` constructor being defined have no method to self protect themselves.
 
-If a `Nothing` constructor is not declared on a type, accessing a type's functions may issue a `pointer-to-nothing-accessed` (i.e. if that panic was not explicitly disabled).
+If a `Nothing` constructor is not declared on a type, accessing a `type`'s functions may issue a `pointer-to-nothing-accessed` panic (i.e. if that panic was not explicitly disabled).
 
-`Nothing` instances are not meant to be used as global singletons (although technically they are allocated as global singletons). The usage of pointers to nothing as singletons to perform functional work is highly discouraged (but not enforced).
+`Nothing` instances are not meant to be used as global singletons (although technically they are allocated as global singletons). The usage of pointers to `Nothing` as singletons to perform functional work is highly discouraged (but not compiler enforced).
 
 ````zax
 MyType :: type {

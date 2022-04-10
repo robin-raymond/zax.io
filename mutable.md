@@ -3,74 +3,83 @@
 
 ## Mutability
 
-A `mutable` type is a type that can have its contents modified after a type has been instantiated. An `immutable` type is a type whose contents cannot be modified once a type is constructed (and immutability is enforced by a compiler). A `mutable` variable overrides a type's `constant` or `inconstant` declaration.
+A `mutable` type is a type that can have its contents modified after a type has been instantiated. An `immutable` type is a type whose contents cannot be modified once a type is constructed (and immutability is enforced by a compiler). A `pliable` variable overrides a type's `constant` or `inconstant` qualifier.
 
-An `immutable` variable will respect a type's `constant` or `inconstant` declaration (and makes no promise otherwise). Variables are defaulted and implicitly declared as `immutable` and declaring variables as `immutable` is rarely done when a variable is declared. An `immutable` variable is not the same thing concept as an `immutable` type. For variables, mutability implies if a type's mutability is respected or not whereas as type's immutability implies if contents of a type can be changed or not. A `mutable` variable indicates that immutability of a type should be ignored, but `immutable` on a variable indicates that a type's immutability should be respected.
+An `unpliable` variable will respect a type's `constant` or `inconstant` qualifier (and makes no promise otherwise). Variables are defaulted and implicitly declared as `unpliable` and declaring variables as `pliable` is rarely done when a variable is declared. An `unpliable` variable is not the same concept as an `immutable` type. For variables, pliability affects if a type's `constant` qualifier is respected or not. Whereas a type's immutability indicates if contents of a type can be modified or not. A `pliable` variable indicates that a type's `constant` qualifier should be ignored, but `unpliable` on a variable indicates that a type's `constant` qualifier should be respected.
 
-A `constant` type is a promise not to modify a `mutable` type enforced by a compiler. An `inconstant` type is an allowance to modify a mutable type. A `constant` function inside a type is a promise that a function will not modify a type's `mutable` contents (and enforced by a compiler). A `inconstant` function inside a type is a declaration that a function is allowed to modify contents of a type's `mutable` contents.
+A `constant` `type` qualifier is a promise not to modify any contents of a normally `mutable` type or `varies` variable, which is enforced by a compiler. An `inconstant` type indicates a `mutable` type's contents may be modified. A function declared as `constant` inside a `type` is a promise that a function will not modify a type's `mutable` contents, which is enforced by a compiler. A function declared as `inconstant` inside a `type` is an announcement that a function may modify a type's `mutable` contents.
 
-A `final` variable is not allowed to change its value once instantiated (and enforced by a compiler). A `final` variables makes no promise about changing `mutable` contents contained within a variable's type, and only applies to the direct value of a variable itself. A `varies` variable allows `mutable` values contents to be changed (and `mutable` contents are allowed to be changed in variables declares as `final` or `varies`).
+A `constant` / `inconstant` type qualifier and a `varies` / `final` variable declaration have no affect on `immutable` contents. By convention, `immutable` types can never have their value or contained contents modified thus a `constant` promise not to modify a `type` that already can't be modified has no meaning. Likewise, `inconstant` cannot be applied to `immutable` types as an `immutable` type can never be modified. All `immutable` types are `constant` and `final` once constructed. Further, `varies`, `pliable`, and `unpliable` variable declarations on `immutable` types have no affect because `immutable` types can never be modified (even by attempting to override a type's `constant` promise by using a `pliable` variable declaration).
 
-A `mutable` type can be passed into functions which accept a `mutable` type as `constant` and thus deny further modification of that type's value and contents (which is enforced by a compiler).
+A `final` variable is not allowed to change its immediate value once instantiated, which is enforced by a compiler. A `final` variables makes no promise about any `mutable` contents contained within a variable's `type`, and only applies to the immediate a variable's immediate value. A `varies` variable allows `mutable` and `inconstant` type's immediate value to be changed (and `mutable` and `inconstant` contained contents are allowed to be changed regardless if a variable is declares as `final` or `varies`).
 
-Since `immutable` types cannot have their values changed once created, a `constant` or `inconstant` keyword has no applicability to `immutable` types. An `immutable` type is always `immutable` and cannot be made `inconstant`; contents of an immutable type are `final` and `constant` once constructed. However, a `mutable` variable declaration can override a `constant` declaration to become `inconstant` and `final` declaration to become `varies` for a variable inside a `constant` or `immutable` type.
+A `mutable` type can be passed into functions which accept a `mutable` type as a `constant` type. A constant argument denies further modification of a type's value and contained contents, which is enforced by a compiler.
 
-Quick lookup guide:
+Quick lookup guide (type qualifiers):
 ````
-mutable         // (default) applied to a type, contents of a type are
-                // modifiable
-mutable         // applied to a variable inside a type, contents of a variable
-                // can be changed even if a type is `constant` or `immutable`
-                // and selects a `mutable` version of a type if available
-immutable       // applied to a type, declares a type as being `immutable`
-                // where all values are `final` once constructed regardless of
-                // a types underlying inherent mutability
-immutable       // (default) applied to a variable inside a type, causes a
-                // variable to respect mutability of `constant` or
-                // `inconstant`, or `mutable` or `immutable` types (i.e.
-                // opposite behavior of `mutable` declared on a variable
-                // inside a type)
-                // NOTE: rarely used unless the default is overridden with a
-                // compiler directive
-constant        // applied to a type, contents of a `mutable` type are
-                // disallowed to be modified (has no applicability for
-                // `immutable` types which are effectively always `constant`)
-constant        // applied to a function, a function promises to not modify any
-                // `mutable` contents within a type
-inconstant      // (default) applied to a type, contents of a `mutable` type
-                // are allowed to be modified (has no applicability
-                // for `immutable` types which are effectively always
-                // `constant`)
-inconstant      // (default) applied to a function, a function declares it is
-                // allowed to modify any `mutable` contents within a type
+mutable         // (default) values and contents inside a type are modifiable
+immutable       // all values are `final` once constructed regardless of a
+                // type's underlying inherent mutability
+constant        // values and contents of a `mutable` type are disallowed to be
+                // modified (has no applicability for `immutable` types which
+                // are effectively always `constant`)
+constant        // when applied to a function, a function promises to not modify
+                // any contents within a type (and a `constant` qualifier is
+                // ignored if `pliable` is used on a variable)
+inconstant      // (default) values and contents of a `mutable` type are allowed
+                // to be modified (has no applicability for `immutable` types
+                // which are effectively always `constant`)
+inconstant      // (default) when applied to a function, a function declares it
+                // may modify any `mutable` contents within a type
+
+Mutually exclusive:
+immutable vs mutable    // ability modify contents a type's value and contents
+                        // post construction
+constant vs inconstant  // a promise not to modify of a type's value or contents
+                        // (except for `immutable` types which are always
+                        // `constant`, and `constant` can be overridden using a
+                        // `pliable` declaration on a variable)
+constant vs inconstant  // when applied to a function, declaration of a
+                        // function's intent to modify a `type`'s contained
+                        // values (or not)
+````
+
+Quick lookup guide (variable declarations):
+````
+pliable         // value and contents of a `mutable` `type` can be changed
+                // even if a `type` is declared `constant` (although has
+                // no affect on `immutable` types as immutable types can never
+                // be modified)
+unpliable       // (default) causes a variable to respect a `constant` or
+                // `inconstant` `type` qualifier on `mutable` types (i.e.
+                // opposite behavior of `pliable`)
+                // NOTE: rarely used unless a default `unpliable` declaration
+                // is overridden with a `variables` compiler directive
 final           // a variable which receives its final value once constructed
-                // (but makes no promise not to modify contents of any
-                // contained values within a type)
+                // (but makes no promise not to modify any contents of any
+                // contained values within a `type`)
 varies          // (default) a variable which is allowed to have its value
                 // change over time (and makes no promise about contents of any
-                // contained values within the value)
-                // NOTE: rarely used unless the default is overridden with a
-                // compiler directive
+                // contained values within the value); `varies` has no affect
+                // on `constant` or `immutable` types which can not have their
+                // value changed (unless `constant` is overridden with a
+                // `pliable` declaration)
+                // NOTE: rarely used unless a default `varies` is overridden
+                // with a `variables` compiler directive
 
-Opposites:
-final vs varies         // applies to the ability to change a variable's
-                        // value once initialized (or not) but in both cases
-                        // makes no promise about a types contained contents
-immutable vs mutable    // when applied to a type, applies to the ability
-                        // modify contents a type post construction (or not)
-immutable vs mutable    // when applied to a variable, applies to the ability
-                        // modify the contents of a type regardless if the
-                        // type is `constant` or not
-constant vs inconstant  // applied to a type, allows modification of a type's
-                        // contents (or disallows)
-constant vs inconstant  // applied to a function,allows a function to modify
-                        // contained types or not
+Mutually exclusive:
+final vs varies         // ability to change a variable's value once initialized
+                        // but in both cases makes no promise about a `type`'s
+                        // contained contents (but all `constant` and
+                        // `immutable` types are always considered `final`)
+pliable vs unpliable    // ability modify the value and contents of a `type`
+                        // (regardless if a `type` is `constant` or not)
 ````
 
 
 ### By default types are both `mutable` and `immutable`
 
-Declaring a type without `mutable` or `immutable` qualifiers causes a type to support both `mutable` and `immutable` instances. The `default` mutability of a type is `mutable` if a type is both `mutable` and `immutable`. The `default` mutability for type can be specified, and overridden with explicit qualifiers on instantiation if a type allowing for an alternative mutability.
+Declaring a `type` without `mutable` or `immutable` qualifiers causes a type to support both `mutable` and `immutable` instances. The `default` mutability of a `type` is `mutable` if a type is both `mutable` and `immutable`. The `default` mutability for `type` can be specified, and overridden with explicit qualifiers on instantiation if a type allows for an alternative mutability.
 
 ````zax
 // type supports both `mutable` and `immutable` forms and defaults as `mutable`
@@ -144,15 +153,15 @@ myType2.func2(-10)              // allowed
 myType3.func1(20)               // ERROR: Cannot call function as the function
                                 //  is missing `constant` declaration
 myType3.func2(-20)              // allowed
-myType4.func1(20)               // ERROR: Cannot call function as the type
-                                // is `mutable` but `constant`
+myType4.func1(20)               // ERROR: Cannot call function as the type is
+                                // `mutable` but `constant`
 myType4.func2(-20)              // allowed
 ````
 
 
 ### Separate `mutable` and `immutable` types
 
-Type implementations can have vastly different implementations of `mutable` and `immutable` types. This allows for optimizations in each type that is better suited based on a type's mutability. One drawback to different implementations would be that conversion from `immutable` to `mutable` would require additional overhead logic. This tradeoff maybe acceptable depending on usage patterns.
+Type implementations can have vastly different implementations of `mutable` and `immutable` types. This allows for optimizations in each type that is better suited based on a type's mutability. One drawback to different implementations would be that conversion from `immutable` to `mutable` would require additional overhead logic. This tradeoff may be acceptable depending on usage patterns.
 
 ````zax
 MyType :: type mutable {
@@ -183,12 +192,12 @@ myType4 : MyType constant       // pick the `default` mutability for the type
 
 #### Using `default` to specify a `default` mutability
 
-A type by `default` will choose a `mutable` version of a type's implementation unless a programmer overrides a `default` mutability of a type. A `default` keyword can be used to choose either to assume a type is `mutable` or `immutable` when instantiated when no qualification is specified.
+A `type` by `default` will choose a `mutable` version of a `type`'s implementation unless a programmer overrides a `default` mutability of a type. A `default` keyword can be used to change a `default` assumption if a type is `mutable` or `immutable` when a `type` is instantiated where no mutability qualification is specified.
 
 
 ##### Using `default` to specify a `default` mutability with distinct types
 
-If a type has a `mutable` and `immutable` version, one of the two type qualifiers can be marked as `default` to indicate which qualified type is instantiated by `default` when neither mutability qualifier is specified.
+If a type has a `mutable` and `immutable` version, one of the two type qualifiers can be marked as `default` to indicate which mutability qualified `type` is instantiated by `default` (when neither mutability qualifier is specified at instantiation).
 
 ````zax
 MyType :: type mutable {
@@ -211,30 +220,30 @@ myType4 : MyType constant       // pick the `default` mutability for the type
 
 ##### Using `default` to specify a `default` mutability with combined types
 
-If a type has dual support for `mutable` and `immutable`, a type has a `default` mutability of `mutable`. However, the `default` mutability can be explicit. One of the two type qualifiers can be marked as `default` to indicate which qualified type is instantiated by `default` when neither mutability qualifier is specified.
+If a type has dual support for `mutable` and `immutable`, a `type` has a `default` mutability of `mutable`. However, `default` mutability qualification can be explicit. One of the two mutability `type` qualifiers can be marked as `default` to indicate which mutability qualification is selected by `default` (when neither mutability qualifier is specified at instantiation).
 
-Since a type is by `default` `mutable` when both mutability qualifiers are supported, explicit defaulting of the `mutable` qualifier is unnecessary and redundant. The `default` keyword is placed after the keyword `mutable` or `immutable` to indicate which of the two is the appropriate default.
+Since a `type` is by `default` `mutable` when both mutability qualifiers are supported, explicit defaulting of the `mutable` qualifier is unnecessary and redundant (unless the default mutability qualification was overridden with the `types` compiler directive). A `default` keyword is placed after a keyword `mutable` or `immutable` qualifier to indicate which of the two mutability qualifiers is an appropriate `default`.
 
 ````zax
-// indicate a type implementation supports a `mutable` and `immutable` version
-// and the `default` is specified as `immutable`
+// indicate a `type` implementation supports a `mutable` and `immutable`
+// qualification and the `default` is specified as `immutable`
 MyType :: type mutable immutable default {
     // ...
 }
 
-myType1 : MyType                // pick the `default` mutability for the type
+myType1 : MyType                // pick the `default` mutability for the `type`
                                 // (which in this case is `immutable`)
-myType2 : MyType mutable        // pick the `mutable` version of a type
-myType3 : MyType immutable      // pick the `immutable` version of the type
-myType4 : MyType constant       // pick the `default` mutability for the type
-                                // which is `immutable` and thus `constant` is
-                                // ignored
+myType2 : MyType mutable        // pick the `mutable` version of a `type`
+myType3 : MyType immutable      // pick the `immutable` version of the `type`
+myType4 : MyType constant       // pick the `default` mutability for the `type`
+                                // (which is `immutable` and thus `constant` is
+                                // ignored)
 ````
 
 
 ### Types only supporting `mutable` or `immutable`
 
-While by default a type is declared to dual support being both `mutable` and `immutable`, a type can specify that it can only support one of the two mutability qualifiers. In such a case, if a programmer uses a type and only declares support for mutability of one of the two types then only that one type of type mutability is supported. Attempting to instantiate a type with an unsupported mutability will cause an error. A `default` keyword is not necessary (and redundant) when only one of the two mutability qualifiers is supported.
+While by default a type is declared to dual support both `mutable` and `immutable` `type` qualifiers, a `type` can specify to only support one of two mutability qualifiers. In such a case, if a programmer uses a `type` and only declares support for one mutability then only that mutability qualifier is supported. Attempting to instantiate a `type` with an unsupported mutability will cause a `type-mutability-qualifier-not-supported` error. A `default` keyword is not necessary (and redundant) when only one of two mutability qualifiers is supported.
 
 
 ````zax
@@ -245,16 +254,16 @@ MyType :: type immutable {
 myType1 : MyType                // pick the `default` mutability for the type
                                 // (which in this case must be `immutable`)
 myType2 : MyType mutable        // ERROR: `mutable` type is unsupported
-myType3 : MyType immutable      // pick the `immutable` version of the type
-myType4 : MyType constant       // pick the `default` mutability for the type
-                                // which must be `immutable` and thus
-                                // `constant` is ignored
+myType3 : MyType immutable      // pick the `immutable` version of the `type`
+myType4 : MyType constant       // pick the `default` mutability for the `type`
+                                // (which must be `immutable` and thus
+                                // `constant` is ignored)
 ````
 
 
 ### `immutable` and `mutable` composition
 
-As a `mutable` and `immutable` type can be entirely different implementations, each type is allowed to contain the other as a self contained type. This can be used to allow for one implementation to borrow attributes in another implementation type implementation through standard [composition](composition.md) mechanisms.
+As a `mutable` and `immutable` type can be entirely different implementations, each type is allowed to contain the other as a self contained type. This can be used to allow for one implementation to borrow attributes in another implementation through standard [composition](composition.md) mechanisms.
 
 ````zax
 MyType :: type mutable {
@@ -268,13 +277,13 @@ MyType :: type immutable default {
     contain own : MyType mutable
 }
 
-myType1 : MyType                // pick the `default` mutability for the type
+myType1 : MyType                // pick the `default` mutability for the `type`
                                 // (which in this case is `immutable`)
-myType2 : MyType mutable        // pick the `mutable` version of a type
-myType3 : MyType immutable      // pick the `immutable` version of the type
-myType4 : MyType constant       // pick the `default` mutability for the type
-                                // which is `immutable` and thus `constant` is
-                                // ignored
+myType2 : MyType mutable        // pick the `mutable` version of the `type`
+myType3 : MyType immutable      // pick the `immutable` version of the `type`
+myType4 : MyType constant       // pick the `default` mutability for the `type`
+                                // (which is `immutable` and thus `constant` is
+                                // ignored)
 ````
 
 
@@ -282,72 +291,73 @@ myType4 : MyType constant       // pick the `default` mutability for the type
 
 #### Automatic conversion of qualifiers when type supports both qualifiers
 
-When a type supports both `mutable` and `immutable` within the sample type's definition, a conversion from `mutable` to `immutable`, and `constant` is automatic (although the reverse direction is not allowed).
+When a `type` supports both `mutable` and `immutable` within type's definition, a conversion from `mutable` to `immutable` or `constant` is automatic (although the reverse direction is not allowed).
 
 ````zax
 MyType :: type {
     // ...
 }
 
-// accept the default mutability of the type (which is `mutable`)
+// accept the default mutability of a `type` (which is `mutable`)
 func1 final : ()(value : MyType &) = {
     // ...
 }
 
-// accept the `mutable` version of a type
+// accept the `mutable` version of a `type`
 func2 final : ()(value : MyType mutable &) = {
     // ...
 }
 
-// accept the `immutable` version of a type
+// accept the `immutable` version of a `type`
 func3 final : ()(value : MyType immutable &) = {
     // ...
 }
 
-// accept a `constant` version of a `mutable` type
+// accept a `constant` version of a `mutable` `type`
 func4 final : ()(value : MyType constant &) = {
     // ...
 }
 
 
-myType1 : MyType                // pick the `default` mutability for the type
+myType1 : MyType                // pick the `default` mutability for the `type`
                                 // (which in this case is `mutable`)
-myType2 : MyType mutable        // pick the `mutable` version of a type
-myType3 : MyType immutable      // pick the `immutable` version of the type
-myType4 : MyType constant       // pick the `default` mutability for the type
-                                // which is `mutable` but make the type
-                                // `constant`
+myType2 : MyType mutable        // pick the `mutable` version of the `type`
+myType3 : MyType immutable      // pick the `immutable` version of the `type`
+myType4 : MyType constant       // pick the `default` mutability for the `type`
+                                // (which is `mutable` but make the `type`
+                                // `constant`)
 
-// `mutable` type passed into four function variations
+// `mutable` `type` passed into four function variations
 func1(myType1)                  // allowed
 func2(myType1)                  // allowed
 func3(myType1)                  // allowed
 func4(myType1)                  // allowed
 
-// `mutable` type passed into four function variations
+// `mutable` `type` passed into four function variations
 func1(myType2)                  // allowed
 func2(myType2)                  // allowed
 func3(myType2)                  // allowed
 func4(myType2)                  // allowed
 
-// `immutable` type passed into four function variations
+// `immutable` `type` passed into four function variations
 func1(myType3)                  // ERROR: `func1` expects a `mutable` type
 func2(myType3)                  // ERROR: `func2` expects a `mutable` type
 func3(myType3)                  // allowed
-func4(myType3)                  // allowed
+func4(myType3)                  // ERROR: `func4` expects an a `mutable` but
+                                // `constant` type
 
-func2(myType3 as mutable)         // ERROR: `myType3` cannot be safely converted
-                                  // as `mutable`
-func2(myType3 unsafe as mutable)  // UNSAFE: `myType3` is stripped of its
-                                  // `immutable` qualification
-func2(myType4 as mutable)         // ERROR: `myType4` was `mutable` and it
-                                  // remains `constant`
-func2(myType4 unsafe as mutable)  // ERROR: `myType4` was `mutable` and it
-                                  // remains `constant`
-func2(myType4 as inconstant)      // ERROR: `myType4` cannot be safely converted
-                                  // as `inconstant`
-func2(myType4 unsafe as mutable)  // UNSAFE: `myType4` is stripped of its
-                                  // `constant` qualification
+func2(myType3 as mutable)            // ERROR: `myType3` cannot be safely
+                                     // converted as `mutable`
+func2(myType3 unsafe as mutable)     // UNSAFE: `myType3` is stripped of its
+                                     // `immutable` qualification
+func2(myType4 as mutable)            // ERROR: `myType4` was `mutable` and it
+                                     // remains `constant`
+func2(myType4 unsafe as mutable)     // ERROR: `myType4` was `mutable` and it
+                                     // remains `constant`
+func2(myType4 as inconstant)         // ERROR: `myType4` cannot be safely
+                                     // converted as `inconstant`
+func2(myType4 unsafe as inconstant)  // UNSAFE: `myType4` is stripped of its
+                                     // `constant` qualification
 
 
 // constant type passed into four function variations
@@ -360,7 +370,7 @@ func4(myType4)                  // allowed
 
 #### Automatic conversion of qualifiers when two different implementations of mutability exists
 
-When a type supports both `mutable` and `immutable` except with two different type implementations, conversion between `mutable`, `immutable`, and `constant` is only automatic for some conversions. Other conversions will fail or require a use of an `as` operator with special conversion logic.
+When a type supports both `mutable` and `immutable` qualifiers except with two different type implementations, conversion between `mutable`, `immutable`, and `constant` is only automatic for some conversions. Other conversions will fail or require a use of an `as` operator with special conversion logic.
 
 ````zax
 MyType :: type mutable {
@@ -373,72 +383,72 @@ MyType :: type immutable {
     // ...
 }
 
-// accept the default mutability of the type (which is `mutable`)
+// accept the default mutability of a `type` (which is `mutable`)
 func1 final : ()(value : MyType &) = {
     // ...
 }
 
-// accept the `mutable` version of a type
+// accept the `mutable` version of a `type`
 func2 final : ()(value : MyType mutable &) = {
     // ...
 }
 
-// accept the `immutable` version of a type
+// accept the `immutable` version of a `type`
 func3 final : ()(value : MyType immutable &) = {
     // ...
 }
 
-// accept a `constant` version of a `mutable` type
+// accept a `constant` version of a `mutable` `type`
 func4 final : ()(value : MyType constant &) = {
     // ...
 }
 
 
-myType1 : MyType                // pick the `default` mutability for the type
+myType1 : MyType                // pick the `default` mutability for the `type`
                                 // (which in this case is `mutable`)
-myType2 : MyType mutable        // pick the `mutable` version of a type
-myType3 : MyType immutable      // pick the `immutable` version of the type
-myType4 : MyType constant       // pick the `default` mutability for the type
-                                // which is `mutable` but make the type
+myType2 : MyType mutable        // pick the `mutable` version of the `type`
+myType3 : MyType immutable      // pick the `immutable` version of the `type`
+myType4 : MyType constant       // pick the `default` mutability for the `type`
+                                // which is `mutable` but make the `type`
                                 // `constant`
 
 // mutable type passed into four function variations
 func1(myType1)                  // allowed
 func2(myType1)                  // allowed
-func3(myType1)                  // ERROR: `func3` expects a `immutable` type
-                                // and the `mutable` type is incompatible
+func3(myType1)                  // ERROR: `func3` expects a `immutable` `type`
+                                // and the `mutable` `type` is incompatible
 func4(myType1)                  // allowed
 
 // mutable type passed into four function variations
 func1(myType2)                  // allowed
 func2(myType2)                  // allowed
-func3(myType2)                  // ERROR: `func3` expects a `immutable` type
-                                // and the `mutable` type is incompatible
+func3(myType2)                  // ERROR: `func3` expects a `immutable` `type`
+                                // and the `mutable` `type` is incompatible
 func4(myType2)                  // allowed
 
 // immutable type passed into four function variations
-func1(myType3)                  // ERROR: `func1` expects a `mutable` type
-func2(myType3)                  // ERROR: `func2` expects a `mutable` type
+func1(myType3)                  // ERROR: `func1` expects a `mutable` `type`
+func2(myType3)                  // ERROR: `func2` expects a `mutable` `type`
 func3(myType3)                  // allowed
 func4(myType3)                  // ERROR: `func2` expects a
-                                // `constant` `mutable` type
+                                // `constant` `mutable` `type`
 
-func2(myType3 as mutable)         // ERROR: `myType3` cannot be safely converted
-                                  // as `mutable`
-func2(myType3 unsafe as mutable)  // ERROR: `myType3` has no conversion to a
-                                  // `mutable` version even using `unsafe as`
-                                  // (would need to be treated as a raw pointer
-                                  // cast which would have undefined behavior)
-func2(myType4 as mutable)         // ERROR: `myType4` was `mutable` and it
-                                  // remains `constant`
-func2(myType4 unsafe as mutable)  // ERROR: `myType4` was `mutable` and it
-                                  // remains `constant`
-func2(myType4 as inconstant)      // ERROR: `myType4` cannot be safely converted
-                                  // as `inconstant`
-func2(myType4 unsafe as mutable)  // ERROR: `myType4` has no conversion to a
-                                  // `mutable` version even using `unsafe as`
-                                  // (would need to be treated as a raw pointer
-                                  // cast which would have undefined behavior)
+func2(myType3 as mutable)           // ERROR: `myType3` cannot be safely
+                                    // converted as `mutable`
+func2(myType3 unsafe as mutable)    // ERROR: `myType3` has no conversion to a
+                                    // `mutable` version even using `unsafe as`
+                                    // (would need to be treated as a raw
+                                    // pointer cast which would have undefined
+                                    // behavior)
+func2(myType4 as mutable)           // ERROR: `myType4` was `mutable` and it
+                                    // remains `constant`
+func2(myType4 unsafe as mutable)    // ERROR: `myType4` was `mutable` and it
+                                    // remains `constant`
+func2(myType4 as inconstant)        // ERROR: `myType4` cannot be safely
+                                    // converted as `inconstant`
+func2(myType4 unsafe as inconstant) // UNSAFE: `myType4` is `mutable` and
+                                    // `unsafe as` would strip the `constant`
+                                    // qualification
 
 
 // constant type passed into four function variations
@@ -451,9 +461,9 @@ func4(myType4)                  // allowed
 
 ### Conversion using an `as` operator
 
-When a type supports both `mutable` and `immutable` except with two different type implementations, a conversion from one implementation to another using the `as` operator is required where accepting the other form would not be legal.
+When a type supports both `mutable` and `immutable` except with two different `type` implementations, a conversion from one implementation to another using the `as` operator is required where accepting the other qualifier form would not be legal.
 
-Important caveat: even though adding an `as` operator to convert from `immutable` to `mutable` is allowed, a returned converted type will be a temporary which will result in any modified contents of a `mutable` type being discarded when the temporary is discarded (since changes are applied to a temporary value not the original `immutable` version).
+Important caveat: even though adding an `as` operator to convert from `immutable` to `mutable` is allowed, a returned converted type will be a temporary copy which will result in any modified contents of a `mutable` type being discarded when the temporary is discarded (since changes are applied to a temporary value and not the original `immutable` version).
 
 ````zax
 MyType :: type mutable {
@@ -467,38 +477,38 @@ MyType :: type mutable {
 MyType :: type immutable {
     // ...
 
-    operator binary 'as' final : (result : MyType mutable)(# : MyType mutable) constant = {
+    operator binary 'as' final : (result : MyType mutable)(# : MyType mutable constant) constant = {
         // ...
     }
 }
 
-// accept the `default` mutability of the type (which is `mutable`)
+// accept the `default` mutability of a `type` (which is `mutable`)
 func1 final : ()(value : MyType &) = {
     // ...
 }
 
-// accept the `mutable` version of a type
+// accept the `mutable` version of a `type`
 func2 final : ()(value : MyType mutable &) = {
     // ...
 }
 
-// accept the `immutable` version of a type
+// accept the `immutable` version of a `type`
 func3 final : ()(value : MyType immutable &) = {
     // ...
 }
 
-// accept a `constant` version of a `mutable` type
+// accept a `constant` version of a `mutable` `type`
 func4 final : ()(value : MyType constant &) = {
     // ...
 }
 
 
-myType1 : MyType                // pick the `default` mutability for the type
+myType1 : MyType                // pick the `default` mutability for the `type`
                                 // (which in this case is `mutable`)
-myType2 : MyType mutable        // pick the `mutable` version of a type
-myType3 : MyType immutable      // pick the `immutable` version of the type
-myType4 : MyType constant       // pick the `default` mutability for the type
-                                // which is `mutable` but make the type
+myType2 : MyType mutable        // pick the `mutable` version of the `type`
+myType3 : MyType immutable      // pick the `immutable` version of the `type`
+myType4 : MyType constant       // pick the `default` mutability for the `type`
+                                // which is `mutable` but make the `type`
                                 // `constant`
 
 // mutable type passed into four function variations
@@ -520,12 +530,13 @@ func3(myType3)                  // allowed
 func4(myType3 as mutable)       // allowed
 
 // constant type passed into four function variations
-func1(myType4)                  // ERROR: `func1` expects a non-`constant` type
-func2(myType4)                  // ERROR: `func2` expects a non-`constant` type
-func3(myType4 as immutable)     // allowed - the `mutable` is converted to
-                                // an `immutable` by the system automatically
-                                // and the `as` operator is never performed;
-                                // the `constant` qualifier becomes redundant;
+func1(myType4 as mutable)       // ERROR: `func1` expects a non-`constant` type
+                                // and the `type` is already `mutable`
+func2(myType4 as mutable)       // ERROR: `func2` expects a non-`constant` type
+                                // and the `type` is already `mutable`
+func3(myType4 as immutable)     // OKAY - the `mutable` is converted to
+                                // an `immutable` `type` by the `as` operator;
+                                // the `constant` qualifier becomes redundant
 func4(myType4)                  // allowed
 ````
 
@@ -580,35 +591,13 @@ func3 final : ()(value : MyType constant &) = {
 ````
 
 
-### Using `immutable` with traditionally `mutable` operators
-
-Types declared as `immutable` may declare traditionally `mutable` operators such as the assignable operators (`=`, `+=`, `-=`, etc) even if the type is inherently `immutable`. This can allow a type to be reassigned to a new value even if the underlying type's contents is normally `immutable`.
-
-A classic example of an immutable type supporting an assignment operator is a `String` type:
-
-````zax
-animal : String = "bear"    // by `default`, strings are `immutable`
-
-animal = "fox"              // the assignment to a new value for the type
-                            // is allowed despite the type being `immutable`
-
-animal += "lamb"            // the contents of the original `String` are not
-                            // modified but rather a new `String` replaces
-                            // the old `String` entirely with a new value
-
-animal[2] = c'u'            // ERROR: the `String` is `immutable`
-````
-
-By allowing overloading of assignment operators, `immutable` types can utilize techniques such as [COW (Copy on Write)](https://en.wikipedia.org/wiki/Copy-on-write) under the covers. Using COW can allow for greater efficiency by ensuring a single `handle` to a type's immutable data exists where every modification creates a new immutable copy of an original value (where modifications occurs only during the copy process).
-
-
 ### Mutability of String types
 
-Zax declares all `String` types as `immutable` by `default`. Since most of operators are available on `String` types, there's not a strong incentive to use a `mutable` form of a string (except in the rarer use case where direct "in-place" string manipulation is performed).
+Zax declares all `String` types as `mutable` by `default`.
 
 
 ### Thread safety with `immutable`
 
-A type declared as `immutable` is not necessarily thread safe (although making a type `immutable` can help with thread concurrency issues). A reference to an object on a different thread could exist when the original object becomes deallocated. A type may contain `mutable` variables which were not designed to be thread safe, or a variable may contain `handle` pointers which are not inherently thread safe.
+A type declared as `immutable` is not necessarily thread-safe (although making a type `immutable` can help with thread concurrency issues). A reference to an object on a different thread could exist when the original object becomes deallocated. A `type` declared as `immutable` may only contain other `immutable` types, but that `type` might contain a `handle`, or a pointer or other declarations which are not inherently thread-safe.
 
-For `immutable` types with shared state between instances (e.g. a `String` type), a `deep` qualifier can help ensure a `deep` copy of a type is performed prior a value being copied and passed to another thread. See the [concurrency](concurrency.md) section for more details.
+For `immutable` types with shared state between instances (e.g. an `String immutable` type), a `deep` qualifier can help ensure a `deep` copy of a type is performed prior a value being copied and passed to another thread. See the [concurrency](concurrency.md) section for more details.

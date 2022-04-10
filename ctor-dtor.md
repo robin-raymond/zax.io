@@ -710,7 +710,7 @@ The order of globals construction is based on declaration order, except where de
 
 The order of destruction is reverse order to construction intermixed with any `once` variables that become constructed or destructed along the way. Global variables are only constructed one time and destructed one time, although, they can be assigned new values.
 
-By their nature, globals are not thread safe. Care must be taken to ensure any global variables accessed do not cause thread collisions. Globals will use the thread aware allocators for default allocated global variables. The programmer may swap out thread aware allocators for thread local allocators in their main entry point to ensure the fastest allocator is being utilized.
+By their nature, globals are not thread-safe. Care must be taken to ensure any global variables accessed do not cause thread collisions. Globals will use the thread aware allocators for default allocated global variables. The programmer may swap out thread aware allocators for thread local allocators in their main entry point to ensure the fastest allocator is being utilized.
 
 ````zax
 MyType :: type {
