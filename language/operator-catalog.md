@@ -50,7 +50,7 @@ Zax recognizes:
 | Unchecked reinterpretation | `unsafe cast` |
 | Structural mapping | `>-`, `-<`, `-<>-`, with result-routing and `reshape` integration |
 | Transfer stance | `value as copy`, `value as deep`, `value as move`, `value as last` |
-| Callable flow | Composition `>>`, reshape composition `>> reshape >>`, and immediate chaining `|>` |
+| Callable flow | Composition `>|>`, reshape composition `>|> reshape >|>`, and immediate chaining `|>` |
 | Opaque lifetime | `value is type Type` and `unsafe transfer (value as last)` |
 | Literal source/value | Source merge `<\|>` and value join `<+>` |
 | Mutation | Compounds including array `<+>=`, increment/decrement, `~=`, and exact phrase mutations |
@@ -74,7 +74,7 @@ Higher levels bind first:
 | Multiplicative | `*`, `/`, `%`, `full precision product`, and accepted policy variants | Left |
 | Additive | `+`, `-`, accepted policy variants, `delta`, `distance` | Left |
 | Literal join | `<+>` | Left for join chains; group when mixed with another value-operator level pending final placement |
-| Shift/rotate/composition | `<<`, `>>`, `>>>`, `<<<`, `<<%`, `>>%`, modulo-count phrases, multiword operations | Left |
+| Shift/rotate/callable flow | `<<`, `>>`, `>>>`, `<<<`, `<<%`, `>>%`, modulo-count phrases, multiword operations; composition `>|>` and chaining `|>` | Left |
 | Ordinary phrase | Conversion/admission forms, protected phrase forms, newly declared phrases | Left |
 | Relational | `<`, `<=`, `>`, `>=`, `<=>` | Ungrouped chaining is an intent error |
 | Equality | `==`, `!=` | Ungrouped chaining is an intent error |
@@ -350,7 +350,7 @@ trailing set bit position
 
 Compounds append `=`.
 
-Exact modulo-count phrases use shift/rotate/composition precedence:
+Exact modulo-count phrases use shift/rotate precedence:
 
 ```text
 shift left modulo
@@ -643,10 +643,12 @@ phrase level. It performs unchecked typed ownership recovery from
 `OpaqueOwner`; complete behavior belongs to
 [Zax pointers, allocation, and arenas](pointers-and-arenas.md#type-erased-ownership-and-observation).
 
-`>>` retains shift/rotate/composition precedence and left association for direct
-composition. `callable >> reshape >> callable` is recognized as one
-three-component composition mapping form. `|>` is the protected immediate
-chaining form at the same level. Complete behavior belongs to
+`>|>` is the protected callable-composition form, at shift/rotate precedence
+with left association. It is one token, so `first >|> second` never reads as
+`>` followed by `|>`.
+`callable >|> reshape >|> callable` is recognized as one three-component
+composition mapping form. `|>` is the protected immediate chaining form at the
+same level. Complete behavior belongs to
 [Zax lambdas and callable composition](lambdas-and-callable-composition.md).
 
 `T? ?` is two optional type layers and requires the separating space. Compact

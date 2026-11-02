@@ -743,9 +743,9 @@ result := source |>
 
 Without reshape, equal-label outcomes may share one branch-polymorphic handler.
 
-### Retained `>>` composition
+### Retained `>|>` composition
 
-`>>` constructs a callable without running either stage. The composed callable:
+`>|>` constructs a callable without running either stage. The composed callable:
 
 - invokes a later stage only after prior success;
 - exposes the union of stage exceptional outcomes; and
@@ -759,7 +759,7 @@ ParseFailureNames :: reshape {
 }
 
 renamedParse := parse reshape ParseFailureNames
-pipeline := renamedParse >> transform
+pipeline := renamedParse >|> transform
 ```
 
 Outcome reshape adapts the visible callable contract without invoking the
@@ -839,7 +839,7 @@ The following changes are intentionally visible:
 - changing prototype ordinary-result initialization changes body-entry state
   and nonselected cleanup;
 - changing local handling to forwarding changes function exit and elision;
-- changing one `>>` stage changes the retained callable's visible outcome set;
+- changing one `>|>` stage changes the retained callable's visible outcome set;
   and
 - changing resource acquisition outcomes changes `using` header completion.
 

@@ -442,7 +442,7 @@ handler : MyHandler = [[]] {
 `value #` does not declare `value`. The declaration rule is taught by
 [declarations and bindings](declarations-and-bindings.md#names-the-body-may-leave-unread).
 
-A `>>` target may similarly supply the complete remaining prototype when target
+A `>|>` target may similarly supply the complete remaining prototype when target
 selection is unambiguous.
 
 ## Presence, liveness, and installed binding kind
@@ -586,7 +586,7 @@ A member expression already carries its receiver:
 ```zax
 counter : Counter
 
-readCounter := [[]] >> counter.read
+readCounter := [[]] >|> counter.read
 current := readCounter()
 ```
 
@@ -597,7 +597,7 @@ that merely waits for a receiver to be reattached.
 
 ## Partial application
 
-`>>` can bind selected ordinary inputs without invoking the target:
+`>|>` can bind selected ordinary inputs without invoking the target:
 
 ```zax
 printPair final : ()(
@@ -611,7 +611,7 @@ number := 42
 
 printNumberWith := [[ number: number: ]] ()(
   remainingText : String
-) >> printPair
+) >|> printPair
 
 printNumberWith("apples")
 ```
@@ -620,7 +620,7 @@ Construction binds `number` once. The written prototype renames the remaining
 input. When no visible change is needed, the target supplies it:
 
 ```zax
-printNumberWith := [[ number: number: ]] >> printPair
+printNumberWith := [[ number: number: ]] >|> printPair
 ```
 
 Target defaults remain delayed until the generated callable is invoked unless a
@@ -628,6 +628,7 @@ value is explicitly captured now.
 
 ## Compose functions for later use
 
+`>|>` builds a new callable from existing ones without calling anything.
 Compatible callables compose positionally:
 
 ```zax
@@ -645,7 +646,7 @@ render final : (
 ) unbound = {
 }
 
-parseThenRender := parse >> render
+parseThenRender := parse >|> render
 text := parseThenRender(sourceText)
 ```
 
@@ -661,7 +662,7 @@ ParseToRender :: reshape {
   notes: diagnostics:
 }
 
-parseThenRender := parse >> ParseToRender >> render
+parseThenRender := parse >|> ParseToRender >|> render
 ```
 
 The three-part source is one composition operation; the reshape is not invoked
@@ -678,11 +679,11 @@ another positional mapping.
 
 ### Exceptional outcomes in retained composition
 
-`>>` exposes the union of its stages' exceptional outcomes. A later stage runs
+`>|>` exposes the union of its stages' exceptional outcomes. A later stage runs
 only after every prior stage selected success:
 
 ```zax
-pipeline := parse >> render
+pipeline := parse >|> render
 ```
 
 If `parse` selects an exceptional outcome, `render` is not invoked. Calling
@@ -698,7 +699,7 @@ ParseFailureNames :: reshape {
 }
 
 renamedParse := parse reshape ParseFailureNames
-pipeline := renamedParse >> render
+pipeline := renamedParse >|> render
 ```
 
 Applying the reshape adapts `parse`'s visible outcome label without invoking it.
@@ -718,7 +719,7 @@ result := 5 |> double() |> square() |> half()
 ```
 
 It evaluates the carried source once, maps it to the next call, completes that
-call, and advances with its result. `>>` instead constructs a retained callable
+call, and advances with its result. `>|>` instead constructs a retained callable
 for later invocation.
 
 Named and several-result chaining use the same explicit routing principles as

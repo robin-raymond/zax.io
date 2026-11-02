@@ -1229,7 +1229,7 @@ ParseToRender :: reshape {
   notes: diagnostics:
 }
 
-pipeline := parse >> ParseToRender >> render
+pipeline := parse >|> ParseToRender >|> render
 ```
 
 The reshape remains no-storage. The complete three-part expression constructs
@@ -1289,7 +1289,7 @@ Callable-surface reshape:
 Explicit entries apply before equal-label outcomes remain exposed. Applying a
 named reshape to a callable adapts its visible outcome labels without invoking
 it. This lets a retained composition establish unique outcome names before
-`>>` combines stage contracts.
+`>|>` combines stage contracts.
 
 An invocation-level reshape affects only the selected invocation's exposed
 outcome surface. Complete branch-polymorphic catch and forwarding behavior is
