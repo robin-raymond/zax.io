@@ -459,7 +459,7 @@ result funnel right from high and low by count
 These operations have receiver, chained value, and unsigned count holes. Baseline
 components have equal logical bit extents. Shifts zero/sign-fill at the outer
 boundary, rotates wrap across the combined extent, and funnel shifts return one
-fixed-width window. They use shift/rotate/composition precedence and have
+fixed-width window. They use shift/rotate precedence and have
 language-provided basic-integer forms.
 
 Exact phrase spelling, signedness constraints, mutation of one versus both

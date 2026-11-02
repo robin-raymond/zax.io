@@ -1043,17 +1043,16 @@ nesting, and transfer behavior is defined by
 
 ## Callable composition and chaining
 
-`>>` constructs a callable without invoking it:
+`>|>` constructs a callable without invoking it:
 
 ```zax
-combined := first >> second
+combined := first >|> second
 ```
-
 Compatible result/input slots map positionally. A reshape supplies explicit
 no-storage remapping:
 
 ```zax
-combined := first >> MyMapping >> second
+combined := first >|> MyMapping >|> second
 ```
 
 The three-part form is one composition operation, not two calls and not an

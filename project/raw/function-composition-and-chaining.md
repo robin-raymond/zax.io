@@ -16,7 +16,8 @@ lifetime, partial application, positional and reshape composition, immediate
 chaining, reset, weak invocation, and costs are now owned by
 [Zax lambdas and callable composition](../../language/lambdas-and-callable-composition.md).
 
-This raw file must not be used to recover competing `>>`, `|>`, capture, or
+This raw file must not be used to recover competing composition (now `>|>`),
+`|>`, capture, or
 receiver-reattachment behavior.
 
 ## Restricted captured scope
