@@ -3,6 +3,14 @@
 
 ## Variadic Functions
 
+Current fixed-arity calls, argument/default binding, result routing, and callable
+selection are defined by
+[Zax function invocation](language/function-invocation.md). This page remains
+legacy input for variadic expansion, enumeration, and variadic-specific
+selection, which must fit that fixed-arity base model.
+Current `copy`/`deep`/`move`/`last` meaning and explicit source restatement are defined
+by [Zax transfer stances](language/transfer-stances.md).
+
 ### Enumerating the `...` arguments with `each`
 
 Variadic functions allow a variable list of arguments to be passed into a function. The `each` statement can be used to enumerate all of a variadic function's arguments. For each type of variable in a `...` list, a compiler will create a type safe block of code.
@@ -89,30 +97,34 @@ list("random items", "marbles", "fudge", "glasses", "bar", "staples", "wine")
 ````
 
 
-### Variadic forwarding and the `last` qualifier
+### Variadic forwarding and transfer stance
 
-Variadic arguments can be forwarded from one function to another function without ever enumerating the variadic arguments.
+Variadic arguments may eventually support forwarding without enumerating each
+value:
 
-A `last` qualifier helps optimize a variadic transfer. Types qualified as `last` can optimize data transfer when passed in as an argument or received as a result.
-
-A `last` qualifier can be applied to a variadic function to cause all passed in values to be qualified as `last` instances (where appropriate) whose contents are being forwarded to another function. The `last` qualifier is implicitly applied to values passed by-value which are known not to be in use further in the code. By-reference arguments will only have `last` automatically applied if a `type` passed into a variadic function was already qualified as `last`. A programmer can add a `last` qualifier to a `...` expression automatically using the `as` operator with a `last` qualifier.
-
-````zax
-func final : ()(...) = {
-    // ...
+```zax
+forwardAll final : ()(...) = {
+  sendAll(...)
 }
+```
 
-anotherFunc final : ()(...) = {
-    // `last` qualifier is applied to forwarded arguments automatically
-    func(...)
-}
+The old proposal automatically applied `last` to some forwarded values. That
+behavior is superseded. Zax does not silently choose terminal transfer from
+liveness analysis.
 
-yetAnotherFunc final : ()(...) = {
-    // apply a `last` qualifier explicitly to ensure a compiler default forwards
-    // a `last` qualifiers as appropriate
-    func(... as last)
-}
-````
+Future variadic work must decide:
+
+- whether `...` denotes one pack source or several independently stanced values;
+- how a declaration or use-site stance applies to each forwarded value;
+- whether mixed `copy`/`deep`/`move`/`last` packs require enumeration;
+- how reference and by-value elements preserve their different effects;
+- when terminal opportunity requires an intent error;
+- how forwarding exposes per-element ambiguity and diagnostics;
+- and how result or capture packs preserve exact stance.
+
+The future design must use the current explicit stance and accepted-fallback
+model. This page does not establish `... as last` or another pack-restatement
+syntax.
 
 
 ### Variadic types

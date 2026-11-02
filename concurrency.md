@@ -3,124 +3,36 @@
 
 ## Concurrency
 
-### Using a `deep` type qualifier as a method to ensure data safety across threads
+Current immutable and unsafe-pliability behavior is defined by
+[Zax qualifiers](language/qualifiers.md). Immutability addresses value change,
+not lifetime, shared backing storage, synchronization, allocation, safe
+transfer, or reference-count safety. The remaining concurrency mechanisms on
+this page are legacy input.
+Current `copy`/`deep`/`move`/`last` meaning is defined by
+[Zax transfer stances](language/transfer-stances.md). Those stances do not by
+themselves establish thread safety, sendability, shared-backing safety, or async
+lifetime.
 
-For speed and efficiency reasons, types may utilize a `shallow` copy methodology and data sharing across `type` instances when a variable is copied from one instance to another instance. A true copy of a `type` may never actually be performed in such a scenario as copying data may be expensive and not desirable, especially for types that require heap allocations (e.g. variable length strings).
+Current reference and ownership boundaries are defined by
+[Zax lifetimes and references](language/lifetimes-and-references.md#thread-boundary)
+and [Zax pointers and arenas](language/pointers-and-arenas.md#arenas), including
+its separate [thread-transfer rules](language/pointers-and-arenas.md#thread-transfer).
 
-
-#### Efficient `immutable` type data sharing and concurrency
-
-Types qualified as `immutable` are an excellent example of how qualifiers can help optimization. An `immutable` type might need to allocate data for storage. Once allocated the contents are not modify ever again. Needlessly copying `immutable` variables from one instance to another could be expensive given each copy would need another allocation, a copy of the contents, and a deallocation when an `immutable` type is no longer needed.
-
-Rather than performing a copy whenever an `immutable` type is passed to a function, a simple `handle` pointer to the real data might be utilized. A `handle` pointer keeps a simple reference count to a type and disposes of the data when the final instance of a type is disposed (and thus is perfectly suitable for `immutable` data sharing). While a `strong` pointer could be used instead of a `handle` type, a `strong` pointer incurs additional concurrency overhead every time a reference count is incremented or decremented since `strong` pointer reference counts must be thread-safe across CPU cores. This overhead can cause a CPU to operate less efficiently as it can disrupt things like CPU branch predictability and invalidate CPU caches.
-
-Normally when a type is passed by-value, a `shallow` qualifier is implicitly applied to the value. The `shallow` qualifier allows for optimization by assuming the value is not needing to be truly copied when the value is passed from one function to another. Since this is the default assumed behavior for `synchronous` functions, the keyword `shallow` does not needed to be specified under normal circumstances to indicate `shallow` by-value semantics (as this specification would be redundant).
-
-A qualifier of `deep` can be applied to a type to ensure a full copy of the type is performed prior to transferring a type's instance to a new thread. The `deep` qualifier can be used to ensure a completely independent copy of a type is made prior to thread transference. A copy of an `immutable` type is made whenever the type is passed to a different thread using the `deep` qualifier.
-
-While [`last` pointers/references](pointers.md#using-the-last-type-qualifier-to-optimize-content-transfer) seemingly could be used to transfer out contents of data prior to transferring a type's instance to a new thread, `last` pointers/references do not guarantee any shared state is indeed the final copy. This mechanism to transfer data across threads could only work if a passed in type was truly the `last` instance of a type before it's normal disposal and thus cannot be relied about as a mechanism to ensure thread safety.
-
-
-````zax
-MyType :: type {
-    animal : String = "alligator"
-    // ...
-
-    +++ final : ()(rhs : MyType constant &) = {
-        // this version of the constructor will be called under normal
-        // conditions where a copy of the type needs to be made
-        animal = rhs.animal
-    }
-    +++ final : ()(rhs : MyType & last) = {
-        // this version of the constructor will be called when the
-        // `last` instance of a type is being transferred from the source
-        // type to the destination type
-        animal = rhs.animal
-    }
-    +++ final : ()(rhs : MyType constant & deep) = {
-        // this version of the constructor will be called when a `deep`
-        // copy of the contents must be performed (as `deep` qualifier applies
-        // to all types contained within the reference type passed)
-        animal = rhs.animal    // rhs.animal is `deep`
-    }
-
-    merge : (result : MyType &)(rhs : MyType constant &) deep = {
-        // ...
-        return _.
-    }
-}
-
-returnAsTemporary final : (result : MyType)(input : MyType) = {
-    // `input` was passed by-value and a shallow copy of `input` was made
-    // and the returned MyType automatically has the `last` qualifier applied
-    temp : MyType = input
-    return temp
-}
-
-// declare an instance of `MyType`
-myType : MyType
-
-// the default copy constructor is called and a shallow copy of `myType` is
-// created
-myOtherType : MyType = myType
-
-// in theory, `myTypeFromLast` should be it's own clone of `MyType` but the
-// the `MyType & last` constructor only performed a shallow copy so the
-// memory backing the types could still be shared
-myTypeFromLast := returnAsTemporary(myType)
-
-// the `deep` qualifier is applied to the type and the `deep` version of the
-// copy constructor will be removed and `myTypeFromDeep` will truly contain
-// an independent copy of the type's instance
-myTypeFromDeep := myType as deep
-
-anotherType : MyType
-
-// the compiler will treat all input/output arguments as being qualified as
-// `deep` types
-anotherType.merge(myType)
-````
-
-
-### Adding a deep qualifier on a type
-
-Types can be defaulted to exhibit deep behavior when used as an argument. The example below demonstrates this behavior.
-
-````zax
-MyType :: type deep {
-    value1 : Integer * @
-    value2 : String
-}
-
-// Even though the `promise` isn't explicitly declared as `deep`, the type is
-// declared as `deep`. The type will automatically be treated as a `deep` type
-// during method calls unless overridden with a `shallow` declaration.
-myFunc final : ()(myType : MyType) promise = {
-    // ...
-}
-
-
-myType : MyType
-
-// a deep copy is performed at this moment on the type
-later := myFunc(myType)
-
-callable := later.then = {
-    // ...
-}
-
-// ...
-
-// ...potentially run on a different thread...
-callable()
-````
+The retired material in this page proposed automatic `deep` propagation and
+automatic `last` results for asynchronous work. Those claims are no longer
+current. The unresolved question is which explicit transfer, capture, lifetime,
+allocation, and synchronization contracts are required when a value crosses a
+thread or suspension boundary. Representative source and deciding pressure are
+preserved by [raw async input](project/raw/async.md).
 
 
 ### Creating asynchronous functions from captured function invocations
 
 Using function invocation capturing and function chaining, an invocation of a function can be captured (but not called immediately). Another new function can be created to capture the results of the not yet invoked function and feed that result into another function after. This final newly minted function can be sent to a different thread to execute where the return result will invoke a callback when the function is complete.
 
-One caution, invoked captured functions are not expected to be qualified as `deep` thus the compiler will not issue a warning if the `deep` qualifier was not applied. If a invoked capture function isn't designed for thread safety due to `shallow` copying, unexpected behaviors can ensue.
+The transfer, ownership, lifetime, and synchronization requirements of a
+captured invocation crossing a thread boundary remain unresolved. This legacy
+example does not establish that one stance makes the capture thread-safe.
 
 An example of invocation capture with a later callback invoked from a different thread:
 
@@ -143,7 +55,7 @@ then final : ()(input : Integer) = {
 }
 
 // capture an invocation of a function (but doesn't actually call the function)
-later := [] myFunc(42, "meaning of life" as deep)
+later := [] myFunc(42, "meaning of life")
 
 // chain the output of the function to the input of the `then` function
 laterThen := later | then
@@ -157,7 +69,8 @@ invokeOnAnotherThread(laterThen)
 
 A `lazy` function can be converted into an asynchronous function (see [lazy functions](lazy.md)). When a function qualified as `lazy` returns a `lazy` function, the `lazy` function can be passed and invoked from an alternative thread.
 
-On caution, `lazy` functions are not expected to be qualified as `deep` where the compiler will not issue a warning if the `deep` qualifier was not applied. If a `lazy` function isn't designed for thread safety, unexpected behaviors can ensue. If a `lazy` function is known to be used in an asynchronous context, adding the `asynchronous` directive to the function to ensure proper `deep` usage is a good solution to re-enable warnings.
+The transfer and lifetime contract for sending a deferred or lazy callable to
+another thread remains future async work.
 
 ````zax
 runOnThread final : ()(callable : ) = {
@@ -166,12 +79,12 @@ runOnThread final : ()(callable : ) = {
     // ...
 }
 
-func final : (value : Double)(algorithm : String deep) lazy [[asynchronous]] = {
+func final : (value : Double)(algorithm : String) lazy [<asynchronous>] = {
     forever {
         // ... complex algorithm ...
         yield return value
     }
-    [never]
+    [<never>]
 }
 
 later := func("sha265")
@@ -219,100 +132,12 @@ executeCallableOnAnotherThread(callable)
 ````
 
 
-#### Performing automatic `deep` copy during `promise` calls on arguments
+#### Transfer across a `promise` boundary
 
-By declaring pass by-value input or output arguments on a `promise` function calls as `deep`, any calls passing values to the `promise` will automatically cause a `deep` copy constructor to be called when the values are captured. This ensures a `deep` copy is performed and helps prevent concurrency issues on the types that otherwise would normally create `shallow` copies.
-
-````zax
-myFunc final : ()(value1 : Integer, value2 : String deep) promise = {
-    // ...
-}
-
-/*
-TemplatedPromiseResult :: type {
-    ThenCallbackPrototype :: alias type ()()
-
-    then mutator : (callable : ()())(callback : ThenCallbackPrototype) 
-}
-*/
-
-// as `String` types are not normally thread-safe, all `String` types must
-// be constructed as `deep` when crossing the thread boundary
-someString := "apple"
-
-// calling laterFunc function causes all the values passed into the function to
-// be captured where the function can be executed later
-later1 := myFunc(42, someString)
-later2 := myFunc(55, someString)
-
-callable1 := later1.then = {
-    // ...
-}
-callable2 := later2.then = {
-    // ...
-}
-
-// create an empty function to be used as a type declaration
-EmptyFunctionPrototype :: alias type ()()
-
-executeCallableOnAnotherThread final : ()(callable : EmptyFunctionPrototype) = {
-    // ...
-    callable()
-    // ...
-}
-
-// `myFunc` will get executed when `callable()` is called from the other thread
-executeCallableOnAnotherThread(callable1)
-executeCallableOnAnotherThread(callable2)
-````
-
-
-#### Performing automatic `deep` copy during `promise` calls on all arguments
-
-By declaring a promise function as `deep`, all pass by-value input or output argument variable types will automatically cause a `deep` copy constructor to be called when the copy of the value is captured. This ensures a `deep` copy is performed and helps prevent concurrency issues on the types that would normally create `shallow` copies otherwise.
-
-````zax
-myFunc final : ()(value1 : Integer, value2 : String) deep promise = {
-    // ...
-}
-
-/*
-TemplatedPromiseResult :: type {
-    ThenCallbackPrototype :: alias type ()()
-
-    then : (callable : ()())(callback : ThenCallbackPrototype) 
-}
-*/
-
-// as `String` types are not normally thread-safe, all String types must
-// be constructed as `deep` when crossing the thread boundary
-someString := "apple"
-
-// calling laterFunc function causes all the values passed into the function to
-// be captured where the function can be executed later
-later1 := myFunc(42, someString)
-later2 := myFunc(55, someString)
-
-callable1 := later1.then = {
-    // ...
-}
-callable2 := later2.then = {
-    // ...
-}
-
-// create an empty function to be used as a type declaration
-EmptyFunctionPrototype :: alias type ()()
-
-executeCallableOnAnotherThread final : ()(callable : EmptyFunctionPrototype) = {
-    // ...
-    callable()
-    // ...
-}
-
-// `myFunc` will get executed when `callable()` is called from the other thread
-executeCallableOnAnotherThread(callable1)
-executeCallableOnAnotherThread(callable2)
-````
+Legacy material proposed automatic `deep` capture for individual parameters or
+an entire `promise`. That behavior is not current. Future async work must decide
+which explicit `copy`, `deep`, `move`, ownership, and lifetime contracts make a
+captured value safe to use after suspension or on another thread.
 
 
 #### Returning variables from an `promise` function asynchronously
@@ -332,7 +157,7 @@ executeCallableOnAnotherThread final : ()(callable : ()()) = {
     // ...
 }
 
-myFunc final : (result : String)(value1 : Integer) deep promise = {
+myFunc final : (result : String)(value1 : Integer) promise = {
     // ...
 }
 
@@ -351,7 +176,7 @@ later := myFunc(42)
 callable := later.then = {
     // called after the `myFunc` is completed with the return result
     
-    resultCallbackFunc final : ()(result : String) deep promise = {
+    resultCallbackFunc final : ()(result : String) promise = {
         // ... call back will happen on main thread ...
     }
 
@@ -409,25 +234,33 @@ countForever final : (result : Integer)() task = {
 
 /*
 
+Fiber :: type {
+    CallablePrototype :: alias type (status : Coroutine.Status)()
+
+    callback mutator : ()(callable : CallablePrototype) = {
+        // ..
+    }
+
+    run final : CallablePrototype = {
+    }
+}
+
+RunContext :: type {
+
+}
+
 TemplatedTaskResult :: type {
     ThenCallbackPrototype :: alias type ()(result : Integer)
+    CallablePrototype :: alias type (status : Coroutine.Status)()
 
     Producer :: type {
-        CallablePrototype :: alias type (status : Coroutine.Status)()
 
-        // Once a resume function is installed by the scheduler, the callable
-        // function will be returned. The callable function is invoked by
-        // the scheduler to perform the scheduler work.
-        resumable mutator final : (
-            callable : CallablePrototype
-        )(
-            resumeFunc : ()()
-        )
-
-        // call this method to cancel the task
+        // call this method to cancel the task early (immediately prior to
+        // yield)
         cancel final : ()()
 
-        // call this method to suspend the task prior to the next yield
+        // call this method to suspend the task (immediately prior to yield
+        // next result)
         suspend final : ()()
 
         // call this method to resume processing (which may cause a suspended
@@ -435,44 +268,56 @@ TemplatedTaskResult :: type {
         resume final :()()
     }
 
-    then mutator final : (producer : Producer)(thenFunc : ThenCallbackPrototype)
+    RunnerPrototype :: alias type (
+        producer : Producer
+    )(
+        // used to allocate a working stack within this fiber
+        fiber : ,
+        // used to allow a task to probe for early cancellation of an async
+        // routine while processing
+        cancellation : ,
+    )
+
+    then mutator final : (runner : RunnerPrototype)(thenFunc : ThenCallbackPrototype)
 }
 */
 
-scheduleProducer final : ()(producer :) = {
+scheduleProducer final : (producer : )(runner :) = {
 
     // ... likely not the way a scheduler would be implemented but ...
 
-    runOnAnotherThread final : ()(producer :) deep {
-        //...
+    fiber := createNewFiber()
+    cancellation := createNewCancellation()
+
+    producer = runner.install(fiber,  ) = {
+        // ...
+    }
+
+    runOnDifferentThread final : ()(fiber :) = {
+
         forever {
-
             // ...  
-            reschedule final : ()(producer : ) = {
+            reschedule final : ()(fiber : ) = {
                 // ...  
             }
-            suspend final : ()(producer : ) = {
+            suspend final : ()(fiber : ) = {
                 // ...  
             }
-            remove final : ()(producer : ) = {
+            remove final : ()(fiber : ) = {
                 // ...  
             }
 
-            callable := producer.resumable = {
-                // ...
-            }
-
-            switch status := callable() {
+            switch status := fiber.run() {
                 case Coroutine.Run:           {
-                    reschedule(producer)
+                    reschedule(fiber)
                     break
                 }
                 case Coroutine.Suspend:       {
-                    suspend(producer)
+                    suspend(fiber)
                     break
                 }
                 case Coroutine.Compete:       {
-                    remove(producer)
+                    remove(fiber)
                     break
                 }
             }
@@ -482,18 +327,19 @@ scheduleProducer final : ()(producer :) = {
     }
 
     // ...
-    runOnAnotherThread(producer)
+    runOnDifferentThread(fiber)
+    return producer
 }
 
 myTask := countForever()
 
-producer := myTask.then = {
+runner := myTask.then = {
     // ...
 }
 
 // after the task is setup, a call to `producer.callable()` must be
 // invoked at least once
-scheduleProducer(producer)
+producer = scheduleProducer(runner)
 
 // at end of scope cause the consumer to cancel the task
 defer producer.cancel()
@@ -633,7 +479,7 @@ fetchRandomDataForever final : (result : Integer)() task = {
         // the `task` but instead the `task` continues its cancellation process 
         yield return number
     }
-    [[never]]
+    [<never>]
 }
 
 myTask := fetchRandomDataForever()
@@ -651,30 +497,11 @@ provider.cancel()
 ````
 
 
-#### `task` deep copy
+#### `task` transfer
 
-In the same manner `promise` functions can use the `deep` keyword to ensure any types that require deep copy to be passed to another thread, the `deep` keyword can be applied to `task` function arguments as well as to the entire `task` function.
-
-If the `deep` keyword is placed on a function's argument then that argument will cause a deep copy to occur prior for the data being received by a scheduled `task`. If the `deep` keyword is placed on an entire function, then any input or returned arguments that support `deep` copy will automatically cause a `deep` copy to be performed prior to the data being sent to or from a function.
-
-````zax
-// only the `input` argument will utilize the `deep` copy mechanism
-func1 final : (result : Integer)(input : String deep) task = {
-    // ...
-}
-
-// all arguments will utilize the `deep` copy mechanism
-func2 final : (result : String)(input : String) deep task = {
-    // ...
-}
-
-value := "momma bear"
-
-myTask1 := func1(value)
-myTask2 := func2(value)
-
-// ...
-````
+The transfer, capture, cancellation, and result contracts for `task` remain
+future async work. A `task` does not acquire automatic `deep` behavior merely
+because it may run on another thread.
 
 
 ### Using `channel` to schedule asynchronous function calling
@@ -791,55 +618,26 @@ defer producer.cancel()
 
 ### Allocators and threading
 
-When allocation is performed on the context using the standard allocator operator (`@`), the allocator will use the standard allocator (`___.allocator`) which is usually set to the sequential allocator (`___.sequential.allocator`). The sequential allocator is typically faster than the parallel allocator (`___.parallel.allocator`) as the sequential allocator only needs to allocate memory using thread unaware allocation algorithms and frees using the thread unaware algorithms.
+Current pointer and allocator thread behavior is defined by
+[Zax pointers and arenas](language/pointers-and-arenas.md#arenas):
 
-The downside to a sequential allocator is that allocation and deallocation assume thread local heaps which can have unintended consequences. The sequential allocators do not use any thread locking mechanisms as they assume only the current thread can manipulate a thread's heap at any given time without locks. However, if one thread performs a thread heap allocation and another thread performs the deallocation then that memory needs to be reinserted into the original thread's heap (which cannot be done by another thread). In this specific case, the freed memory is inserted into a thread-safe dangling list for the original thread that performed the allocation. When the original thread wakes up and decides to examine the dangling points for that thread then the dangling memory blocks can be reinserted back into the original thread heap (which usually happens during parallel allocation of if more space is needed for the thread heap). If the originating thread has quit prior to freeing a thread heap allocation then that dangling memory should be recycled into another thread's heap when freed.
+- each arena declares whether it is thread-confined, synchronized, movable, or
+  able to queue cross-thread release;
+- `unique` may cross only when instance and destructor affinity permit it;
+- local `strong`/`weak` accounting does not cross threads;
+- `strong atomic`/`weak atomic` makes lifetime accounting cross-thread capable;
+- pointer-layer atomicity does not make pointee operations data-race safe; and
+- references do not safely cross thread boundaries.
 
-A double "at" symbol, known as the parallel allocator operator (`@@`), is a compiler shortcut to force allocation using parallel/thread-safe allocators for the types (and its contained types). When the parallel allocator operator is encountered the standard allocator is replaced by the parallel allocator temporarily for the current allocation (and reset back to the original allocation completes). An "at" symbol with a "bang", known as the sequential allocator operator (`@!`), forces the sequential allocator to be used for the type (and its contained types) by replacing the standard allocator (`___.allocator`) temporarily.
-
-Whenever a `strong` pointer type is allocated, the standard allocator (`___.allocator`) in the context is replaced by the parallel allocator temporarily (i.e. assigned to `___.parallel.allocator`). This is done to ensure that any allocated data is entirely allocated in a thread-safe manner (and deallocated later in a thread-safe manner). Once the allocation is complete, the original standard allocator is restored allowing any future constructor and allocations of other types to use the potentially faster sequential (`___.sequential.allocator`) allocator if that allocator was previously in use.
-
-Caution: care must be taken when transferring an allocated `own` pointer to a `strong` pointer. Pointers qualified as `unique` or `own` are allocated using the standard allocator which is typically set to the sequential allocator by default. If an `own` pointer gets transferred later into a `strong` pointer or across thread boundaries, then consider using parallel allocators.
-
-A qualifier of `deep` can be applied to the function definition where all input and output arguments automatically have `deep` applied to each argument type where appropriate. Where `deep` is applied to a function, another advantage is any captured values also have the `deep` attribute applied, i.e. any copies performed on captured values will cause a `deep` copy to be performed. If a non-final function is qualified as `deep` then any replacement assignment of the function must also be qualified as `deep`.
-
-Functions declared as `promise`, `task`, or `channel` are implicitly asynchronous. The parallel allocators are automatically substituted over the sequential allocators for a function call implicitly asynchronous or functions declared explicitly asynchronous using the `[[asynchronous]]` directive. The previous allocators are restored automatically upon exit of the asynchronous function's call. When combined with `deep`, copy operations will cause parallel allocators to be used over sequential allocators during `deep` data copies. When all data is copied out from the previous calling thread and the new thread is executing, the sequential allocators will be used as the default allocators on another thread as normal. Asynchronous functions declared with `deep` also have their return arguments passed into a `then` routine for automatic copy of the returned results and the parallel allocators are once again substituted as the default allocator.
-
-A sequential allocator is designed to favour allocations that deallocate from the same thread for speed efficiency reasons. But memory deallocated on different threads should eventually cause dangling memory to become reintegrated into the original thread's heap (at the cost of efficiency).
-
-The language does not enforce the rules of allocation, but instead gives tools to ensure that allocations are as optimal as possible depending on the coder's intentions.
-
-
-````zax
-SimpleType :: type {
-    value : Integer
-}
-
-MyType :: type {
-    value1 : Integer
-    value2 : String
-    value3 : SimpleType * @     // might be allocated using the parallel or
-                                // sequential allocator depending how
-                                // the container type allocated the type
-}
-
-DoubleType :: type {
-    myType1 : MyType * own @    // even though standard allocator was
-                                // specified, parallel allocation will happen
-                                // in this example (as the container was
-                                // allocated using the parallel allocator)
-    myType2 : MyType * own @    // same as above
-
-    myType3 : MyType * own @!   // override any request to use the parallel
-                                // allocator and allocate using the sequential
-                                // allocator
-}
-
-
-doubleType : DoubleType * own @@ // allocate using the parallel allocator
-````
+Exact thread-affinity syntax, destructor scheduling, cross-thread preparation,
+allocator APIs, and async cancellation remain in
+[raw async input](project/raw/async.md) and
+[raw pointer and arena mechanics](project/raw/pointer-and-arena-mechanics.md).
 
 
 ### Context and threading
 
-A new context instance must be set-up for any spawned thread/fiber as the context variable's (i.e. `___`) instance is tied to an individual thread/fiber. This allows the context instance to use optimized thread-unaware operations.
+The current per-thread `___` model is defined by
+[Zax execution context](language/execution-context.md). Exact inheritance,
+replacement, and restoration behavior for spawned threads, fibers, and async
+tasks remains future [async input](project/raw/async.md).

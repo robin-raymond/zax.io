@@ -3,68 +3,97 @@
 
 ## FAQ
 
+| Field | Value |
+| --- | --- |
+| Status | Transitional question-oriented guidance |
+| Audience | Human developers evaluating or learning Zax |
+| Applies To | Recurring questions; not a formal specification |
+| Implementation State | Not established by this repository |
+| Owns | Question-specific explanations and routes to current owners |
+| Does Not Own | The language vision or detailed feature semantics |
 
-### When was the idea of Zax inspired?
+Some feature-specific answers below preserve legacy design input and will be
+reviewed with their owning concepts. The
+[language vision](language/vision.md) owns Zax's current foundational direction.
 
-The concept of writing the Zax language has been around for a long while. With Robin's many years of software development, some ideas of best practices and desired features in a language formed over time as well as a syntax that enables those concepts into reality. The language is designed for programmers who desire to remain closer to hardware while having access to higher level language convenience for those with the skill levels strong enough to understand the implications of their coding decisions.
+### Where did the idea for Zax come from?
 
+Zax grew from long practical experience with programming languages, especially
+the desire to combine high-level capabilities with visible low-level behavior
+and cost. It draws broadly from systems, procedural, object-oriented, and
+functional language design without attempting to reproduce one predecessor.
 
 ### Can Zax be used by beginners?
 
-Of course. Many programmers start out with lower level languages. Some concepts are easier to understand if the implications of what's actually happening on the hardware is understood. Be aware that Zax will not prevent the programmer from writing unsafe code. In other words, programmers should not write code in Zax without the programmer assuming full responsibility for mistakes the language will knowingly and willingly allow. If safety is important, other languages with stronger guarantees should be used.
+Zax should be learnable by a motivated developer. A developer can begin with
+safer facilities and established patterns, then deliberately adopt lower-level
+or riskier mechanisms as their understanding and requirements grow.
 
+Zax does not aim to prevent every low-level mistake. Programmers who use raw
+memory, unchecked lifetime operations, assembly, foreign interfaces, or advanced
+concurrency must understand the consequences.
 
 ### Why is the language strongly typed?
 
-Since the language is designed to be compiled without the need of a runtime support component, the compiler needs to know exact type sizing to generate platform specific CPU instructions. 
-
+Explicit types help make representation, operations, guarantees, and cost
+understandable to both developers and build-time code. Structural typing is an
+intended direction, but exact identity, equivalence, conversion, and safety rules
+remain under design.
 
 ### Why is the language compiled?
 
-Speed and efficiency is the primary reason. See [Advantages vs Disadvantages](https://en.wikipedia.org/wiki/Compiled_language#Advantages_v._disadvantages) for more reasoning. At the moment, [Moore's law](https://en.wikipedia.org/wiki/Moore%27s_law) seems to be reaching a plateau for single threaded capacity. Lots of tricks, and parallel processing techniques can be used to increase overall CPU capacity but ultimately resources running in a single thread should be as efficient as possible. Designed correctly, a compiled language can be fast to iterate between code runs too.
-
+Zax aims to produce efficient programs with explicit control over memory,
+layout, allocation, and runtime support. Compilation also enables
+language-integrated build-time execution, where Zax code validates inputs,
+generates code and resources, and precomputes work before runtime.
 
 ### Why is the language considered data oriented?
 
-The language is designed around data types and does not attempt to enforce traditional data hiding and function virtualization encouraged by traditional Object Oriented designs. The assumption of Zax is that the programmer should understand how data and code become rendered on target systems and they can better take advantage of this knowledge accompanied with like minded individuals who share an eco system that encourages data oriented designs.
-
+Zax puts data shape, representation, and flow ahead of class hierarchy and
+object identity. It favors explicit composition over inheritance while retaining
+useful facilities such as constructors, functions associated with types, and
+polymorphism.
 
 ### Why isn't the language functional?
 
-Every so many years, a programming paradigm comes along that attempts to solve all of the problems faced with programming. At one time, object orientated design was it and if you weren't programming in Java you'd be told that you would be out of a job. Functional programming is as old as time and now "new" again. Accordingly functional programming is the new paradigm to solve all issues in coding by defining a world of pure and impure functions with immutable state. Compiler introspection and enforced safety will solve all the issues. But the real world is often a bit more messy.
+Zax supports useful functional techniques, including first-class functions,
+composition, immutability, and explicit transformations. It does not require all
+programs to adopt a purely functional model.
 
-All of these paradigms have real world implications. For example, immutability of data is heavily copy-on-write focused, i.e. "give me the same type exactly as before except with this changed". For a simple array to become immutable that may contain millions of elements, this requires that arrays are actually node trees where small nodes have to be copied and modified, all the way up the tree, when a single element changes. This is efficient but not as efficient as directly modifying an element in an array or reading the n'th element in an array without node traversal not to mention the implications on memory layout for the array. Being pure comes at a cost. The cost on one end is speed and the cost on the other end is safety and the ability to reason about what's actually happening inside a function. Zax lets the programmer decide their costs they wish to bare and what purity they accept.
+### What is Zax's safety direction?
 
-There are even hidden costs that might not be obvious, especially with threading. The idea of `immutable has huge benefits in being purely thread-safe. Except, that it's not really thread-safe without costs. If a block of immutable data is sent to another thread it either has to be fully copied so the memory cannot be destroyed by the thread that passed the data, or lifetime controls must exist, e.g. automatic garbage collection, or some combination of the two approaches must exist. Immutable data is not exactly no-locking at zero cost when it comes to threading as promised, it's just lower cost in some aspects than some alternative designs. Data occupies real locations in memory and hiding this fact can cause programmers to make implicit decisions with their cost choices because the programming language strongly favors certain design patterns.
+Maximizing compiler-enforced safety is not Zax's organizing principle. Zax
+should nevertheless define a safe subset with explicit guarantees and
+recognizable boundaries around operations that leave those guarantees.
 
-With Zax, the tradeoff choices are explicit and the programmers makes the choice. This is one of the reasons Zax offers so many options for lifetime management, including the ability to perform deep data copies across known thread boundaries. If a pure programming paradigm's benefits outweigh the implicit costs, that choice is the programmer's hands. The tradeoff choice is always the programmers, not the language. 
+The exact guarantees and unsafe-boundary mechanism remain future design work.
+Memory safety also does not imply freedom from deadlock, resource exhaustion,
+logic errors, or security-design mistakes.
 
-On a side note, many tools within Zax are directly related to functional programming and the compiler will enforce many properties e.g. `immutable` when used. But the language does not force a programmer into a functional only design. Properties like `immutable` can be selected as the default, and as Zax does not have a forced default library, thus the language can be operated in a purely functional manner for those who want to live in a functional only world. However, the language allows for speed choices, including the ability to directly manipulate memory in extremely mutable ways if that is what is desired.
+### Is another language better than Zax?
 
-
-### Why doesn't the language enforce memory safety?
-
-Languages like [Rust](https://en.wikipedia.org/wiki/Rust_(programming_language)) have extensive compilation introspection that enforce safety and may (or may not) include an `unsafe` style keyword to bypass these restrictions. In fact, this type of compiler might be considered vital for secure code authoring. The downside is that these enforced rules can get opinionated in how code should be designed and executed. Just doing "X" might not be possible even where you know it's safe. While Zax does have its opinions, Zax favors freedom to organize data and code flow over safety. The programmer can decide their own tradeoff between safety and being walled into opinionated paradigms. Hopefully, the language features and tools are powerful enough that potential drawbacks of non-enforced safety are mostly overcome.
-
-
-### C++ or _insert language here_ is better in every way?
-
-Probably. That's not the point. Languages can get stagnant overtime and can suffer under their own weight of legacy. This does not mean they are bad but they might not be able to experiment in ways new languages which have a clean slate that might lead to more effective and efficient programming tooling.
-
+Possibly for a particular project. Zax is an attempt to explore a coherent
+combination of capabilities and tradeoffs, not a claim that every existing
+language is inferior.
 
 ### Why does the language clearly resemble X language?
 
-A similarity might be by design, osmosis, or by rationalizing to the same conclusion. Computer languages have been around for a long time. All knowledge is built upon the greats of old.
+Programming languages share decades of accumulated ideas. Similarity may be
+deliberate, independently reasoned, or the result of common design pressures.
+Zax adopts ideas according to its own goals rather than preserving another
+language's complete model.
 
+### Will Zax get lost among other languages?
 
-### Zax will get lost amongst all the other languages?
-
-Every popular language started as a thought in someone's mind at some point. This language attempts to be different enough to hopefully get a small snowball running downhill effect going. However, even as an experiment the knowledge gained can be useful and insightful.
-
+Popularity is not a foundational design goal. A coherent and useful language
+design can produce valuable knowledge even if its eventual audience is small.
 
 ### What is special about Zax?
 
-Zax was inspired by [Jai](https://en.wikipedia.org/?title=JAI_(programming_language)) which is heavily focused on solving the gaming industry's woes with C++ and other languages. Some of the important concepts include the idea that the language self includes integrated build processes with full code execution and reflection at compile-time. However, Zax is designed to contain many of the interesting concepts but targeted at a more general purpose language usage. Some ideas differ in design and implementation (or perhaps they don't given not everything about the language is documented for outside usage at the time). Jai being targeted at a specific industry might enjoy more success but experimentation and knowledge sharing is a good thing. The goals for Zax are not contingent on its popularity.
+Zax aims to combine high-level expression, visible low-level behavior,
+selectable cost and policy, data-oriented composition, language-integrated
+build-time execution, direct hardware access, and first-class async in one
+general-purpose language.
 
 
 ### Why are variables declared before types unlike C, C++, or Java?
@@ -112,23 +141,29 @@ This site is currently hosted with GitHub which does not appear to support synta
 
 ### If this language is data orientated, why does the language support some Object Oriented features like constructors/destructors?
 
-Data Oriented design puts the focus around the data whereas Object Orientated attempts to hide the data inside encapsulated objects that have actors and actions that apply to the object. While data design is promoted strongly in video game design, the principles are sound for generalized programming too. Concepts like constructors and destructors or functions on types can be used in a Data Oriented mode or an Object Orientated model. The difference is the language is not attempting to provide object abstraction models and instead put the focus entirely on the data and its organization. Other concepts typically associated with Object Orientated design are not unique to that design principle. For example, polymorphism can equally apply to a procedural language as it does an Object Orientated language despite its strong association with the latter.
+Data orientation puts the focus on data shape, representation, organization, and
+flow. Constructors, destructors, functions associated with types, and
+polymorphism are useful techniques that do not require class inheritance or a
+mandatory object-oriented model.
 
 
 ### Isn't Zax just syntax sugar?
 
-That could be said for every language. Isn't C just syntax sugar for assembly? Isn't C++ syntax sugar for C (plus plus a few features)? Zax attempts to marry some of the best concepts from multiple languages. Zax is not aiming to be the most powerful language but it does aim to be a pleasing language to work within for a compile-time language.
+All programming languages provide abstractions over lower-level mechanisms. Zax
+is distinguished by the particular guarantees, costs, build-time facilities,
+and low-level boundaries those abstractions provide, not merely by alternate
+spelling.
 
 
 ### Are virtual functions supported?
 
-No. However, types can contain pointers to functions and a virtual ABI can be selective declared on a function for C++ compatibility. Function pointers can be replaced with new code easily. Functions can be overridden in containment. Functions can be replaced at runtime. Values can even be captured during function replacement.
+Virtual functions are not intended as a first-class Zax concept. Zax can express
+explicit function tables, function pointers, composition, and other forms of
+dynamic behavior.
 
-With existing languages, typically virtual-tables are generated as a pointer to a lookup-table containing an array of pointers to functions. This lookup process is expensive during runtime for repeated calling. The pseudo logic to execute a virtual table function is `((*(type.virtualTablePtr))[n])->function()`. This methodology involves a lot of indirection at the savings of being able to combine the lookup table for all instances of the same class/struct into the same table.
-
-In Zax, the pseudo logic for calling replaceable function is `(type.func)->function()` for functions that can be overridden. The trade off is that more memory is used per instance of a type for each overridden function at the benefit of less calling overhead and less indirection and greater override flexibility. Pus, an entire meta-type system exists allowing strongly typed functions without the need of function overrides.
-
-Virtual function have even more unseen overhead than the additional CPU lookup instructions. Lookups can be made even more expensive by virtue of data non-locality and CPU cache misses. By accessing a pointer to a table somewhere else in memory a CPU cache miss can happen which would be less likely if the pointer was directly inside the structure.
+C++ virtual dispatch may be accessed through adapters or explicit low-level ABI
+work when required. Zax does not need to import C++ virtual semantics merely to
+support interoperability.
 
 
 ### Why is there no `null` or `nil` keyword?
@@ -140,4 +175,9 @@ In other words, the language does not have a single magic `null` value indicatin
 
 ### Shouldn't concurrency features just be a library?
 
-While it's possible to program all of the concurrency features within in a library, without language support, some of the concurrency features would be extremely ugly to develop or would require complex code introspection. For example, the compiler rewrites task functions into suspend/resume blocks of code. Other features (such a `strong` pointers or `deep` copy) are doable but they can make code ugly with complex templates and operator overriding instead of simple type qualifiers.
+Libraries and runtimes will provide important execution policy, but async,
+coroutine, and concurrency semantics need language support to remain readable
+and to interact coherently with lifetimes, suspension, cancellation, and
+build-time analysis.
+
+Programs that do not use those facilities should not incur their runtime cost.

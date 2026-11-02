@@ -1,35 +1,20 @@
-# Welcome to the Zax!
+# Zax programming language
 
-## Description
+Zax is a general-purpose programming language intended to provide high-level
+capabilities without hiding the lower-level behavior, costs, and tradeoffs
+producing them.
 
-Zax is a data oriented modern refresh of a compile-time language which offers high level language capabilities through to low level memory access. The language does not enforce type or memory safety but can be used in a type safe manner if desired.
+The language is in conceptual design. This repository contains the public
+language documentation and the project process used to refine it; it does not
+contain a compiler implementation.
 
-## Goals
+## Start here
 
-* Small and performant code input
-* Fast and efficient code output
-* Data orientated design
-* Structural typing system
-* Flow control focused
-* Full meta programming and reflection
-* Prioritization of proven language features
-* Long term source compilation stability
-* Pay (in terms of cost/efficiency) for what you use
-* Build control within the language
-* Full compile-time code execution
+| Goal | Read |
+| --- | --- |
+| Understand Zax's accepted direction | [Language vision](language/vision.md) |
+| Browse the public language documentation | [Website entry point](index.md) |
+| Contribute to language-design work | [Project guidance](project/README.md) |
 
-## Non Goals
-
-* Preprocessor
-* Enforced memory management
-* Enforced safety
-* Enforced language feature usage (containing costly runtime overhead)
-* Enforced system library usage
-* Exceptions
-* Garbage collection
-* Package manager (source importation is favoured)
-* Object oriented modeling
-
-A prototype for the  [zax-compiler](https://github.com/robin-raymond/zax-compiler) is being developed in C++.
-
-Please visit the website [zax.io](https://zax.io/) for a detailed overview of the language.
+A separate [compiler prototype repository](https://github.com/robin-raymond/zax-compiler)
+exists, but its implementation status is not established by this repository.

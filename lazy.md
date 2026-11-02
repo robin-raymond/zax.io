@@ -21,7 +21,7 @@ countForever final : (value : Integer)(starting : Integer) lazy = {
         ++starting
         yield starting
     }
-    [[never]]
+    [<never>]
 }
 
 later = countForever(5)
@@ -70,4 +70,4 @@ print(later())  // a panic will occur
 
 #### Functions qualified as `lazy` are not automatically `deep`
 
-Unlike `promise` or `task`, functions qualified as `lazy` are not expected be qualified as `deep` (and thus don't require a `[[sequential]]` compiler directive to suppress warnings about `deep` not being utilized). The use case for a `lazy` functions is presumed to mostly be related to synchronous programming. In fact, `lazy` functions make great iterators or generators which are entirely unrelated to [concurrency](concurrency.md).
+Unlike `promise` or `task`, functions qualified as `lazy` are not expected be qualified as `deep` (and thus don't require a `[<sequential>]` compiler directive to suppress warnings about `deep` not being utilized). The use case for a `lazy` functions is presumed to mostly be related to synchronous programming. In fact, `lazy` functions make great iterators or generators which are entirely unrelated to [concurrency](concurrency.md).
