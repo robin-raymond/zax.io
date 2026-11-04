@@ -132,6 +132,23 @@ type-qualified receiverless route and an instance-qualified route. Complete
 declaration examples are in
 [Zax operator phrases](operator-phrases.md#type-arguments-and-type-qualified-operators).
 
+An operator declaration may have its own `$` list of compile-time parameters,
+attached to its quoted words:
+
+```zax
+MyVector$(Element : type) :: type {
+  operator binary '*'$ final :
+    (Scalar : isNumeric)(result : MyVector$(Element))(scale : Scalar) readonly = {
+  }
+}
+
+scaled := myVector * 2.5   // Scalar worked out from the right operand
+```
+
+An operator use has no place to state compile-time arguments, so these
+parameters are always worked out from the operands or defaulted. See
+[generic operators](generics.md#generic-operators).
+
 Representative declarations and uses:
 
 ### Pre-unary
@@ -1272,8 +1289,9 @@ declarations and required compile-time joining are defined by
 [literal source and operators](literal-source-and-operators.md). Runtime `<+>`,
 outside the current array family and future runtime string behavior,
 unbounded/custom numeric families, exhaustive fixed/floating forms, non-array
-call/index edge cases, pointers, generics, reflection, build-contract syntax,
-and panic recovery remain future focused work. Current
+call/index edge cases, pointers, reflection, build-contract syntax, and panic
+recovery remain future focused work. Generic operators are defined by
+[generics](generics.md#generic-operators). Current
 fixed-point and floating semantics are owned by
 [fixed-point scalars](fixed-point-scalars.md) and
 [floating-point scalars](floating-point-scalars.md).

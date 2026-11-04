@@ -312,12 +312,15 @@ Each entry preserves:
   continuation rule.
 - **Resolution.** Each focused legacy review either updates the complete example
   to current source or preserves it as explicitly marked historical evidence.
-- **Activation pressure.** Focused review or promotion of `meta-functions.md`,
-  or a repository-wide retirement of legacy example source.
+- **Activation pressure.** Focused review or promotion of a legacy page that
+  still contains the old form, or a repository-wide retirement of legacy
+  example source.
 - **Current constraints.** New current and raw examples use trailing symbolic
   continuation without redundant `\`; arbitrary incomplete expressions and
   phrase operators do not continue.
-- **Disposition.** Open.
+- **Disposition.** Open for any remaining legacy page. The representative
+  `meta-functions.md` occurrence is resolved: that page was retired when its
+  input was promoted to [Zax generics](../../language/generics.md).
 
 ### `Does Not Own` metadata scope
 

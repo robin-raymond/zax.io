@@ -439,6 +439,11 @@ source and options. The instance includes:
 Compilation may reuse work when semantics remain unchanged. Cache reuse does
 not merge module or declaration identity and does not share state.
 
+Generic declarations belong to their module instance like any other
+declaration, so `GeometryA.MyList$(Integer)` and `GeometryB.MyList$(Integer)`
+are different types when `GeometryA` and `GeometryB` import one library twice;
+see [generics](generics.md#module-instances).
+
 ### Inject declarations before module source
 
 An import body inserts declarations into the target root before the target's own

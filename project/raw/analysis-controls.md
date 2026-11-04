@@ -7,7 +7,7 @@
 | Applies To | Future source syntax and category design for narrow semantic permissions and assertions |
 | Owns | Preservation of construction-derived category behavior, concrete examples, the contiguous non-scoping unsafe-enclosure candidate, analysis provenance, remaining syntax, activation pressure, and retirement criteria |
 | Does Not Own | The centralized provisional category inventory ([analysis-control registry](analysis-control-registry.md)); current proof, unsafe-permission, redundant-control, and lint boundaries ([safety and analysis](../../language/safety-and-analysis.md)) |
-| Source / Provenance | Work items `005`, `006`, `007`, `012`, `015`, `032`, and `034`; construction/lifecycle, invocation/result, core-flow, optional proof/alias, panic-category, and intent-naming pressure |
+| Source / Provenance | Work items `005`, `006`, `007`, `012`, `015`, `032`, `034`, and `036`; construction/lifecycle, invocation/result, core-flow, optional proof/alias, panic-category, intent-naming, compile-time error, and generic-extension pressure |
 
 ## Reading posture
 
@@ -630,6 +630,89 @@ applicable check or asserting ordinary target validity. A false assertion has
 undefined consequences. Unsafe cannot legalize a proved managed-pointer leak,
 and no control may collapse a vacant pointer, absent optional, or unavailable
 function value into one universal state.
+
+## Compile-time error reporting and assertions
+
+Generic and compile-time code needs a way to reject an unsupported case with
+the author's own message. [Zax generics](../../language/generics.md) already
+uses `Compilation.error("message")` in its examples for this, noting that the
+exact spelling is not settled. That spelling must be reviewed here, and the
+generics examples revised if it changes.
+
+```zax
+// Spelling under review.
+formatTime final : (result : String)(
+  format [<constant>] : String readonly,
+  value : TimePoint
+) = {
+  if compile !looksLikeTimeFormat(format) {
+    Compilation.error("formatTime: invalid time format")
+  }
+}
+```
+
+The sketch to settle:
+
+- `Compilation.error("message")` reports an error written by the author, at the
+  compile point, with the compile-time call chain. That evaluation stops and
+  the build fails. If accepted, it joins the `Compilation` table in
+  [compile-time code](../../language/compile-time-code.md#compilation-information).
+- A separate `Compilation.panic` may be unnecessary: a panic during
+  compile-time execution is already a compiler diagnostic.
+  `Compilation.error` earns its place by carrying the author's message.
+- A `Compilation.warning` needs care. `wellformed{...}` treats an unclassified
+  language-defined warning as an error, so library warnings must not turn
+  callers' `wellformed` checks into errors.
+- `assert(condition, "message")` panics on failure and is governed by the
+  existing panic-check controls, so it can be turned off for the shipped
+  program.
+- `compile assert(...)`, or `assert` inside `compile{...}`, runs the same check
+  while compiling, where failure is a diagnostic. Compile-time assertions stay
+  on; turning them off would only remove a guarantee.
+
+## Extension lint candidate
+
+Any module may add a specialization of a generic, or a helper a generic body
+can find, even when it owns neither the generic nor the argument type. Every
+use in the program must then agree, or the program is rejected (see
+[extending generics](../../language/generics.md#extending-generics-from-other-modules)).
+
+An optional, informational lint could flag such an extension, noting that
+combining the module with other code can produce that disagreement error:
+
+```zax
+// Module Tweaks: owns neither MyBits$ nor ThirdPartyType
+MyBits$(UseType : type) requires UseType == ThirdPartyType :: type { packed : Byte[2] }
+// possible lint: extension of a generic and a type owned elsewhere
+```
+
+Undecided: whether to add it, and its name. It must never restrict
+extension.
+
+## `active` layout query in a compile-time decision
+
+Every layout query names its environment (see
+[layout queries name their environment](../../language/compile-time-code.md#layout-queries-name-their-environment)).
+`active` means "the world running this code", which while compiling is the
+build machine. Using it in a compile-time decision is legal, because the choice
+is written, but a decision about the shipped program usually wants `target`:
+
+```zax
+if compile active size of MyEntry > 16 {   // legal; possible lint: decisions usually want `target`
+  useLargeEntries()
+}
+
+MyBox$(UseType : type) requires active size of UseType <= 16 :: type { }   // same lint
+```
+
+An optional, informational lint could flag `active` layout queries and
+`Compilation.active` layout descriptors evaluated in a constraint, `requires`
+clause, compile-time parameter default, `if compile` or `switch compile`
+condition, or a type-returning call. It must never make the source an error:
+the maintainer accepted explicit `active` as a valid choice.
+
+Undecided: whether to add it, its name, and whether it also follows a host
+value computed with `host` or `active` into a later decision.
 
 ## What this input does not decide
 

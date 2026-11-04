@@ -7,7 +7,7 @@
 | Applies To | Programmer-facing ordinary, prefixed, merged, and joined literal source; not a formal grammar or specification |
 | Implementation State | Not established by this repository |
 | Owns | Literal taxonomy; ordinary decimal real source and default; attached literal phrases and payloads; source merge `<\|>`; compile-time literal join `<+>`; final unbound literal declarations and borrowed payloads; qualification, lookup, exact aliases, and forwarding; generic uncommitted result specialization; first-class and extended radix catalogs; binary-power exponents; type-qualified raw scalar patterns; literal diagnostics, costs, and source stability |
-| Does Not Own | Uncommitted integer operations and realization ([integer literals and realization](integer-literals.md)); concrete [fixed-point](fixed-point-scalars.md) or [floating-point](floating-point-scalars.md) realization; string and character identities ([strings and characters](strings-and-characters.md)); general operator selection ([operators](operators.md)); complete source layout ([source structure](source-structure.md)); the general compile-time model ([compile-time code](compile-time-code.md)); complete generics; or runtime string libraries |
+| Does Not Own | Uncommitted integer operations and realization ([integer literals and realization](integer-literals.md)); concrete [fixed-point](fixed-point-scalars.md) or [floating-point](floating-point-scalars.md) realization; string and character identities ([strings and characters](strings-and-characters.md)); general operator selection ([operators](operators.md)); complete source layout ([source structure](source-structure.md)); the general compile-time model ([compile-time code](compile-time-code.md)); generic declarations and processing ([generics](generics.md)); or runtime string libraries |
 | Source / Provenance | Legacy literal, casting, alias, and forward-declaration material refined against current source, scalar, declaration, invocation, operator, and namespace/module design |
 
 ## Start with the value each form produces
@@ -421,9 +421,7 @@ collision behavior are defined by
 
 A non-generic literal declaration states its concrete result directly.
 
-`uncommitted` is a generic scalar-result posture. The following spelling shows
-the intended declaration relationship; exact generic processing syntax remains
-future work:
+`uncommitted` is a generic scalar-result posture:
 
 ```zax
 operator literal 'h' final : (
@@ -443,10 +441,23 @@ myDefault := h'FF'  // UInteger
 myByte : U8 = h'FF' // U8
 ```
 
-Before invoking the body, generic/compile-time processing uses the payload,
-candidate hole, sign intent, and suggestion to select one concrete result
-prototype. The body and every surrounding rule then operate exactly as though
-that concrete type had been declared directly.
+Before invoking the body, compile-time processing uses the payload, candidate
+hole, sign intent, and suggestion to select one concrete result prototype. The
+body and every surrounding rule then operate exactly as though that concrete
+type had been declared directly.
+
+`uncommitted` is a literal-only opt-in. Its result behaves like number-literal
+source, so it can take its type from any candidate hole: a typed declaration,
+an assignment, a parameter, or a result slot:
+
+```zax
+consumeByte final : ()(value : U8) = { }
+consumeByte(h'FF')   // the result specializes to U8 from the parameter
+```
+
+That is broader than an ordinary
+[generic result](generics.md#working-out-from-the-expected-result), which takes
+an expected type only from a fully typed declaration.
 
 No anonymous `uncommitted` value enters runtime, storage, result routing, or an
 operator. Value magnitude does not rank overloads, and selected range failure
@@ -463,9 +474,24 @@ If the suggestion is incompatible with final value or explicit sign intent, the
 ordinary compatible `Integer`/`UInteger` default is selected before range
 checking. This is selection, not fallback after a selected failure.
 
-Payload-dependent suggestions and type factories may choose another bounded
-concrete specialization during compilation. Their exact generic and
-compile-time mechanism remains future work.
+The payload is a compile-time input, because literal operators exist only
+through compile-time literal source; it needs no `[<constant>]`. Although it is
+declared as a reference, payloads are compared by their string contents. The
+body is processed once per distinct payload, and the suggestion may be computed
+from it:
+
+```zax
+operator literal 'h' final : (
+  result uncommitted : suggestHexInteger(payload)   // illustrative suggestion
+)(
+  payload : String immutable readonly final &
+) unbound = {
+}
+```
+
+The suggestion is evaluated during compilation, like any
+[default that depends on another compile-time input](generics.md#defaults), and
+yields one bounded concrete specialization.
 
 ## First-class radix literals
 
@@ -824,10 +850,10 @@ Compatibility events include changing:
 
 ## Boundaries and maturity
 
-This document is current conceptual design, not formal grammar, generic syntax,
-a compile-time execution specification, or an implementation mapping.
+This document is current conceptual design, not formal grammar, a compile-time
+execution specification, or an implementation mapping.
 
-Still future are complete generics/type factories, compile-time sandboxing and
+Still future are numeric type-factory interfaces, compile-time sandboxing and
 capabilities, exact export/private compiler-directive syntax, runtime joining,
 code-page data, complete source-reflection representation, and exact diagnostic
 identifiers.

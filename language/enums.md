@@ -7,7 +7,7 @@
 | Applies To | Programmer-facing strict, relaxed, and flags enum behavior; not a formal grammar, ABI contract, or specification |
 | Implementation State | Not established by this repository |
 | Owns | The enum mental model; enum-category forwarding; declaration policies; backing eligibility; members, aliases, defaults, and bodies; safe admission and reachable unnamed values; generated comparison and underlying operations; selective operation reuse; flags masks and operations; generated string conversion; enum declaration-traversal facts and local use; enum-domain selection and coverage facts; enum costs, diagnostics, and source stability |
-| Does Not Own | General identity mechanics ([identity types](identity-types.md)); integer representations and families ([integers](integers.md)); [structural shape and compatibility](structural-shapes-and-compatibility.md); shared operator selection ([operators](operators.md)); exact operator forms ([operator catalog](operator-catalog.md)); general safety categories ([safety and analysis](safety-and-analysis.md)); complete iteration, runtime switch behavior ([switch, case, and default](switch.md)), pattern matching, reflection, generics, general partial behavior ([partials](partials.md)), ABI, or FFI |
+| Does Not Own | General identity mechanics ([identity types](identity-types.md)); integer representations and families ([integers](integers.md)); [structural shape and compatibility](structural-shapes-and-compatibility.md); shared operator selection ([operators](operators.md)); exact operator forms ([operator catalog](operator-catalog.md)); general safety categories ([safety and analysis](safety-and-analysis.md)); complete iteration, runtime switch behavior ([switch, case, and default](switch.md)), pattern matching, reflection, [generics](generics.md), general partial behavior ([partials](partials.md)), ABI, or FFI |
 | Source / Provenance | Current identity, integer, declaration, operator, safety, and intent designs, incorporating reviewed legacy enum intent |
 
 ## Start with known values
@@ -722,10 +722,12 @@ decomposition policy.
 ### Several string inputs for flags
 
 Flags need bulk conversion operations conceptually named `fromStrings` and
-`fromStringsIgnoringCase`. [Zax iteration](iteration.md) now defines how a
-concrete collection or cursor is traversed, but the exact input type and
-declaration remain deferred until Zax has a suitable collection parameter or
-generic iterable constraint:
+`fromStringsIgnoringCase`. [Zax iteration](iteration.md) defines how a
+concrete collection or cursor is traversed, and a generic declaration can
+constrain an unknown input type with a
+[`requires` clause](generics.md#constraints). The exact input type and
+declaration remain deferred until Zax has a standard iterable protocol
+constraint:
 
 ```text
 fromStrings(sequence of String) -> Permission?

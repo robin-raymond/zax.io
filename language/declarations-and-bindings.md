@@ -1135,6 +1135,9 @@ Structured cases remain distinguishable:
 - declarations may form one overload set when overload rules permit it;
 - a forward anchor and matching completion form one declaration relationship;
 - members occupy their containing entity's member scope;
+- one non-generic type and a generic type family may share a name, as
+  `Integer` and `Integer$(...)` do, because their spellings never collide; see
+  [generics](generics.md#sharing-a-name-with-a-non-generic-type);
 - operators are not ordinary identifiers; and
 - flow labels are a separate, explicitly shaped category that does not share
   ordinary-identifier lookup.
@@ -1248,7 +1251,8 @@ Each category preserves its target:
 - `alias variant` preserves a variant's canonical identity and declaration
   category;
 - `alias variable` denotes the same variable or approved polymorphic variable
-  family, including the same varying function slot;
+  family, including the same varying function slot and a
+  [generic function family](generics.md#naming-a-generic);
 - `alias namespace` denotes the same namespace without granting reopening
   authority; and
 - `alias reshape` denotes the same no-storage directional mapping.
@@ -1587,7 +1591,10 @@ converted := source as DestinationType
 ```
 
 A **type argument** has no runtime storage or lifetime and is not evaluated at
-runtime. It may determine a value result type, as it does for `as`.
+runtime. It may determine a value result type, as it does for `as`. A type
+passed as an argument is one of the
+[two forms of generic](generics.md#two-forms-of-generic): the declaration is
+processed once per distinct type, and the caller always writes the type.
 
 Type category and unused intent remain independent concerns:
 
@@ -1668,8 +1675,10 @@ When it runs follows the ordinary
 [execution policies](compile-time-code.md#letting-a-function-decide-execution-policies);
 a phrase adds no special execution rule. For a
 non-generic declaration, the enclosing type name identifies the owner inside
-its body. Generic instantiations, aliases, and qualified type-identity lookup
-remain future generic and reflection work.
+its body. Inside a generic type's body, the current instantiation, written in
+full as `MyVector$(Element)`, anchors discovery the same way; see
+[generics](generics.md#inside-a-generic-types-body). Aliases and qualified
+type-identity lookup as discovery anchors remain future reflection work.
 
 ### Literal operators
 
@@ -1700,9 +1709,8 @@ not instance-based discovery. Future alias/import behavior may expose a short
 prefix, but the expected result never searches a type for its literal
 declarations.
 
-A generic literal may declare an `uncommitted` scalar result. The spelling below
-expresses the declaration relationship while exact generic processing syntax
-remains future work:
+A generic literal may declare an `uncommitted` scalar result. The payload is a
+compile-time input, so the suggested result may depend on it:
 
 ```zax
 operator literal 'h' final : (
@@ -1714,9 +1722,11 @@ operator literal 'h' final : (
 ```
 
 `UInteger` is a suggested specialization rather than the invocation's final
-type. Compile-time/generic processing selects one concrete result prototype
-before the body is processed and invoked. The body and every caller-facing rule
-then see only that concrete type.
+type. Compile-time processing selects one concrete result prototype before the
+body is processed and invoked, once per distinct payload, as for any
+[generic](generics.md#when-code-is-processed-once-per-input). The body and every
+caller-facing rule then see only that concrete type; see
+[literal source and operators](literal-source-and-operators.md#every-invocation-has-one-concrete-result).
 
 Complete payload, qualification, ambiguity, specialization, merge, join, and
 required-execution behavior is defined by
@@ -1994,8 +2004,21 @@ compile-time identity. `type of` can give that identity a transparent alias.
 Anonymous recursive self-syntax is not established.
 
 `alias type`, `alias union`, and `alias variant` introduce another name for one
-identity while preserving its declaration category. `identity ... type`
-introduces a new identity represented by an existing type. Identity declarations
+identity while preserving its declaration category. An alias definition may
+also appear in a function body. Like any local declaration, it is visible from
+that point to the end of its block:
+
+```zax
+countWords final : (result : Integer)(text : String readonly &) = {
+  Entry :: alias type MyPair$(String, Integer)
+  myFirst : Entry
+  // ...
+}
+
+myLast : Entry   // error: Entry is local to countWords
+```
+
+`identity ... type` introduces a new identity represented by an existing type. Identity declarations
 write one admission keyword (`admit` or `restricted`) and one surface keyword
 (`expose` or `opaque`) before `type`; neither axis has an omission default.
 
@@ -2611,8 +2634,8 @@ It establishes constraints that later work must preserve:
   [Zax structural shapes and compatibility](structural-shapes-and-compatibility.md);
   defaults and initializers affect construction rather than completed stored
   shape, while future reflection reports the resolved distinction; and
-- future generic work, and current [composition](composition.md) and
-  [partials](partials.md), must preserve the explicit
+- [generics](generics.md), [composition](composition.md), and
+  [partials](partials.md) must preserve the explicit
   identity-declaration integration owned here and the behavior owned by
   [Zax identity types](identity-types.md); and
 - future global and `once` lifetime work must preserve type-callable `once`

@@ -474,7 +474,8 @@ program, write `if compile`; see
 ### Telling the compiler which branch is common
 
 A compiler lays out branches and predicts jumps better when it knows which path
-usually runs. `[<likely>]` and `[<unlikely>]` say so for one branch. They are
+usually runs. `[<likely>]` and `[<unlikely>]` mark one branch as the common or
+the rare path. They are
 hints: they never change what the program does, and a compiler may ignore them.
 
 The directive goes in the branch's slot, at the end of its header, just before

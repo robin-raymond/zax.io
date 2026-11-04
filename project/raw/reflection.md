@@ -7,7 +7,7 @@
 | Applies To | Reflection pressure exposed by operator-phrase, type-identity, scalar-family, composition-surface, and source-presentation review |
 | Owns | Preserved reflection, composition-category, scalar metadata, support/operation availability, validity/canonicalization, representative-source, activation-pressure, and retirement questions |
 | Does Not Own | Accepted reflection semantics or the current domain facts reflected |
-| Source / Provenance | Legacy `meta-types.md`, `meta-functions.md`, and `enums.md` metadata evidence together with operator-phrase review of `type of`, qualifier predicates, phrase fences, work item `012` optional-layer metadata pressure, work item `015` allocation metadata pressure, and work item `020` composition constraints |
+| Source / Provenance | Legacy `meta-types.md`, `meta-functions.md`, and `enums.md` metadata evidence together with operator-phrase review of `type of`, qualifier predicates, phrase fences, work item `012` optional-layer metadata pressure, work item `015` allocation metadata pressure, work item `020` composition constraints, and work item `036` generic type-operation pressure |
 
 ## Why this input exists
 
@@ -475,11 +475,12 @@ construction packets.
 
 Reflection must distinguish:
 
-- `size of T`, which reports one self-contained owning representation;
-- `size of T &`, which reports the reference representation;
+- `active size of T` (or `target` / `host`), which reports one self-contained
+  owning representation;
+- `active size of T &`, which reports the reference representation;
 - a logical type obtained by stripping reference;
 - actual owner storage erased behind an unconstrained reference; and
-- external provider backing, which neither `size of` query includes.
+- external provider backing, which neither size query includes.
 
 Knowing a provider type may permit safe typed provider/handle access. Erased
 storage may expose an unsafe raw provider-object pointer, never an automatically
@@ -618,6 +619,74 @@ Future work must choose the reflection spelling, and the explicit form that asks
 for the target's shape. It must also choose the exact spelling for asking
 whether a hook point has fulfillments, whose availability rule is current in
 [partials](../../language/partials.md#asking-at-compile-time-whether-a-hook-is-fulfilled).
+
+## Generic type operations
+
+[Zax generics](../../language/generics.md) works out a type parameter as exactly
+the argument's type, including its qualifiers and any reference or pointer
+shape, and compares types with exact `==`. Generic code therefore needs type
+operations that reflection must supply.
+
+**Removing qualifiers.** A constraint that should accept every qualification of
+one type compares the type with its qualifiers removed:
+
+```zax
+// Illustrative spelling; a shorter form such as `deduced(UseType)` is a future choice.
+show$ final : (UseType : type)()(value : UseType readonly)
+    requires unqualified type of UseType == Boolean = { }
+
+myConstant : Boolean immutable = true
+show(myConstant)   // UseType is `Boolean immutable`; the comparison sees `Boolean`
+```
+
+**Removing references and pointers.** A generic that wants value semantics
+whatever the argument needs the same for `&` and `*`:
+
+```zax
+keep$ final : (UseType : type)()(value : UseType) = {
+  myStored := value   // a reference when UseType is `Boolean &`
+}
+
+myView : Boolean & = myFlag
+keep(myView)          // future: strip the reference to store a copy
+```
+
+**Looser comparisons.** Comparisons weaker than exact `==`, such as "the same
+type apart from qualifiers" or "similar to", belong here rather than in `==`.
+
+**Layout descriptors obtained from an environment.** Common layout queries
+have dedicated forms that always name an environment (`active size of`,
+`target size of`, `host alignment of`); there is no plain `size of`. Rarer facts, such
+as padding, byte order, storage envelope, or provider support class, should
+come from a layout descriptor obtained from a named environment, so the
+environment is explicit by construction:
+
+```zax
+// Illustrative spellings.
+if compile Compilation.target.layout(UseType).paddingBits > 0 { ... }
+if compile Compilation.compilerHost.layout(UseType).byteOrder == Endian.Big { ... }
+order := Compilation.active.layout(UseType).byteOrder   // explicitly the active environment
+```
+
+Every environment-dependent layout fact comes from an explicitly named
+environment: there is no plain `layout(UseType)` that implies one. The reason
+is the same as for the dedicated queries. Compile-time code runs on the build
+machine, and an implied environment there would silently produce a
+build-machine fact that could later decide something about the target. Layout
+agreeing between one build machine and target, or a profile saying a value
+never changes, is never treated as proof that it is fixed.
+
+An explicit `active` request is acceptable, because the programmer has named
+the choice; while compiling it means the compiler host. A lint may point out
+an `active` descriptor used in a compile-time decision. Future work defines the
+descriptor's contents and spelling.
+
+**Instantiation facts.** Reflection must be able to report which declaration
+(general or specialization) an instantiation came from, and its completed
+arguments, so diagnostics and tooling can explain a selection.
+
+Exact `==` on types is current: an alias equals its target, an identity type is
+distinct, and qualifiers participate.
 
 ## Constraints this input places on current work
 

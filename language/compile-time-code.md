@@ -6,8 +6,8 @@
 | Audience | Human developers who want the compiler to compute values, choose code, or check code while compiling |
 | Applies To | Compile-time execution of ordinary Zax code, compile-time values, execution policies, environments during compilation, values crossing into the program, compile-time selection, well-formedness checks, and compilation information; not a formal grammar, a compiler architecture, or a sandbox specification |
 | Implementation State | Not established by this repository |
-| Owns | The two-program mental model; `compile`, `compile{...}`, and `runtime`; when compile points run; what counts as a compile-time value; `[<execute=...>]` policies, including function values and replacement compatibility; which environment's definitions apply during compilation; conversion of values crossing into the program; compile-time state, ordering, and the compile-time `___`; `if compile` and `switch compile`; `wellformed{...}`; the `Compilation` namespace |
-| Does Not Own | Directive syntax and attachment ([compiler directives](compiler-directives.md)); `outward` declarations ([declarations and bindings](declarations-and-bindings.md#outward-declarations)); environment-relative scalar names ([integers](integers.md#native-representation-and-software-emulation), [endianness](endianness.md)); literal declarations ([literal source and operators](literal-source-and-operators.md)); hook points ([partials](partials.md#asking-at-compile-time-whether-a-hook-is-fulfilled)); the runtime execution context ([execution context](execution-context.md)); generics |
+| Owns | The two-program mental model; `compile`, `compile{...}`, and `runtime`; when compile points run; what counts as a compile-time value; `[<execute=...>]` policies, including function values and replacement compatibility; which environment's definitions apply during compilation; layout queries naming their environment (`active`, `target`, `host`); conversion of values crossing into the program; compile-time state, ordering, and the compile-time `___`; `if compile` and `switch compile`; `wellformed{...}`; the `Compilation` namespace |
+| Does Not Own | Directive syntax and attachment ([compiler directives](compiler-directives.md)); `outward` declarations ([declarations and bindings](declarations-and-bindings.md#outward-declarations)); environment-relative scalar names ([integers](integers.md#native-representation-and-software-emulation), [endianness](endianness.md)); literal declarations ([literal source and operators](literal-source-and-operators.md)); hook points ([partials](partials.md#asking-at-compile-time-whether-a-hook-is-fulfilled)); the runtime execution context ([execution context](execution-context.md)); [generics](generics.md) |
 | Source / Provenance | Legacy compiler-directive, meta-function, and compile-time execution input, reconciled with current literal, scalar, environment, partial, module, and invocation design |
 
 ## Work the compiler can do for you
@@ -163,6 +163,11 @@ handleRequest final : ()() = {
 }
 ```
 
+A function with compile-time inputs, such as a type argument or a `$`
+parameter, is processed once for each distinct set of those inputs. A compile
+point in its body runs once per processing; see
+[generics](generics.md#processing-and-compile-points).
+
 There are two exceptions to "every compile point runs": code that
 [compile-time selection](#choosing-code-at-compile-time) discards, and code
 inside a [`wellformed{...}`](#checking-whether-code-is-well-formed-wellformed)
@@ -179,8 +184,11 @@ The rule is the same for all of them. A **compile-time value** is:
 - the result of calling a function whose
   [execution policy](#letting-a-function-decide-execution-policies) is
   `compile`, or `folding` with every argument a compile-time value;
-- a [`Compilation`](#compilation-information) query, `size of`, or another
-  compile-time query; or
+- a [`Compilation`](#compilation-information) query, a
+  [layout query](#layout-queries-name-their-environment) such as
+  `target size of`, or another compile-time query;
+- a [`$` value parameter or `[<constant>]` input](generics.md#two-forms-of-generic)
+  inside the function that declares it; or
 - a `final` binding, local or global, initialized from a compile-time value.
 
 Inside compile-time code, every global is the host world's copy, so reading any
@@ -233,6 +241,11 @@ There are four policies:
 | `runtime` | Never at compile time. | No |
 | `folding` | At compile time whenever every argument is a compile-time value, otherwise at runtime. | Yes, when it runs at compile time |
 | `compile` | Always at compile time. It has no runtime form at all. | Yes |
+
+A function that returns a type has no runtime form either, because a type has
+no runtime representation. It behaves as if its policy were `compile`, and
+declaring it `[<execute=runtime>]` is an error; see
+[generics](generics.md#types-are-compile-time-values).
 
 ```zax
 main final : ()() = {
@@ -383,17 +396,26 @@ definitions apply to the code being run:
 - In compile-time code, the active environment is the **compiler host**, the
   machine running the compiler.
 
+GNU-style toolchains, such as autoconf, Meson, and Nix, call this machine the
+*build* machine and use *host* for the machine the program runs on. Zax follows
+the usage of Rust, Zig, Go, LLVM, and CMake: the compiler host is where the
+compiler runs, and the target is where the program runs.
+
 So compile-time code uses the build machine's definitions unless it asks for
-the target's. Ask by naming the environment explicitly:
+the target's. Values and types name the environment through
+`Target.` and `CompilerHost.` routes; layout queries name it in the query
+itself (see [layout queries name their environment](#layout-queries-name-their-environment)):
 
 ```zax
-myHostWidth := compile size of Integer              // the build machine's Integer
-myTargetWidth := compile size of Target.Integer     // the target's Integer
-myHostWord := compile size of CompilerHost.Integer  // the build machine's, explicitly
+myHostWidth := compile host size of Integer      // the build machine's Integer
+myTargetWidth := compile target size of Integer  // the target's Integer
+myActiveWidth := compile active size of Integer  // the environment running this: the build machine here
+
+myTargetLimit : Target.Integer = compile computeLimit()   // a target-defined type used as a value
 ```
 
 Code that computes facts about the target, such as table layouts, should name
-the target's types. The environment-relative routes are defined by
+the target: its types through `Target.`, its layout through `target`. The environment-relative routes are defined by
 [integers](integers.md#native-representation-and-software-emulation) and
 [endianness](endianness.md#active-and-absolute-names).
 
@@ -550,8 +572,8 @@ declaration comes after the compile point is an error at that point.
 Reflection describes the same `ExecutionContext` identity in both worlds. In
 compile-time code, plain reflection describes the host world's current shape.
 A question about the target's final shape waits until that shape is fixed, or
-is rejected before then. The same applies to `size of` on any type whose target
-layout is still pending, as described by
+is rejected before then. The same applies to `target size of` on any type
+whose target layout is still pending, as described by
 [partials](partials.md#storage-from-any-module).
 
 ## Choosing code at compile time
@@ -562,7 +584,7 @@ Writing `compile` on a condition makes the `if` a compile-time selection. Only
 the selected branch becomes part of the program:
 
 ```zax
-if compile size of Target.Integer > 4 {
+if compile target size of Integer > 4 {
   useWideTables()
 } else {
   useNarrowTables()
@@ -617,7 +639,7 @@ visible after the construct, mark it
 [`outward`](declarations-and-bindings.md#outward-declarations):
 
 ```zax
-if compile size of Target.Integer > 4 {
+if compile target size of Integer > 4 {
   MyIndex outward :: alias type U64
 } else {
   MyIndex outward :: alias type U32
@@ -628,6 +650,105 @@ myPosition : MyIndex   // valid whichever branch was selected
 
 Code that uses a declaration found in only one branch must itself be selected,
 or go through a name every branch provides, like `MyIndex` above.
+
+## Layout queries name their environment
+
+Your source runs in two worlds, and a type's layout can differ between them.
+Every layout query therefore says which world it asks about:
+
+| Query | Asks about |
+| --- | --- |
+| `active size of`, `active alignment of`, `active offset of` | the world running this code: the target in the program, the compiler host while compiling |
+| `target size of`, `target alignment of`, `target offset of` | the shipped program, wherever this code runs |
+| `host size of`, `host alignment of`, `host offset of` | the build machine, wherever this code runs |
+
+There is no plain `size of`. `host` means the compiler host, the same
+environment that `CompilerHost.` names.
+
+```zax
+makeBuffer$ final : (UseType : type)(result : Byte[])(count : Integer) = {
+  return allocateBytes(count * active size of UseType)   // memory for whichever world runs this
+}
+
+compile{
+  scratch := makeBuffer$(MyEntry)(16)   // working space while compiling: host sizes
+}
+myRuntime := makeBuffer$(MyEntry)(16)   // in the program: target sizes
+
+isSmall final : (result : Boolean)(UseType : type) = {
+  return target size of UseType <= 16   // a fact about the shipped program
+}
+
+if compile target size of Integer > 4 {
+  useWideTables()
+}
+```
+
+Choose by what the answer is for:
+
+- **`active`** for memory the code itself allocates or lays out. It is the
+  only choice that is correct in both worlds.
+- **`target`** for any fact about the shipped program: choosing a
+  specialization, choosing code with `if compile`, computing a type the
+  program uses, or building a table the program will read.
+- **`host`** for a fact about the build machine that compile-time work relies
+  on.
+
+### Why every query is explicit
+
+Compile-time code runs on the build machine. A layout query whose environment
+was implied would report the build machine's layout there, and the answer
+could travel far before it is used:
+
+```zax
+entrySize final [<execute=compile>] : (result : Integer)(UseType : type) = {
+  return host size of UseType   // a build-machine fact, and the source says so
+}
+
+myEntrySize := entrySize(MyEntry)
+// ... much later ...
+if compile myEntrySize > 16 { ... }   // the value's origin is visible where it was made
+```
+
+With an implied environment, the host size would be computed silently and
+might decide something about the target in code written by someone else.
+
+The language also never treats a query as safe because a layout seems fixed:
+
+- Padding, alignment, storage size, and byte order come from each
+  environment's platform description. They may agree for one build machine
+  and target and differ for another, so agreement in one build proves nothing.
+- `U32` has a fixed value range, but its layout is still a platform fact.
+- A `Target.` path such as `Target.Integer` is a name, not a declaration that
+  a layout is fixed. `active size of Target.Integer` is a valid query, but
+  `target size of Integer` states the intent directly.
+
+### Explicit `active` in a decision
+
+In a compile-time decision, such as a constraint, a `requires` clause, a
+compile-time default, or an `if compile` condition, `active` means the
+compiler host. That is allowed, because the choice is written, but it is rarely
+what a decision about the shipped program wants. A lint may point it out:
+
+```zax
+if compile active size of MyEntry > 16 {   // allowed; a lint may note that decisions usually want `target`
+  useLargeEntries()
+}
+```
+
+### Rarer layout facts
+
+Facts without a dedicated query, such as padding or byte order, come from type
+reflection obtained from an environment, so the environment is always named.
+The exact reflection surface is future work; its shape is illustrative here:
+
+```zax
+if compile Compilation.target.layout(UseType).paddingBits > 0 { ... }   // illustrative
+order := Compilation.active.layout(UseType).byteOrder                   // illustrative
+```
+
+Constraints, `requires` clauses, and compile-time parameters are described by
+[generics](generics.md#constraints).
 
 ## Checking whether code is well formed: `wellformed{...}`
 
@@ -674,8 +795,9 @@ increment final : ()(value : MyCounter writable &) = {
 ok := wellformed{ increment(myCounter) }   // true: the call matches the prototype
 ```
 
-Code the payload itself creates is checked in full. That includes a generic
-instantiation the payload causes; the details belong to future generic design.
+Code the payload itself creates is checked in full. A payload that names a
+generic instantiation checks that instantiation in full, body included; see
+[checking generic bodies](generics.md#checking-generic-bodies).
 
 ### Warnings and intent
 
@@ -828,6 +950,8 @@ Diagnostics should distinguish:
 - a partial granted at a compile point before its declaration;
 - an `if compile` or `switch compile` whose condition is not a compile-time
   value;
+- a layout query written without `active`, `target`, or `host`, with a
+  suggestion of which one the context needs;
 - a `wellformed` warning left undecided; and
 - `Compilation.caller` outside a default argument.
 
@@ -858,8 +982,6 @@ specification, or a compiler architecture.
 Future work owns:
 
 - source generation at compile time;
-- compile-time parameters, meaning arguments whose values a function body uses
-  while compiling, together with the rest of generics;
 - a `pure` promise and any broader effect tracking;
 - the complete reflection surface;
 - the exact spelling for asking whether a hook point has fulfillments;

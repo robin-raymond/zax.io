@@ -7,7 +7,7 @@
 | Applies To | Finite binary-scaled fixed-point specializations of Zax integers; not a formal grammar or specification |
 | Implementation State | Not established by this repository |
 | Owns | Fixed-point mental model; coefficient width and bounded fractional-bit position; exact and Q names; range, quantum, initialization, literals, type-owned mathematical constants, arithmetic, full-precision product, bitwise behavior, numeric conversion, local representation relationships, costs, diagnostics, and portability |
-| Does Not Own | The `F = 0` integer surface ([integers](integers.md)); cross-family endian semantics ([endianness](endianness.md)); aggregate compatibility and coercive conversion syntax ([structural shapes and compatibility](structural-shapes-and-compatibility.md)); exact generic/factory syntax; complete operator forms; or real-literal source and raw-pattern grammar ([literal source and operators](literal-source-and-operators.md)) |
+| Does Not Own | The `F = 0` integer surface ([integers](integers.md)); cross-family endian semantics ([endianness](endianness.md)); aggregate compatibility and coercive conversion syntax ([structural shapes and compatibility](structural-shapes-and-compatibility.md)); generic declarations ([generics](generics.md)) and the numeric factory interface; complete operator forms; or real-literal source and raw-pattern grammar ([literal source and operators](literal-source-and-operators.md)) |
 | Source / Provenance | Legacy numeric input in [basics](../basics.md), refined against current integer, endian, structural, literal, and operator design |
 
 ## Start with a coefficient and a fixed scale
@@ -138,8 +138,9 @@ U16F0 = U16
 ```
 
 This is one intrinsic family relationship, not a conversion between two
-coincidentally represented types. The integer owner defines the complete `F = 0`
-surface.
+coincidentally represented types. The intrinsic family normalizes `F = 0` to the
+integer specialization before comparing identities, so both spellings name one
+type. The integer owner defines the complete `F = 0` surface.
 
 ### Q aliases
 
@@ -369,7 +370,9 @@ myFull := myLeft full precision product myRight
 
 For two like `W`, `F` operands, the associated result has sufficient coefficient
 width for the full product and `2F` fractional bits, conceptually `2W`, `2F`.
-Exact generic associated-type declaration syntax remains future work.
+Choosing that result is a type-returning operation, so it runs during
+compilation and generic prototypes may use it; see
+[types are compile-time values](generics.md#types-are-compile-time-values).
 
 ### Division
 
@@ -587,7 +590,7 @@ I16 has no fractional values; use optional or explicitly rounded conversion
   change values, layout, source validity, and compatibility.
 
 This document is current conceptual design, not formal grammar, a CPU-provider
-format, an ABI/wire contract, or an implementation mapping. Exact generic
-declarations, reflection APIs, rounded-conversion wording, and exhaustive
+format, an ABI/wire contract, or an implementation mapping. The numeric
+factory interface, reflection APIs, rounded-conversion wording, and exhaustive
 protected operator forms remain future focused work and must preserve the
 programmer-visible behavior established here.

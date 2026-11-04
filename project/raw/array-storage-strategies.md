@@ -244,7 +244,8 @@ element type, dimensions, and length contract.
 
 It can change the complete owning representation and therefore affects:
 
-- self-contained `size of`;
+- self-contained size, as reported by `active size of` and its `target` and
+  `host` forms;
 - layout and structural compatibility;
 - operation availability;
 - cost;
@@ -378,7 +379,7 @@ Future work must define:
 ## Default selection through `___`
 
 The declaration must resolve a storage representation profile before owning
-layout and `size of` become fixed. For a provider-backed profile, the execution
+layout and size become fixed. For a provider-backed profile, the execution
 context may select a compatible provider instance from a request containing:
 
 - slot size and gross alignment;
@@ -516,7 +517,7 @@ That work must:
 2. preserve the raw-byte versus element-lifetime ownership split;
 3. define shared provider and unique array-handle ownership;
 4. define static and erased parameter behavior;
-5. keep `size of` limited to self-contained storage;
+5. keep size queries limited to self-contained storage;
 6. expose operation and validity costs;
 7. disposition all cross-owner consequences above;
 8. move accepted behavior into current array, pointer, context, invocation,

@@ -7,7 +7,7 @@
 | Applies To | Native representation classification; integer, fixed, floating, and legacy character selectors; support classes; machine-word families; pointer/size capacities; mapping stability; metadata; and fallback |
 | Owns | Preserved CPU-provider format, versioning, selection, support, cost, runtime-hardware, X87, legacy character profile, and fallback requirements |
 | Does Not Own | Accepted scalar semantics, CPU-profile source format, ABI contracts, or implementation algorithms |
-| Source / Provenance | Current integer, fixed-point, floating-point, endian, and native/compiler-host/target execution design; work item `034` provider-partial deferral |
+| Source / Provenance | Current integer, fixed-point, floating-point, endian, and native/compiler-host/target execution design; work item `034` provider-partial deferral; work item `036` layout queries in compile-time decisions |
 
 Current programmer-visible integer roles, ranges, and profile constraints are
 owned by [Zax integers](../../language/integers.md). Fixed-point formats are
@@ -303,9 +303,82 @@ compile-time code so source can inspect:
 - language and profile size limits.
 
 A selected branch that uses an unsupported operation still receives an
-availability diagnostic. Layout queries (`size of`, `alignment of`, `offset of`)
+availability diagnostic. Layout queries (size, alignment, and offset, each
+named for `active`, `target`, or `host`)
 must also define how unusual widths and padding participate when the compiler
 host and target differ, and how a mismatch is diagnosed.
+
+## Environment-explicit layout queries
+
+Current design (see
+[layout queries name their environment](../../language/compile-time-code.md#layout-queries-name-their-environment))
+requires every layout query to name its environment. There is no plain
+`size of`, `alignment of`, or `offset of`:
+
+- `active size of`, `active alignment of`, and `active offset of` ask about the
+  world running the code: the target in the program, the compiler host while
+  compiling;
+- `target ...` asks about the shipped program, wherever the code runs; and
+- `host ...` asks about the build machine, wherever the code runs.
+
+```zax
+makeBuffer$ final : (UseType : type)(result : Byte[])(count : Integer) = {
+  return allocateBytes(count * active size of UseType)   // memory for whichever world runs this
+}
+
+isSmall final : (result : Boolean)(UseType : type) = {
+  return target size of UseType <= 16                   // a fact about the shipped program
+}
+```
+
+### How the rule was reached
+
+This records the reasoning so later work does not reopen it by accident.
+
+1. **First form: explicit only in decisions.** Plain `size of` meant the
+   active environment; only compile-time decisions (constraints, `requires`
+   clauses, compile-time defaults, `if compile` and `switch compile`
+   conditions, and functions they call) had to name an environment.
+2. **Exceptions for "obviously fixed" types were rejected.** Treating a
+   `Target.Integer` query as already explicit made the `Target.` path special
+   by name alone. Treating `U32` as fixed relied on layout agreeing between the
+   build machine and target. Layout facts (padding, alignment, storage size,
+   byte order) come from each environment's platform description. They may
+   agree for one pairing and differ for another, and a profile's claim that a
+   value "never changes" is configuration, not language meaning. No reliable
+   signal of fixed layout exists, so no exception was kept.
+3. **A decision list was not enough.** A compile-only function returning a type
+   (`selectBuffer`) was a decision the list missed. Worse, a compile-time
+   function could compute `size of` with the build machine's layout, return
+   it, and have the value used far away in a decision about the target. The
+   danger is created where the fact is computed, not where it is used.
+4. **Final rule: no implied environment anywhere.** Requiring `active` for
+   "whichever world runs this" makes every query explicit at the point it is
+   written, removes the need for any list, and keeps shared helpers correct.
+   `active` used inside a decision means the compiler host; it is allowed
+   because the choice is written, and a lint may point it out.
+
+What the rule still does not catch: an explicit `host` value carried into a
+decision about the target. The rule makes its origin visible where it is
+made. Catching the flow itself would require sizes to carry their environment
+in their type, for example `target size of` returning a target-specific count
+type that does not compare with a host one without an explicit step. That is
+recorded below as the complete solution, not designed now.
+
+Still to design here:
+
+- the placement of `active`, `target`, and `host` in the binary offset query,
+  which the catalog currently writes as a prefix;
+- environment-carrying size types, as described above;
+- the complete set of environment-dependent facts the rule covers, including
+  byte order, storage envelope, padding, and definition facts that differ by
+  environment, such as the logical width of `Integer`;
+- an environment passed to a helper as a compile-time input, so one helper can
+  serve both `target` and `host` purposes without being written twice;
+- how each query behaves for unusual widths and padding when the host and
+  target differ; and
+- the exact diagnostic for a query written without an environment, including
+  which environment it suggests.
 
 ## Activation and retirement
 

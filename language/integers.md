@@ -7,7 +7,7 @@
 | Applies To | Fundamental finite integer types and their programmer-visible behavior; not a formal grammar or specification |
 | Implementation State | Not established by this repository |
 | Owns | Integer choice and mental model; the `F = 0` intrinsic-family branch; exact and profile-selected families; canonical names and namespaces; logical width, range, signed representation, concrete endianness, storage, padding, and alignment; software emulation; integer identity types and conversion relationships; count/storage/counterpart/delta/distance associated types; arithmetic build contracts; costs, diagnostics, portability, and source stability |
-| Does Not Own | Fixed-point `F > 0` behavior ([fixed-point scalars](fixed-point-scalars.md)); cross-family endian operations ([endianness](endianness.md)); uncommitted integer evaluation and realization ([integer literals and realization](integer-literals.md)); literal prefix and raw-pattern source ([literal source and operators](literal-source-and-operators.md)); string/character identity and encoding behavior ([strings and characters](strings-and-characters.md)); general identity declarations ([identity types](identity-types.md)); enum members and policies ([enums](enums.md)); complete integer operations ([integer operator catalog](integer-operator-catalog.md)); general forms and precedence ([operator catalog](operator-catalog.md)); shared operator selection ([operators](operators.md)); or deferred generic-factory and CPU-profile mechanisms |
+| Does Not Own | Fixed-point `F > 0` behavior ([fixed-point scalars](fixed-point-scalars.md)); cross-family endian operations ([endianness](endianness.md)); uncommitted integer evaluation and realization ([integer literals and realization](integer-literals.md)); literal prefix and raw-pattern source ([literal source and operators](literal-source-and-operators.md)); string/character identity and encoding behavior ([strings and characters](strings-and-characters.md)); general identity declarations ([identity types](identity-types.md)); enum members and policies ([enums](enums.md)); complete integer operations ([integer operator catalog](integer-operator-catalog.md)); general forms and precedence ([operator catalog](operator-catalog.md)); shared operator selection ([operators](operators.md)); generic declarations and instantiation ([generics](generics.md)); or the deferred integer-factory interface and CPU-profile mechanisms |
 | Source / Provenance | Legacy [basics](../basics.md) and retired root casting-page integer evidence, refined against current operator, endian, qualifier, declaration, and identity design |
 
 ## Choosing an integer says what the value is for
@@ -96,17 +96,19 @@ specialization is **sealed** to added storage: its representation is exactly
 its logical bits and padding.
 
 ```zax
-// Generic syntax remains future work.
 MyI57 :: alias type Integer$(
-  LogicalBits = 57,
-  Signedness = Sign.Signed,
-  FractionalBits = 0,
-  Endianness = Endian.Little
+  LogicalBits: 57,
+  Signedness: Sign.Signed,
+  FractionalBits: 0,
+  Endianness: Endian.Little
 )
 ```
 
 `MyI57` is another name for a concrete 57-bit intrinsic specialization. It is
-not a user-implemented integer and is no longer generic after realization.
+not a user-implemented integer; it is one concrete type.
+The intrinsic family `Integer$` shares its name with the non-generic `Integer`
+role; the spellings never collide. See
+[generics](generics.md#sharing-a-name-with-a-non-generic-type).
 
 Zax does not predefine every possible `I<W>` and `U<W>` name. Programmers name
 unusual widths deliberately.
@@ -295,7 +297,11 @@ the declared software fallback.
 
 Advanced bounded selection remains future integer-factory work. The factory
 will consider minimum width, maximum width, signedness, preference,
-environment, and fallback, then return one exact specialization.
+environment, and fallback, then return one exact specialization. Such a
+selection can be written as a type-returning function that computes an
+`Integer$` instantiation; see
+[building types from computed values](generics.md#building-types-from-computed-values).
+The factory interface itself remains future work.
 
 ### Conventional CPU-relative family
 
@@ -452,7 +458,7 @@ plus metadata and alignment
 ```
 
 An ordinary iterable `count` example returns ordinary `IndexSize`. Near/far and
-future generic iterables must use a count identity that the destination array
+generic iterables must use a count identity that the destination array
 can accept explicitly; representation coincidence never creates a silent
 cross-domain conversion. Complete array behavior is defined by
 [Zax arrays and slices](arrays-and-slices.md#counts-storage-extent-and-allocation).
@@ -513,8 +519,8 @@ myDefault := h'FF'  // UInteger
 myByte : U8 = h'FF' // U8
 ```
 
-Generic/compile-time processing selects one concrete result prototype before
-the literal body runs. The executed result is never an anonymous or typeless
+Compile-time processing selects one concrete result prototype before the
+literal body runs. The executed result is never an anonymous or typeless
 integer.
 
 An exact integer type also supplies raw logical-pattern literals:
@@ -620,7 +626,7 @@ One-sided roles such as `Word`, `Byte`, `BitCount`, and `UPointer` return an unn
 intrinsic counterpart and intentionally leave the role identity. Regaining the
 role requires explicit admission.
 
-Exact relational-pair declaration syntax remains generic work.
+Exact relational-pair declaration syntax remains future work.
 
 ## Associated count and result types
 
@@ -663,7 +669,15 @@ MyCounterpart :: alias type MyInteger signedness counterpart type
 
 These type-qualified operations use the concrete integer type identity as their
 lookup anchor, return type identities, and perform no runtime receiver
-construction. Exact generic declarations remain future work.
+construction. Because they return types, they run only during compilation, and
+generic prototypes may use them:
+
+```zax
+bitsOf$ final : (UseType : type)(result : UseType bit count type)(value : UseType) = {
+}
+```
+
+See [types are compile-time values](generics.md#types-are-compile-time-values).
 
 ## Integer operations
 
@@ -729,11 +743,18 @@ build-option syntax and category names remain future analysis-control work.
 An integer is the intrinsic family's zero-fractional-bit specialization:
 
 ```text
-I<W> = Integer$(W, Signed, FractionalBits = 0, concrete endianness)
-U<W> = Integer$(W, Unsigned, FractionalBits = 0, concrete endianness)
+I<W> = Integer$(W, Sign.Signed, FractionalBits: 0, concrete endianness)
+U<W> = Integer$(W, Sign.Unsigned, FractionalBits: 0, concrete endianness)
 ```
 
 The [fixed-point owner](fixed-point-scalars.md) defines `F > 0`.
+
+The intrinsic family normalizes its arguments before comparing identities. A
+native or agnostic endianness selector resolves to a concrete endianness, and
+`FractionalBits: 0` is the integer specialization, so argument sets that denote
+the same integer produce one type. Programmer-declared generics have no such
+family-specific normalization; their arguments compare by the ordinary
+[identity rules](generics.md#comparing-arguments).
 
 An integer scalar's safe structural format includes:
 
@@ -874,8 +895,8 @@ constants, and code whose precise overflow boundary is part of its meaning.
 This document is current conceptual design, not formal grammar, an ABI contract,
 a CPU-profile format, or an implementation mapping.
 
-Exact integer-factory syntax, intrinsic-endian generic syntax, relational-pair
-declarations, reflection metadata, CPU-provider files, literal grammar, pointer
+The integer-factory interface, relational-pair declarations, reflection
+metadata, CPU-provider files, literal grammar, pointer
 validity, language- or provider-supplied partials, build-option syntax, and
 foreign correspondence
 remain future work. Those mechanisms must preserve the concrete integer

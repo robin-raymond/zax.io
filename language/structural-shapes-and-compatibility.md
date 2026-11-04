@@ -1475,7 +1475,7 @@ implicit `Integer` members.
 Comparing two owning array leaves considers their element type, dimensions,
 size limits, qualifications, and resolved storage profile. Storage does not
 change logical array identity, but inline versus provider-backed representation
-can change the complete stored shape and `size of`.
+can change the complete stored shape and size.
 
 A storage-erased array reference provides ordinary array operations without
 claiming that the several owning representations have one binary layout. A

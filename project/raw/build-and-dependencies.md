@@ -7,7 +7,7 @@
 | Applies To | Trust, sandboxing, source resolution, immutable identity, provenance, durable builds, and required language support supplied by the toolchain |
 | Owns | Preservation of aligned pressures, threats, required-support and linkage questions, and unresolved mechanisms |
 | Does Not Own | Accepted build/dependency semantics or implementation contracts |
-| Source / Provenance | Work item `001`, Zax purpose and design principles; operator and foundational-support pressure |
+| Source / Provenance | Work item `001`, Zax purpose and design principles; operator and foundational-support pressure; work item `036` instantiation-depth and writable-setting pressure |
 
 ## Aligned pressure
 
@@ -222,6 +222,32 @@ constraints they must meet:
 - **Import versions.** `deprecate` `min` and `max` compare against the version an
   importer requests. This work defines how an import requests a version, and
   should review those two options when it does.
+- **Instantiation depth.** [Generics](../../language/generics.md#limits) sets a
+  compiler-wide default instantiation depth of `4096`, raised per declaration
+  with `[<instantiation-depth=...>]`. Build configuration should be able to
+  set the project-wide default; this work defines that option.
+
+## Writable compilation settings
+
+The maintainer raised the idea that some `Compilation` settings could be
+writable from source, for cases such as raising the instantiation depth for
+one construct, with the compiler restoring the setting when the construct
+ends. For instantiation depth, a directive plus build configuration was
+chosen instead. The idea remains open for other settings.
+
+```zax
+// Illustrative only; not current source.
+compile{
+  Compilation.limits.instantiationDepth = 8192
+}
+```
+
+Concerns to resolve before adopting it:
+
+- every `Compilation` answer is currently a compile-time value; a writable
+  setting would let an answer change between reads;
+- results would depend on the order compile points run in; and
+- one module could change a setting another module relies on.
 
 ## Activation and retirement
 

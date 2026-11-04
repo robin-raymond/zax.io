@@ -27,10 +27,12 @@
 >   [Zax declarations and bindings](language/declarations-and-bindings.md#outward-declarations).
 > - Qualifier defaults are the same everywhere; see
 >   [Zax qualifiers](language/qualifiers.md#defaults-and-resolution).
+> - Compile-time inputs (`[<constant>]`), constraints and `requires`, and
+>   generic candidate selection:
+>   [Zax generics](language/generics.md).
 >
-> The sections below remain deferred: source generation, generic candidate
-> selection (`requires`, `concept`, and compile-time parameters), source and
-> asset inclusion, asynchronous-execution directives, ABI selection, the panic
+> The sections below remain deferred: source generation, source and asset
+> inclusion, asynchronous-execution directives, ABI selection, the panic
 > function, and `lock-free` for `once` values. Their spellings and meanings are
 > not accepted.
 
@@ -84,150 +86,6 @@ value2 = generateSomething1(value2)     // `generateSomething1(value2)` will
 // will not be be evaluated; each input will be converted to a string in
 // an array representing each argument as a single string value in the array
 generateSomething2(value2 * 5, "hello")
-````
-
-
-### `compile` directive
-
-A `compile` directive can be used on input arguments to indicate a value must be pre-evaluated at compile-time or an error will be issued. Any input argument declared with a `compile` directive must also be declared as either `readonly` or `immutable`. Any variadic types are treated as `readonly` or `immutable`.
-
-````zax
-print final : ()([<compile>] ...) = {
-    // ... all input arguments must resolve at compile-time ...
-}
-
-func final : ()(input [<compile>] : Integer readonly) = {
-    // ... `input` argument must resolve at compile-time ...
-}
-
-random1 final [<execute=dual>] : ()() = {
-    // ... this random function can execute at compile-time or runtime ...
-}
-
-random2 final [<execute=target>] : ()() = {
-    // ... this random function can only execute at runtime ...
-}
-
-// capture a runtime only value
-value := random2()
-
-func(5)            // OKAY: `5` value is constant
-func(random1())    // OKAY: `random1` function is allowed to resolves as a
-                   // compile-time constant
-
-func(random2())    // ERROR: `random2` function cannot resolve at compile-time
-func(value)        // ERROR: `value` is runtime only and it is not constant
-
-print(5, "hello", random1())   // OKAY: all values are compile-time constants
-print(random2(), value)        // ERROR: runtime only values cannot become
-                               // compile-time constants
-````
-
-
-### `requires` directive
-
-A `[<requires |=<option>|>]` directive evaluates a code block that follows into a compile-time constant of `true` or `false`. A code block that follows a `requires` directive is executed if it compiles. Failure to compile a code block will result in a code block resolving to `false`. A code block must be capable of running at compile-time.
-
-
-The options for `requires` are as follows:
-* `default` (default if not specified) - a failure to compile a code block resolves to a `false` literal constant
-* `compiles` - if `compiles` is specified then a failure to compile a code block will evaluate to a real compile-time error
-* `error` - if `error` is specified then a failure to compile a code block or a `requires` directive code block returning `false` will evaluate to a real compile-time error
-
-Meta-functions can be selected as a candidate or unselected depending on a `true` or `false` statement being present at the end of a functions declaration. A `[<requires>]` directive can be used in-place of a function's enable or disable boolean to enable or disable a meta-function as a candidate based on a function's arguments. All inputs and outputs are considered captured in a function's context allowing for compile-time reflection of argument types. Any values of input arguments that are not compile-time constants will not be constructed nor destructed and any access to input argument values may cause undefined behaviors. Output arguments are never constructed nor destructed and any access to an output argument may result in undefined behaviors. Any input argument can be checked if it contains a compile-time constant by using a `is host constant` operator.
-
-Intrinsic types sizing and endian encoding are entirely relative to a host system or a target system. Operators exist to specifically query a host system or a target system's sizing and endian encoding. However, a `requires` directive works in a dual mode. A `requires` may be used to evaluate candidate suitability or compile-time evaluation for a target system but a code block actually runs within the context of a host system (and not a target system). As such, system context dependant operators (such as `size of` but not `host size of` nor `target size of`) will evaluate as if they are operating on a target context by default.
-
-
-````zax
-if [<requires>] { return ++value > 2 } {
-    doSomething()
-} else {
-    doSomethingElse()
-}
-
-metaFunction : ()(input :) [<requires>] {
-    // if the size of `input`'s type is smaller than an `Integer` then do
-    // not select this function as a candidate
-    if (size of :input) < (size of Integer)
-        return false
-
-    // check if `input` is a compile-time constant
-    if input is host constant {
-        // safe to examine `input`'s value if it is a compile-time constant but
-        // the `< 0` operation may fail to compile if `input`'s type does
-        // not define an appropriate less-than operator
-        if input < 0
-            return false
-        return true
-    }
-    return true
-} = {
-    // ...
-}
-
-/*
-
-// if `metaFunction`'s `requires` block evaluates to `true` the function
-// becomes selectable as a candidate as the `requires` code block becomes
-// a `true` literal:
-metaFunction : ()(input :) true = {
-    // ...
-}
-
-// if `metaFunction`'s `requires` block evaluates to `false` the function
-// is not selectable as a candidate as the `requires` code block becomes
-// a `false` literal:
-metaFunction : ()(input :) false = {
-    // ...
-}
-
-*/
-````
-
-
-### `concept` directive
-
-A `concept` directive has two usages: `[<concept>]` and `[<concept=<function>>]`. A `concept` is similar to a `requires` directive but instead causes a `final` function to be treated as selection criteria for a meta-function or meta-type when used in meta-programming. A `concept` directive will evaluate a `concept` function whenever a `concept` function is declared in conjunction with a meta-function or meta-type. Inside a `concept` function, code is executed at compile-time to evaluate if a meta-type is compatible with an input or output argument. A `concept` function must return `true` or `false` to indicate if a meta-type is compatible with a `concept`. If a `concept` function fails to compile then a `concept` function will be treated as if it returned a `false`. A `[<compiles=error>]` or `[<requires=error>]` can be used inside a `concept` function to intentionally cause an error condition.
-
-The form `[<concept>]` is declared on a `final` function indicating a function is to be treated as a concept. The second form `[<concept=<function>>]` is declared on a meta-type or a meta-function to indicate a type should use a `concept` function to determine if a type meets the selection criteria necessary (for a given meta-type or meta-function).
-
-Functions using a `concept` have a single input argument representing a type to be evaluated and must return `true` (or a meta-type or meta-function will not be selected). A variable passed into a meta-function is not initialized, never constructed, and never destructed. An input argument is a placeholder to evaluate a type's properties inside a `concept` function. A `concept` directive can use `if` clauses with a `compiles` directive to further evaluate compile-time checks without executing of any statements.
-
-Intrinsic types sizing and endian encoding are entirely relative to a host system or a target system. Operators exist to specifically query a host system or a target system's sizing and endian encoding. However, a `concept` directive works in a dual mode. A `concept` may be used to evaluate candidate suitability or compile-time evaluation for a target system but a code block actually runs within the context of a host system (and not a target system). As such, system context dependant operators (such as `size of` but not `host size of` nor `target size of`) will evaluate as if they are operating on a target context by default.
-
-
-````zax
-IsSelectable$(Type) final : (result : Boolean)(ignored : $Type) [<concept>] = {
-    // the type must support these operators or the type will not be selected
-    if ![<compiles>] {
-        // code must not execute as accessing `ignored` as a value may
-        // cause undefined behaviors
-        ++ignored
-        --ignored
-        ignored += 5
-        ignored -= 5
-    } return false
-
-    // the type must be larger than the size of a `U32` or it is not selectable
-    if size of $Type > size of U32
-        return false
-
-    return true
-}
-
-myFunc$(UseSimpleType [<concept=IsSelectable>]) final : ()(bar : $UseSimpleType) = {
-    // ...
-}
-
-myFunc final : ()(bar : ) = {
-    // ...
-}
-
-myFunc(5 as U8)     // first `myFunc` is used as it meets the most specific
-                    // selection criteria
-myFunc(5 as U64)    // last `myFunc` used as the first `myFunc` is not a
-                    // a selectable candidate
 ````
 
 

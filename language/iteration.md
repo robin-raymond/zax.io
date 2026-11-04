@@ -7,7 +7,7 @@
 | Applies To | Programmer-facing `each in` and `each from` behavior; not a formal grammar, collection contract, or implementation specification |
 | Implementation State | Not established by this repository |
 | Owns | The `each` mental model; direct and cursor-driven traversal; header phases and entry bindings; positional and named roles; compiler-known array, enum, and structural traversal; cursor acquisition, value production, progression, erasure, direct re-entry to a live current entry, and active-`each` access; traversal costs, diagnostics, mutation responsibilities, and source stability |
-| Does Not Own | Shared flow-transfer and unwinding rules ([core flow control](core-flow-control.md)); general token and layout rules ([source structure](source-structure.md)); collection-specific place stability ([lifetimes and references](lifetimes-and-references.md)); complete reflection or type-declaration traversal; generic constraint syntax; or compiler lowering |
+| Does Not Own | Shared flow-transfer and unwinding rules ([core flow control](core-flow-control.md)); general token and layout rules ([source structure](source-structure.md)); collection-specific place stability ([lifetimes and references](lifetimes-and-references.md)); complete reflection or type-declaration traversal; constraint syntax ([generics](generics.md#constraints)); or compiler lowering |
 | Source / Provenance | Legacy [flow control](../flow-control.md) together with current array, enum, flow, declaration, qualifier, lifetime, safety, operator, and transfer designs |
 
 ## Start with one entry at a time
@@ -411,9 +411,11 @@ receiver-owned phrases:
 The first three support ordinary traversal. The erase operations are optional
 capabilities.
 
-A concrete cursor needs no generic concept at a concrete `each` site. The
-compiler checks the selected type's exact operations directly. Future generic
-constraints will express this already-defined protocol for an unknown type.
+A concrete cursor needs no constraint at a concrete `each` site. The compiler
+checks the selected type's exact operations directly. Generic code over an
+unknown cursor type can state this protocol with a
+[`requires` clause](generics.md#constraints); a standard set of protocol
+constraints for cursors and iterables remains future work.
 
 ### Optional exact count
 
@@ -901,7 +903,7 @@ Representative diagnostics distinguish:
 
 Diagnostics name the selected `each` target, source family, binding role, or
 missing cursor operation. They do not suggest informal method-name conventions
-or a generic concept when a concrete protocol operation is absent.
+or a generic constraint when a concrete protocol operation is absent.
 
 ## Formatting
 
@@ -932,7 +934,7 @@ The language preserves these distinctions:
 
 - `in` is direct compiler-known traversal;
 - `from` is cursor-driven traversal;
-- adding a generic constraint later does not reinterpret existing concrete
+- a generic constraint over cursors does not reinterpret existing concrete
   cursors;
 - `#` and `# :` guarantee that cursor value production is not requested;
 - a present cursor always designates a real entry;
@@ -952,7 +954,7 @@ grammar, ABI, conformance contract, or compiler lowering.
 
 Still future:
 
-- generic syntax for constraining an unknown iterable or cursor type;
+- a standard set of protocol constraints for unknown iterable and cursor types;
 - the reflection payload and type-declaration traversal;
 - generic collection, proxy, range-value, and non-array view catalogs;
 - generator and coroutine production;

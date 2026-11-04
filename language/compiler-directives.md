@@ -48,7 +48,7 @@ them follows what the form does:
 | --- | --- | --- |
 | Directive, `[<name>]` | Describes a construct, a region, or a point to the compiler | `[<inline>]`, `[<deprecate>]`, `[<likely>]` |
 | Source enclosure, `word<category>{ ... }` | Changes how a visibly bounded piece of source is checked or authorized. It creates no scope and no value. | `intent<...>{ }`, `unsafe<...>{ }`, `bare{ }` |
-| Keyword or compile-time expression | Computes or asks something and yields a value, or changes what a declaration means | `compile`, `wellformed{ }`, `size of`, `outward` |
+| Keyword or compile-time expression | Computes or asks something and yields a value, or changes what a declaration means | `compile`, `wellformed{ }`, `target size of`, `outward` |
 
 So `wellformed{...}` is an expression, because it yields a `Boolean`, and
 `outward` is a declaration keyword, because it changes where a name belongs.
@@ -105,7 +105,8 @@ if cacheHit [<likely>] {           // slot: inside a construct, at a defined pla
   declaration: the declaration keeps its own line and indentation.
 - **Slot.** The directive sits at a defined position inside a construct: after
   an `if`, `else if`, or `else` header for one branch, after a `case` or
-  `default` test, or after `final` in a function declaration.
+  `default` test, after `final` in a function declaration, or after a
+  parameter's name.
 
 Because a blank line separates unattached from attached, a blank line between
 a directive and code changes its meaning. Formatters must preserve the blank
@@ -229,7 +230,7 @@ Every directive is one of three kinds:
 | --- | --- | --- |
 | Hint | Suggests an optimization. A compiler may ignore it, and the program's meaning never changes. | `inline` levels, `likely`, `unlikely` |
 | Unchecked promise | States a fact the compiler may rely on. Where a check exists, it is on by default; with the check disabled, breaking the promise is undefined behavior. | `always`, `never`, `void`, disabling a panic category |
-| Semantic control | Changes what the program means | `execute`, `deprecate`, `export`, the Nothing policy, layout |
+| Semantic control | Changes what the program means | `execute`, `constant`, `deprecate`, `export`, the Nothing policy, layout |
 
 An unchecked-promise directive is itself the visible marker of the promise. It
 needs no separate `unsafe` enclosure. Whether a check exists is controlled by
@@ -341,6 +342,8 @@ directives.
 | --- | --- | --- | --- |
 | `execute` | Semantic control | Slot after `final` | [Compile-time code](compile-time-code.md#letting-a-function-decide-execution-policies) |
 | `inline` | Hint | Slot after `final` | [Function invocation](function-invocation.md#inlining-hints) |
+| `constant` | Semantic control; requires the argument to be a compile-time value and is part of the prototype | Slot after a parameter's name | [Generics](generics.md#compile-time-inputs-in-the-ordinary-input-list) |
+| `instantiation-depth` | Semantic control; sets the maximum nesting of a generic's own instantiations, default and guaranteed minimum `4096` | Slot after `final` in a generic declaration | [Generics](generics.md#limits) |
 | `likely`, `unlikely` | Hint | `if`/`else` branch slot, `case`/`default` slot | [Core flow control](core-flow-control.md#branch-hints-and-path-promises), [switch](switch.md#case-hints-and-promises) |
 | `always`, `never` | Unchecked promise | `if`/`else` branch slot, `case` slot; `never` also unattached | [Core flow control](core-flow-control.md#branch-hints-and-path-promises), [switch](switch.md#case-hints-and-promises) |
 | `deprecate` | Semantic control | Attached; range | [This page](#deprecating-declarations) |

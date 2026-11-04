@@ -7,7 +7,7 @@
 | Applies To | Callable candidate comparison beyond the currently accepted fixed-arity partial-order baseline |
 | Owns | Naturally unselectable declaration pressure, cross-axis comparison, exact-prototype resolution, generic-specialization comparison, generated-versus-declared ambiguity, source compatibility, activation pressure, and retirement criteria |
 | Does Not Own | Accepted current invocation behavior; `switch`/`case` or pattern-like selection; generic syntax; or runtime dispatch implementation |
-| Source / Provenance | Transfer-stance review of value/reference, qualification, stance, result, generated-family, and exact-prototype selection; work item `015` minted-implementation refinement; work item `020` composition constraints |
+| Source / Provenance | Transfer-stance review of value/reference, qualification, stance, result, generated-family, and exact-prototype selection; work item `015` minted-implementation refinement; work item `020` composition constraints; work item `036` generic selection |
 
 ## Why this input exists
 
@@ -380,6 +380,14 @@ as terminal.
 
 ## Generic specializations
 
+[Zax generics](../../language/generics.md#specializations) now owns how
+generic candidates are selected: a failed constraint is ordinary
+non-viability; type arguments are worked out exactly, keeping qualifiers and
+reference shape; a non-generic candidate beats a generic one only between
+equally good matches; and generic declarations rank by the term-set rule.
+What remains here is the comparison with explicit qualifier generics, which
+are still future:
+
 Future explicit qualifier generics may produce exact demanded specializations:
 
 ```zax
@@ -394,12 +402,11 @@ process$(Mutability, PlaceStance) final : (
 
 Selection work must decide:
 
-- when qualifier or type arguments are inferred;
-- how constraints affect viability;
-- whether a concrete declaration is better than an inferred specialization;
-- how several valid specializations compare;
-- when an invalid specialization remains latent;
-- and how diagnostics expose inferred metadata.
+- when qualifier arguments are inferred;
+- how qualifier-generic specializations fit the term-set ranking and the
+  rest of the cross-axis comparison;
+- when an invalid qualifier specialization remains latent;
+- and how diagnostics expose inferred qualifier metadata.
 
 Ordinary qualifier omission never creates genericity.
 

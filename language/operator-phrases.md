@@ -865,8 +865,9 @@ a formal grammar, a compatibility contract, or an implementation mapping.
 Complete source-reflection representation, richer phrase patterns,
 owner-authorized external phrase extensions, complete literal realization, the
 final spelling of a keyword-neutral source enclosure, exact diagnostic
-identifiers, and generic or alias type-qualified discovery remain focused future
-work.
+identifiers, and alias type-qualified discovery remain focused future work.
+Type-qualified discovery inside a generic type's body is defined by
+[generics](generics.md#inside-a-generic-types-body).
 
 For exact forms and precedence see the
 [operator catalog](operator-catalog.md); for the shared operator model see

@@ -671,13 +671,22 @@ forms. So are these query forms:
 | Exact form | Receiver/shape | Broad behavior | Deferred refinement |
 | --- | --- | --- | --- |
 | `type of` | Pre-unary expression | Concrete selected static type without execution | Anonymous/qualified identity, reflection |
-| `size of` | Pre-unary type-identity operand | Byte size in active execution environment | Complete layout/context |
-| `alignment of` | Pre-unary type-identity operand | Required alignment in active environment | Complete layout/context |
-| `offset of` | Binary member path and containing type | Byte offset to member path | Member-designator grammar/layout |
+| `active size of` | Pre-unary type-identity operand | Byte size in the environment running the code | Complete layout/context |
+| `target size of` | Pre-unary type-identity operand | Byte size in the target environment | Complete layout/context |
+| `host size of` | Pre-unary type-identity operand | Byte size in the compiler-host environment | Complete layout/context |
+| `active alignment of` | Pre-unary type-identity operand | Required alignment in the environment running the code | Complete layout/context |
+| `target alignment of` | Pre-unary type-identity operand | Required alignment in the target environment | Complete layout/context |
+| `host alignment of` | Pre-unary type-identity operand | Required alignment in the compiler-host environment | Complete layout/context |
+| `active offset of`, `target offset of`, `host offset of` | Binary member path and containing type | Byte offset to member path in the named environment | Member-designator grammar/layout |
 | `is constant` | Post-unary expression | Whether the expression is a [compile-time value](compile-time-code.md#compile-time-values) | None; the rule is defined there |
 | `is final` | Post-unary type-use query | Underlying place final/varying truth | Qualifier reflection |
 | `is immutable` | Post-unary value/type-use query | Value-lifetime mutability truth | Qualifier reflection |
 | `is readonly` | Post-unary access/type-use query | Access capability truth | Qualifier reflection |
+
+Every layout query names its environment; there is no plain `size of`,
+`alignment of`, or `offset of`. Why, and how to choose among `active`,
+`target`, and `host`, is explained in
+[layout queries name their environment](compile-time-code.md#layout-queries-name-their-environment).
 
 A type-information operation is planned but has no exact words yet. It will
 return immutable, readonly, final metadata about a concrete type identity.

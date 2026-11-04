@@ -7,7 +7,7 @@
 | Applies To | Programmer-facing intrinsic arrays, array expressions, indexing, slicing, capacity, layout, and element lifetime; not a formal grammar or specification |
 | Implementation State | Not established by this repository |
 | Owns | Fixed and resizable array identities; logical length and usable capacity; array expressions and inference; intrinsic index and splice behavior; borrowed slices; direct splice mutation; element-place stability; programmer-visible storage selection and capabilities; array transfer and joining; storage-erased array references; array parameter behavior; array-specific costs, diagnostics, reflection facts, and future boundaries |
-| Does Not Own | General construction packets and lifecycle machinery ([construction, replacement, and destruction](construction-and-destruction.md)); reusable reference lifetimes ([lifetimes and references](lifetimes-and-references.md)); pointer ownership and arenas ([pointers, allocation, and arenas](pointers-and-arenas.md)); exact array storage-provider/handle protocols; shared operator and mixfix selection ([operators](operators.md), [mixfix operators](mixfix-operators.md)); general traversal protocol behavior ([iteration](iteration.md)); qualifier meaning ([qualifiers](qualifiers.md)); transfer-stance meaning ([transfer stances](transfer-stances.md)); general integer roles ([integers](integers.md)); general structural transformation ([structural shapes and compatibility](structural-shapes-and-compatibility.md)); runtime string APIs; user-defined generics; or implementation layout and lowering |
+| Does Not Own | General construction packets and lifecycle machinery ([construction, replacement, and destruction](construction-and-destruction.md)); reusable reference lifetimes ([lifetimes and references](lifetimes-and-references.md)); pointer ownership and arenas ([pointers, allocation, and arenas](pointers-and-arenas.md)); exact array storage-provider/handle protocols; shared operator and mixfix selection ([operators](operators.md), [mixfix operators](mixfix-operators.md)); general traversal protocol behavior ([iteration](iteration.md)); qualifier meaning ([qualifiers](qualifiers.md)); transfer-stance meaning ([transfer stances](transfer-stances.md)); general integer roles ([integers](integers.md)); general structural transformation ([structural shapes and compatibility](structural-shapes-and-compatibility.md)); runtime string APIs; user-defined generics ([generics](generics.md)); or implementation layout and lowering |
 
 ## Start with an ordinary array
 
@@ -93,8 +93,9 @@ The slice can remember a narrower window, but it cannot expand beyond the
 elements it was originally allowed to view. The array must remain alive, and
 operations that move or remove viewed elements can invalidate the slice.
 
-`T[N]`, ranged arrays, and `T[]` slices are built into Zax. Their syntax does
-not establish how programmers declare general generic types.
+`T[N]`, ranged arrays, and `T[]` slices are built into Zax. Programmers declare
+their own generic types with a `$` list, as described by
+[generics](generics.md#generic-types-and-other-generic-declarations).
 
 ## Array expressions
 
@@ -1320,8 +1321,8 @@ call. Narrowing that temporary does not change a separately named caller slice.
 These queries do not report the same number:
 
 ```zax
-size of Integer[5]
-size of Integer[5] &
+active size of Integer[5]
+active size of Integer[5] &
 ```
 
 The first reports the self-contained owning representation selected for creating
@@ -1337,7 +1338,7 @@ report the size of a newly created value under its resolved storage profile. It
 cannot recover the actual owning representation erased by an already supplied
 unconstrained reference.
 
-Zax has no current `full storage size of` operation. Provider-specific APIs may
+Zax has no current full-storage size query. Provider-specific APIs may
 report external physical use separately.
 
 ## Traversal
@@ -1613,7 +1614,8 @@ Still future:
 - explicit storage-change source;
 - exact optional/reporting callable names;
 - weaker suggested iterable-count capabilities;
-- generic iterable and array constraints;
+- a standard set of iterable and array protocol constraints, written with
+  [`requires`](generics.md#constraints);
 - complete runtime string mutation and builder APIs;
 - exact reflection API syntax;
 - SIMD, MIMD, parallel traversal, and vectorization contracts;
