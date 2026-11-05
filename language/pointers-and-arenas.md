@@ -1309,7 +1309,8 @@ engine : Engine * strong = car.engine // error: a member place is not an owner
 followed by the members it walks through, not a value computed first and then
 passed in. Only a few Zax operations take paths, including `inner`, the
 [outer-cast forms](composition.md#outer-casting-to-an-immediate-container), and
-`offset of`. Programmers cannot write operators that take paths.
+the offset queries such as `target offset of`. Programmers cannot write
+operators that take paths.
 
 The path starts at a pointer and continues through direct resident members:
 

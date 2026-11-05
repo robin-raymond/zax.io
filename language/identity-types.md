@@ -81,7 +81,9 @@ Diagnostics may retain the alias spelling when that helps explain source:
 MyShortName (alias of SomeLongTypeName)
 ```
 
-That presentation does not make the alias another type.
+That presentation does not make the alias another type. In a type comparison,
+an alias equals its target while an identity type never equals its underlying
+type; see [generics](generics.md#comparing-arguments).
 
 ### Alias property overlays do not create identity
 
@@ -172,6 +174,16 @@ MyDocumentHandle :: identity restricted opaque type Integer
 
 There is no omission default for either choice. Admission and exposure state
 consequential intent.
+
+An identity declaration may take a `$` list, making a family of identity
+types, one per argument set:
+
+```zax
+MyHandle$(Underlying : type) :: identity restricted opaque type Underlying
+```
+
+Each instantiation is its own identity. Generic declarations are defined by
+[generics](generics.md#generic-types-and-other-generic-declarations).
 
 ### Original definition body and completion
 
@@ -643,8 +655,9 @@ These are compatibility events, not invisible implementation choices.
 This document is current conceptual design, not formal grammar, a complete
 layout/ABI contract, or an implementation mapping.
 
-Future work owns language- and provider-supplied partials, generic identity
-factories, and reflection APIs. [Structural shapes and compatibility](structural-shapes-and-compatibility.md),
+Future work owns language- and provider-supplied partials and reflection APIs.
+Generic identity types are defined by
+[generics](generics.md#generic-types-and-other-generic-declarations). [Structural shapes and compatibility](structural-shapes-and-compatibility.md),
 [current composition](composition.md), and
 [current enum behavior](enums.md) preserve the explicit identity boundary and
 admission/exposure choices defined here.

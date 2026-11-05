@@ -101,11 +101,36 @@ packet, just as the same packet would initialize a declaration. Writing
 constructs. See
 [constructing a result later](function-invocation.md#opt-in-result-initialization).
 
-Write each declaration for one intended destination type. A type parameter slot
-cannot yet restrict which types a caller may name, so the declaration above
-would also be selected for some unrelated `DestinationType`. It would then fail
-to compile if that type has no `degrees` member. Restricting accepted type
-arguments is future generic work.
+A plain `type` slot accepts any type, so the declaration above is also
+selected for an unrelated destination such as `String`, and then fails inside
+its body. A [constraint](generics.md#constraints) states which destinations the
+conversion accepts:
+
+```zax
+isTemperature final : (result : Boolean)(UseType : type) = {
+  return UseType == Fahrenheit
+}
+
+Celsius :: type {
+  degrees : Binary64
+
+  operator binary 'as' final : (
+    result : DestinationType
+  )(
+    DestinationType : isTemperature
+  ) readonly = {
+    result .= [{
+      .degrees = degrees * 9.0 / 5.0 + 32.0
+    }]
+  }
+}
+
+display := boiling as Fahrenheit   // accepted
+label := boiling as String         // error: no viable as; isTemperature(String) is false
+```
+
+The constraint lists each destination the body can produce. A destination it
+rejects never reaches the body, and the error names the constraint.
 
 A declaration may name a pointer or reference type as its destination. The
 result then follows the ordinary rules for
@@ -253,8 +278,8 @@ disposes the allocation its control block records. Viewing a `Car` allocation
 as a `Truck` does not make release destroy a `Truck`.
 
 A blockless `unique` pointer may also change its pointee type. Whether that is
-valid depends on the program; the compiler cannot tell, and the `unsafe`
-spelling says so. Which type's destruction runs when a retyped blockless
+valid depends on the program. The compiler cannot tell, which is why the form
+requires `unsafe`. Which type's destruction runs when a retyped blockless
 `unique` releases is not yet specified. Code that retypes one takes
 responsibility for correct disposal.
 

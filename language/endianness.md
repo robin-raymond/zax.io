@@ -47,9 +47,11 @@ The endianness dimension participates in intrinsic type identity. Equal value
 width and equal numeric format do not make little- and big-endian
 specializations interchangeable.
 
-A selector described as native or "agnostic" can appear while a profile or generic
+A selector described as native or "agnostic" can appear while a profile or
 factory is choosing a type. It resolves to `Little` or `Big` before the concrete
-specialization exists. No instance changes endianness at runtime.
+specialization exists, so it never yields a distinct instantiation: a native
+selector and the concrete endianness it resolves to name one type. No instance
+changes endianness at runtime.
 
 ## Active and absolute names
 
@@ -263,9 +265,11 @@ Diagnostics should distinguish:
 This document is current conceptual design, not a formal specification, layout or
 ABI contract, serialization framework, or implementation mapping.
 
-Exact intrinsic generic syntax, profile files, representation-operation words,
-ABI correspondence, serialization, and complete compile-time-context selection
-remain focused future work.
+The intrinsic families are written with ordinary generic syntax, such as
+`Integer$(LogicalBits: 32, Signedness: Sign.Unsigned, Endianness: Endian.Big)`; see
+[generics](generics.md#sharing-a-name-with-a-non-generic-type). Profile files,
+representation-operation words, ABI correspondence, serialization, and complete
+compile-time-context selection remain focused future work.
 
 Exact operator forms, fixity, and precedence are in the
 [operator catalog](operator-catalog.md#endianness-reference). The shared operator

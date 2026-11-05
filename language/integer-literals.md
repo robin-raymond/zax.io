@@ -803,7 +803,9 @@ myNegative := -h'FF'
 After one type is selected, ordinary realization and range rules apply. A range
 failure does not retry another type, and the concrete result never reopens.
 Complete prefix, payload, generic-result, and raw-pattern behavior is defined by
-[Zax literal source and literal operators](literal-source-and-operators.md).
+[Zax literal source and literal operators](literal-source-and-operators.md#every-invocation-has-one-concrete-result).
+Because the payload is a compile-time input, the literal is processed once per
+distinct payload, like any [generic](generics.md#when-code-is-processed-once-per-input).
 
 ## Real-number source and decimal exponents
 
@@ -1020,8 +1022,8 @@ U8 represents 0..255; U8 was selected by the declaration of myByte
 ```
 
 When candidate preference selected `Integer` or `UInteger`, diagnostics should
-say so and must not imply that a wider overload would be tried after range
-failure.
+name that selection and must not imply that a wider overload would be tried
+after range failure.
 
 Diagnostics distinguish malformed future prefix payloads, candidate ambiguity,
 intent conflict, missing receivers, width requirements, range failure,
@@ -1065,13 +1067,10 @@ failure, and cost model.
 Still future:
 
 - compiler magnitude and resource limits;
-- exact generic syntax and compile-time processing for an `uncommitted` literal
-  result specialization;
 - general required, inferred, and optional compile-time execution;
 - custom integer-family declarations;
 - exact final declaration grammar for `contextual`/`explicit` completion modes;
 - future callable categories that may opt into contextual completion;
-- generic and computed destination-type syntax;
 - reflection of literal spelling or realization provenance; and
 - any future numeric suffix beyond the rejected literal-only `55 : U8` form.
 

@@ -20,8 +20,8 @@ reading path.
 
 | Field | Value |
 | --- | --- |
-| Active work item | None; `036` has not been prepared |
-| Next work number | `036` |
+| Active work item | None; `037` (variadic arguments) awaits an aligned initiating input |
+| Next work number | `037` |
 
 Agents receive either the handoff block or the rehydration block in chat. They
 must not proactively read either source file during normal work. Read them only

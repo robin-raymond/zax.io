@@ -372,9 +372,12 @@ than being an operator-only concept. A concrete type argument is not a runtime
 value and does not become one merely because a value receiver supplied
 discovery.
 
-Declaration ownership, type-qualified `unbound`/`once` operators, and complete
-generic behavior are defined by
+Declaration ownership and type-qualified `unbound`/`once` operators are defined
+by
 [declarations and bindings](declarations-and-bindings.md#operator-phrase-declarations-and-type-parameters).
+A type parameter slot is one of the
+[two forms of generic](generics.md#two-forms-of-generic); generic behavior is
+defined by [generics](generics.md).
 
 ### Literal result specialization
 
@@ -386,9 +389,11 @@ myByte : U8 = h'FF' // selected result U8
 ```
 
 The literal declaration supplies one generic result slot, not several
-result-only overloads. Compile-time/generic processing uses its payload,
-candidate hole, sign intent, and suggestion to select one concrete result
-prototype. The body is processed and invoked under that prototype.
+result-only overloads. The payload is a
+[compile-time input](generics.md#when-code-is-processed-once-per-input).
+Compile-time processing uses the payload, candidate hole, sign intent, and
+suggestion to select one concrete result prototype. The body is processed and
+invoked under that prototype.
 
 Ordinary invocation then sees exactly the same contract as a declaration that
 had stated the concrete type directly. An `uncommitted` generic placeholder:
@@ -399,8 +404,7 @@ had stated the concrete type directly. An `uncommitted` generic placeholder:
 - does not reopen after invocation; and
 - does not retry another result type after selected range failure.
 
-Exact generic specialization syntax and compile-time type-selection mechanics
-remain future work. Complete programmer-facing literal behavior is defined by
+Complete programmer-facing literal behavior is defined by
 [Zax literal source and literal operators](literal-source-and-operators.md#every-invocation-has-one-concrete-result).
 
 ### Declaration-side replacement permission
@@ -2352,6 +2356,21 @@ An inferred declaration supplies no expected result:
 inferred := parseValue(source)
 ```
 
+If `parseValue` were instead one generic, `parseValue$`, the same boundary
+would fill its compile-time parameter, which the arguments do not:
+
+```zax
+parseValue$ final : (ResultType : type = Integer)(result : ResultType)(
+  text : String readonly &
+) = {
+}
+
+count : U16 = parseValue(input)   // ResultType is U16
+other := parseValue(input)        // no declared type: ResultType defaults to Integer
+```
+
+See [supplying compile-time arguments](generics.md#supplying-compile-time-arguments).
+
 A typed declaration can choose the final type of arithmetic performed only on
 number literals:
 
@@ -2520,6 +2539,11 @@ The callee form determines the initial set:
 - operators use the protected and receiver-owned domains defined by
   [Zax operators](operators.md#discovery).
 
+A non-generic `name` and a generic `name$` form one set of candidates. A call
+without `$` considers both; a call with `$(...)` considers only generic
+candidates. See
+[generic and non-generic candidates](generics.md#generic-and-non-generic-candidates).
+
 ### Viability
 
 A candidate is viable only when:
@@ -2530,7 +2554,11 @@ A candidate is viable only when:
   and transfer behavior;
 - explicit source-result labels exist;
 - an applicable expected-result shape is compatible;
+- every [constraint](generics.md#constraints) on a generic candidate is `true`;
 - and every required result receives a valid disposition.
+
+A `false` constraint makes a candidate not viable, exactly as a type mismatch
+does. An error inside a generic body never makes a candidate not viable.
 
 Private declarations outside the caller's permitted context are ineligible
 before preference. Availability of an eligible visible candidate is checked
@@ -2598,8 +2626,13 @@ Receiver stance is another slot:
 - exact receiver stance beats fallback when other comparisons permit dominance;
 - receiver matching does not use the source stance fallback ladder.
 
-The remaining complete type, qualification, indirection, generic-specialization,
-and generated-candidate preference table is future callable-selection work. Its
+Generic candidates fit this structure. Only between otherwise equally good
+matches does a non-generic candidate beat a generic one, and one generic
+declaration beats another only when its constraint terms are a strict superset;
+see [specializations](generics.md#specializations).
+
+The remaining complete type, qualification, indirection, and
+generated-candidate preference table is future callable-selection work. Its
 eventual rules must fit this partial-order structure.
 
 ### Demand-time ambiguity
@@ -2623,8 +2656,9 @@ comparison. It cannot become the unavailable best candidate or block a visible
 public declaration.
 
 A resolved function value or exact typed function alias may select one complete
-prototype before invocation. Complete exact-prototype syntax and comparison with
-future generic specializations remain later callable-selection work.
+prototype before invocation. A fully typed function value selects one generic
+instantiation the same way; see [naming a generic](generics.md#naming-a-generic).
+Complete exact-prototype syntax remains later callable-selection work.
 
 ### Terminal opportunity requires intent
 
@@ -2741,10 +2775,10 @@ A compatible visible prototype reuses that minted implementation. It does not
 reprocess the body, select different internal overloads, change internal
 scheduled assignment into open-ended assignment, or remint the callable.
 
-This differs from future generic specialization. A generic body may be
-reprocessed for each demanded concrete type, qualification, or other generic
-argument. Each resulting concrete specialization is then its own minted
-implementation.
+A generic differs. Its body is processed once for each distinct set of
+compile-time inputs, including each qualification of a worked-out type, and each
+resulting instantiation is its own minted implementation; see
+[generics](generics.md#when-code-is-processed-once-per-input).
 
 An exact prototype can select one member of an overload group:
 
@@ -3399,7 +3433,6 @@ The following remain explicit future work:
   `move`, reference, pointer, and `last`;
 - complete closure layout, raw function-pointer ABI, and mutually recursive
   callable-family forwarding;
-- generics, concepts, specialization, and generic result deduction;
 - variadics, partial application, composition, chaining, and split/combine
   transforms;
 - complete ownership, moved-from state, returned aliases, and destruction order;

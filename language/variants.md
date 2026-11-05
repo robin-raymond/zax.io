@@ -609,7 +609,8 @@ An optional, pointer, nested variant, or comparable payload keeps its own
 semantic boundary. Variant selection never flattens nested absence, vacancy, or
 selection state.
 
-Complete generic variant formation remains future generic work. Every
+A variant may take a `$` list, as described by
+[generics](generics.md#generic-types-and-other-generic-declarations). Every
 instantiation must close to one concrete alternative set before maximum storage,
 lifecycle families, and coverage are checked.
 

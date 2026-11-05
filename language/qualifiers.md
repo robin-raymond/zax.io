@@ -852,8 +852,9 @@ Function results are governed by the resolved prototype:
 - a completed result carries its declared transfer stance; and
 - the caller's destination introduces an independently resolved place.
 
-An inferred or generic result ultimately resolves to such a prototype. Complete
-generic result resolution remains later function design.
+An inferred or generic result ultimately resolves to such a prototype. A
+worked-out generic type keeps the argument's qualifiers; see
+[supplying compile-time arguments](generics.md#supplying-compile-time-arguments).
 
 Captures preserve or strengthen the captured source qualifications and never
 inherit pliability implicitly. A reference capture behaves like an alias and

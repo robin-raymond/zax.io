@@ -558,9 +558,12 @@ through a preferred member. `preferred` never:
 - rescans source; or
 - beats a direct operand match.
 
-Generic deduction and structural matching do not currently acquire targets from
-preferred routes. Their future integration must begin with an independently
-established expected type or shape.
+A generic parameter is worked out from the argument's own type, never through a
+preferred member; see
+[working out from arguments](generics.md#working-out-from-arguments).
+Structural matching likewise does not acquire targets from preferred routes;
+any future integration must begin with an independently established expected
+type or shape.
 
 ## Exposing behavior
 

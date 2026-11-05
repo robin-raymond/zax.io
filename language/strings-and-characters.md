@@ -7,7 +7,7 @@
 | Applies To | Programmer-facing string and character identities and their literal-time behavior; not a complete runtime string library or formal specification |
 | Implementation State | Not established by this repository |
 | Owns | Explicit string code-unit backing; `Byte`, `U8`, `AsciiChar`, `Ucs2`, and `Rune` distinctions as used by text; `String`, ASCII, UCS-2, UTF-8/16/32, MBCS, and legacy native string identities; direct, escaped, raw-unit, RFC, XML, and code-page literal catalogs; Unicode scalar/grapheme boundaries; policy-selected legacy termination; left-owned compile-time joining; literal-time validation, costs, diagnostics, and source stability |
-| Does Not Own | General literal source/declarations ([literal source and operators](literal-source-and-operators.md)); intrinsic array and slice behavior ([arrays and slices](arrays-and-slices.md)); runtime string storage representation, allocation, mutation, slicing, conversion, normalization, grapheme/presentation APIs, locale, formatting, foreign ABI, exact code-page tables, contiguous ordinary-string access, or exact generic MBCS/termination-policy syntax |
+| Does Not Own | General literal source/declarations ([literal source and operators](literal-source-and-operators.md)); intrinsic array and slice behavior ([arrays and slices](arrays-and-slices.md)); runtime string storage representation, allocation, mutation, slicing, conversion, normalization, grapheme/presentation APIs, locale, formatting, foreign ABI, exact code-page tables, contiguous ordinary-string access, or generic declarations ([generics](generics.md)) |
 | Source / Provenance | Legacy string material in [basics](../basics.md) and the retired root casting page, refined against current integer, identity, literal, source, operator, and scalar design |
 
 ## Choose bytes, characters, or validated text
@@ -52,14 +52,15 @@ may later be flat, segmented, rope-like, inline, or another representation:
 | `Utf16String` | `U16` | Well-formed UTF-16 code units |
 | `Utf32String` | `U32` | Unicode scalar code units |
 | `Rune` | One scalar | Strict identity over `U32` |
-| `MbcsString<Encoding>` | `U8` | Valid sequence under the selected encoding |
+| `MbcsString$(Encoding)` | `U8` | Valid sequence under the selected encoding |
 | `Legacy.CharString` | `Legacy.Char` | Length-tracked native narrow code units |
 | Optional `Legacy.WideString` | `Legacy.WChar` | Length-tracked native wide code units |
-| `Legacy.TerminatedCharString<Policy>` | `Legacy.Char` | Concrete policy-selected terminated narrow representation |
-| `Legacy.TerminatedWideString<Policy>` | `Legacy.WChar` | Concrete policy-selected terminated wide representation |
+| `Legacy.TerminatedCharString$(Policy)` | `Legacy.Char` | Concrete policy-selected terminated narrow representation |
+| `Legacy.TerminatedWideString$(Policy)` | `Legacy.WChar` | Concrete policy-selected terminated wide representation |
 
-`MbcsString<Encoding>` expresses the relationship; exact generic syntax remains
-future work.
+`MbcsString$(Encoding)` and the terminated legacy strings are
+[generic types](generics.md#generic-types-and-other-generic-declarations): each
+encoding or policy argument names a distinct concrete string type.
 
 Concrete `U16`/`U32` code-unit endianness is part of string type identity.
 Unqualified forms follow the active environment. Exact target, compiler-host,
@@ -377,8 +378,8 @@ Legacy.WChar
 Legacy.Latin1Char
 Legacy.CharString
 Legacy.WideString
-Legacy.TerminatedCharString<TerminatorPolicy>
-Legacy.TerminatedWideString<TerminatorPolicy>
+Legacy.TerminatedCharString$(TerminatorPolicy)
+Legacy.TerminatedWideString$(TerminatorPolicy)
 ```
 
 `Legacy.Char` is always defined. The active profile chooses its native narrow
@@ -425,20 +426,18 @@ specialization of MBCS:
 
 ```text
 Legacy.Latin1Char
-  = MbcsChar<Legacy.CodePages.iso88591>
+  = MbcsChar$(Legacy.CodePages.iso88591)
 
-MbcsString<Legacy.CodePages.iso88591>
+MbcsString$(Legacy.CodePages.iso88591)
   = length-tracked ISO-8859-1 U8 sequence
 ```
-
-The notation is conceptual until exact generic syntax is established.
 
 ### MBCS strings
 
 MBCS is the general code-page encoded-byte family. An SBCS encoding is a
 specialization whose maximum encoded-character sequence length is one.
 
-`MbcsString<Encoding>`:
+`MbcsString$(Encoding)`:
 
 - stores `U8` units;
 - validates the selected encoding;
@@ -456,8 +455,8 @@ terminator or contiguous storage.
 A terminated representation has a distinct concrete type:
 
 ```text
-Legacy.TerminatedCharString<TerminatorPolicy>
-Legacy.TerminatedWideString<TerminatorPolicy>
+Legacy.TerminatedCharString$(TerminatorPolicy)
+Legacy.TerminatedWideString$(TerminatorPolicy)
 ```
 
 The policy statically owns:
@@ -472,7 +471,10 @@ The policy statically owns:
 - any additional platform/API meaning.
 
 The policy is part of concrete type identity; termination is never selected
-dynamically from one `CharString`.
+dynamically from one `CharString`. `TerminatorPolicy` is a type argument, not a
+runtime value: the string finds the policy's behavior through operations owned
+by that type, as described in
+[generics](generics.md#how-names-inside-a-generic-body-are-found).
 
 The common NUL policies may have convenient aliases:
 
@@ -511,8 +513,8 @@ mapping may transcode ASCII, UCS-2, Rune, or UTF text and reject unrepresentable
 scalars. `String` must first validate as UTF-8. A truly opaque native character
 set may expose only raw-code-unit construction.
 
-Construction of a `TerminatedCharString<Policy>` or
-`TerminatedWideString<Policy>` additionally applies that policy's terminator,
+Construction of a `TerminatedCharString$(Policy)` or
+`TerminatedWideString$(Policy)` additionally applies that policy's terminator,
 in-band-value, contiguity, and admission rules.
 
 ### Named code pages
@@ -547,8 +549,8 @@ The separately named encodings are not assumed aliases. CP932 is not identical
 to base Shift_JIS; CP949/UHC extends ordinary EUC-KR; CP936/GBK and CP950/Big5
 require exact mapping comparison before any alias is declared.
 
-The concrete string is an `MbcsString` specialization with `U8` backing. Exact
-generic source syntax remains future string/generic design.
+The concrete string is an `MbcsString$(...)` instantiation with `U8` backing,
+such as `MbcsString$(Legacy.CodePages.cp1252)`.
 
 ## Compile-time joining
 
@@ -640,7 +642,7 @@ A code-page-specific MBCS string retains that exact identity:
 selected native profile. Baseline native strings and MBCS permit embedded NUL
 and maintain no sentinel.
 
-A `TerminatedCharString<Policy>` or `TerminatedWideString<Policy>` keeps its
+A `TerminatedCharString$(Policy)` or `TerminatedWideString$(Policy)` keeps its
 concrete policy identity. Every join applies that policy's in-band terminator,
 encoding, contiguity, suffix, and failure rules before returning the same
 terminated type.
@@ -693,8 +695,8 @@ endianness. Mutation may violate encoding invariants; lifetime and invalidation
 remain caller responsibility. A safe readonly contiguous view is useful future
 pressure but is not promised here.
 
-Concrete `TerminatedCharString<Policy>` and
-`TerminatedWideString<Policy>` specializations are exceptions when their policy
+Concrete `TerminatedCharString$(Policy)` and
+`TerminatedWideString$(Policy)` specializations are exceptions when their policy
 requires contiguous storage. NUL-terminated policies provide the applicable
 `.c_str()` contract.
 
@@ -738,7 +740,7 @@ Unicode conformance specification, code-page database, ABI, generic declaration,
 or implementation mapping.
 
 Still future are runtime construction/admission/conversion, mutation and
-allocation APIs, normalization, grapheme and presentation services, exact
-generic MBCS syntax, code-page versions, ordinary-string contiguity/coalescing
-and raw access, generic terminator-policy syntax, RFC canonical-padding policy,
+allocation APIs, normalization, grapheme and presentation services, code-page
+versions, ordinary-string contiguity/coalescing and raw access, the operations a
+terminator policy must provide, RFC canonical-padding policy,
 locale, formatting, serialization, and foreign calling conventions.

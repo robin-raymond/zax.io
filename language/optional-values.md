@@ -917,7 +917,7 @@ stablePresence : MyValue mutable writable? immutable readonly
 
 The wrapper's presence is stable through this path, while a proven boxed access
 has the declared mutable/writable qualifications. Stabilizing both layers
-requires both to say so:
+requires qualifying each layer as `immutable`:
 
 ```zax
 stable : MyValue immutable? immutable

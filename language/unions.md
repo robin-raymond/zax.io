@@ -438,6 +438,10 @@ An exact alias preserves the specialized category:
 MyBitsAlias :: alias union MyRegister
 ```
 
+A named union may take a `$` list, making one union per argument set. Each
+instantiation's lenses must still be union-admissible; see
+[generics](generics.md#generic-types-and-other-generic-declarations).
+
 ## Type body organization
 
 A union body begins with its lens prologue:

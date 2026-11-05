@@ -7,7 +7,7 @@
 | Applies To | Ordinary IEEE-style, OFP8, profile-selected, and named legacy binary floating-point scalar formats; not a formal grammar or specification |
 | Implementation State | Not established by this repository |
 | Owns | Binary floating-point mental model; exact and profile-selected formats; sign, exponent, fraction, significand, special values, initialization, literals, type-owned special/mathematical/limit constants, arithmetic, comparison, conversion, representation adoption, validity and canonicalization, environment support, legacy formats, costs, diagnostics, and portability |
-| Does Not Own | Fixed-point values ([fixed-point scalars](fixed-point-scalars.md)); cross-family endian semantics ([endianness](endianness.md)); aggregate compatibility and coercive conversion syntax ([structural shapes and compatibility](structural-shapes-and-compatibility.md)); exact generic/factory syntax; complete operator forms; CPU-provider file format; or real-literal source and raw-pattern grammar ([literal source and operators](literal-source-and-operators.md)) |
+| Does Not Own | Fixed-point values ([fixed-point scalars](fixed-point-scalars.md)); cross-family endian semantics ([endianness](endianness.md)); aggregate compatibility and coercive conversion syntax ([structural shapes and compatibility](structural-shapes-and-compatibility.md)); generic declarations ([generics](generics.md)) and the numeric factory interface; complete operator forms; CPU-provider file format; or real-literal source and raw-pattern grammar ([literal source and operators](literal-source-and-operators.md)) |
 | Source / Provenance | Legacy floating input in [basics](../basics.md), refined against current integer, endian, structural, literal, and operator design |
 
 ## Choose intent or choose an exact format
@@ -350,13 +350,18 @@ CompilerHost.Float
 ```
 
 Shared code may be specialized for compiler-host and target execution. Use an
-exact format when the identity must agree across that boundary.
+exact format when the identity must agree across that boundary. A generic
+instantiation over an environment-relative type, such as `MyTable$(Float)`, has
+one identity in both builds and is laid out by each build's own `Float`; see
+[generics](generics.md#processing-and-compile-points).
 
 ### Width-selected families
 
-`FastF<N>` selects the provider-preferred supported format having at least `N`
-logical storage bits. `LeastF<N>` selects the smallest native format satisfying
-that storage-width requirement.
+`FastF$(N)` selects the provider-preferred supported format having at least `N`
+logical storage bits. `LeastF$(N)` selects the smallest native format satisfying
+that storage-width requirement. Both are generic identity families whose
+instantiations the provider profile selects; see
+[generics](generics.md#generic-types-and-other-generic-declarations).
 
 These are width and provider-preference contracts, not claims that all floating
 formats form one precision/range order. Two formats of equal width can trade
@@ -386,9 +391,9 @@ Scalars.Floating.LanguageLimits.maximumWidth
 ```
 
 `LanguageLimits` is conceptually a type-owned descriptor available during type
-formation with no required per-instance runtime storage. Future generic work
-selects the numeric maximum and may expose separate exponent, fraction, storage,
-or alignment limits. Changing a limit is a language-version compatibility
+formation with no required per-instance runtime storage. The numeric maximum is
+a future language-version decision, and later versions may expose separate
+exponent, fraction, storage, or alignment limits. Changing a limit is a language-version compatibility
 event.
 
 Exact declaration and `once` syntax remain future work; `once` by itself does
@@ -819,7 +824,7 @@ provider version, and operation cost.
   providers.
 - Unqualified names select active-environment endianness; absolute-endian paths
   fix stored byte order.
-- `Float`, `FastF<N>`, `LeastF<N>`, and maximum roles follow versioned profile
+- `Float`, `FastF$(N)`, `LeastF$(N)`, and maximum roles follow versioned profile
   contracts and remain distinct identities.
 - Runtime-optional hardware changes implementation, not type identity.
 - X87 operation behavior is intentionally provider-relative; portable source
@@ -830,7 +835,8 @@ provider version, and operation cost.
 
 This document is current conceptual design, not formal grammar, an IEEE
 conformance claim, a CPU-provider schema, an ABI/wire contract, or an
-implementation mapping. Exact generic declarations, reflection APIs, most
+implementation mapping. The numeric factory interface, intrinsic parameter
+validation, reflection APIs, most
 representation-operation words, provider files, and exhaustive protected
 operator forms remain future work and must preserve the programmer-visible
 behavior established here.

@@ -170,7 +170,7 @@ requirements are defined by
 ## Default array storage
 
 An array declaration with no explicit provider resolves a storage
-representation profile before its owning layout and `size of` are fixed. When
+representation profile before its owning layout and size are fixed. When
 that profile is provider-backed, construction may ask the current context for a
 compatible provider instance:
 

@@ -333,8 +333,12 @@ arena. It is distinct from the allocation record available to raw and blockless
 
 The **compiler host** is the environment running the compiler and applicable
 build-time code. It is distinct from the generated target even when both happen
-to use the same CPU model or representation. See
-[Zax integers](integers.md#native-representation-and-software-emulation).
+to use the same CPU model or representation. GNU-style toolchains call this
+machine the *build* machine and use *host* for where the program runs; Zax's
+`host`, as in `host size of` and `CompilerHost.`, always means the machine
+running the compiler. See
+[Zax integers](integers.md#native-representation-and-software-emulation) and
+[which definitions apply while compiling](compile-time-code.md#which-definitions-apply-while-compiling).
 
 ## Compile point
 
@@ -354,9 +358,18 @@ See [Zax compile-time code](compile-time-code.md#when-compile-points-run).
 A **compile-time value** is a value known while compiling: a literal, an
 expression built only from compile-time values, a compile point's result, the
 result of a `compile` or constant-argument `folding` call, a compile-time query
-such as `size of`, or a `final` binding initialized from one. `is
-constant` answers by this rule, never by what the optimizer did. See
+such as `target size of`, a `$` value parameter or `[<constant>]` input, or a `final`
+binding initialized from one. `is constant` answers by this rule, never by what
+the optimizer did. See
 [Zax compile-time code](compile-time-code.md#compile-time-values).
+
+## Compile-time input
+
+A **compile-time input** is an input whose argument must be known while
+compiling: a type argument, a `$` parameter, or a `[<constant>]` input. A
+function with compile-time inputs is processed once for each distinct
+combination of compile-time arguments it receives.
+See [Zax generics](generics.md#two-forms-of-generic).
 
 ## Circumfix operator
 
@@ -370,6 +383,14 @@ opening component, closing component, and enclosed operand:
 The opening and closing symbols are not independent pre/post unary operations.
 Recognized forms and built-in availability are defined by the
 [operator catalog](operator-catalog.md#circumfix-forms).
+
+## Constraint
+
+A **constraint** states which compile-time arguments a generic accepts. It is
+either a short-form `Boolean` function written in place of `type` or a
+`requires` clause. A `false` constraint makes a candidate not viable; it never
+describes what a generic body may use. See
+[Zax generics](generics.md#constraints).
 
 ## Construction packet
 
@@ -594,6 +615,20 @@ exact-alias completion. It fixes root lookup while leaving category-dependent
 facts pending. See
 [Zax declarations and bindings](declarations-and-bindings.md#forward-anchors).
 
+## Generic
+
+A **generic** is a function, operator, or type written once that the compiler
+processes again for each distinct set of compile-time inputs. It takes a type
+as an ordinary argument or declares a `$` list:
+
+```zax
+identity$ final : (UseType : type)(result : UseType)(value : UseType) = {
+  return value
+}
+```
+
+Nothing generic exists at runtime. See [Zax generics](generics.md).
+
 ## Hook point
 
 A **hook point** is a type member whose contract of `abstract` roles may be
@@ -640,6 +675,14 @@ instance before that module's own source resolves. Injected declarations use
 target-module ownership and collision rules while retaining lexical access to
 the injection site. See
 [Zax namespaces and modules](namespaces-and-modules.md#inject-declarations-before-module-source).
+
+## Instantiation
+
+An **instantiation** is the concrete function or type a generic produces for
+one set of completed compile-time arguments, such as `MyPair$(Integer, String)`.
+The same generic with the same completed arguments is the same instantiation
+wherever it is written. See
+[Zax generics](generics.md#when-two-instantiations-are-the-same).
 
 ## Integer realization
 
@@ -705,7 +748,9 @@ An **uncommitted generic result** is a scalar literal declaration slot whose one
 concrete result type is selected from payload, candidate-hole, sign-intent, and
 suggestion facts before the literal body is processed and invoked.
 
-It is generic specialization state, not an anonymous type or runtime value. See
+It is generic specialization state, not an anonymous type or runtime value.
+Unlike an ordinary [generic](generics.md) result, it may take its type from any
+candidate hole. See
 [every invocation has one concrete result](literal-source-and-operators.md#every-invocation-has-one-concrete-result).
 
 ## Lifecycle operation
@@ -733,9 +778,9 @@ against its own implementation prototype and its internal operations have been
 selected. A compatible visible prototype may adapt call-boundary setup and
 outward presentation but does not reprocess or remint that body.
 
-Future generic specialization is different: a generic body may be reprocessed
-for each demanded concrete argument set, and each result becomes a separate
-minted implementation.
+A generic is different: its body is processed once per distinct set of
+compile-time inputs, and each instantiation becomes a separate minted
+implementation.
 
 See
 [Zax function invocation](function-invocation.md#minted-implementation-model).
@@ -968,7 +1013,7 @@ boundary, or select an implementation. See
 ## Protected form
 
 A **protected form** is an exact operator form that user code cannot declare for
-any receiver, such as `as move`, `size of`, `unsafe cast`, or `outer cast`.
+any receiver, such as `as move`, `target size of`, `unsafe cast`, or `outer cast`.
 Protecting a form holds it for the language even when some of its domain
 behavior remains future work.
 
@@ -1302,6 +1347,17 @@ reference never retargets to another place.
 See
 [Zax lifetimes and references](lifetimes-and-references.md#references-never-rebind).
 
+## `requires` clause
+
+A **`requires` clause** is a compile-time `Boolean` expression over a generic's
+compile-time inputs that decides whether a declaration accepts them:
+
+```zax
+MyRing$(capacity : Integer) requires capacity > 0 :: type { }
+```
+
+See [Zax generics](generics.md#requires-clauses).
+
 ## Resident instance
 
 The **resident instance** is the completely constructed instance currently
@@ -1371,6 +1427,14 @@ block reserved for entry into local or atomic strong/weak ownership.
 
 It is written `T * unique shareable`. See
 [Zax pointers and arenas](pointers-and-arenas.md#shareable-unique-ownership).
+
+## Specialization
+
+A **specialization** is one of several declarations of a generic under one
+name, distinguished by constraints. The declaration whose constraint terms are a
+strict superset of another's wins. Intrinsic families also use the word for one
+concrete member, such as a 57-bit integer specialization. See
+[Zax generics](generics.md#specializations).
 
 ## Strong and weak pointers
 
@@ -1497,7 +1561,8 @@ DestinationType : type
 ```
 
 It occupies its ordered slot for viability, preference, and diagnostics like any
-other parameter. See
+other parameter, and is one of the
+[two forms of generic](generics.md#two-forms-of-generic). See
 [Zax declarations and bindings](declarations-and-bindings.md#type-parameter-slots-and-type-arguments).
 
 ## Type-qualified operator
@@ -1571,6 +1636,14 @@ myComplement := ~1 // error: signed and unsigned results differ
 This test decides whether the operation may run before a concrete integer width
 is selected. See
 [Zax integer literals and realization](integer-literals.md#which-calculations-need-an-integer-width).
+
+## Worked-out parameter
+
+A **worked-out parameter** is a `$` parameter the compiler fills from the
+arguments, or from the declared type at a fully typed declaration, instead of
+from `$(...)`. A worked-out type is exactly the argument's type, including its
+qualifiers. See
+[Zax generics](generics.md#supplying-compile-time-arguments).
 
 ## Variant wrapper and active alternative
 

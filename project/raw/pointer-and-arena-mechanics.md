@@ -126,7 +126,7 @@ surviving direction:
 arena := allocator of myValue           // requires proof of a known allocation
 arena := unsafe allocator of myValue    // programmer asserts a known allocation
 block := overhead as myShared           // protected access to a control-block description
-bytes := overhead size of MyValue * strong
+bytes := target overhead size of MyValue * strong
 ```
 
 - `allocator of` returns the arena by reference, because both forms are
@@ -135,10 +135,11 @@ bytes := overhead size of MyValue * strong
   type. A blockless `unique` qualifies only if it retains its arena.
 - `overhead as` would be protected and return a pointer to a yet-undefined
   control-block description type.
-- `overhead size of` is design pressure only. The size varies by pointer role and
-  by compiler host versus target (see
-  [compile-time environments](../../language/compile-time-code.md#which-definitions-apply-while-compiling)). Custom control blocks
-  are considered unlikely and are not its motivation.
+- An overhead size query is design pressure only. The size varies by pointer
+  role and by compiler host versus target, so like every layout query it must
+  name its environment, `active`, `target`, or `host` (see
+  [layout queries name their environment](../../language/compile-time-code.md#layout-queries-name-their-environment)).
+  Custom control blocks are considered unlikely and are not its motivation.
 - A `weak count probe` beside the current `strong count probe` may be added if
   weak-count observation is needed.
 

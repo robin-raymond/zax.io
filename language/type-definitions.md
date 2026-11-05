@@ -499,7 +499,7 @@ the selected member [`outward`](declarations-and-bindings.md#outward-declaration
 
 ```zax
 MyBlock :: type {
-  if compile size of Target.Integer > 4 {
+  if compile target size of Integer > 4 {
     [<align=16>]
     data outward : MyPayload
   } else {
@@ -538,7 +538,7 @@ so those facts wait until every storage addition is known. For a type that
 opens storage, that happens when its own module is finalized; importers see
 the final layout as soon as the import completes. A type with
 `seal open storage module` waits until the whole application is assembled.
-Until then, `size of` and the other completion facts listed under
+Until then, size queries and the other completion facts listed under
 [self-reference, recursion, and completion](#self-reference-recursion-and-completion)
 remain pending.
 
@@ -548,8 +548,9 @@ to [Zax partials](partials.md).
 
 Likewise, a generic instantiation must become one complete concrete type before
 size, recursive layout, generated lifecycle operations, union admissibility, or
-variant storage and coverage are decided. Exact generic syntax remains future
-work.
+variant storage and coverage are decided. Declaring and using generic types is
+defined by
+[generics](generics.md#generic-types-and-other-generic-declarations).
 
 ## Costs and diagnostics
 
